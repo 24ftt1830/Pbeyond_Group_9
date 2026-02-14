@@ -1,8 +1,11 @@
+export type UserRole = 'admin' | 'company' | 'user';
+
 export interface User {
     id: number;
     name: string;
     email: string;
     email_verified_at?: string;
+    role: UserRole;
 }
 
 export type PageProps<
@@ -11,4 +14,5 @@ export type PageProps<
     auth: {
         user: User;
     };
+    [key: string]: any;
 };
