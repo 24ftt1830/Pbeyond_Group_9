@@ -6,6 +6,7 @@ export interface User {
     email: string;
     email_verified_at?: string;
     role: UserRole;
+    avatar?: string;
 }
 
 export type PageProps<
@@ -14,5 +15,4 @@ export type PageProps<
     auth: {
         user: User;
     };
-    [key: string]: any;
 };
