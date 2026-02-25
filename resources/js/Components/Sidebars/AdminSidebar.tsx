@@ -1,4 +1,4 @@
-import { Sidebar, SidebarContent, SidebarHeader } from "@/Components/ui/sidebar"
+import { Sidebar, SidebarContent, SidebarHeader } from "@/components/ui/sidebar"
 
 export function AdminSidebar() {
     return (
