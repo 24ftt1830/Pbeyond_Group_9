@@ -1,0 +1,43 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Application extends Model
+{
+    protected $table = 'applications';
+    protected $primaryKey = 'application_id';
+    public $timestamps = false;
+
+    protected $fillable = [
+        'student_id', 'quota_id', 'apply_date',
+        'app_status', 'admin_remark', 'company_feedback'
+    ];
+
+    protected $casts = [
+        'apply_date' => 'datetime'
+    ];
+
+    public function student()
+    {
+        return $this->belongsTo(Student::class, 'student_id', 'student_id');
+    }
+
+    public function quota()
+    {
+        return $this->belongsTo(PlacementQuota::class, 'quota_id', 'quota_id');
+    }
+
+    // Scope for pending applications
+    public function scopePending($query)
+    {
+        return $query->where('app_status', 'Pending');
+    }
+
+    // Scope for approved applications
+    public function scopeApproved($query)
+    {
+        return $query->where('app_status', 'Approved');
+    }
+}
