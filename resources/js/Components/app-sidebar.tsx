@@ -19,7 +19,6 @@ import { PageProps, UserRole } from '@/types';
 // Components
 import { NavMain } from "@/Components/nav-main"
 import { NavProjects } from "@/Components/nav-projects"
-import { NavSecondary } from "@/Components/nav-secondary"
 import { NavUser } from "@/Components/nav-user"
 import {
     Sidebar,
@@ -29,7 +28,7 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
-} from "@/components/ui/sidebar"
+} from "@/Components/ui/sidebar"
 
 // Static data for secondary and project sections
 const data = {
@@ -99,7 +98,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <NavMain items={navMainItems} />
                 
                 <NavProjects projects={data.projects} />
-                <NavSecondary items={data.navSecondary} className="mt-auto" />
             </SidebarContent>
 
             <SidebarFooter>

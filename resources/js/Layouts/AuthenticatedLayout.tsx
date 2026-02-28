@@ -1,7 +1,7 @@
 import * as React from "react"
 import { usePage } from '@inertiajs/react'
 import { PageProps, UserRole } from '@/types'
-import { Button } from "@/components/ui/button"
+import { Button } from "@/Components/ui/button"
 
 // Sidebar Components
 import { AdminSidebar } from "@/Components/Sidebars/AdminSidebar"
@@ -13,8 +13,8 @@ import {
     SidebarInset,
     SidebarProvider,
     SidebarTrigger,
-} from "@/components/ui/sidebar"
-import { Separator } from "@/components/ui/separator"
+} from "@/Components/ui/sidebar"
+import { Separator } from "@/Components/ui/separator"
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -57,25 +57,6 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
 
             <SidebarInset>
                 <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-                    <div className="flex items-center gap-2">
-                        <SidebarTrigger className="-ml-1" />
-                        <Separator orientation="vertical" className="mr-2 h-4" />
-                        <Breadcrumb>
-                            <BreadcrumbList>
-                                <BreadcrumbItem className="hidden md:block">
-                                    <BreadcrumbLink href="#">
-                                        Platform
-                                    </BreadcrumbLink>
-                                </BreadcrumbItem>
-                                <BreadcrumbSeparator className="hidden md:block" />
-                                <BreadcrumbItem>
-                                    <BreadcrumbPage className="capitalize">
-                                        {activeRole} Dashboard
-                                    </BreadcrumbPage>
-                                </BreadcrumbItem>
-                            </BreadcrumbList>
-                        </Breadcrumb>
-                    </div>
 
                 {/* PREVIEW TOOLBAR: to be removed once DB team is ready */}
                     <div className="flex items-center gap-2 bg-muted/50 p-1 rounded-md border">

@@ -81,4 +81,24 @@
   body {
     @apply bg-background text-foreground;
   }
+  .sidebar-scroll-custom {
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+    transition: scrollbar-color 0.3s ease;
+  }
+  .sidebar-scroll-custom::-webkit-scrollbar {
+    width: 5px;
+  }
+  .sidebar-scroll-custom::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 10px;
+    transition: background 0.3s ease;
+  }
+  .sidebar-scroll-custom:hover {
+    scrollbar-color: hsl(var(--muted-foreground) / 0.3) transparent;
+  }
+  .sidebar-scroll-custom:hover::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.3);
+  }
 }
