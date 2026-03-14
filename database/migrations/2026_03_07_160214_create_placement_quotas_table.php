@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB; // Add this at the top
 
 return new class extends Migration
 {
@@ -31,13 +32,16 @@ return new class extends Migration
             $table->index('company_id');
             $table->index('programme_id');
             $table->index(['quota_status', 'is_released']);
-
-            $table->check('total_slots > 0');
         });
+
+        // Add check constraint using raw SQL (supports MySQL 8.0.16+)
+        DB::statement('ALTER TABLE placement_quotas ADD CONSTRAINT check_total_slots_positive CHECK (total_slots > 0);');
     }
 
     public function down(): void
     {
+        // Drop the constraint first (optional, but good practice)
+        DB::statement('ALTER TABLE placement_quotas DROP CONSTRAINT IF EXISTS check_total_slots_positive;');
         Schema::dropIfExists('placement_quotas');
     }
 };
