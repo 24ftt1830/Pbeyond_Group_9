@@ -27,16 +27,19 @@ import {
 export default function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
     const { auth } = usePage<PageProps>().props
 
-    // TEMPORARY ROLE SET
+    // Helper to validate the role from DB
+    const isValidRole = (role: any): role is UserRole => {
+        return ['admin', 'company', 'user'].includes(role);
+    };
+
+    // TEMPORARY ROLE SET: Defaults to 'user' if DB role is null/invalid
     const [activeRole, setActiveRole] = React.useState<UserRole>(
-        (auth?.user?.role as UserRole) || 'user'
+        isValidRole(auth?.user?.role) ? auth.user.role : 'user'
     )
-    // Safeguard: If auth isn't loaded yet, show a basic loading state to prevent crash
+
     if (!auth?.user) {
         return <div className="flex h-screen items-center justify-center">Loading...</div>
     }
-
-    //const role = auth.user.role as UserRole
 
     const Sidebars: Record<UserRole, React.ComponentType> = {
         admin: AdminSidebar,
@@ -44,21 +47,15 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
         user: UserSidebar,
     }
 
+    // Always fallback to UserSidebar if the role somehow doesn't match
     const SelectedSidebar = Sidebars[activeRole] || UserSidebar
 
     return (
         <SidebarProvider>
-            {/* We check if the component exists. 
-                If SelectedSidebar is undefined, it renders null instead of breaking. 
-            
-            {SelectedSidebar ? <SelectedSidebar /> : <div className="w-64 bg-red-50 p-4">Sidebar missing for {role}</div>}
-            */}
             <SelectedSidebar />
 
             <SidebarInset>
                 <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-
-                {/* PREVIEW TOOLBAR: to be removed once DB team is ready */}
                     <div className="flex items-center gap-2 bg-muted/50 p-1 rounded-md border">
                         <span className="text-[10px] font-bold px-2 uppercase text-muted-foreground">Preview Role:</span>
                         {(['admin', 'company', 'user'] as UserRole[]).map((r) => (

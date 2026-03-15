@@ -16,7 +16,7 @@ import {
     Users,
     Building2,
     IdCardLanyard,
-    GalleryVerticalEnd,
+    UserPlus,
     ChartPie,
     Headset,
     CalendarDays,
@@ -43,6 +43,11 @@ const data = {
             title: "Placements",
             url: route('admin.placements'),
             icon: IdCardLanyard,
+        },
+        {
+            title: "Manage Users",
+            url: route('admin.manage-users'),
+            icon: UserPlus,
         },
     ],
     navSecondary: [
