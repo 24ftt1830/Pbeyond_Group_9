@@ -12,6 +12,7 @@ Route::get('/test-route', function () {
 
 Route::get('/debug-session', function () {
     session(['test_key' => 'it_works!']);
+
     return session('test_key');
 });
 
@@ -29,6 +30,15 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
+    // Dev access for me
+    Route::post('/dev/switch-role/{role}', function ($role) {
+        if (! in_array($role, ['Admin', 'Student', 'Company'])) {
+            return back()->withErrors('Invalid role');
+        }
+        auth()->user()->update(['role' => $role]);
+
+        return back()->with('success', 'Role updated!');
+    })->name('dev.switch-role');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

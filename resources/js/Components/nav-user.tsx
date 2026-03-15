@@ -49,7 +49,7 @@ export function NavUser({
                 <AvatarImage src={user.avatar} alt={user.name} />
                 <AvatarFallback 
                 className="rounded-lg">
-                  {user.name.substring(0, 2).toUpperCase()}
+                  {user?.name?.substring(0, 2).toUpperCase() ?? ''}
                 </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
