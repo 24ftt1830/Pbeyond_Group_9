@@ -14,7 +14,7 @@ import { Link } from '@inertiajs/react';
 import {
     LayoutDashboard,
     Users,
-    BriefcaseBusiness,
+    CircleDashed,
     FileUser,
     CircleUser,
     MessagesSquare,
@@ -33,7 +33,7 @@ const data = {
         {
             title: "Quotas",
             url: route('company.quotas'),
-            icon: BriefcaseBusiness,
+            icon: CircleDashed,
         },
         {
             title: "Applicants",

@@ -24,7 +24,7 @@ import {
 
 const tabs = [
   { name: 'Students', value: 'explore', content: <UserTable /> },
-  { name: 'Companies', value: 'favorites', content: <UserTable /> },
+  { name: 'Representatives', value: 'favorites', content: <UserTable /> },
 ]
 
 // Dummy list for the browse-able company assignment
