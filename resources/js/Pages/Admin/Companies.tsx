@@ -21,17 +21,17 @@ import { Label } from "@/components/ui/label";
 export default function ManageUsers({
     stats = { total_companies: 12, total_quota: 150, total_filled: 85, available_slots: 65 },
     companies = [
-        { id: 1, name: "Shell Livewire Brunei", total_quota: 50, filled: 45, available: 5, category: "Tech" },
-        { id: 2, name: "Maybank", total_quota: 30, filled: 10, available: 20, category: "Service" },
-        { id: 3, name: "Seria Energy Lab", total_quota: 20, filled: 20, available: 0, category: "Design" },
-        { id: 4, name: "Jabatan Kemajuan Perumahan", total_quota: 50, filled: 10, available: 40, category: "Tech" },
-        { id: 5, name: "MSU", total_quota: 50, filled: 10, available: 40, category: "Tech" },
-        { id: 6, name: "Jerudong Park Medical Centre", total_quota: 50, filled: 10, available: 40, category: "Tech" },
-        { id: 7, name: "EVYD Tech", total_quota: 50, filled: 10, available: 40, category: "Tech" },
-        { id: 8, name: "Dynamik Technologies", total_quota: 50, filled: 10, available: 40, category: "Tech" },
-        { id: 9, name: "Police Diraja Brunei", total_quota: 50, filled: 10, available: 40, category: "Tech" },
-        { id: 10, name: "Baiduri Bank", total_quota: 50, filled: 10, available: 40, category: "Tech" },
-        { id: 11, name: "Brunei Innovation Lab", total_quota: 50, filled: 10, available: 40, category: "Tech" },
+        { id: 1, name: "Shell Livewire Brunei", location: "Brunei Muara", total_quota: 50, filled: 45, available: 5, category: "Tech" },
+        { id: 2, name: "Maybank", location: "Brunei Muara", total_quota: 30, filled: 10, available: 20, category: "Service" },
+        { id: 3, name: "Seria Energy Lab", location: "Belait", total_quota: 20, filled: 20, available: 0, category: "Design" },
+        { id: 4, name: "Jabatan Kemajuan Perumahan", location: "Brunei Muara", total_quota: 50, filled: 10, available: 40, category: "Tech" },
+        { id: 5, name: "MSU", location: "Brunei Muara", total_quota: 50, filled: 10, available: 40, category: "Tech" },
+        { id: 6, name: "Jerudong Park Medical Centre", location: "Brunei Muara", total_quota: 50, filled: 10, available: 40, category: "Tech" },
+        { id: 7, name: "EVYD Tech", location: "Brunei Muara", total_quota: 50, filled: 10, available: 40, category: "Tech" },
+        { id: 8, name: "Dynamik Technologies", location: "Brunei Muara", total_quota: 50, filled: 10, available: 40, category: "Tech" },
+        { id: 9, name: "Police Diraja Brunei", location: "Brunei Muara", total_quota: 50, filled: 10, available: 40, category: "Tech" },
+        { id: 10, name: "Baiduri Bank", location: "Brunei Muara", total_quota: 50, filled: 10, available: 40, category: "Tech" },
+        { id: 11, name: "Brunei Innovation Lab", location: "Brunei Muara", total_quota: 50, filled: 10, available: 40, category: "Tech" },
     ]
 }) {
     const [searchTerm, setSearchTerm] = useState('');
@@ -39,15 +39,22 @@ export default function ManageUsers({
     const [filterStatus, setFilterStatus] = useState('all');
     const [isSearching, setIsSearching] = useState(false);
 
-    const filteredCompanies = useMemo(() => {
-        return companies.filter(company => {
-            const matchesSearch = company.name.toLowerCase().includes(searchTerm.toLowerCase());
-            const matchesCategory = filterCategory === 'all' || company.category === filterCategory;
-            const matchesStatus = filterStatus === 'all' ||
-                (filterStatus === 'full' ? company.available === 0 : company.available > 0);
+    const processedCompanies = useMemo(() => {
+        return companies
+            .map(company => ({
+                ...company,
+                status: company.available === 0 ? 'Full' : 'Available'
+            }))
+            .filter(company => {
+                const matchesSearch = company.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                                     company.location.toLowerCase().includes(searchTerm.toLowerCase());
+                const matchesCategory = filterCategory === 'all' || company.category === filterCategory;
+                
+                const matchesStatus = filterStatus === 'all' || 
+                                     (filterStatus.toLowerCase() === company.status.toLowerCase());
 
-            return matchesSearch && matchesCategory && matchesStatus;
-        });
+                return matchesSearch && matchesCategory && matchesStatus;
+            });
     }, [searchTerm, filterCategory, filterStatus, companies]);
 
     const resetFilters = () => {
@@ -132,6 +139,7 @@ export default function ManageUsers({
                 </Dialog>
             </div>
 
+            {/* Dashboard Cards Summary */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <DashboardCard title="Total Companies" value={stats.total_companies} icon={<Building2 size={18} />} />
                 <DashboardCard title="Total Quota" value={stats.total_quota} icon={<User size={18} />} />
@@ -143,13 +151,14 @@ export default function ManageUsers({
                 <h1 className="text-xl font-semibold text-slate-900">Company Overview</h1>
             </div>
 
+            {/* Filter Toolbar */}
             <div className="bg-white rounded-xl flex flex-wrap items-end gap-4">
                 <div className="flex-1 min-w-[240px] space-y-2">
                     <label className="text-xs font-semibold uppercase text-gray-500 ml-1">Search Company</label>
                     <div className="relative">
                         <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-gray-400" />
                         <Input
-                            placeholder="Type company name..."
+                            placeholder="Type company name or district..."
                             value={searchTerm}
                             onChange={handleSearchChange}
                             className="pl-9 pr-9"
@@ -189,7 +198,7 @@ export default function ManageUsers({
                 </Button>
             </div>
 
-            <CompanyDataTable data={filteredCompanies} />
+            <CompanyDataTable data={processedCompanies} />
         </div>
     );
 }

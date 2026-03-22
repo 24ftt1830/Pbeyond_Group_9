@@ -58,7 +58,7 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('company')->name('company.')->group(function () {
         Route::get('/dashboard', fn () => Inertia::render('Company/Dashboard'))->name('dashboard');
-        Route::get('/vacancies', fn () => Inertia::render('Company/Vacancies'))->name('vacancies');
+        Route::get('/quotas', fn () => Inertia::render('Company/Quotas'))->name('quotas');
         Route::get('/applicants', fn () => Inertia::render('Company/Applicants'))->name('applicants');
         Route::get('/interns', fn () => Inertia::render('Company/Interns'))->name('interns');
         Route::get('/representatives', fn () => Inertia::render('Company/Representatives'))->name('representatives');

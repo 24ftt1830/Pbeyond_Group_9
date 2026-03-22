@@ -31,8 +31,8 @@ const data = {
             icon: LayoutDashboard,
         },
         {
-            title: "Vacancies",
-            url: route('company.vacancies'),
+            title: "Quotas",
+            url: route('company.quotas'),
             icon: BriefcaseBusiness,
         },
         {

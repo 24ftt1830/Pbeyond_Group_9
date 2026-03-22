@@ -19,10 +19,12 @@ import {
 export interface CompanyData {
   id: number;
   name: string;
+  location: string; 
   total_quota: number;
   filled: number;
   available: number;
   category?: string;
+  status?: string; 
 }
 
 interface CompanyDataTableProps {
@@ -52,12 +54,16 @@ const CompanyDataTable = ({ data }: CompanyDataTableProps) => {
 
   return (
     <div className='w-full'>
-      <div className='overflow-hidden rounded-md border border-gray-200 bg-white'>
+      <div className='overflow-hidden rounded-md border border-gray-200 bg-white shadow-sm'>
         <Table>
           <TableHeader className="bg-gray-50/50">
             <TableRow>
               <TableHead className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500">
                 Company Name
+              </TableHead>
+              
+              <TableHead className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500">
+                Location
               </TableHead>
               <TableHead className="text-center px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500">
                 Quota
@@ -65,8 +71,12 @@ const CompanyDataTable = ({ data }: CompanyDataTableProps) => {
               <TableHead className="text-center px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500">
                 Filled
               </TableHead>
-              <TableHead className="text-right px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500">
+              <TableHead className="text-center px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500">
                 Available
+              </TableHead>
+              
+              <TableHead className="text-right px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500">
+                Status
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -77,26 +87,41 @@ const CompanyDataTable = ({ data }: CompanyDataTableProps) => {
                   <TableCell className="px-6 py-4 font-semibold text-gray-900">
                     {item.name}
                   </TableCell>
-                  <TableCell className="text-center px-6 py-4">
+                  
+                  <TableCell className="px-6 py-4 text-gray-600 text-sm">
+                    {item.location}
+                  </TableCell>
+                  <TableCell className="text-center px-6 py-4 text-gray-600">
                     {item.total_quota}
                   </TableCell>
                   <TableCell className="text-center px-6 py-4">
                     <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${
                       item.filled >= item.total_quota 
-                        ? 'bg-red-100 text-red-800' 
-                        : 'bg-blue-100 text-blue-800'
+                        ? 'bg-red-50 text-red-700 border border-red-100' 
+                        : 'bg-blue-50 text-blue-700 border border-blue-100'
                     }`}>
                       {item.filled}
                     </span>
                   </TableCell>
-                  <TableCell className="text-right px-6 py-4 font-mono font-medium text-emerald-600">
+                  <TableCell className="text-center px-6 py-4 font-mono font-medium text-slate-600">
                     {item.available}
+                  </TableCell>
+                  
+                  <TableCell className="text-right px-6 py-4">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-tight ${
+                      item.available === 0 
+                        ? 'bg-red-100 text-red-800' 
+                        : 'bg-emerald-100 text-emerald-800'
+                    }`}>
+                      {item.available === 0 ? 'Full' : 'Available'}
+                    </span>
                   </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={4} className="h-32 text-center text-muted-foreground">
+                
+                <TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
                   No matching companies found.
                 </TableCell>
               </TableRow>
