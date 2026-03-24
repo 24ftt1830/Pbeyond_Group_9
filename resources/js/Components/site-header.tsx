@@ -2,7 +2,7 @@
 
 import { SidebarIcon } from "lucide-react"
 
-import { SearchForm } from "@/components/search-form"
+import { SearchForm } from "@/Components/search-form"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -10,26 +10,26 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
-import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
-import { useSidebar } from "@/components/ui/sidebar"
+} from "@/Components/ui/breadcrumb"
+import { Button } from "@/Components/ui/button"
+import { Separator } from "@/Components/ui/separator"
+import { useSidebar } from "@/Components/ui/sidebar"
 
 export function SiteHeader() {
   const { toggleSidebar } = useSidebar()
 
   return (
-    <header className="flex sticky top-0 z-50 w-full items-center border-b bg-background">
+    <header className="sticky top-0 z-50 flex items-center w-full border-b bg-background">
       <div className="flex h-[--header-height] w-full items-center gap-2 px-4">
         <Button
-          className="h-8 w-8"
+          className="w-8 h-8"
           variant="ghost"
           size="icon"
           onClick={toggleSidebar}
         >
           <SidebarIcon />
         </Button>
-        <Separator orientation="vertical" className="mr-2 h-4" />
+        <Separator orientation="vertical" className="h-4 mr-2" />
         <Breadcrumb className="hidden sm:block">
           <BreadcrumbList>
             <BreadcrumbItem>

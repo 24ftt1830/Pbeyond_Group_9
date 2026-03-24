@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Schema;
 <<<<<<< HEAD
 use Illuminate\Support\Facades\DB; // Add this at the top
 =======
-use Illuminate\Support\Facades\DB; 
+use Illuminate\Support\Facades\DB;
 >>>>>>> 2d14bf3 (renamed 'password_hash' field to 'password' for laravel strict compatibility requirement and updated all relevant code references in controllers, migrations, seeders etc.)
 
 return new class extends Migration
@@ -37,7 +37,7 @@ return new class extends Migration
             $table->index('programme_id');
             $table->index(['quota_status', 'is_released']);
 
-            
+
             // Removed the $table->check() line due to compatibility issues with mysql
         });
 

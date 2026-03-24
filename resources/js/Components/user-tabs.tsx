@@ -13,7 +13,7 @@ import {
   DialogTrigger,
 } from "@/Components/ui/dialog"
 import { Input } from "@/Components/ui/input"
-import { Label } from "@/components/ui/label"
+import { Label } from "@/Components/ui/label"
 import {
   Select,
   SelectContent,
@@ -58,7 +58,7 @@ const UserTabs = () => {
                 Add Users
               </Button>
             </DialogTrigger>
-            
+
             <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
                 <DialogTitle>Add New User</DialogTitle>
@@ -66,7 +66,7 @@ const UserTabs = () => {
                   Enter the details below to register a new user to the system.
                 </DialogDescription>
               </DialogHeader>
-              
+
               <div className="grid gap-6 py-4">
                 <div className="grid gap-2">
                   <Label htmlFor="name">Full Name</Label>
@@ -93,8 +93,8 @@ const UserTabs = () => {
                 </div>
 
                 {selectedRole === "company_rep" && (
-                  <div className="grid gap-2 animate-in fade-in slide-in-from-top-2 duration-300">
-                    <Label htmlFor="company-assigned" className="flex items-center gap-2 text-blue-600 font-semibold">
+                  <div className="grid gap-2 duration-300 animate-in fade-in slide-in-from-top-2">
+                    <Label htmlFor="company-assigned" className="flex items-center gap-2 font-semibold text-blue-600">
                       <Building2 className="size-3.5" />
                       Company Assigned
                     </Label>
