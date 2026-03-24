@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             // Rename column 'password_hash' to 'password'
-            $table->renameColumn('password_hash', 'password');
+            $table->renameColumn('password', 'password');
         });
     }
 
@@ -23,7 +23,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->renameColumn('password', 'password_hash');
+            $table->renameColumn('password', 'password');
         });
     }
 };

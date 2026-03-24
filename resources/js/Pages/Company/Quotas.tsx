@@ -5,7 +5,7 @@ import { Plus, Edit2, Search } from 'lucide-react';
 import { Input } from '@/Components/ui/input';
 import { Button } from "@/Components/ui/button";
 import { Switch } from "@/Components/ui/switch";
-import { Label } from "@/components/ui/label";
+import { Label } from "@/Components/ui/label";
 import QuotaCard from '@/Components/QuotaCard';
 import { Toggle } from "@/Components/ui/toggle";
 import {
@@ -40,19 +40,19 @@ export default function Quotas({ quotas = [] }) {
     const displayQuotas = quotas.length > 0 ? quotas : mockQuotas;
 
     return (
-        <div className="w-full max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8 space-y-8">
+        <div className="w-full px-4 py-10 mx-auto space-y-8 max-w-7xl sm:px-6 lg:px-8">
             <Head title="Quotas" />
 
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                 <header>
-                    <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Quotas</h1>
+                    <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Quotas</h1>
                 </header>
 
                 <div className="flex items-center gap-3">
-                    <Toggle 
+                    <Toggle
                         pressed={isEditMode}
                         onPressedChange={setIsEditMode}
-                        variant="outline" 
+                        variant="outline"
                         aria-label="Toggle edit mode"
                         className="flex items-center gap-2 border-slate-200 text-slate-600 data-[state=on]:bg-slate-100 data-[state=on]:text-slate-900 shadow-sm"
                     >
@@ -62,7 +62,7 @@ export default function Quotas({ quotas = [] }) {
 
                     <Dialog>
                         <DialogTrigger asChild>
-                            <Button className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 shadow-sm">
+                            <Button className="flex items-center gap-2 shadow-sm bg-slate-900 hover:bg-slate-800">
                                 <Plus className="size-4" />
                                 New Quota
                             </Button>
@@ -74,7 +74,7 @@ export default function Quotas({ quotas = [] }) {
                                     Administration
                                 </h2>
                                 <DialogTitle className="text-2xl font-black text-white">Create New Quota</DialogTitle>
-                                <DialogDescription className="text-slate-400 text-xs mt-1 leading-relaxed">
+                                <DialogDescription className="mt-1 text-xs leading-relaxed text-slate-400">
                                     Set placement requirements for the upcoming semester.
                                 </DialogDescription>
                             </div>
@@ -96,7 +96,7 @@ export default function Quotas({ quotas = [] }) {
                                     </Select>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-6 items-end">
+                                <div className="grid items-end grid-cols-2 gap-6">
                                     <div className="space-y-2">
                                         <Label className="text-[10px] font-bold uppercase text-slate-500 ml-1">Total Seats</Label>
                                         <QuotaNumberInput defaultValue={10} />
@@ -112,7 +112,7 @@ export default function Quotas({ quotas = [] }) {
                                     </div>
                                 </div>
 
-                                <div className="flex items-center justify-between p-4 rounded-xl border border-slate-100 bg-slate-50/50">
+                                <div className="flex items-center justify-between p-4 border rounded-xl border-slate-100 bg-slate-50/50">
                                     <div className="space-y-0.5">
                                         <Label className="text-sm font-bold text-slate-700">Interview Required</Label>
                                         <p className="text-[11px] text-slate-500">Enable mandatory screening process</p>
@@ -121,9 +121,9 @@ export default function Quotas({ quotas = [] }) {
                                 </div>
                             </div>
 
-                            <DialogFooter className="p-6 bg-slate-50 border-t border-slate-100 sm:justify-between gap-3 shrink-0">
+                            <DialogFooter className="gap-3 p-6 border-t bg-slate-50 border-slate-100 sm:justify-between shrink-0">
                                 <DialogClose asChild>
-                                    <Button type="button" variant="outline" className="flex-1 text-slate-500 hover:text-slate-900 font-bold uppercase text-xs tracking-widest">
+                                    <Button type="button" variant="outline" className="flex-1 text-xs font-bold tracking-widest uppercase text-slate-500 hover:text-slate-900">
                                         Cancel
                                     </Button>
                                 </DialogClose>
@@ -140,14 +140,14 @@ export default function Quotas({ quotas = [] }) {
                 <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
                 <Input
                     placeholder="Search by diploma or requirement..."
-                    className="pl-11 h-12 bg-white border-slate-200 rounded-xl shadow-sm focus:ring-slate-100"
+                    className="h-12 bg-white shadow-sm pl-11 border-slate-200 rounded-xl focus:ring-slate-100"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
             </div>
 
             {displayQuotas.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {displayQuotas
                         .filter(q => q.diploma.toLowerCase().includes(searchTerm.toLowerCase()))
                         .map(quota => (

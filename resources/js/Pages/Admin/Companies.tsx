@@ -16,7 +16,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/Components/ui/dialog";
-import { Label } from "@/components/ui/label";
+import { Label } from "@/Components/ui/label";
 
 export default function ManageUsers({
     stats = { total_companies: 12, total_quota: 150, total_filled: 85, available_slots: 65 },
@@ -46,11 +46,11 @@ export default function ManageUsers({
                 status: company.available === 0 ? 'Full' : 'Available'
             }))
             .filter(company => {
-                const matchesSearch = company.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                const matchesSearch = company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                                      company.location.toLowerCase().includes(searchTerm.toLowerCase());
                 const matchesCategory = filterCategory === 'all' || company.category === filterCategory;
-                
-                const matchesStatus = filterStatus === 'all' || 
+
+                const matchesStatus = filterStatus === 'all' ||
                                      (filterStatus.toLowerCase() === company.status.toLowerCase());
 
                 return matchesSearch && matchesCategory && matchesStatus;
@@ -70,7 +70,7 @@ export default function ManageUsers({
     };
 
     return (
-        <div className="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8 space-y-8">
+        <div className="px-4 py-10 mx-auto space-y-8 max-w-7xl sm:px-6 lg:px-8">
             <Head title="Company Management" />
 
             <div className="flex items-center justify-between">
@@ -152,23 +152,23 @@ export default function ManageUsers({
             </div>
 
             {/* Filter Toolbar */}
-            <div className="bg-white rounded-xl flex flex-wrap items-end gap-4">
+            <div className="flex flex-wrap items-end gap-4 bg-white rounded-xl">
                 <div className="flex-1 min-w-[240px] space-y-2">
-                    <label className="text-xs font-semibold uppercase text-gray-500 ml-1">Search Company</label>
+                    <label className="ml-1 text-xs font-semibold text-gray-500 uppercase">Search Company</label>
                     <div className="relative">
-                        <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-gray-400" />
+                        <SearchIcon className="absolute text-gray-400 -translate-y-1/2 left-3 top-1/2 size-4" />
                         <Input
                             placeholder="Type company name or district..."
                             value={searchTerm}
                             onChange={handleSearchChange}
                             className="pl-9 pr-9"
                         />
-                        {isSearching && <LoaderCircleIcon className="absolute right-3 top-1/2 -translate-y-1/2 size-4 animate-spin text-gray-400" />}
+                        {isSearching && <LoaderCircleIcon className="absolute text-gray-400 -translate-y-1/2 right-3 top-1/2 size-4 animate-spin" />}
                     </div>
                 </div>
 
                 <div className="w-48 space-y-2">
-                    <label className="text-xs font-semibold uppercase text-gray-500 ml-1">Category</label>
+                    <label className="ml-1 text-xs font-semibold text-gray-500 uppercase">Category</label>
                     <Select value={filterCategory} onValueChange={setFilterCategory}>
                         <SelectTrigger><SelectValue placeholder="Category" /></SelectTrigger>
                         <SelectContent>
@@ -181,7 +181,7 @@ export default function ManageUsers({
                 </div>
 
                 <div className="w-48 space-y-2">
-                    <label className="text-xs font-semibold uppercase text-gray-500 ml-1">Availability</label>
+                    <label className="ml-1 text-xs font-semibold text-gray-500 uppercase">Availability</label>
                     <Select value={filterStatus} onValueChange={setFilterStatus}>
                         <SelectTrigger><SelectValue placeholder="Status" /></SelectTrigger>
                         <SelectContent>

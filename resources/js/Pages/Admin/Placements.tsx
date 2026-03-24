@@ -24,7 +24,7 @@ export default function Placements({
 
     const filteredData = useMemo(() => {
         return placements.filter(item => {
-            const matchesSearch = item.student_name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+            const matchesSearch = item.student_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                                  item.company_name.toLowerCase().includes(searchTerm.toLowerCase());
             const matchesProgramme = filterProgramme === 'all' || item.programme === filterProgramme;
             const matchesStatus = filterStatus === 'all' || item.status === filterStatus;

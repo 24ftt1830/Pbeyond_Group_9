@@ -24,7 +24,7 @@ class User extends Authenticatable
 
     public function getAuthPassword()
     {
-        return $this->password;
+        return $this->password_hash;
     }
 
     public function student() { return $this->hasOne(Student::class, 'user_id', 'user_id'); }
