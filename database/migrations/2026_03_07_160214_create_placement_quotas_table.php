@@ -3,11 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-<<<<<<< HEAD
-use Illuminate\Support\Facades\DB; // Add this at the top
-=======
 use Illuminate\Support\Facades\DB;
->>>>>>> 2d14bf3 (renamed 'password_hash' field to 'password' for laravel strict compatibility requirement and updated all relevant code references in controllers, migrations, seeders etc.)
 
 return new class extends Migration
 {
