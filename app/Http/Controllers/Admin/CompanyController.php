@@ -9,6 +9,9 @@ use Inertia\Inertia;
 
 class CompanyController extends Controller
 {
+    /**
+     * Display a listing of companies with quota statistics.
+     */
     public function index()
     {
         $companies = Company::with(['placementQuotas.applications' => function ($query) {
@@ -25,15 +28,14 @@ class CompanyController extends Controller
             return [
                 'id'           => $company->company_id,
                 'name'         => $company->company_name,
-                'location'     => $company->office_address ?? 'N/A', // or extract district
+                'location'     => $company->office_address ?? 'N/A',
                 'total_quota'  => $totalQuota,
                 'filled'       => $filled,
                 'available'    => $available,
-                'category'     => $company->industry_sector ?? 'General', // use industry_sector as category
+                'category'     => $company->industry_sector ?? 'General',
             ];
         });
 
-        // Overall stats
         $stats = [
             'total_companies' => $companies->count(),
             'total_quota'     => $companiesData->sum('total_quota'),
@@ -47,5 +49,51 @@ class CompanyController extends Controller
         ]);
     }
 
-    // ... other methods (approve, reject, etc.)
+    /**
+     * Store a newly created company.
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name'     => 'required|string|max:255',
+            'category' => 'required|string|max:100',
+            'location' => 'required|string|max:255',
+        ]);
+
+        $company = Company::create([
+            'company_name'   => $validated['name'],
+            'industry_sector'=> $validated['category'],
+            'office_address' => $validated['location'],
+            'location_type'  => 'Local', // default; you could make it selectable
+        ]);
+
+        // Optional: Create a user account for the company? If needed, add here.
+
+        return redirect()->route('admin.companies')->with('success', 'Company registered successfully.');
+    }
+
+    /**
+     * Approve a company (if approval workflow needed).
+     */
+    public function approve($id)
+    {
+        $company = Company::findOrFail($id);
+        // If you have an 'is_approved' column, update it
+        $company->is_approved = true;
+        $company->save();
+
+        return redirect()->route('admin.companies')->with('success', 'Company approved.');
+    }
+
+    /**
+     * Reject a company.
+     */
+    public function reject($id)
+    {
+        $company = Company::findOrFail($id);
+        $company->is_approved = false;
+        $company->save();
+
+        return redirect()->route('admin.companies')->with('success', 'Company rejected.');
+    }
 }
