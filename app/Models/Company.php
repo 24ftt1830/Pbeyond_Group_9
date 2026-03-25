@@ -29,4 +29,9 @@ class Company extends Model
     {
         return $this->hasMany(IndustrySupervisor::class, 'company_id', 'company_id');
     }
+
+    public function favourites()
+    {
+    return $this->hasMany(Favourite::class, 'company_id', 'company_id');
+    }
 }

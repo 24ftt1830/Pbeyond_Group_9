@@ -5,6 +5,15 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
+use App\Http\Controllers\Student\CompanyController as StudentCompanyController;
+use App\Http\Controllers\Student\ApplicationController as StudentApplicationController;
+use App\Http\Controllers\Student\DocumentController as StudentDocumentController;
+use App\Http\Controllers\Student\FaqController as StudentFaqController;
+use App\Http\Controllers\Student\FavouriteController as StudentFavouriteController;
+use App\Http\Controllers\Student\ReportController as StudentReportController;
+use App\Http\Controllers\Student\CalendarController as StudentCalendarController;
+
 // Temporary file for debugging post-vps db connection
 Route::get('/test-route', function () {
     return 'The application is working but theres STILL AN ISSUE';
@@ -93,75 +102,98 @@ Route::middleware('auth')->group(function () {
     });
 
      // --- Student Routes ---
+//     Route::prefix('student')->name('student.')->group(function () {
+//         Route::get('/dashboard', fn () => Inertia::render('Student/Dashboard'))->name('dashboard');
+//         Route::get('/companies', function () {
+//             return Inertia::render('Student/CompaniesList', [
+//                 'companies' => Company::query()
+//                     ->select([
+//                         'id',
+//                         'name',
+//                         'status',
+//                         'quota_availability',
+//                         'interview_required',
+//                         'school',
+//                         'district',
+//                         'description',
+//                         'additional_information',
+//                     ])
+//                     ->orderBy('id')
+//                     ->get(),
+//             ]);
+//         })->name('companies');
+//         Route::get('/companies/{company}', function (Company $company) {
+//             $hasApplied = InternshipApplication::query()
+//                 ->where('user_id', auth()->id())
+//                 ->where('company_id', $company->id)
+//                 ->exists();
+
+//             return Inertia::render('Student/ViewCompany', [
+//                 'company' => $company,
+//                 'hasApplied' => $hasApplied,
+//             ]);
+//         })->name('companies.view');
+//         Route::post('/companies/{company}/apply', function (Company $company) {
+//             if ($company->quota_availability <= 0 || strtolower($company->status) === 'full') {
+//                 throw ValidationException::withMessages([
+//                     'apply' => 'Application rejected because slots are full.',
+//                 ]);
+//             }
+
+//             InternshipApplication::query()->firstOrCreate(
+//                 [
+//                     'user_id' => auth()->id(),
+//                     'company_id' => $company->id,
+//                 ],
+//                 [
+//                     'status' => 'Applied',
+//                     'applied_at' => now(),
+//                 ]
+//             );
+
+//             return back();
+//         })->name('companies.apply');
+//         Route::get('/favourites', fn () => Inertia::render('Student/Favourites'))->name('favourites');
+//         Route::get('/application-tracking', function () {
+//             $applications = InternshipApplication::query()
+//                 ->where('user_id', auth()->id())
+//                 ->with('company:id,name')
+//                 ->latest('applied_at')
+//                 ->get();
+
+//             return Inertia::render('Student/ApplicationTracking', [
+//                 'applications' => $applications,
+//             ]);
+//         })->name('application-tracking');
+//         Route::get('/documentations', fn () => Inertia::render('Student/Documentations'))->name('documentations');
+//         Route::get('/report-issue', fn () => Inertia::render('Student/ReportIssue'))->name('report-issue');
+//         Route::get('/faqs', fn () => Inertia::render('Student/FAQs'))->name('faqs');
+//         Route::get('/calendar', fn () => Inertia::render('Student/Calendar'))->name('calendar');
+//         Route::get('/past-reports', fn () => Inertia::render('Student/PastReports'))->name('past-reports');
+//     });
+// });
+
+ // --- Student Routes ---
     Route::prefix('student')->name('student.')->group(function () {
-        Route::get('/dashboard', fn () => Inertia::render('Student/Dashboard'))->name('dashboard');
-        Route::get('/companies', function () {
-            return Inertia::render('Student/CompaniesList', [
-                'companies' => Company::query()
-                    ->select([
-                        'id',
-                        'name',
-                        'status',
-                        'quota_availability',
-                        'interview_required',
-                        'school',
-                        'district',
-                        'description',
-                        'additional_information',
-                    ])
-                    ->orderBy('id')
-                    ->get(),
-            ]);
-        })->name('companies');
-        Route::get('/companies/{company}', function (Company $company) {
-            $hasApplied = InternshipApplication::query()
-                ->where('user_id', auth()->id())
-                ->where('company_id', $company->id)
-                ->exists();
-
-            return Inertia::render('Student/ViewCompany', [
-                'company' => $company,
-                'hasApplied' => $hasApplied,
-            ]);
-        })->name('companies.view');
-        Route::post('/companies/{company}/apply', function (Company $company) {
-            if ($company->quota_availability <= 0 || strtolower($company->status) === 'full') {
-                throw ValidationException::withMessages([
-                    'apply' => 'Application rejected because slots are full.',
-                ]);
-            }
-
-            InternshipApplication::query()->firstOrCreate(
-                [
-                    'user_id' => auth()->id(),
-                    'company_id' => $company->id,
-                ],
-                [
-                    'status' => 'Applied',
-                    'applied_at' => now(),
-                ]
-            );
-
-            return back();
-        })->name('companies.apply');
-        Route::get('/favourites', fn () => Inertia::render('Student/Favourites'))->name('favourites');
-        Route::get('/application-tracking', function () {
-            $applications = InternshipApplication::query()
-                ->where('user_id', auth()->id())
-                ->with('company:id,name')
-                ->latest('applied_at')
-                ->get();
-
-            return Inertia::render('Student/ApplicationTracking', [
-                'applications' => $applications,
-            ]);
-        })->name('application-tracking');
-        Route::get('/documentations', fn () => Inertia::render('Student/Documentations'))->name('documentations');
-        Route::get('/report-issue', fn () => Inertia::render('Student/ReportIssue'))->name('report-issue');
-        Route::get('/faqs', fn () => Inertia::render('Student/FAQs'))->name('faqs');
-        Route::get('/calendar', fn () => Inertia::render('Student/Calendar'))->name('calendar');
-        Route::get('/past-reports', fn () => Inertia::render('Student/PastReports'))->name('past-reports');
+        Route::get('/dashboard', [StudentDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/companies', [StudentCompanyController::class, 'index'])->name('companies');
+        Route::get('/companies/{company}', [StudentCompanyController::class, 'show'])->name('companies.view');
+        Route::post('/companies/{company}/apply', [StudentCompanyController::class, 'apply'])->name('companies.apply');
+        Route::get('/application-tracking', [StudentApplicationController::class, 'index'])->name('application-tracking');
+        Route::get('/calendar', [StudentCalendarController::class, 'index'])->name('calendar');
+        Route::get('/documentations', [StudentDocumentController::class, 'index'])->name('documentations');
+        Route::post('/documentations/upload', [StudentDocumentController::class, 'upload'])->name('documentations.upload');
+        Route::delete('/documentations/{document}', [StudentDocumentController::class, 'destroy'])->name('documentations.destroy');
+        Route::get('/faqs', [StudentFaqController::class, 'index'])->name('faqs');
+        Route::get('/favourites', [StudentFavouriteController::class, 'index'])->name('favourites');
+        Route::post('/favourites/{company}', [StudentFavouriteController::class, 'store'])->name('favourites.store');
+        Route::delete('/favourites/{company}', [StudentFavouriteController::class, 'destroy'])->name('favourites.destroy');
+        Route::get('/past-reports', [StudentReportController::class, 'index'])->name('past-reports');
+        Route::get('/report-issue', [StudentReportController::class, 'create'])->name('report-issue');
+        Route::post('/report-issue', [StudentReportController::class, 'store'])->name('report-issue.store');
     });
 });
 
 require __DIR__.'/auth.php';
+
+
