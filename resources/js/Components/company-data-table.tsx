@@ -24,13 +24,13 @@ import {
 import { Building2, MapPin, Tag, Users, CheckCircle2, AlertTriangle } from 'lucide-react';
 
 export interface CompanyData {
-  id: number;
-  name: string;
-  location: string;
+  company_id: number;
+  company_name: string;      
+  office_address: string;    
   total_quota: number;
   filled: number;
   available: number;
-  category?: string;
+  industry_sector?: string;  
   status?: string;
 }
 
@@ -74,23 +74,21 @@ const CompanyDataTable = ({ data }: CompanyDataTableProps) => {
             {paginatedData.length > 0 ? (
               paginatedData.map((item) => (
                 <TableRow
-                  key={item.id}
+                  key={item.company_id}
                   className="hover:bg-slate-50/80 transition-colors cursor-pointer"
                   onClick={() => setSelectedCompany(item)}
                 >
-                  <TableCell className="px-6 py-4 font-semibold text-gray-900">{item.name}</TableCell>
-                  <TableCell className="px-6 py-4 text-gray-600 text-sm">{item.location}</TableCell>
+                  <TableCell className="px-6 py-4 font-semibold text-gray-900">{item.company_name}</TableCell>
+                  <TableCell className="px-6 py-4 text-gray-600 text-sm">{item.office_address}</TableCell>
                   <TableCell className="text-center px-6 py-4 text-gray-600">{item.total_quota}</TableCell>
                   <TableCell className="text-center px-6 py-4">
-                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${item.filled >= item.total_quota ? 'bg-red-50 text-red-700' : 'bg-blue-50 text-blue-700'
-                      }`}>
+                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${item.filled >= item.total_quota ? 'bg-red-50 text-red-700' : 'bg-blue-50 text-blue-700'}`}>
                       {item.filled}
                     </span>
                   </TableCell>
                   <TableCell className="text-center px-6 py-4 font-mono font-medium text-slate-600">{item.available}</TableCell>
                   <TableCell className="text-right px-6 py-4">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-tight ${item.available === 0 ? 'bg-red-100 text-red-800' : 'bg-emerald-100 text-emerald-800'
-                      }`}>
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-tight ${item.available === 0 ? 'bg-red-100 text-red-800' : 'bg-emerald-100 text-emerald-800'}`}>
                       {item.available === 0 ? 'Full' : 'Available'}
                     </span>
                   </TableCell>
@@ -106,43 +104,27 @@ const CompanyDataTable = ({ data }: CompanyDataTableProps) => {
       </div>
 
       <Dialog open={!!selectedCompany} onOpenChange={() => setSelectedCompany(null)}>
-        <DialogContent
-          className="sm:max-w-[500px] p-0 overflow-hidden border-none shadow-2xl rounded-2xl [&>button]:text-white [&>button]:opacity-80 [&>button:hover]:opacity-100"
-        >
+        <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden border-none shadow-2xl rounded-2xl [&>button]:text-white [&>button]:opacity-80 [&>button:hover]:opacity-100">
           {selectedCompany && (
             <>
               <div className="bg-slate-900 p-8 text-white relative">
-                <h2 className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-1">
-                  Company Profile
-                </h2>
-                <DialogTitle className="text-2xl font-black text-white">
-                  {selectedCompany.name}
-                </DialogTitle>
+                <h2 className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-1">Company Profile</h2>
+                <DialogTitle className="text-2xl font-black text-white">{selectedCompany.company_name}</DialogTitle>
               </div>
-
               <div className="p-8 space-y-6 bg-white">
                 <div className="grid grid-cols-2 gap-8">
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold uppercase text-slate-400 flex items-center gap-1.5">
-                      <MapPin size={12} className="text-slate-400" /> Location
-                    </label>
-                    <p className="text-sm font-bold text-slate-700">{selectedCompany.location}</p>
+                    <label className="text-[10px] font-bold uppercase text-slate-400 flex items-center gap-1.5"><MapPin size={12} /> Location</label>
+                    <p className="text-sm font-bold text-slate-700">{selectedCompany.office_address}</p>
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold uppercase text-slate-400 flex items-center gap-1.5">
-                      <Tag size={12} className="text-slate-400" /> Industry
-                    </label>
-                    <p className="text-sm font-bold text-slate-700">{selectedCompany.category || 'N/A'}</p>
+                    <label className="text-[10px] font-bold uppercase text-slate-400 flex items-center gap-1.5"><Tag size={12} /> Industry</label>
+                    <p className="text-sm font-bold text-slate-700">{selectedCompany.industry_sector || 'N/A'}</p>
                   </div>
                 </div>
-
                 <hr className="border-slate-100" />
-
                 <div className="space-y-4">
-                  <label className="text-[10px] font-bold uppercase text-slate-400 flex items-center gap-1.5">
-                    <Users size={12} className="text-slate-400" /> Quota Distribution
-                  </label>
-
+                  <label className="text-[10px] font-bold uppercase text-slate-400 flex items-center gap-1.5"><Users size={12} /> Quota Distribution</label>
                   <div className="grid grid-cols-3 gap-3">
                     <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
                       <p className="text-[10px] uppercase font-bold text-slate-400 mb-1">Total</p>
@@ -158,15 +140,9 @@ const CompanyDataTable = ({ data }: CompanyDataTableProps) => {
                     </div>
                   </div>
                 </div>
-
-                <div className={`p-4 rounded-xl flex items-center justify-center gap-3 border transition-all ${selectedCompany.available === 0
-                    ? 'bg-red-50 border-red-100 text-red-800'
-                    : 'bg-emerald-50 border-emerald-100 text-emerald-800'
-                  }`}>
+                <div className={`p-4 rounded-xl flex items-center justify-center gap-3 border transition-all ${selectedCompany.available === 0 ? 'bg-red-50 border-red-100 text-red-800' : 'bg-emerald-50 border-emerald-100 text-emerald-800'}`}>
                   {selectedCompany.available === 0 ? <AlertTriangle size={18} /> : <CheckCircle2 size={18} />}
-                  <span className="text-xs font-black uppercase tracking-widest">
-                    {selectedCompany.available === 0 ? 'Capacity Reached' : 'Accepting Placements'}
-                  </span>
+                  <span className="text-xs font-black uppercase tracking-widest">{selectedCompany.available === 0 ? 'Capacity Reached' : 'Accepting Placements'}</span>
                 </div>
               </div>
             </>
@@ -179,23 +155,15 @@ const CompanyDataTable = ({ data }: CompanyDataTableProps) => {
           <Pagination>
             <PaginationContent>
               <PaginationItem>
-                <PaginationPrevious
-                  className={`cursor-pointer ${currentPage === 1 ? "opacity-50 pointer-events-none" : ""}`}
-                  onClick={(e) => { e.stopPropagation(); handlePageChange(currentPage - 1); }}
-                />
+                <PaginationPrevious className={`cursor-pointer ${currentPage === 1 ? "opacity-50 pointer-events-none" : ""}`} onClick={() => handlePageChange(currentPage - 1)} />
               </PaginationItem>
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                <PaginationItem key={page} className="cursor-pointer" onClick={(e) => e.stopPropagation()}>
-                  <PaginationLink isActive={currentPage === page} onClick={() => handlePageChange(page)}>
-                    {page}
-                  </PaginationLink>
+                <PaginationItem key={page} className="cursor-pointer">
+                  <PaginationLink isActive={currentPage === page} onClick={() => handlePageChange(page)}>{page}</PaginationLink>
                 </PaginationItem>
               ))}
               <PaginationItem>
-                <PaginationNext
-                  className={`cursor-pointer ${currentPage === totalPages ? "opacity-50 pointer-events-none" : ""}`}
-                  onClick={(e) => { e.stopPropagation(); handlePageChange(currentPage + 1); }}
-                />
+                <PaginationNext className={`cursor-pointer ${currentPage === totalPages ? "opacity-50 pointer-events-none" : ""}`} onClick={() => handlePageChange(currentPage + 1)} />
               </PaginationItem>
             </PaginationContent>
           </Pagination>

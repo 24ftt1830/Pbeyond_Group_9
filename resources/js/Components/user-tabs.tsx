@@ -1,8 +1,9 @@
 import { useState } from 'react'
+import { useForm, usePage } from '@inertiajs/react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/Components/ui/tabs'
 import UserTable from '@/Components/data-table'
 import { Button } from '@/Components/ui/button'
-import { Plus, Building2 } from 'lucide-react'
+import { Plus, Building2, Loader2 } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -10,7 +11,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+  DialogTrigger
 } from "@/Components/ui/dialog"
 import { Input } from "@/Components/ui/input"
 import { Label } from "@/Components/ui/label"
@@ -19,118 +20,161 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from "@/Components/ui/select"
 
-const tabs = [
-  { name: 'Students', value: 'explore', content: <UserTable /> },
-  { name: 'Representatives', value: 'favorites', content: <UserTable /> },
-]
+// 1. Define Table Columns
+const studentColumns = [
+  { header: 'Username', key: 'username' },
+  { header: 'Email Address', key: 'email' },
+  { header: 'Status', key: 'role' },
+];
 
-// Dummy list for the browse-able company assignment
-const AVAILABLE_COMPANIES = [
-  { id: 1, name: "Shell Livewire Brunei" },
-  { id: 2, name: "Maybank" },
-  { id: 3, name: "Seria Energy Lab" },
-  { id: 4, name: "EVYD Tech" },
-  { id: 5, name: "Dynamik Technologies" },
-]
+const repColumns = [
+  { header: 'Focal Person', key: 'display_name' },
+  { header: 'Email Address', key: 'email' },
+  { header: 'Assigned Company', key: 'company_name' },
+];
 
 const UserTabs = () => {
-  const [selectedRole, setSelectedRole] = useState<string>("student")
+  const { students, companyUsers, companies } = usePage<any>().props;
+  const [open, setOpen] = useState(false);
+
+  const { data, setData, post, processing, reset, errors } = useForm({
+    username: '',
+    email: '',
+    password: '',
+    company_id: '',
+    role: 'Company'
+  });
+
+  const submit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    post(route('admin.manage-users.store'), {
+      onSuccess: () => {
+        setOpen(false);
+        reset();
+      },
+      onError: (errors) => {
+        console.error("Registration failed:", errors);
+      }
+    });
+  };
 
   return (
     <div className='w-full mt-4'>
-      <Tabs defaultValue='explore'>
+      <Tabs defaultValue='students'>
         <div className="flex items-center justify-between mb-4">
           <TabsList>
-            {tabs.map(tab => (
-              <TabsTrigger key={tab.value} value={tab.value}>
-                {tab.name}
-              </TabsTrigger>
-            ))}
+            <TabsTrigger value="students">Students</TabsTrigger>
+            <TabsTrigger value="reps">Representatives</TabsTrigger>
           </TabsList>
 
-          <Dialog>
+          <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button className="flex items-center gap-2">
-                <Plus className="size-4" />
-                Add Users
+                <Plus className="size-4" /> Add User
               </Button>
             </DialogTrigger>
 
             <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle>Add New User</DialogTitle>
-                <DialogDescription>
-                  Enter the details below to register a new user to the system.
-                </DialogDescription>
-              </DialogHeader>
+              <form onSubmit={submit}>
+                <DialogHeader>
+                  <DialogTitle>Register Focal Person</DialogTitle>
+                  <DialogDescription>
+                    Create a company account and link it to an existing company.
+                  </DialogDescription>
+                </DialogHeader>
 
-              <div className="grid gap-6 py-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="name">Full Name</Label>
-                  <Input id="name" placeholder="John Doe" />
-                </div>
+                <div className="grid gap-4 py-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="username">Username</Label>
+                    <Input
+                      id="username"
+                      value={data.username}
+                      onChange={e => setData('username', e.target.value)}
+                      placeholder="jdoe_admin"
+                      required
+                    />
+                    {errors.username && <p className="text-red-500 text-[10px]">{errors.username}</p>}
+                  </div>
 
-                <div className="grid gap-2">
-                  <Label htmlFor="email">Email Address</Label>
-                  <Input id="email" type="email" placeholder="john@example.com" />
-                </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="email">Email Address</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={data.email}
+                      onChange={e => setData('email', e.target.value)}
+                      placeholder="rep@company.com"
+                      required
+                    />
+                    {errors.email && <p className="text-red-500 text-[10px]">{errors.email}</p>}
+                  </div>
 
-                <div className="grid gap-2">
-                  <Label htmlFor="role">User Role</Label>
-                  <Select onValueChange={setSelectedRole} defaultValue={selectedRole}>
-                    <SelectTrigger id="role">
-                      <SelectValue placeholder="Select a role" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="student">Student</SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
-                      <SelectItem value="company_rep">Company Representative</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="password">Temporary Password</Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      value={data.password}
+                      onChange={e => setData('password', e.target.value)}
+                      required
+                    />
+                    {errors.password && <p className="text-red-500 text-[10px]">{errors.password}</p>}
+                  </div>
 
-                {selectedRole === "company_rep" && (
-                  <div className="grid gap-2 duration-300 animate-in fade-in slide-in-from-top-2">
-                    <Label htmlFor="company-assigned" className="flex items-center gap-2 font-semibold text-blue-600">
-                      <Building2 className="size-3.5" />
-                      Company Assigned
+                  <div className="grid gap-2">
+                    <Label className="flex items-center gap-2 text-blue-600 font-medium">
+                      <Building2 className="size-3.5" /> Assign Company
                     </Label>
-                    <Select>
-                      <SelectTrigger id="company-assigned">
-                        <SelectValue placeholder="Browse available companies..." />
+                    <Select onValueChange={(val) => setData('company_id', val)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Company" />
                       </SelectTrigger>
                       <SelectContent>
-                        {AVAILABLE_COMPANIES.map(company => (
-                          <SelectItem key={company.id} value={company.name}>
-                            {company.name}
+                        {companies?.map((c: any) => (
+                          <SelectItem key={c.company_id} value={c.company_id.toString()}>
+                            {c.company_name}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                    <p className="text-[10px] text-muted-foreground italic">
-                      Assigning this user gives them management rights over the company quota.
-                    </p>
+                    {errors.company_id && <p className="text-red-500 text-[10px]">{errors.company_id}</p>}
                   </div>
-                )}
-              </div>
+                </div>
 
-              <DialogFooter>
-                <Button type="submit" className="w-full sm:w-auto">
-                  Save User
-                </Button>
-              </DialogFooter>
+                <DialogFooter>
+                  <Button type="submit" disabled={processing} className="w-full">
+                    {processing ? <Loader2 className="animate-spin mr-2 size-4" /> : 'Create Account'}
+                  </Button>
+                </DialogFooter>
+              </form>
             </DialogContent>
           </Dialog>
         </div>
 
-        {tabs.map(tab => (
-          <TabsContent key={tab.value} value={tab.value}>
-            <div className='mt-4'>{tab.content}</div>
-          </TabsContent>
-        ))}
+        {/* --- Tab Content: Students --- */}
+        <TabsContent value="students">
+          <UserTable
+            data={students || []}
+            columns={studentColumns}
+          />
+        </TabsContent>
+
+        {/* --- Tab Content: Representatives --- */}
+        <TabsContent value="reps">
+          <UserTable
+            data={companyUsers?.map((u: any) => ({
+              id: u.user_id,
+              display_name: u.username,
+              email: u.email,
+              company_name: u.company?.company_name || 'Unassigned'
+            })) || []}
+            columns={repColumns}
+          />
+        </TabsContent>
       </Tabs>
     </div>
   )

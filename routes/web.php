@@ -4,6 +4,8 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\Admin\UserManagementController;
+
 use App\Http\Controllers\Company\QuotaController;
 
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
@@ -14,6 +16,7 @@ use App\Http\Controllers\Student\FaqController as StudentFaqController;
 use App\Http\Controllers\Student\FavouriteController as StudentFavouriteController;
 use App\Http\Controllers\Student\ReportController as StudentReportController;
 use App\Http\Controllers\Student\CalendarController as StudentCalendarController;
+
 
 // Temporary file for debugging post-vps db connection
 Route::get('/test-route', function () {
@@ -73,10 +76,10 @@ Route::middleware('auth')->group(function () {
 
         // Manage Users (Company representatives)
         Route::get('/manage-users', [App\Http\Controllers\Admin\UserManagementController::class, 'index'])->name('manage-users');
-        Route::post('/manage-users', [App\Http\Controllers\Admin\UserManagementController::class, 'store'])->name('users.store');
-        Route::get('/manage-users/{user}/edit', [App\Http\Controllers\Admin\UserManagementController::class, 'edit'])->name('users.edit');
-        Route::put('/manage-users/{user}', [App\Http\Controllers\Admin\UserManagementController::class, 'update'])->name('users.update');
-        Route::delete('/manage-users/{user}', [App\Http\Controllers\Admin\UserManagementController::class, 'destroy'])->name('users.destroy');
+        Route::post('/manage-users', [App\Http\Controllers\Admin\UserManagementController::class, 'store'])->name('manage-users.store');
+        Route::get('/manage-users/{id}/edit', [App\Http\Controllers\Admin\UserManagementController::class, 'edit'])->name('manage-users.edit');
+        Route::put('/manage-users/{id}', [App\Http\Controllers\Admin\UserManagementController::class, 'update'])->name('manage-users.update');
+        Route::delete('/manage-users/{id}', [App\Http\Controllers\Admin\UserManagementController::class, 'destroy'])->name('manage-users.destroy');
 
         Route::get('/students', [App\Http\Controllers\Admin\StudentController::class, 'index'])->name('students');
         Route::get('/students/{student}', [App\Http\Controllers\Admin\StudentController::class, 'show'])->name('students.show');

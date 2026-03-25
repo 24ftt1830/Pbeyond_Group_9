@@ -6,17 +6,23 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
         Schema::table('companies', function (Blueprint $table) {
-            $table->timestamp('updated_at')->nullable()->after('created_at');
+        $table->foreignId('user_id')->nullable()->change();
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
         Schema::table('companies', function (Blueprint $table) {
-            $table->dropColumn('updated_at');
+            $table->foreginId('user_id')->nullable(false)->change();
         });
     }
 };

@@ -18,13 +18,37 @@ import {
 } from "@/Components/ui/dialog";
 import { Label } from "@/Components/ui/label";
 
-export default function Companies({ stats, companies }) {
+// --- Types ---
+interface Company {
+    company_id: number;
+    company_name: string;
+    industry_sector: string;
+    office_address: string;
+    available: number;
+    status?: string;
+}
+
+interface Stats {
+    total_companies: number;
+    total_quota: number;
+    total_filled: number;
+    available_slots: number;
+}
+
+interface Props {
+    stats: Stats;
+    companies: Company[];
+}
+
+export default function Companies({ stats, companies }: Props) {
     const [open, setOpen] = useState(false);
     const [submitting, setSubmitting] = useState(false);
+    
+    // Aligned with DB columns 
     const [formData, setFormData] = useState({
-        name: '',
-        category: '',
-        location: '',
+        company_name: '',
+        industry_sector: '',
+        office_address: '',
     });
 
     const [searchTerm, setSearchTerm] = useState('');
@@ -34,16 +58,21 @@ export default function Companies({ stats, companies }) {
 
     const processedCompanies = useMemo(() => {
         return companies
-            .map(company => ({
+            .map((company: Company) => ({
                 ...company,
                 status: company.available === 0 ? 'Full' : 'Available'
             }))
             .filter(company => {
-                const matchesSearch = company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                     company.location.toLowerCase().includes(searchTerm.toLowerCase());
-                const matchesCategory = filterCategory === 'all' || company.category === filterCategory;
+                const matchesSearch = 
+                    company.company_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    company.office_address.toLowerCase().includes(searchTerm.toLowerCase());
+                
+                const matchesCategory = filterCategory === 'all' || 
+                    company.industry_sector === filterCategory;
+                
                 const matchesStatus = filterStatus === 'all' ||
-                                     (filterStatus.toLowerCase() === company.status.toLowerCase());
+                    (filterStatus.toLowerCase() === company.status?.toLowerCase());
+                
                 return matchesSearch && matchesCategory && matchesStatus;
             });
     }, [searchTerm, filterCategory, filterStatus, companies]);
@@ -54,21 +83,21 @@ export default function Companies({ stats, companies }) {
         setFilterStatus('all');
     };
 
-    const handleSearchChange = (e) => {
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(e.target.value);
         setIsSearching(true);
         setTimeout(() => setIsSearching(false), 500);
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         setSubmitting(true);
-        router.post(route('admin.companies.store'), formData, {
+        router.post(route('admin.companies.store'), formData as any, {
             preserveScroll: true,
             onFinish: () => setSubmitting(false),
             onSuccess: () => {
                 setOpen(false);
-                setFormData({ name: '', category: '', location: '' });
+                setFormData({ company_name: '', industry_sector: '', office_address: '' });
             },
             onError: (errors) => {
                 console.error(errors);
@@ -106,8 +135,8 @@ export default function Companies({ stats, companies }) {
                                     <Label htmlFor="co-name">Company Name</Label>
                                     <Input
                                         id="co-name"
-                                        value={formData.name}
-                                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                        value={formData.company_name}
+                                        onChange={(e) => setFormData({ ...formData, company_name: e.target.value })}
                                         required
                                     />
                                 </div>
@@ -115,8 +144,8 @@ export default function Companies({ stats, companies }) {
                                 <div className="grid gap-2">
                                     <Label htmlFor="co-category">Industrial Category</Label>
                                     <Select
-                                        value={formData.category}
-                                        onValueChange={(value) => setFormData({ ...formData, category: value })}
+                                        value={formData.industry_sector}
+                                        onValueChange={(value) => setFormData({ ...formData, industry_sector: value })}
                                     >
                                         <SelectTrigger id="co-category">
                                             <SelectValue placeholder="Select category" />
@@ -134,8 +163,8 @@ export default function Companies({ stats, companies }) {
                                 <div className="grid gap-2">
                                     <Label htmlFor="co-location">District</Label>
                                     <Select
-                                        value={formData.location}
-                                        onValueChange={(value) => setFormData({ ...formData, location: value })}
+                                        value={formData.office_address}
+                                        onValueChange={(value) => setFormData({ ...formData, office_address: value })}
                                     >
                                         <SelectTrigger id="co-location">
                                             <SelectValue placeholder="Select District" />
@@ -159,7 +188,6 @@ export default function Companies({ stats, companies }) {
                 </Dialog>
             </div>
 
-            {/* Dashboard Cards Summary */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <DashboardCard title="Total Companies" value={stats.total_companies} icon={<Building2 size={18} />} />
                 <DashboardCard title="Total Quota" value={stats.total_quota} icon={<User size={18} />} />
@@ -171,7 +199,6 @@ export default function Companies({ stats, companies }) {
                 <h1 className="text-xl font-semibold text-slate-900">Company Overview</h1>
             </div>
 
-            {/* Filter Toolbar */}
             <div className="flex flex-wrap items-end gap-4 bg-white rounded-xl">
                 <div className="flex-1 min-w-[240px] space-y-2">
                     <label className="ml-1 text-xs font-semibold text-gray-500 uppercase">Search Company</label>

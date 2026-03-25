@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
 use App\Models\Company;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
@@ -14,28 +14,36 @@ class UserManagementController extends Controller
     public function index()
     {
         $companies = Company::all(['company_id', 'company_name']);
-        $companyUsers = User::where('role', 'Company')->with('company')->get();
+
+        // Fetch users with role 'Company' and their linked company
+        $companyUsers = User::where('role', 'Company')
+            ->with('company')
+            ->get();
+
+        // Fetch users with student role
+        $students = User::where('role', 'Student')->get();
 
         return Inertia::render('Admin/ManageUsers', [
             'companies' => $companies,
             'companyUsers' => $companyUsers,
+            'students' => $students,
         ]);
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'username'   => 'required|string|max:255|unique:users',
-            'email'      => 'required|email|unique:users',
-            'password'   => 'required|min:8',
+            'username' => 'required|string|max:255|unique:users',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|min:8',
             'company_id' => 'required|exists:companies,company_id',
         ]);
 
         $user = User::create([
             'username' => $request->username,
-            'email'    => $request->email,
+            'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role'     => 'Company',
+            'role' => 'Company',
         ]);
 
         // Link user to the selected company
@@ -62,9 +70,9 @@ class UserManagementController extends Controller
         $user = User::where('role', 'Company')->findOrFail($id);
 
         $request->validate([
-            'username'   => 'required|string|max:255|unique:users,username,' . $user->user_id . ',user_id',
-            'email'      => 'required|email|unique:users,email,' . $user->user_id . ',user_id',
-            'password'   => 'nullable|min:8',
+            'username' => 'required|string|max:255|unique:users,username,'.$user->user_id.',user_id',
+            'email' => 'required|email|unique:users,email,'.$user->user_id.',user_id',
+            'password' => 'nullable|min:8',
             'company_id' => 'required|exists:companies,company_id',
         ]);
 
