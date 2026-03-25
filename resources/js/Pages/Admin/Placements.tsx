@@ -1,26 +1,66 @@
 import { useState, useMemo } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import PlacementDataTable from '@/Components/placement-data-table';
-import { User, UserCheck, SearchIcon, LoaderCircleIcon, RotateCcw, ChevronRight, XCircle, CheckCircle2, AlertCircle } from 'lucide-react';
+import { 
+    User, UserCheck, SearchIcon, RotateCcw, ChevronRight, 
+    XCircle, CheckCircle2, AlertCircle, Building2, Check, X 
+} from 'lucide-react';
 import { Input } from '@/Components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select";
 import { Button } from "@/Components/ui/button";
+import { Badge } from "@/Components/ui/badge";
+
+interface Placement {
+    id: number;
+    student_name: string;
+    programme: string;
+    company_name: string;
+    status: 'Approved' | 'Pending' | 'Rejected';
+}
+
+interface Quota {
+    quota_id: number;
+    job_title: string;
+    total_slots: number;
+    quota_status: string;
+    company?: {
+        company_name: string;
+    };
+}
+
+interface PlacementsProps {
+    stats: {
+        total_students: number;
+        total_applied: number;
+        total_approved: number;
+        pending_review: number;
+        pending_quotas: number;
+    };
+    placements: Placement[];
+    quotas: Quota[];
+}
 
 export default function Placements({
-    stats = { total_students: 120, total_applied: 67, total_approved: 50, pending_review: 35 },
-    placements = [
-        { id: 1, student_name: "Ahmad Fikri bin Abdullah", programme: "DWTY02", company_name: "MAYBANK", status: "Approved" as const },
-        { id: 2, student_name: "Nur Aisyah binti Hamzah", programme: "DWTY02", company_name: "JPMC", status: "Pending" as const },
-        { id: 3, student_name: "Muhammad Danish bin Rahman", programme: "DANF03", company_name: "SHELL LIVEWIRE", status: "Rejected" as const },
-        { id: 4, student_name: "Siti Khadijah binti Ismail", programme: "DHCM05", company_name: "JABATAN KEMAJUAN PERUMAHAN", status: "Approved" as const },
-        { id: 5, student_name: "Nor Aiman Hakim bin Salleh", programme: "DDAT04", company_name: "-", status: "Rejected" as const },
-    ]
-}) {
+    stats = { total_students: 0, total_applied: 0, total_approved: 0, pending_review: 0, pending_quotas: 0 },
+    placements = [],
+    quotas = [] 
+}: PlacementsProps) {
     const [searchTerm, setSearchTerm] = useState('');
     const [filterProgramme, setFilterProgramme] = useState('all');
     const [filterStatus, setFilterStatus] = useState('all');
-    const [isSearching, setIsSearching] = useState(false);
+
+    const handleApprove = (id: number) => {
+        if(confirm('Approve this company quota request?')) {
+            router.post(`/admin/placements/${id}/approve`);
+        }
+    };
+
+    const handleReject = (id: number) => {
+        if(confirm('Reject this company quota request?')) {
+            router.post(`/admin/placements/${id}/reject`);
+        }
+    };
 
     const filteredData = useMemo(() => {
         return placements.filter(item => {
@@ -38,13 +78,63 @@ export default function Placements({
         setFilterStatus('all');
     };
 
+    const PendingRequests = () => {
+        const pending = quotas.filter(q => q.quota_status === 'Pending');
+
+        if (pending.length === 0) return null;
+
+        return (
+            <div className="space-y-4 animate-in fade-in slide-in-from-top-4 duration-500">
+                <div className="flex items-center gap-2">
+                    <h2 className="text-xl font-bold text-slate-900 uppercase">Quota Requests</h2>
+                    <Badge className="bg-amber-500 hover:bg-amber-600">{pending.length}</Badge>
+                </div>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    {pending.map((quota) => (
+                        <div key={quota.quota_id} className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 bg-slate-50 rounded-lg border border-slate-100">
+                                    <Building2 className="text-slate-400 size-6" />
+                                </div>
+                                <div>
+                                    <h4 className="font-bold text-slate-900">{quota.job_title}</h4>
+                                    <p className="text-xs text-slate-500 font-medium uppercase tracking-tight">
+                                        {quota.company?.company_name} • {quota.total_slots} Slots
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="flex gap-2">
+                                <Button 
+                                    size="sm" 
+                                    variant="outline"
+                                    className="border-emerald-200 text-emerald-600 hover:bg-emerald-50 h-8"
+                                    onClick={() => handleApprove(quota.quota_id)}
+                                >
+                                    <Check className="size-4 mr-1" /> Approve
+                                </Button>
+                                <Button 
+                                    size="sm" 
+                                    variant="outline"
+                                    className="border-red-200 text-red-600 hover:bg-red-50 h-8"
+                                    onClick={() => handleReject(quota.quota_id)}
+                                >
+                                    <X className="size-4 mr-1" />
+                                </Button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        );
+    };
+
     const PlacementPipeline = () => {
         const stages = [
-            { label: "Applied", count: 67, color: "text-slate-600" },
+            { label: "Applied", count: stats.total_applied, color: "text-slate-600" },
             { label: "ILD Review", count: 76, color: "text-amber-600" },
             { label: "Sent to Company", count: 56, color: "text-blue-600" },
             { label: "Under Review", count: 25, color: "text-indigo-600" },
-            { label: "Result", count: 17, color: "text-emerald-600" },
+            { label: "Result", count: stats.total_approved, color: "text-emerald-600" },
         ];
 
         return (
@@ -72,9 +162,12 @@ export default function Placements({
         <div className="w-full max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8 space-y-8">
             <Head title="Placements" />
 
-            <header className="w-full">
+            <header className="flex justify-between items-end w-full">
                 <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">PLACEMENTS</h1>
             </header>
+
+            {/* Pending requests for admin to review quota submitted by Company */}
+            <PendingRequests />
 
             <div className="w-full rounded-xl flex flex-wrap items-end gap-4">
                 <div className="w-40 flex-shrink-0 space-y-1.5">
@@ -96,26 +189,21 @@ export default function Placements({
                         <Input
                             placeholder="Search student or company..."
                             value={searchTerm}
-                            onChange={(e) => {
-                                setSearchTerm(e.target.value);
-                                setIsSearching(true);
-                                setTimeout(() => setIsSearching(false), 500);
-                            }}
+                            onChange={(e) => setSearchTerm(e.target.value)}
                             className="pl-9 bg-white w-full"
                         />
                     </div>
                 </div>
 
                 <Button variant="outline" onClick={resetFilters} className="flex-shrink-0">
-                    <RotateCcw className="mr-2 size-4" />
-                    Reset Filter
+                    <RotateCcw className="mr-2 size-4" /> Reset Filter
                 </Button>
             </div>
 
             <PlacementPipeline />
 
             <div className="flex flex-col space-y-4 w-full">
-                <h2 className="text-xl font-bold text-slate-900 uppercase">STUDENTS</h2>
+                <h2 className="text-xl font-bold text-slate-900 uppercase">Student Status</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
                     <div className="flex items-center gap-4 bg-white p-4 rounded-lg border border-slate-100 shadow-sm">
                         <div className="p-2 bg-red-100 rounded-full text-red-600 flex-shrink-0"><XCircle size={20} /></div>
@@ -132,7 +220,7 @@ export default function Placements({
                 </div>
             </div>
 
-            <div className="w-full overflow-hidden rounded-xl border border-slate-200">
+            <div className="w-full overflow-hidden rounded-xl border border-slate-200 bg-white">
                 <PlacementDataTable data={filteredData} />
             </div>
         </div>

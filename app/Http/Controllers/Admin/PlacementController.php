@@ -13,10 +13,12 @@ class PlacementController extends Controller
 {
     public function index()
     {
-        // Fetch all applications with related student and quota/company
+        // 1. Get ALL Company Quota Requests (Pending, Approved, Rejected)
+        $quotas = PlacementQuota::with(['company', 'programme'])->latest()->get();
+
+        // 2. Get Student Applications for placement table
         $applications = Application::with(['student.programme', 'quota.company'])->get();
 
-        // Map to the structure expected by the frontend
         $placements = $applications->map(function ($app) {
             return [
                 'student_name' => $app->student->full_name,
@@ -26,39 +28,38 @@ class PlacementController extends Controller
             ];
         });
 
-        // Calculate statistics for the dashboard cards
         $stats = [
             'total_students' => Student::count(),
             'total_applied'  => Application::count(),
             'total_approved' => Application::where('app_status', 'Approved')->count(),
             'pending_review' => Application::where('app_status', 'Pending')->count(),
+            'pending_quotas' => PlacementQuota::where('quota_status', 'Pending')->count(),
         ];
 
         return Inertia::render('Admin/Placements', [
             'placements' => $placements,
+            'quotas'     => $quotas, 
             'stats'      => $stats,
         ]);
     }
 
-    // Helper to map internal status to the string used in the frontend
     private function mapStatus($status)
     {
         return match ($status) {
             'Approved'  => 'Approved',
             'Rejected'  => 'Rejected',
-            'Reviewing' => 'Pending',  // frontend uses "Pending" for under review
+            'Reviewing' => 'Pending',  
             default     => 'Pending',
         };
     }
 
-    // The following methods remain unchanged – they work on placement quotas
     public function approve($id)
     {
         $quota = PlacementQuota::findOrFail($id);
         $quota->quota_status = 'Approved';
         $quota->save();
 
-        return redirect()->route('admin.placements')->with('success', 'Quota approved.');
+        return redirect()->back()->with('success', 'Quota approved successfully.');
     }
 
     public function reject($id)
@@ -67,7 +68,7 @@ class PlacementController extends Controller
         $quota->quota_status = 'Rejected';
         $quota->save();
 
-        return redirect()->route('admin.placements')->with('success', 'Quota rejected.');
+        return redirect()->back()->with('success', 'Quota rejected.');
     }
 
     public function release($id)
@@ -76,12 +77,14 @@ class PlacementController extends Controller
         $quota->is_released = true;
         $quota->save();
 
-        return redirect()->route('admin.placements')->with('success', 'Quota released.');
+        return redirect()->back()->with('success', 'Quota released to students.');
     }
 
     public function applications($id)
     {
         $quota = PlacementQuota::with('applications.student')->findOrFail($id);
-        return Inertia::render('Admin/Applications', ['quota' => $quota]);
+        return Inertia::render('Admin/Applications', [
+            'quota' => $quota
+        ]);
     }
 }
