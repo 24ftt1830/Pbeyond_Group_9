@@ -11,8 +11,14 @@ class PlacementQuota extends Model
     public $timestamps = true;
 
     protected $fillable = [
-        'company_id', 'programme_id', 'job_title', 'job_description',
-        'total_slots', 'min_cgpa', 'quota_status', 'is_released'
+        'company_id', 
+        'programme_id', 
+        'job_title', 
+        'job_description',
+        'total_slots', 
+        'min_cgpa', 
+        'quota_status', 
+        'is_released'
     ];
 
     protected $casts = [

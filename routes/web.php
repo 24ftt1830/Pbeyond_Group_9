@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\Company\QuotaController;
 
 // Temporary file for debugging post-vps db connection
 Route::get('/test-route', function () {
@@ -76,13 +77,18 @@ Route::middleware('auth')->group(function () {
         Route::get('/support', fn () => Inertia::render('Admin/Support'))->name('support');
         Route::get('/calendar', fn () => Inertia::render('Admin/Calendar'))->name('calendar');
 
-
     });
 
-    // --- Company Routes (no data yet, just placeholders) ---
-    Route::prefix('company')->name('company.')->group(function () {
+    // --- Company Routes ---
+    Route::middleware(['auth'])->prefix('company')->name('company.')->group(function () {
         Route::get('/dashboard', fn () => Inertia::render('Company/Dashboard'))->name('dashboard');
-        Route::get('/quotas', fn () => Inertia::render('Company/Quotas'))->name('quotas');
+
+        // Quota Management (Connected to QuotaController)
+        Route::get('/quotas', [App\Http\Controllers\Company\QuotaController::class, 'index'])->name('quotas');
+        Route::post('/quotas', [App\Http\Controllers\Company\QuotaController::class, 'store'])->name('quotas.store');
+        Route::delete('/quotas/{quota}', [App\Http\Controllers\Company\QuotaController::class, 'destroy'])->name('quotas.destroy');
+
+        // Other Placeholders
         Route::get('/applicants', fn () => Inertia::render('Company/Applicants'))->name('applicants');
         Route::get('/interns', fn () => Inertia::render('Company/Interns'))->name('interns');
         Route::get('/representatives', fn () => Inertia::render('Company/Representatives'))->name('representatives');
