@@ -11,11 +11,8 @@ class Company extends Model
     public $timestamps = true;
 
     protected $fillable = [
-        'user_id', 
-        'company_name', 
-        'location_type',
-        'industry_sector', 
-        'office_address'
+        'user_id', 'company_name', 'location_type',
+        'industry_sector', 'office_address', 'description', 'additional_information'
     ];
 
     public function user()

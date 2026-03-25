@@ -11,7 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // No operation - password column already exists as 'password' in create_users_table
+        Schema::table('companies', function (Blueprint $table) {
+            $table->text('description')->nullable();
+            $table->text('additional_information')->nullable();
+        });
     }
 
     /**
@@ -19,6 +22,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // No operation
+        Schema::table('companies', function (Blueprint $table) {
+            $table->dropColumn(['description', 'additional_information']);
+        });
     }
 };
