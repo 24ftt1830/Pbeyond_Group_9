@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import CompanyDataTable from '@/Components/company-data-table';
 import DashboardCard from '@/Components/DashboardCards';
 import { Building2, LayoutGrid, User, UserCheck, SearchIcon, LoaderCircleIcon, RotateCcw, Plus } from 'lucide-react';
@@ -18,22 +18,15 @@ import {
 } from "@/Components/ui/dialog";
 import { Label } from "@/Components/ui/label";
 
-export default function ManageUsers({
-    stats = { total_companies: 12, total_quota: 150, total_filled: 85, available_slots: 65 },
-    companies = [
-        { id: 1, name: "Shell Livewire Brunei", location: "Brunei Muara", total_quota: 50, filled: 45, available: 5, category: "Tech" },
-        { id: 2, name: "Maybank", location: "Brunei Muara", total_quota: 30, filled: 10, available: 20, category: "Service" },
-        { id: 3, name: "Seria Energy Lab", location: "Belait", total_quota: 20, filled: 20, available: 0, category: "Design" },
-        { id: 4, name: "Jabatan Kemajuan Perumahan", location: "Brunei Muara", total_quota: 50, filled: 10, available: 40, category: "Tech" },
-        { id: 5, name: "MSU", location: "Brunei Muara", total_quota: 50, filled: 10, available: 40, category: "Tech" },
-        { id: 6, name: "Jerudong Park Medical Centre", location: "Brunei Muara", total_quota: 50, filled: 10, available: 40, category: "Tech" },
-        { id: 7, name: "EVYD Tech", location: "Brunei Muara", total_quota: 50, filled: 10, available: 40, category: "Tech" },
-        { id: 8, name: "Dynamik Technologies", location: "Brunei Muara", total_quota: 50, filled: 10, available: 40, category: "Tech" },
-        { id: 9, name: "Police Diraja Brunei", location: "Brunei Muara", total_quota: 50, filled: 10, available: 40, category: "Tech" },
-        { id: 10, name: "Baiduri Bank", location: "Brunei Muara", total_quota: 50, filled: 10, available: 40, category: "Tech" },
-        { id: 11, name: "Brunei Innovation Lab", location: "Brunei Muara", total_quota: 50, filled: 10, available: 40, category: "Tech" },
-    ]
-}) {
+export default function Companies({ stats, companies }) {
+    const [open, setOpen] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
+    const [formData, setFormData] = useState({
+        name: '',
+        category: '',
+        location: '',
+    });
+
     const [searchTerm, setSearchTerm] = useState('');
     const [filterCategory, setFilterCategory] = useState('all');
     const [filterStatus, setFilterStatus] = useState('all');
@@ -49,10 +42,8 @@ export default function ManageUsers({
                 const matchesSearch = company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                                      company.location.toLowerCase().includes(searchTerm.toLowerCase());
                 const matchesCategory = filterCategory === 'all' || company.category === filterCategory;
-
                 const matchesStatus = filterStatus === 'all' ||
                                      (filterStatus.toLowerCase() === company.status.toLowerCase());
-
                 return matchesSearch && matchesCategory && matchesStatus;
             });
     }, [searchTerm, filterCategory, filterStatus, companies]);
@@ -63,10 +54,27 @@ export default function ManageUsers({
         setFilterStatus('all');
     };
 
-    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleSearchChange = (e) => {
         setSearchTerm(e.target.value);
         setIsSearching(true);
         setTimeout(() => setIsSearching(false), 500);
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        setSubmitting(true);
+        router.post(route('admin.companies.store'), formData, {
+            preserveScroll: true,
+            onFinish: () => setSubmitting(false),
+            onSuccess: () => {
+                setOpen(false);
+                setFormData({ name: '', category: '', location: '' });
+            },
+            onError: (errors) => {
+                console.error(errors);
+                alert('Failed to register company.');
+            },
+        });
     };
 
     return (
@@ -78,7 +86,7 @@ export default function ManageUsers({
                     <h1 className="text-3xl font-extrabold text-slate-900">Company and Quota</h1>
                 </header>
 
-                <Dialog>
+                <Dialog open={open} onOpenChange={setOpen}>
                     <DialogTrigger asChild>
                         <Button className="flex items-center gap-2">
                             <Plus className="size-4" />
@@ -86,55 +94,67 @@ export default function ManageUsers({
                         </Button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-[425px]">
-                        <DialogHeader>
-                            <DialogTitle>Register New Company</DialogTitle>
-                            <DialogDescription>
-                                Add a new partner organization to the system.
-                            </DialogDescription>
-                        </DialogHeader>
-                        <div className="grid gap-4 py-4">
-                            <div className="grid gap-2">
-                                <Label htmlFor="co-name">Company Name</Label>
-                                <Input id="co-name" placeholder="e.g. Brunei Innovation Lab" />
-                            </div>
+                        <form onSubmit={handleSubmit}>
+                            <DialogHeader>
+                                <DialogTitle>Register New Company</DialogTitle>
+                                <DialogDescription>
+                                    Add a new partner organization to the system.
+                                </DialogDescription>
+                            </DialogHeader>
+                            <div className="grid gap-4 py-4">
+                                <div className="grid gap-2">
+                                    <Label htmlFor="co-name">Company Name</Label>
+                                    <Input
+                                        id="co-name"
+                                        value={formData.name}
+                                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                        required
+                                    />
+                                </div>
 
-                            <div className="grid gap-2">
-                                <Label htmlFor="co-category">Industrial Category</Label>
-                                <Select>
-                                    <SelectTrigger id="co-category">
-                                        <SelectValue placeholder="Select category" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="tech">Technology</SelectItem>
-                                        <SelectItem value="service">Service</SelectItem>
-                                        <SelectItem value="design">Design</SelectItem>
-                                        <SelectItem value="oil_gas">Oil & Gas</SelectItem>
-                                        <SelectItem value="government">Government</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="co-category">Industrial Category</Label>
+                                    <Select
+                                        value={formData.category}
+                                        onValueChange={(value) => setFormData({ ...formData, category: value })}
+                                    >
+                                        <SelectTrigger id="co-category">
+                                            <SelectValue placeholder="Select category" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="Tech">Technology</SelectItem>
+                                            <SelectItem value="Service">Service</SelectItem>
+                                            <SelectItem value="Design">Design</SelectItem>
+                                            <SelectItem value="Oil & Gas">Oil & Gas</SelectItem>
+                                            <SelectItem value="Government">Government</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
 
-                            <div className="grid gap-2">
-                                <Label htmlFor="co-location">District</Label>
-                                <Select>
-                                    <SelectTrigger id="co-location">
-                                        <SelectValue placeholder="Select District" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="brunei_muara">Brunei Muara</SelectItem>
-                                        <SelectItem value="belait">Belait</SelectItem>
-                                        <SelectItem value="tutong">Tutong</SelectItem>
-                                        <SelectItem value="temburong">Temburong</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="co-location">District</Label>
+                                    <Select
+                                        value={formData.location}
+                                        onValueChange={(value) => setFormData({ ...formData, location: value })}
+                                    >
+                                        <SelectTrigger id="co-location">
+                                            <SelectValue placeholder="Select District" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="Brunei Muara">Brunei Muara</SelectItem>
+                                            <SelectItem value="Belait">Belait</SelectItem>
+                                            <SelectItem value="Tutong">Tutong</SelectItem>
+                                            <SelectItem value="Temburong">Temburong</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
                             </div>
-
-                        </div>
-                        <DialogFooter>
-                            <Button type="submit" className="w-full sm:w-auto">
-                                Complete Registration
-                            </Button>
-                        </DialogFooter>
+                            <DialogFooter>
+                                <Button type="submit" disabled={submitting}>
+                                    {submitting ? 'Registering...' : 'Complete Registration'}
+                                </Button>
+                            </DialogFooter>
+                        </form>
                     </DialogContent>
                 </Dialog>
             </div>
@@ -203,4 +223,4 @@ export default function ManageUsers({
     );
 }
 
-ManageUsers.layout = (page: React.ReactNode) => <AuthenticatedLayout children={page} />;
+Companies.layout = (page: React.ReactNode) => <AuthenticatedLayout children={page} />;

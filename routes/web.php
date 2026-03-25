@@ -61,6 +61,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/companies', [App\Http\Controllers\Admin\CompanyController::class, 'index'])->name('companies');
         Route::post('/companies/{company}/approve', [App\Http\Controllers\Admin\CompanyController::class, 'approve'])->name('companies.approve');
         Route::post('/companies/{company}/reject', [App\Http\Controllers\Admin\CompanyController::class, 'reject'])->name('companies.reject');
+        Route::post('/companies', [App\Http\Controllers\Admin\CompanyController::class, 'store'])->name('companies.store');
 
         // Placements
         Route::get('/placements', [App\Http\Controllers\Admin\PlacementController::class, 'index'])->name('placements');

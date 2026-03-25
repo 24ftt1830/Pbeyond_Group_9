@@ -11,12 +11,12 @@ use Inertia\Inertia;
 class DocumentController extends Controller
 {
     public function index()
-    {
-        $documents = Document::where('user_id', auth()->id())->get()->keyBy('type');
-        return Inertia::render('Student/Documentations', [
-            'documents' => $documents,
-        ]);
-    }
+{
+    $documents = Document::where('user_id', auth()->id())->get();
+    return Inertia::render('Student/Documentations', [
+        'documents' => $documents, // this is a Collection, which serializes to an array
+    ]);
+}
 
     public function upload(Request $request)
     {
