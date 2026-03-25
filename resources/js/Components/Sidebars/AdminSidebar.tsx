@@ -1,14 +1,14 @@
-import { 
-    Sidebar, 
-    SidebarContent, 
-    SidebarHeader, 
+import {
+    Sidebar,
+    SidebarContent,
+    SidebarHeader,
     SidebarTrigger,
     SidebarSeparator,
-    SidebarFooter, 
+    SidebarFooter,
 } from "@/Components/ui/sidebar"
 import { NavMain } from "@/Components/nav-main"
 import { NavUser } from "@/Components/nav-user"
-import { usePage } from '@inertiajs/react' 
+import { usePage } from '@inertiajs/react'
 import { PageProps } from '@/types'
 import { Link } from '@inertiajs/react';
 import {
