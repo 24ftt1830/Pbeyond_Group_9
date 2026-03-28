@@ -26,4 +26,7 @@ class ApplicationController extends Controller
             'applications' => $applications,
         ]);
     }
+
+
+
 }
