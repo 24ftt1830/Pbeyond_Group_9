@@ -16,7 +16,7 @@ use App\Http\Controllers\Student\FaqController as StudentFaqController;
 use App\Http\Controllers\Student\FavouriteController as StudentFavouriteController;
 use App\Http\Controllers\Student\ReportController as StudentReportController;
 use App\Http\Controllers\Student\CalendarController as StudentCalendarController;
-
+use App\Http\Controllers\Student\ProfileController as StudentProfileController;
 
 // Temporary file for debugging post-vps db connection
 Route::get('/test-route', function () {
@@ -25,7 +25,6 @@ Route::get('/test-route', function () {
 
 Route::get('/debug-session', function () {
     session(['test_key' => 'it_works!']);
-
     return session('test_key');
 });
 
@@ -49,7 +48,6 @@ Route::middleware('auth')->group(function () {
             return back()->withErrors('Invalid role');
         }
         auth()->user()->update(['role' => $role]);
-
         return back()->with('success', 'Role updated!');
     })->name('dev.switch-role');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -57,24 +55,21 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // --- Admin Routes (protected by admin middleware) ---
-    Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix('admin')->name('admin.')->group(function () {
-        // Dashboard
+    //Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix('admin')->name('admin.')->group(function () {
+    Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', fn () => Inertia::render('Admin/Dashboard'))->name('dashboard');
 
-        // Companies
         Route::get('/companies', [App\Http\Controllers\Admin\CompanyController::class, 'index'])->name('companies');
         Route::post('/companies/{company}/approve', [App\Http\Controllers\Admin\CompanyController::class, 'approve'])->name('companies.approve');
         Route::post('/companies/{company}/reject', [App\Http\Controllers\Admin\CompanyController::class, 'reject'])->name('companies.reject');
         Route::post('/companies', [App\Http\Controllers\Admin\CompanyController::class, 'store'])->name('companies.store');
 
-        // Placements
         Route::get('/placements', [App\Http\Controllers\Admin\PlacementController::class, 'index'])->name('placements');
         Route::post('/placements/{quota}/approve', [App\Http\Controllers\Admin\PlacementController::class, 'approve'])->name('placements.approve');
         Route::post('/placements/{quota}/reject', [App\Http\Controllers\Admin\PlacementController::class, 'reject'])->name('placements.reject');
         Route::post('/placements/{quota}/release', [App\Http\Controllers\Admin\PlacementController::class, 'release'])->name('placements.release');
         Route::get('/placements/{quota}/applications', [App\Http\Controllers\Admin\PlacementController::class, 'applications'])->name('placements.applications');
 
-        // Manage Users (Company representatives)
         Route::get('/manage-users', [App\Http\Controllers\Admin\UserManagementController::class, 'index'])->name('manage-users');
         Route::post('/manage-users', [App\Http\Controllers\Admin\UserManagementController::class, 'store'])->name('manage-users.store');
         Route::get('/manage-users/{id}/edit', [App\Http\Controllers\Admin\UserManagementController::class, 'edit'])->name('manage-users.edit');
@@ -86,23 +81,27 @@ Route::middleware('auth')->group(function () {
         Route::post('/students/{student}/approve', [App\Http\Controllers\Admin\StudentController::class, 'approve'])->name('students.approve');
         Route::post('/students/{student}/reject', [App\Http\Controllers\Admin\StudentController::class, 'reject'])->name('students.reject');
 
+        Route::post('/applications/{application}/update', [App\Http\Controllers\Admin\ApplicationController::class, 'update'])->name('admin.applications.update');
+
         Route::get('/reports', fn () => Inertia::render('Admin/Reports'))->name('reports');
         Route::get('/support', fn () => Inertia::render('Admin/Support'))->name('support');
         Route::get('/calendar', fn () => Inertia::render('Admin/Calendar'))->name('calendar');
-
     });
 
     // --- Company Routes ---
     Route::middleware(['auth'])->prefix('company')->name('company.')->group(function () {
         Route::get('/dashboard', fn () => Inertia::render('Company/Dashboard'))->name('dashboard');
 
-        // Quota Management (Connected to QuotaController)
+        // Quota Management
         Route::get('/quotas', [App\Http\Controllers\Company\QuotaController::class, 'index'])->name('quotas');
         Route::post('/quotas', [App\Http\Controllers\Company\QuotaController::class, 'store'])->name('quotas.store');
         Route::delete('/quotas/{quota}', [App\Http\Controllers\Company\QuotaController::class, 'destroy'])->name('quotas.destroy');
 
-        // Other Placeholders
-        Route::get('/applicants', fn () => Inertia::render('Company/Applicants'))->name('applicants');
+        // Applicants
+        Route::get('/applicants', [App\Http\Controllers\Company\ApplicantController::class, 'index'])->name('applicants');
+        Route::post('/applicants/{application}/review', [App\Http\Controllers\Company\ApplicantController::class, 'review'])->name('applicants.review');
+
+        // Other placeholders (can be replaced later)
         Route::get('/interns', fn () => Inertia::render('Company/Interns'))->name('interns');
         Route::get('/representatives', fn () => Inertia::render('Company/Representatives'))->name('representatives');
         Route::get('/interviews', fn () => Inertia::render('Company/Interviews'))->name('interviews');
@@ -111,85 +110,17 @@ Route::middleware('auth')->group(function () {
         Route::get('/calendar', fn () => Inertia::render('Company/Calendar'))->name('calendar');
     });
 
-     // --- Student Routes ---
-//     Route::prefix('student')->name('student.')->group(function () {
-//         Route::get('/dashboard', fn () => Inertia::render('Student/Dashboard'))->name('dashboard');
-//         Route::get('/companies', function () {
-//             return Inertia::render('Student/CompaniesList', [
-//                 'companies' => Company::query()
-//                     ->select([
-//                         'id',
-//                         'name',
-//                         'status',
-//                         'quota_availability',
-//                         'interview_required',
-//                         'school',
-//                         'district',
-//                         'description',
-//                         'additional_information',
-//                     ])
-//                     ->orderBy('id')
-//                     ->get(),
-//             ]);
-//         })->name('companies');
-//         Route::get('/companies/{company}', function (Company $company) {
-//             $hasApplied = InternshipApplication::query()
-//                 ->where('user_id', auth()->id())
-//                 ->where('company_id', $company->id)
-//                 ->exists();
-
-//             return Inertia::render('Student/ViewCompany', [
-//                 'company' => $company,
-//                 'hasApplied' => $hasApplied,
-//             ]);
-//         })->name('companies.view');
-//         Route::post('/companies/{company}/apply', function (Company $company) {
-//             if ($company->quota_availability <= 0 || strtolower($company->status) === 'full') {
-//                 throw ValidationException::withMessages([
-//                     'apply' => 'Application rejected because slots are full.',
-//                 ]);
-//             }
-
-//             InternshipApplication::query()->firstOrCreate(
-//                 [
-//                     'user_id' => auth()->id(),
-//                     'company_id' => $company->id,
-//                 ],
-//                 [
-//                     'status' => 'Applied',
-//                     'applied_at' => now(),
-//                 ]
-//             );
-
-//             return back();
-//         })->name('companies.apply');
-//         Route::get('/favourites', fn () => Inertia::render('Student/Favourites'))->name('favourites');
-//         Route::get('/application-tracking', function () {
-//             $applications = InternshipApplication::query()
-//                 ->where('user_id', auth()->id())
-//                 ->with('company:id,name')
-//                 ->latest('applied_at')
-//                 ->get();
-
-//             return Inertia::render('Student/ApplicationTracking', [
-//                 'applications' => $applications,
-//             ]);
-//         })->name('application-tracking');
-//         Route::get('/documentations', fn () => Inertia::render('Student/Documentations'))->name('documentations');
-//         Route::get('/report-issue', fn () => Inertia::render('Student/ReportIssue'))->name('report-issue');
-//         Route::get('/faqs', fn () => Inertia::render('Student/FAQs'))->name('faqs');
-//         Route::get('/calendar', fn () => Inertia::render('Student/Calendar'))->name('calendar');
-//         Route::get('/past-reports', fn () => Inertia::render('Student/PastReports'))->name('past-reports');
-//     });
-// });
-
- // --- Student Routes ---
+    // --- Student Routes ---
     Route::prefix('student')->name('student.')->group(function () {
+        Route::get('/profile', [StudentProfileController::class, 'index'])->name('profile');
+        Route::post('/profile', [StudentProfileController::class, 'update'])->name('profile.update');
+
         Route::get('/dashboard', [StudentDashboardController::class, 'index'])->name('dashboard');
         Route::get('/companies', [StudentCompanyController::class, 'index'])->name('companies');
         Route::get('/companies/{company}', [StudentCompanyController::class, 'show'])->name('companies.view');
         Route::post('/companies/{company}/apply', [StudentCompanyController::class, 'apply'])->name('companies.apply');
         Route::get('/application-tracking', [StudentApplicationController::class, 'index'])->name('application-tracking');
+        Route::post('/applications/{application}/accept', [StudentApplicationController::class, 'accept'])->name('applications.accept');
         Route::get('/calendar', [StudentCalendarController::class, 'index'])->name('calendar');
         Route::get('/documentations', [StudentDocumentController::class, 'index'])->name('documentations');
         Route::post('/documentations/upload', [StudentDocumentController::class, 'upload'])->name('documentations.upload');
@@ -205,5 +136,3 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
-
-

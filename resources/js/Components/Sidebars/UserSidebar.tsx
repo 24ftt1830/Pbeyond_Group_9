@@ -55,6 +55,13 @@ const data = {
             url: route('student.report-issue'),
             icon: Flag,
         },
+
+        {
+             title: "My Profile",
+             url: route('student.profile'),
+             icon: FileText, // import User from lucide-react
+},
+
     ],
     navSecondary: [
         {

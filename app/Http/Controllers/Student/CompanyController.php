@@ -13,6 +13,7 @@ class CompanyController extends Controller
     public function index()
     {
 
+
         $companies = Company::with(['placementQuotas' => function ($q) {
             $q->where('is_released', true)
               ->where('quota_status', 'Approved');

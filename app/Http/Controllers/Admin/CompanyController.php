@@ -10,7 +10,7 @@ use Inertia\Inertia;
 class CompanyController extends Controller
 {
     /**
-     * Display a listing of companies with quota statistics.
+     * Display a listing of companies with quota statistics and approval status.
      */
     public function index()
     {
@@ -33,6 +33,7 @@ class CompanyController extends Controller
                 'filled'          => (int)$filled,
                 'available'       => (int)$available,
                 'industry_sector' => $company->industry_sector ?? 'General',
+                'is_approved'     => (bool)$company->is_approved,
             ];
         });
 
@@ -60,13 +61,14 @@ class CompanyController extends Controller
             'office_address'  => 'required|string',
         ]);
 
+        // The 'is_approved' column defaults to false via migration
         Company::create($validated);
 
         return back()->with('success', 'Company registered successfully.');
     }
 
     /**
-     * Approve a company.
+     * Approve a company (sets is_approved to true).
      */
     public function approve($id)
     {
@@ -77,7 +79,7 @@ class CompanyController extends Controller
     }
 
     /**
-     * Reject a company.
+     * Reject a company (sets is_approved to false).
      */
     public function reject($id)
     {
