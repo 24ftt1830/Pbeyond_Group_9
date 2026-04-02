@@ -1,409 +1,177 @@
-// import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-// import { useState } from 'react';
-// import type { ReactNode } from 'react';
-
-// type ApplicationItem = {
-//     id: number;
-//     status: string;
-//     applied_at: string | null;
-//     company: {
-//         id: number;
-//         name: string;
-//     } | null;
-// };
-
-// export default function ApplicationTracking({ applications = [] }: { applications?: ApplicationItem[] }) {
-//     const processSteps = [
-//         'Applied',
-//         'ILD Review',
-//         'Sent to Company',
-//         'Interview',
-//         'Under Review',
-//         'Result: Accepted/Rejected',
-//     ];
-
-//     const [selectedApplicationId, setSelectedApplicationId] = useState<number | null>(applications[0]?.id ?? null);
-
-//     const selectedApplication = applications.find((application) => application.id === selectedApplicationId) ?? null;
-
-//     const formatDateTime = (value: string | null) => {
-//         if (!value) {
-//             return '-';
-//         }
-
-//         const parsedDate = new Date(value);
-//         if (Number.isNaN(parsedDate.getTime())) {
-//             return '-';
-//         }
-
-//         return parsedDate.toLocaleString('en-GB', {
-//             day: '2-digit',
-//             month: 'short',
-//             year: 'numeric',
-//             hour: '2-digit',
-//             minute: '2-digit',
-//             hour12: true,
-//         });
-//     };
-
-//     const selectedAppliedDateTime = formatDateTime(selectedApplication?.applied_at ?? null);
-//     const selectedStepTimes = selectedApplication
-//         ? [selectedAppliedDateTime, '-', '-', '-', '-', '-']
-//         : ['-', '-', '-', '-', '-', '-'];
-
-//     const splitDateTime = (value: string) => {
-//         const [datePart, ...timeParts] = value.split(',');
-//         return {
-//             date: datePart?.trim() || '-',
-//             time: timeParts.join(',').trim() || '-',
-//         };
-//     };
-
-//     const processUpdates = processSteps
-//         .map((step, index) => ({
-//             status: step,
-//             dateTime: selectedStepTimes[index] ?? '-',
-//         }))
-//         .filter((update) => update.dateTime !== '-');
-
-//     return (
-//         <div className="w-full p-4 text-black">
-//             <h1 className="mb-4 text-2xl font-bold text-black">Application Tracking</h1>
-
-//             <div className="grid min-h-[620px] gap-6 lg:grid-cols-[1fr_320px]">
-//                 <div className="rounded-xl border border-black/10 p-6">
-//                     <h2 className="text-center text-xl font-semibold">
-//                         {selectedApplication?.company?.name ?? 'No Company Selected'}
-//                     </h2>
-//                     <p className="mb-6 text-center text-sm text-black/70">
-//                         Applied on: {selectedAppliedDateTime}
-//                     </p>
-
-//                     <ol className="mx-auto flex w-full min-w-max items-start gap-0 overflow-x-auto pb-2">
-//                         {processSteps.map((step, index) => (
-//                             <li key={step} className="relative flex min-h-[130px] w-[170px] flex-col items-center px-1 text-center">
-//                                 <div className="relative flex h-8 w-full items-center justify-center">
-//                                     <span
-//                                         className={`z-10 h-4 w-4 rounded-full border-2 ${
-//                                             selectedStepTimes[index] && selectedStepTimes[index] !== '-'
-//                                                 ? 'border-emerald-700 bg-emerald-600'
-//                                                 : 'border-black/50 bg-white'
-//                                         }`}
-//                                     />
-//                                     {index < processSteps.length - 1 && (
-//                                         <span
-//                                             className={`absolute top-1/2 left-1/2 h-[2px] w-[170px] -translate-y-1/2 ${
-//                                                 selectedStepTimes[index + 1] && selectedStepTimes[index + 1] !== '-'
-//                                                     ? 'bg-emerald-600/70'
-//                                                     : 'bg-black/30'
-//                                             }`}
-//                                         />
-//                                     )}
-//                                 </div>
-//                                 <div className="mt-2 text-sm font-medium text-black">{step}</div>
-//                                 <div
-//                                     className={`mt-1 text-xs ${
-//                                         selectedStepTimes[index] && selectedStepTimes[index] !== '-'
-//                                             ? 'font-medium text-emerald-700'
-//                                             : 'text-black/50'
-//                                     }`}
-//                                 >
-//                                     {selectedStepTimes[index] ?? '-'}
-//                                 </div>
-//                             </li>
-//                         ))}
-//                     </ol>
-
-//                     <div className="mt-6 rounded-lg border border-black/10 p-4">
-//                         <h3 className="mb-3 text-sm font-bold uppercase tracking-wide text-black">Updates</h3>
-//                         <div className="overflow-x-auto">
-//                             {processUpdates.length > 0 ? (
-//                                 <table className="w-full min-w-[480px] text-left text-sm">
-//                                     <thead>
-//                                         <tr className="border-b border-black/15 text-black/80">
-//                                             <th className="px-2 py-2 font-semibold">Date</th>
-//                                             <th className="px-2 py-2 font-semibold">Time</th>
-//                                             <th className="px-2 py-2 font-semibold">Status</th>
-//                                         </tr>
-//                                     </thead>
-//                                     <tbody>
-//                                         {processUpdates.map((update) => {
-//                                             const { date, time } = splitDateTime(update.dateTime);
-//                                             return (
-//                                                 <tr key={`${update.status}-${update.dateTime}`} className="border-b border-black/10 bg-white/60 last:border-b-0">
-//                                                     <td className="px-2 py-2 text-black/80">{date}</td>
-//                                                     <td className="px-2 py-2 text-black/80">{time}</td>
-//                                                     <td className="px-2 py-2 font-medium text-black">{update.status}</td>
-//                                                 </tr>
-//                                             );
-//                                         })}
-//                                     </tbody>
-//                                 </table>
-//                             ) : (
-//                                 <div className="rounded-md border border-black/10 bg-white/60 p-2 text-sm text-black/70">
-//                                     No updates available yet.
-//                                 </div>
-//                             )}
-//                         </div>
-//                     </div>
-//                 </div>
-
-//                 <aside className="rounded-xl border border-black/10 bg-[#D9D9D9] p-5">
-//                     <h2 className="mb-4 text-lg font-semibold text-black">Application Tracker</h2>
-
-//                     <div className="rounded-lg bg-white/80 p-4">
-//                         <h3 className="mb-3 text-sm font-bold uppercase tracking-wide">Applied Companies</h3>
-//                         <ul className="space-y-2 text-sm">
-//                             {applications.length > 0 ? (
-//                                 applications.map((application) => (
-//                                     <li key={application.id}>
-//                                         <button
-//                                             type="button"
-//                                             onClick={() => setSelectedApplicationId(application.id)}
-//                                             className={`w-full rounded-md p-2 text-left ${
-//                                                 selectedApplicationId === application.id
-//                                                     ? 'bg-black text-white'
-//                                                     : 'bg-white text-black'
-//                                             }`}
-//                                         >
-//                                             {application.company?.name ?? 'Unknown Company'}
-//                                         </button>
-//                                     </li>
-//                                 ))
-//                             ) : (
-//                                 <li className="rounded-md bg-white p-2 text-black/70">No applications yet.</li>
-//                             )}
-//                         </ul>
-//                     </div>
-//                 </aside>
-//             </div>
-//         </div>
-//     );
-// }
-
-// ApplicationTracking.layout = (page: ReactNode) => <AuthenticatedLayout children={page} />;
-
-
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Link } from '@inertiajs/react';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import type { ReactNode } from 'react';
 
-type Company = {
+type ApplicationItem = {
     id: number;
-    name: string;
     status: string;
-    quota_availability: number;
-    interview_required: string;
-    school: string;
-    district: string;
+    applied_at: string | null;
+    company: {
+        id: number;
+        name: string;
+    } | null;
 };
 
-const districtOptions = ['Brunei-Muara', 'Tutong', 'Temburong', 'Kuala Belait'];
-const statusOptions = ['Available', 'Full'];
-const schoolOptions = ['SICT', 'SBS', 'SHS', 'SSE', 'SPE'];
-const interviewOptions = ['Yes', 'No', 'Depending on the course'];
+export default function ApplicationTracking({ applications = [] }: { applications?: ApplicationItem[] }) {
+    const processSteps = [
+        'Applied',
+        'ILD Review',
+        'Sent to Company',
+        'Interview',
+        'Under Review',
+        'Result',
+    ];
 
-export default function Companies({ companies = [] }: { companies?: Company[] }) {
-    const [searchQuery, setSearchQuery] = useState('');
-    const [selectedDistricts, setSelectedDistricts] = useState<string[]>([]);
-    const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
-    const [selectedSchools, setSelectedSchools] = useState<string[]>([]);
-    const [selectedInterviewRequired, setSelectedInterviewRequired] = useState<string[]>([]);
+    const [selectedApplicationId, setSelectedApplicationId] = useState<number | null>(applications[0]?.id ?? null);
 
-    const toggleSelection = (value: string, selectedValues: string[], setSelectedValues: (values: string[]) => void) => {
-        if (selectedValues.includes(value)) {
-            setSelectedValues(selectedValues.filter((item) => item !== value));
-            return;
-        }
-        setSelectedValues([...selectedValues, value]);
+    const selectedApplication = applications.find((application) => application.id === selectedApplicationId) ?? null;
+
+    const formatDateTime = (value: string | null) => {
+        if (!value) return '-';
+        const parsedDate = new Date(value);
+        if (isNaN(parsedDate.getTime())) return '-';
+        return parsedDate.toLocaleString('en-GB', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true,
+        });
     };
 
-    const filteredCompanies = useMemo(() => {
-        const parseMultiValues = (value: string) =>
-            value
-                .split(',')
-                .map((item) => item.trim().toLowerCase())
-                .filter(Boolean);
+    const selectedAppliedDateTime = formatDateTime(selectedApplication?.applied_at ?? null);
+    const selectedStepTimes = selectedApplication
+        ? [selectedAppliedDateTime, '-', '-', '-', '-', '-']
+        : ['-', '-', '-', '-', '-', '-'];
 
-        return companies.filter((company) => {
-            const normalizedSearch = searchQuery.trim().toLowerCase();
-            const matchesSearch = !normalizedSearch || company.name.toLowerCase().includes(normalizedSearch);
+    const splitDateTime = (value: string) => {
+        const [datePart, ...timeParts] = value.split(',');
+        return { date: datePart?.trim() || '-', time: timeParts.join(',').trim() || '-' };
+    };
 
-            const companyDistricts = parseMultiValues(company.district);
-            const matchesDistrict =
-                selectedDistricts.length === 0 ||
-                selectedDistricts.some((district) => companyDistricts.includes(district.toLowerCase()));
-
-            const matchesStatus =
-                selectedStatuses.length === 0 || selectedStatuses.includes(company.status.trim());
-
-            const companySchools = parseMultiValues(company.school);
-            const matchesSchool =
-                selectedSchools.length === 0 ||
-                selectedSchools.some((school) => companySchools.includes(school.toLowerCase()));
-
-            const matchesInterview =
-                selectedInterviewRequired.length === 0 ||
-                selectedInterviewRequired.includes(company.interview_required.trim());
-
-            return matchesSearch && matchesDistrict && matchesStatus && matchesSchool && matchesInterview;
-        });
-    }, [
-        companies,
-        searchQuery,
-        selectedDistricts,
-        selectedStatuses,
-        selectedSchools,
-        selectedInterviewRequired,
-    ]);
+    const processUpdates = processSteps
+        .map((step, index) => ({
+            status: step,
+            dateTime: selectedStepTimes[index] ?? '-',
+        }))
+        .filter((update) => update.dateTime !== '-');
 
     return (
-        <div className="p-6">
-            <h1 className="text-2xl font-bold">Companies List</h1>
-            <div className="mt-4 max-w-sm">
-                <label htmlFor="company-search" className="block text-sm font-medium">
-                    Looking for a specific company?
-                </label>
-                <input
-                    id="company-search"
-                    type="text"
-                    placeholder="Search company"
-                    value={searchQuery}
-                    onChange={(event) => setSearchQuery(event.target.value)}
-                    className="mt-2 w-full rounded-md border px-3 py-2 text-sm"
-                />
-            </div>
-            <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_280px]">
-                <div className="overflow-x-auto">
-                    <table className="min-w-full border-collapse">
-                        <thead>
-                            <tr className="border-b">
-                                <th className="px-4 py-3 text-left text-sm font-semibold">ID Number</th>
-                                <th className="px-4 py-3 text-left text-sm font-semibold">Company Name</th>
-                                <th className="px-4 py-3 text-left text-sm font-semibold">Status</th>
-                                <th className="px-4 py-3 text-left text-sm font-semibold">Quota Availability</th>
-                                <th className="px-4 py-3 text-left text-sm font-semibold">Interview Required</th>
-                                <th className="px-4 py-3 text-left text-sm font-semibold">School</th>
-                                <th className="px-4 py-3 text-left text-sm font-semibold">District</th>
-                                <th className="px-4 py-3 text-left text-sm font-semibold">Actions</th>
-                             </tr>
-                        </thead>
-                        <tbody>
-                            {filteredCompanies.length > 0 ? (
-                                filteredCompanies.map((company) => (
-                                    <tr key={company.id} className="border-b">
-                                        <td className="px-4 py-3 text-sm">{company.id}</td>
-                                        <td className="px-4 py-3 text-sm">{company.name}</td>
-                                        <td className="px-4 py-3 text-sm">{company.status}</td>
-                                        <td className="px-4 py-3 text-sm">{company.quota_availability}</td>
-                                        <td className="px-4 py-3 text-sm">{company.interview_required}</td>
-                                        <td className="px-4 py-3 text-sm">{company.school}</td>
-                                        <td className="px-4 py-3 text-sm">{company.district}</td>
-                                        <td className="px-4 py-3 text-sm">
-                                            <Link
-                                                href={route('student.companies.view', company.id)}
-                                                className="rounded-md bg-black/10 px-3 py-1 text-xs font-medium text-black hover:bg-black/20"
-                                            >
-                                                View
-                                            </Link>
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr className="border-b">
-                                    <td className="px-4 py-3 text-sm text-muted-foreground" colSpan={8}>
-                                        No companies available.
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <h1 className="text-2xl font-semibold text-gray-900 mb-6">Application Tracking</h1>
 
-                <aside className="h-fit rounded-xl border border-black/10 bg-white p-4 shadow">
-                    <h2 className="mb-4 text-sm font-bold uppercase tracking-wide">Filter</h2>
-                    <div className="space-y-5 text-sm">
-                        <div>
-                            <p className="mb-2 font-semibold">District</p>
-                            <div className="space-y-2">
-                                {districtOptions.map((district) => (
-                                    <label key={district} className="flex items-center gap-2">
-                                        <input
-                                            type="checkbox"
-                                            checked={selectedDistricts.includes(district)}
-                                            onChange={() =>
-                                                toggleSelection(district, selectedDistricts, setSelectedDistricts)
-                                            }
-                                        />
-                                        <span>{district}</span>
-                                    </label>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Main content: timeline and updates */}
+                <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div className="p-6">
+                        <h2 className="text-lg font-medium text-gray-900">
+                            {selectedApplication?.company?.name ?? 'No Company Selected'}
+                        </h2>
+                        <p className="text-sm text-gray-500 mt-1">
+                            Applied on: {selectedAppliedDateTime}
+                        </p>
+
+                        {/* Timeline */}
+                        <div className="mt-6">
+                            <ol className="flex items-start justify-between gap-2 overflow-x-auto pb-2">
+                                {processSteps.map((step, index) => (
+                                    <li key={step} className="relative flex flex-col items-center text-center min-w-[80px]">
+                                        <div className="relative flex items-center justify-center">
+                                            <span
+                                                className={`z-10 h-3 w-3 rounded-full border ${
+                                                    selectedStepTimes[index] !== '-'
+                                                        ? 'bg-emerald-500 border-emerald-600'
+                                                        : 'bg-gray-200 border-gray-300'
+                                                }`}
+                                            />
+                                            {index < processSteps.length - 1 && (
+                                                <span
+                                                    className={`absolute top-1/2 left-1/2 w-full h-[2px] -translate-y-1/2 ${
+                                                        selectedStepTimes[index + 1] !== '-'
+                                                            ? 'bg-emerald-500'
+                                                            : 'bg-gray-200'
+                                                    }`}
+                                                />
+                                            )}
+                                        </div>
+                                        <div className="mt-2 text-xs font-medium text-gray-700">{step}</div>
+                                        <div
+                                            className={`text-xs mt-1 ${
+                                                selectedStepTimes[index] !== '-'
+                                                    ? 'text-emerald-700'
+                                                    : 'text-gray-400'
+                                            }`}
+                                        >
+                                            {selectedStepTimes[index] !== '-' ? selectedStepTimes[index] : '-'}
+                                        </div>
+                                    </li>
                                 ))}
-                            </div>
+                            </ol>
                         </div>
 
-                        <div>
-                            <p className="mb-2 font-semibold">Status</p>
-                            <div className="space-y-2">
-                                {statusOptions.map((status) => (
-                                    <label key={status} className="flex items-center gap-2">
-                                        <input
-                                            type="checkbox"
-                                            checked={selectedStatuses.includes(status)}
-                                            onChange={() =>
-                                                toggleSelection(status, selectedStatuses, setSelectedStatuses)
-                                            }
-                                        />
-                                        <span>{status}</span>
-                                    </label>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div>
-                            <p className="mb-2 font-semibold">School</p>
-                            <div className="space-y-2">
-                                {schoolOptions.map((school) => (
-                                    <label key={school} className="flex items-center gap-2">
-                                        <input
-                                            type="checkbox"
-                                            checked={selectedSchools.includes(school)}
-                                            onChange={() =>
-                                                toggleSelection(school, selectedSchools, setSelectedSchools)
-                                            }
-                                        />
-                                        <span>{school}</span>
-                                    </label>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div>
-                            <p className="mb-2 font-semibold">Interview Required?</p>
-                            <div className="space-y-2">
-                                {interviewOptions.map((interview) => (
-                                    <label key={interview} className="flex items-center gap-2">
-                                        <input
-                                            type="checkbox"
-                                            checked={selectedInterviewRequired.includes(interview)}
-                                            onChange={() =>
-                                                toggleSelection(
-                                                    interview,
-                                                    selectedInterviewRequired,
-                                                    setSelectedInterviewRequired,
-                                                )
-                                            }
-                                        />
-                                        <span>{interview}</span>
-                                    </label>
-                                ))}
+                        {/* Updates table */}
+                        <div className="mt-8 border-t border-gray-100 pt-6">
+                            <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Updates</h3>
+                            <div className="overflow-x-auto">
+                                {processUpdates.length > 0 ? (
+                                    <table className="min-w-full text-sm">
+                                        <thead>
+                                            <tr className="border-b border-gray-200 text-left">
+                                                <th className="pb-2 font-medium text-gray-500">Date</th>
+                                                <th className="pb-2 font-medium text-gray-500">Time</th>
+                                                <th className="pb-2 font-medium text-gray-500">Status</th>
+                                             </tr>
+                                        </thead>
+                                        <tbody>
+                                            {processUpdates.map((update) => {
+                                                const { date, time } = splitDateTime(update.dateTime);
+                                                return (
+                                                    <tr key={`${update.status}-${update.dateTime}`} className="border-b border-gray-100 last:border-b-0">
+                                                        <td className="py-2 text-gray-600">{date}</td>
+                                                        <td className="py-2 text-gray-600">{time}</td>
+                                                        <td className="py-2 font-medium text-gray-900">{update.status}</td>
+                                                    </tr>
+                                                );
+                                            })}
+                                        </tbody>
+                                    </table>
+                                ) : (
+                                    <div className="text-gray-500 text-sm">No updates available yet.</div>
+                                )}
                             </div>
                         </div>
                     </div>
-                </aside>
+                </div>
+
+                {/* Sidebar: list of applied companies */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Applied Companies</h2>
+                    {applications.length > 0 ? (
+                        <ul className="space-y-2">
+                            {applications.map((application) => (
+                                <li key={application.id}>
+                                    <button
+                                        type="button"
+                                        onClick={() => setSelectedApplicationId(application.id)}
+                                        className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
+                                            selectedApplicationId === application.id
+                                                ? 'bg-gray-900 text-white'
+                                                : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                                        }`}
+                                    >
+                                        {application.company?.name ?? 'Unknown Company'}
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p className="text-gray-500 text-sm">No applications yet.</p>
+                    )}
+                </div>
             </div>
         </div>
     );
 }
 
-Companies.layout = (page: ReactNode) => <AuthenticatedLayout children={page} />;
+ApplicationTracking.layout = (page: ReactNode) => <AuthenticatedLayout children={page} />;
