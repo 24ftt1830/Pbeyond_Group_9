@@ -5,6 +5,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\Admin\UserManagementController;
+use App\Http\Controllers\EventController;
 
 use App\Http\Controllers\Company\QuotaController;
 
@@ -90,6 +91,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/support', fn () => Inertia::render('Admin/Support'))->name('support');
         Route::get('/calendar', fn () => Inertia::render('Admin/Calendar'))->name('calendar');
 
+        // Calendar
+        Route::post('/events', [EventController::class, 'store'])->name('events.store');
     });
 
     // --- Company Routes ---
