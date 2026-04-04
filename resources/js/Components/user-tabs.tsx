@@ -1,9 +1,17 @@
 import { useState } from 'react'
+import { Switch } from "@/Components/ui/switch";
 import { useForm, usePage } from '@inertiajs/react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/Components/ui/tabs'
 import UserTable from '@/Components/data-table'
 import { Button } from '@/Components/ui/button'
-import { Plus, Building2, Loader2, UserCog, GraduationCap, ChevronDown } from 'lucide-react'
+import {
+  Plus,
+  Building2,
+  Loader2,
+  UserCog,
+  GraduationCap,
+  ChevronDown
+} from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -31,20 +39,23 @@ import {
 const studentColumns = [
   { header: 'Username', key: 'username' },
   { header: 'Email Address', key: 'email' },
-  { header: 'Status', key: 'role' },
+  { header: 'Academic Programme', key: 'programme_name' },
+  { header: '', key: 'actions' },
 ];
 
 const repColumns = [
   { header: 'Focal Person', key: 'display_name' },
   { header: 'Email Address', key: 'email' },
   { header: 'Assigned Company', key: 'company_name' },
+  { header: '', key: 'actions' },
 ];
 
 const UserTabs = () => {
   const { students, companyUsers, companies, programmes } = usePage<any>().props;
-  
+
   const [focalOpen, setFocalOpen] = useState(false);
   const [studentOpen, setStudentOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
 
   const focalForm = useForm({
     username: '',
@@ -61,6 +72,42 @@ const UserTabs = () => {
     programme_id: '',
     role: 'Student'
   });
+
+  const updateForm = useForm({
+    id: '',
+    username: '',
+    email: '',
+    role: '',
+    programme_id: '',
+    interview_required: false,
+  });
+
+  const openEditModal = (user: any, role: 'Student' | 'Company') => {
+    if (!user) return;
+
+    const userId = user.user_id || user.id;
+
+    updateForm.clearErrors();
+    updateForm.setData({
+      id: userId,
+      username: user.username || '',
+      email: user.email || '',
+      role: role,
+      programme_id: role === 'Student' ? user.student?.programme_id?.toString() : '',
+      interview_required: role === 'Student' ? !!user.student?.interview_required : false,
+    });
+    setEditModalOpen(true);
+  };
+
+  const submitUpdate = (e: React.FormEvent) => {
+    e.preventDefault();
+    updateForm.put(route('admin.manage-users.update', updateForm.data.id), {
+      onSuccess: () => {
+        setEditModalOpen(false);
+        updateForm.reset();
+      }
+    });
+  };
 
   const submitFocal = (e: React.FormEvent) => {
     e.preventDefault();
@@ -201,21 +248,116 @@ const UserTabs = () => {
         </div>
 
         <TabsContent value="students">
-          <UserTable data={students || []} columns={studentColumns} />
+          <UserTable
+            data={students?.map((s: any) => ({
+              ...s,
+              id: s.user_id,
+              role: 'Student',
+              programme_name: s.student?.programme?.programme_name || 'Not Assigned',
+              onEdit: () => openEditModal(s, 'Student')
+            })) || []}
+            columns={studentColumns} />
         </TabsContent>
 
         <TabsContent value="reps">
           <UserTable
             data={companyUsers?.map((u: any) => ({
+              ...u,
               id: u.user_id,
+              role: 'Company',
               display_name: u.username,
               email: u.email,
-              company_name: u.company?.company_name || 'Unassigned'
+              assigned_company_id: u.company?.company_id || null,
+              company_name: u.company?.company_name || 'Unassigned',
+              onEdit: () => openEditModal(u, 'Company')
             })) || []}
             columns={repColumns}
           />
         </TabsContent>
       </Tabs>
+
+      {/* EDIT USER DIALOG (Shared) */}
+      <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
+        <DialogContent className="sm:max-w-[450px] p-0 overflow-hidden border-none rounded-2xl shadow-2xl max-h-[90vh] flex flex-col">
+          <form onSubmit={submitUpdate} className="flex flex-col max-h-[90vh]">
+
+            <div className="bg-slate-900 p-8 text-white shrink-0">
+              <h2 className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-1">
+                Account Management
+              </h2>
+              <DialogTitle className="text-2xl font-black text-white">
+                Edit {updateForm.data.role === 'Student' ? 'Student' : 'Representative'}
+              </DialogTitle>
+              <DialogDescription className="mt-1 text-xs text-slate-400">
+                Update credentials and permissions.
+              </DialogDescription>
+            </div>
+
+            <div className="px-8 py-6 space-y-5 overflow-y-auto custom-scrollbar">
+              <div className="space-y-2">
+                <Label className="text-[10px] font-bold uppercase text-slate-500">
+                  {updateForm.data.role === 'Student' ? 'Full Name' : 'Focal Person Name'}
+                </Label>
+                <Input
+                  value={updateForm.data.username}
+                  onChange={e => updateForm.setData('username', e.target.value)}
+                  className="h-11"
+                />
+                {updateForm.errors.username && <p className="text-xs text-red-500">{updateForm.errors.username}</p>}
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-[10px] font-bold uppercase text-slate-500">Email Address</Label>
+                <Input
+                  type="email"
+                  value={updateForm.data.email}
+                  onChange={e => updateForm.setData('email', e.target.value)}
+                  className="h-11"
+                />
+                {updateForm.errors.email && <p className="text-xs text-red-500">{updateForm.errors.email}</p>}
+              </div>
+
+              {updateForm.data.role === 'Student' && (
+                <>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-bold uppercase text-slate-500">Academic Programme</Label>
+                    <Select
+                      value={updateForm.data.programme_id}
+                      onValueChange={(val) => updateForm.setData('programme_id', val)}
+                    >
+                      <SelectTrigger className="h-11"><SelectValue placeholder="Select Programme" /></SelectTrigger>
+                      <SelectContent>
+                        {programmes?.map((p: any) => (
+                          <SelectItem key={p.programme_id} value={p.programme_id.toString()}>
+                            {p.programme_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="flex items-center justify-between p-4 border rounded-xl bg-slate-50">
+                    <div className="space-y-0.5">
+                      <Label className="text-sm font-bold text-slate-700">Interview Required</Label>
+                      <p className="text-[11px] text-slate-500">Mark if student needs screening.</p>
+                    </div>
+                    <Switch
+                      checked={updateForm.data.interview_required}
+                      onCheckedChange={(val) => updateForm.setData('interview_required', val)}
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+
+            <DialogFooter className="p-6 border-t bg-slate-50 shrink-0">
+              <Button type="submit" disabled={updateForm.processing} className="w-full bg-slate-900 font-bold uppercase text-xs tracking-widest h-11">
+                {updateForm.processing ? 'Updating...' : 'Update User Account'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

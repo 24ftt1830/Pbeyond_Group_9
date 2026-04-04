@@ -4,7 +4,6 @@ import { Head, router } from '@inertiajs/react';
 import { Plus, Edit2, Search, Loader2 } from 'lucide-react';
 import { Input } from '@/Components/ui/input';
 import { Button } from "@/Components/ui/button";
-import { Switch } from "@/Components/ui/switch";
 import { Label } from "@/Components/ui/label";
 import QuotaCard from '@/Components/QuotaCard';
 import { Toggle } from "@/Components/ui/toggle";
