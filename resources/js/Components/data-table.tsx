@@ -95,7 +95,7 @@ const UserTable = ({ data = [], columns = [] }: UserTableProps) => {
                               </DropdownMenuItem>
 
                               {/* REPRESENTATIVE SPECIFIC: ASSIGN */}
-                              {item.role === 'Company' && !item.assigned_company_id && (
+                              {item.role === 'Company' && !item.company_id && (
                                 <DropdownMenuItem 
                                   onClick={() => item.onAssign()}
                                   className="cursor-pointer text-blue-600 focus:text-blue-700 font-medium"

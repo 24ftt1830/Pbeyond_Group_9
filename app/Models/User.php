@@ -14,7 +14,7 @@ class User extends Authenticatable
     public $timestamps = true;
 
     protected $fillable = [
-        'username', 'email', 'password', 'role'
+        'username', 'email', 'password', 'role', 'company_id',
     ];
 
     protected $hidden = [
@@ -28,7 +28,7 @@ class User extends Authenticatable
     }
 
     public function student() { return $this->hasOne(Student::class, 'user_id', 'user_id'); }
-    public function company() { return $this->hasOne(Company::class, 'user_id', 'user_id'); }
+    public function company() { return $this->belongsTo(Company::class, 'company_id', 'company_id'); }
     public function ildAdmin() { return $this->hasOne(IldAdmin::class, 'user_id', 'user_id'); }
     public function favourites()
     {

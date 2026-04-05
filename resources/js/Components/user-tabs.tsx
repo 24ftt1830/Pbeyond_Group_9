@@ -130,6 +130,10 @@ const UserTabs = () => {
       onSuccess: () => {
         setAssignModalOpen(false);
         assignForm.reset();
+      },
+      onError: (errors) => {
+        console.error(errors);
+        alert("Save Failed: " + Object.values(errors).join(", "));
       }
     });
   };
@@ -463,8 +467,8 @@ const UserTabs = () => {
               </div>
             </div>
             <DialogFooter>
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 disabled={assignForm.processing || !assignForm.data.company_id}
                 className="w-full bg-blue-600 hover:bg-blue-700"
               >

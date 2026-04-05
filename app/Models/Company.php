@@ -15,9 +15,9 @@ class Company extends Model
         'industry_sector', 'office_address', 'description', 'additional_information'
     ];
 
-    public function user()
+    public function users()
     {
-        return $this->belongsTo(User::class, 'user_id', 'user_id');
+        return $this->hasMany(User::class, 'company_id', 'company_id');
     }
 
     public function placementQuotas()

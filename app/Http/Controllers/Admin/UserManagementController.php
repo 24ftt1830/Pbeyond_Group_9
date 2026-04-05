@@ -4,11 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Company;
-use App\Models\User;
 use App\Models\Programme;
+use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
@@ -18,7 +18,7 @@ class UserManagementController extends Controller
     {
         return Inertia::render('Admin/ManageUsers', [
             'companies' => Company::all(['company_id', 'company_name']),
-            'programmes' => \App\Models\Programme::all(['programme_id', 'programme_name']),
+            'programmes' => Programme::all(['programme_id', 'programme_name']),
             'companyUsers' => User::where('role', 'Company')
                 ->with('company')
                 ->get(),
@@ -32,13 +32,13 @@ class UserManagementController extends Controller
     {
         $rules = [
             'username' => 'required|string|max:255|unique:users,username',
-            'email'    => 'required|string|email|max:255|unique:users,email',
+            'email' => 'required|string|email|max:255|unique:users,email',
             'password' => 'required|string|min:8',
-            'role'     => 'required|in:Company,Student',
+            'role' => 'required|in:Company,Student',
         ];
 
         if ($request->role === 'Company') {
-            $rules['company_id'] = 'required|exists:companies,company_id';
+            $rules['company_id'] = 'nullable|exists:companies,company_id';
         } else {
             $rules['programme_id'] = 'required|exists:programmes,programme_id';
         }
@@ -46,83 +46,93 @@ class UserManagementController extends Controller
         $validated = $request->validate($rules);
 
         try {
-            return DB::transaction(function () use ($validated, $request) {
-                $user = User::create([
+            return DB::transaction(function () use ($validated) {
+                $userData = [
                     'username' => $validated['username'],
-                    'email'    => $validated['email'],
+                    'email' => $validated['email'],
                     'password' => Hash::make($validated['password']),
-                    'role'     => $validated['role'],
-                ]);
+                    'role' => $validated['role'],
+                ];
 
-                if ($user->role === 'Company') {
-                    $company = Company::find($validated['company_id']);
-                    $company->user_id = $user->user_id;
-                    $company->save();
-                    
-                    $message = 'Focal person created and linked to company.';
-                } else {
+                if ($validated['role'] === 'Company' && isset($validated['company_id'])) {
+                    $userData['company_id'] = $validated['company_id'];
+                }
+
+                $user = User::create($userData);
+
+                if ($user->role === 'Student') {
                     $user->student()->create([
                         'programme_id' => $validated['programme_id'],
-                        'cgpa'         => 0.0, 
+                        'cgpa' => 0.0,
                     ]);
                     $message = 'Student account created successfully.';
+                } else {
+                    $message = 'Focal person created successfully.';
                 }
 
                 return redirect()->route('admin.manage-users')->with('success', $message);
             });
 
         } catch (\Exception $e) {
-            Log::error("User Management Store Error: " . $e->getMessage());
+            Log::error('User Management Store Error: '.$e->getMessage());
+
             return redirect()->back()->withErrors(['message' => 'Failed to create user.']);
         }
     }
 
     public function update(Request $request, $id)
-{
-    $user = User::findOrFail($id);
+    {
+        $user = User::findOrFail($id);
 
-    $rules = [
-        'username' => "required|string|max:255|unique:users,username,{$id},user_id",
-        'email'    => "required|email|max:255|unique:users,email,{$id},user_id",
-    ];
+        $rules = [
+            'username' => "sometimes|required|string|max:255|unique:users,username,{$id},user_id",
+            'email' => "sometimes|required|email|max:255|unique:users,email,{$id},user_id",
+            'company_id' => 'nullable|exists:companies,company_id',
+        ];
 
-    if ($user->role === 'Student') {
-        $rules['programme_id'] = 'required|exists:programmes,programme_id';
-        $rules['interview_required'] = 'boolean';
+        if ($user->role === 'Student') {
+            $rules['programme_id'] = 'sometimes|required|exists:programmes,programme_id';
+            $rules['interview_required'] = 'boolean';
+        }
+
+        $validated = $request->validate($rules);
+
+        try {
+            DB::transaction(function () use ($user, $validated, $request) {
+                $updateData = [];
+
+                if ($request->has('username')) {
+                    $updateData['username'] = $validated['username'];
+                }
+                if ($request->has('email')) {
+                    $updateData['email'] = $validated['email'];
+                }
+                if ($request->has('company_id')) {
+                    $updateData['company_id'] = $validated['company_id'];
+                }
+
+                $user->update($updateData);
+
+                if ($user->role === 'Student' && $request->has('programme_id')) {
+                    $user->student()->update([
+                        'programme_id' => $validated['programme_id'],
+                        'interview_required' => $request->boolean('interview_required'),
+                    ]);
+                }
+            });
+
+            return redirect()->route('admin.manage-users')->with('success', 'User updated successfully.');
+
+        } catch (\Exception $e) {
+            Log::error('User Update Error: '.$e->getMessage());
+
+            return back()->withErrors(['message' => 'Failed to update user details.']);
+        }
     }
-
-    $validated = $request->validate($rules);
-
-    try {
-        DB::transaction(function () use ($user, $validated, $request) {
-            $user->update([
-                'username' => $validated['username'],
-                'email'    => $validated['email'],
-            ]);
-
-            if ($user->role === 'Student') {
-                $user->student()->update([
-                    'programme_id' => $validated['programme_id'],
-                    'interview_required' => $request->boolean('interview_required'),
-                ]);
-            }            
-        });
-
-        return redirect()->route('admin.manage-users')->with('success', 'User updated successfully.');
-
-    } catch (\Exception $e) {
-        Log::error("User Update Error: " . $e->getMessage());
-        return back()->withErrors(['message' => 'Failed to update user details.']);
-    }
-}
 
     public function destroy($id)
     {
         $user = User::findOrFail($id);
-        
-        if ($user->role === 'Company') {
-            Company::where('user_id', $user->user_id)->update(['user_id' => null]);
-        }
 
         $user->delete();
 
@@ -133,10 +143,8 @@ class UserManagementController extends Controller
     {
         $user = User::where('role', 'Company')->findOrFail($id);
 
-        // setting the user_id to null in companies table
-        \App\Models\Company::where('user_id', $user->user_id)->update(['user_id' => null]);
+        $user->update(['company_id' => null]);
 
         return redirect()->back()->with('success', 'Company unassigned successfully.');
-
     }
 }
