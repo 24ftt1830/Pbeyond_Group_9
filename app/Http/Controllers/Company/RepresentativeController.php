@@ -14,15 +14,13 @@ class RepresentativeController extends Controller
     {
         $user = Auth::user();
 
-        $company = Company::where('user_id', $user->user_id)->first();
+        $company = Company::where('company_id', $user->company_id)->first();
 
         $representatives = [];
 
         if ($company) {
             $representatives = User::where('role', 'Company')
-                ->whereHas('company', function($query) use ($company) {
-                    $query->where('company_id', $company->company_id);
-                })
+                ->where('company_id', $company->company_id)
                 ->get();
         }
 
