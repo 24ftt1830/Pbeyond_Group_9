@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router } from '@inertiajs/react';
-import { Plus, Edit2, Search, Loader2 } from 'lucide-react';
+import { Plus, Edit2, Search, Loader2, AlertCircle } from 'lucide-react';
 import { Input } from '@/Components/ui/input';
 import { Button } from "@/Components/ui/button";
 import { Label } from "@/Components/ui/label";
 import QuotaCard from '@/Components/QuotaCard';
 import { Toggle } from "@/Components/ui/toggle";
-import { useForm } from '@inertiajs/react';
+import { useForm, usePage } from '@inertiajs/react';
+import { Switch } from "@/Components/ui/switch";
 import {
     Select,
     SelectContent,
@@ -33,19 +34,23 @@ interface QuotaForm {
     total_slots: number;
     min_cgpa: number;
     job_title: string;
-    interview_required?: boolean;
+    interview_required: boolean;
 }
 
-export default function Quotas({ quotas = [] }) {
+export default function Quotas({ quotas = [], programmes = [] }) {
+    const { auth } = usePage().props as any;
+    const company = auth.user.company;
+
     const [searchTerm, setSearchTerm] = useState('');
     const [isEditMode, setIsEditMode] = useState(false);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-    
+
     const { data, setData, post, processing, reset, errors } = useForm<QuotaForm>({
         programme_id: '',
         total_slots: 10,
         min_cgpa: 2.5,
         job_title: '',
+        interview_required: false,
     });
 
     const submit = (e: React.FormEvent) => {
@@ -58,26 +63,22 @@ export default function Quotas({ quotas = [] }) {
         });
     }
 
-    // Handle Delete
     const handleDelete = (id: number) => {
         if (confirm('Are you sure you want to delete this quota request?')) {
             router.delete(route('company.quotas.destroy', id), {
                 preserveScroll: true,
-                onSuccess: () => {
-                    // Should have a toast notification here
-                }
             });
         }
     };
 
     const mockQuotas = [
-        { 
-            quota_id: 1, 
+        {
+            quota_id: 1,
             job_title: 'Software Engineer Intern (Mock)',
-            programme: { name: 'Web Technology' }, 
-            total_slots: 12, 
-            min_cgpa: 2.5, 
-            quota_status: 'Approved' 
+            programme: { programme_name: 'Web Technology' }, 
+            total_slots: 12,
+            min_cgpa: 2.5,
+            quota_status: 'Approved'
         },
     ];
 
@@ -93,6 +94,13 @@ export default function Quotas({ quotas = [] }) {
                 </header>
 
                 <div className="flex items-center gap-3">
+                    {!company && (
+                        <div className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-lg">
+                            <AlertCircle className="size-3.5" />
+                            Account not linked to a company.
+                        </div>
+                    )}
+
                     <Toggle
                         pressed={isEditMode}
                         onPressedChange={setIsEditMode}
@@ -105,7 +113,10 @@ export default function Quotas({ quotas = [] }) {
 
                     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                         <DialogTrigger asChild>
-                            <Button className="flex items-center gap-2 shadow-sm bg-slate-900 hover:bg-slate-800">
+                            <Button 
+                                disabled={!company} 
+                                className="flex items-center gap-2 shadow-sm bg-slate-900 hover:bg-slate-800 disabled:opacity-50"
+                            >
                                 <Plus className="size-4" />
                                 New Quota
                             </Button>
@@ -121,7 +132,7 @@ export default function Quotas({ quotas = [] }) {
                                 <div className="px-8 space-y-6 overflow-y-auto py-6">
                                     <div className="space-y-2">
                                         <Label className="text-[10px] font-bold uppercase text-slate-500">Job Title</Label>
-                                        <Input 
+                                        <Input
                                             placeholder="e.g. Fullstack Developer Intern"
                                             value={data.job_title}
                                             onChange={e => setData('job_title', e.target.value)}
@@ -132,19 +143,19 @@ export default function Quotas({ quotas = [] }) {
 
                                     <div className="space-y-2">
                                         <Label className="text-[10px] font-bold uppercase text-slate-500">Select Programme</Label>
-                                        <Select 
-                                            value={data.programme_id.toString()} 
+                                        <Select
+                                            value={data.programme_id.toString()}
                                             onValueChange={(val) => setData('programme_id', parseInt(val))}
                                         >
                                             <SelectTrigger className="h-11">
                                                 <SelectValue placeholder="Choose a relevant programme..." />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="1">Web Technology</SelectItem>
-                                                <SelectItem value="2">Digital Arts & Media</SelectItem>
-                                                <SelectItem value="3">Data Analytics</SelectItem>
-                                                <SelectItem value="4">App Development</SelectItem>
-                                                <SelectItem value="5">Cloud & Networking</SelectItem>
+                                                {programmes.map((p: any) => (
+                                                    <SelectItem key={p.programme_id} value={p.programme_id.toString()}>
+                                                        {p.programme_name}
+                                                    </SelectItem>
+                                                ))}
                                             </SelectContent>
                                         </Select>
                                         {errors.programme_id && <p className="text-xs text-red-500">{errors.programme_id}</p>}
@@ -153,8 +164,8 @@ export default function Quotas({ quotas = [] }) {
                                     <div className="grid grid-cols-2 gap-6">
                                         <div className="space-y-2">
                                             <Label className="text-[10px] font-bold uppercase text-slate-500">Total Slots</Label>
-                                            <QuotaNumberInput 
-                                                defaultValue={data.total_slots} 
+                                            <QuotaNumberInput
+                                                defaultValue={data.total_slots}
                                                 onChange={(value) => setData('total_slots', value)}
                                             />
                                         </div>
@@ -168,14 +179,25 @@ export default function Quotas({ quotas = [] }) {
                                             />
                                         </div>
                                     </div>
+
+                                    <div className="flex items-center justify-between p-4 border border-slate-100 rounded-xl bg-slate-50/50">
+                                        <div className="space-y-0.5">
+                                            <Label className="text-sm font-bold text-slate-700">Interview Required</Label>
+                                            <p className="text-[11px] text-slate-500">Does this position require a formal screening?</p>
+                                        </div>
+                                        <Switch
+                                            checked={data.interview_required}
+                                            onCheckedChange={(checked) => setData('interview_required', checked)}
+                                        />
+                                    </div>
                                 </div>
 
                                 <DialogFooter className="gap-3 p-6 border-t bg-slate-50 sm:justify-between shrink-0">
                                     <DialogClose asChild>
                                         <Button type="button" variant="outline" className="flex-1 text-xs font-bold uppercase">Cancel</Button>
                                     </DialogClose>
-                                    <Button 
-                                        type="submit" 
+                                    <Button
+                                        type="submit"
                                         disabled={processing}
                                         className="flex-[2] bg-slate-900 font-bold uppercase text-xs tracking-widest"
                                     >
@@ -201,11 +223,11 @@ export default function Quotas({ quotas = [] }) {
             {displayQuotas.length > 0 ? (
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {displayQuotas
-                        .filter(q => q.job_title?.toLowerCase().includes(searchTerm.toLowerCase()))
-                        .map(quota => (
-                            <QuotaCard 
-                                key={quota.quota_id} 
-                                quota={quota} 
+                        .filter((q: any) => q.job_title?.toLowerCase().includes(searchTerm.toLowerCase()))
+                        .map((quota: any) => (
+                            <QuotaCard
+                                key={quota.quota_id}
+                                quota={quota}
                                 isEditMode={isEditMode}
                                 onDelete={handleDelete}
                             />

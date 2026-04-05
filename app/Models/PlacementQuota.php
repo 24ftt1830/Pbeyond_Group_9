@@ -18,7 +18,8 @@ class PlacementQuota extends Model
         'total_slots', 
         'min_cgpa', 
         'quota_status', 
-        'is_released'
+        'is_released',
+        'interview_required',
     ];
 
     protected $casts = [

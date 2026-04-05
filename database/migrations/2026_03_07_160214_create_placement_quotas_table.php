@@ -17,6 +17,9 @@ return new class extends Migration
             $table->text('job_description')->nullable();
             $table->integer('total_slots');
             $table->decimal('min_cgpa', 3, 2)->default(0.00);
+            
+            $table->boolean('interview_required')->default(false);
+
             $table->enum('quota_status', ['Pending', 'Approved', 'Rejected'])->default('Pending');
             $table->boolean('is_released')->default(false);
             $table->timestamps();
@@ -29,22 +32,22 @@ return new class extends Migration
                   ->references('programme_id')
                   ->on('programmes')
                   ->onDelete('restrict');
+
             $table->index('company_id');
             $table->index('programme_id');
             $table->index(['quota_status', 'is_released']);
-
-
-            // Removed the $table->check() line due to compatibility issues with mysql
         });
 
-        // Instead, apply the constraint via raw SQL
         DB::statement('ALTER TABLE placement_quotas ADD CONSTRAINT chk_total_slots_positive CHECK (total_slots > 0);');
     }
 
     public function down(): void
     {
-        // Drop the constraint first (optional, but good practice)
-        DB::statement('ALTER TABLE placement_quotas DROP CONSTRAINT IF EXISTS check_total_slots_positive;');
+        try {
+            DB::statement('ALTER TABLE placement_quotas DROP CONSTRAINT chk_total_slots_positive;');
+        } catch (\Exception $e) {
+        }
+        
         Schema::dropIfExists('placement_quotas');
     }
 };

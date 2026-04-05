@@ -1,5 +1,5 @@
 import { router } from '@inertiajs/react'
-import { EllipsisVertical, Link2Off, Trash2, UserRoundPen } from 'lucide-react'
+import { EllipsisVertical, Link2Off, Trash2, UserRoundPen, Link } from 'lucide-react'
 import {
   Pagination,
   PaginationContent,
@@ -93,6 +93,16 @@ const UserTable = ({ data = [], columns = [] }: UserTableProps) => {
                               >
                                 <UserRoundPen className="mr-2 h-4 w-4 text-slate-500" /> Edit Details
                               </DropdownMenuItem>
+
+                              {/* REPRESENTATIVE SPECIFIC: ASSIGN */}
+                              {item.role === 'Company' && !item.assigned_company_id && (
+                                <DropdownMenuItem 
+                                  onClick={() => item.onAssign()}
+                                  className="cursor-pointer text-blue-600 focus:text-blue-700 font-medium"
+                                >
+                                  <Link className="mr-2 h-4 w-4" /> Assign Company
+                                </DropdownMenuItem>
+                              )}
 
                               {/* REPRESENTATIVE SPECIFIC: UNASSIGN */}
                               {item.role === 'Company' && item.assigned_company_id && (

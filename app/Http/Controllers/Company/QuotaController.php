@@ -24,7 +24,9 @@ class QuotaController extends Controller
 
         return Inertia::render('Company/Quotas', [
             'quotas' => $quotas,
-            'programmes' => Programme::select('programme_id', 'programme_name')->get()
+            'programmes' => Programme::select('programme_id', 'programme_name')->get(),
+            // Pass the company object so the frontend button guard works
+            'company' => $user->company 
         ]);
     }
 
@@ -46,15 +48,18 @@ class QuotaController extends Controller
             'job_title'    => 'required|string|max:150',
             'total_slots'  => 'required|integer|min:1',
             'min_cgpa'     => 'required|numeric|min:0|max:4.0',
+            'interview_required' => 'required|boolean',
         ]);
 
         $user->company->placementQuotas()->create([
-            'programme_id' => $validated['programme_id'],
-            'job_title'    => $validated['job_title'],
-            'total_slots'  => $validated['total_slots'],
-            'min_cgpa'     => $validated['min_cgpa'],
-            'quota_status' => 'Pending', 
-            'is_released'  => false,
+            'programme_id'       => $validated['programme_id'],
+            'job_title'          => $validated['job_title'],
+            'total_slots'        => $validated['total_slots'],
+            'min_cgpa'           => $validated['min_cgpa'],
+            'interview_required' => $validated['interview_required'], 
+            'quota_status'       => 'Pending', 
+            'is_released'        => false,
+            // 'job_description' => $request->job_description, // To be added if Text area is implemented
         ]);
 
         return redirect()->back()->with('success', 'Quota submitted for admin approval!');
@@ -67,9 +72,10 @@ class QuotaController extends Controller
     {
         $quota = PlacementQuota::findOrFail($id);
         
-        // Check ownership to prevent companies from deleting each other's quotas
-        if ($quota->company_id !== Auth::user()->company->company_id) {
-            abort(403);
+        $user = Auth::user();
+
+        if (!$user->company || $quota->company_id !== $user->company->company_id) {
+            abort(403, 'Unauthorized action.');
         }
 
         if ($quota->quota_status === 'Approved') {

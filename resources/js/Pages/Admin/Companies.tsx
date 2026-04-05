@@ -44,7 +44,6 @@ export default function Companies({ stats, companies }: Props) {
     const [open, setOpen] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     
-    // Aligned with DB columns 
     const [formData, setFormData] = useState({
         company_name: '',
         industry_sector: '',

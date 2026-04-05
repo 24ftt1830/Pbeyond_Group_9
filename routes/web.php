@@ -93,26 +93,28 @@ Route::middleware('auth')->group(function () {
     });
 
     // --- Company Routes ---
-    Route::middleware(['auth'])->prefix('company')->name('company.')->group(function () {
-        Route::get('/dashboard', fn () => Inertia::render('Company/Dashboard'))->name('dashboard');
+Route::middleware(['auth'])->prefix('company')->name('company.')->group(function () {
+    Route::get('/dashboard', fn () => Inertia::render('Company/Dashboard'))->name('dashboard');
 
-        // Quota Management
-        Route::get('/quotas', [App\Http\Controllers\Company\QuotaController::class, 'index'])->name('quotas');
-        Route::post('/quotas', [App\Http\Controllers\Company\QuotaController::class, 'store'])->name('quotas.store');
-        Route::delete('/quotas/{quota}', [App\Http\Controllers\Company\QuotaController::class, 'destroy'])->name('quotas.destroy');
+    // Quota Management
+    Route::get('/quotas', [App\Http\Controllers\Company\QuotaController::class, 'index'])->name('quotas');
+    Route::post('/quotas', [App\Http\Controllers\Company\QuotaController::class, 'store'])->name('quotas.store');
+    Route::delete('/quotas/{quota}', [App\Http\Controllers\Company\QuotaController::class, 'destroy'])->name('quotas.destroy');
 
-        // Applicants
-        Route::get('/applicants', [App\Http\Controllers\Company\ApplicantController::class, 'index'])->name('applicants');
-        Route::post('/applicants/{application}/review', [App\Http\Controllers\Company\ApplicantController::class, 'review'])->name('applicants.review');
+    // Applicants
+    Route::get('/applicants', [App\Http\Controllers\Company\ApplicantController::class, 'index'])->name('applicants');
+    Route::post('/applicants/{application}/review', [App\Http\Controllers\Company\ApplicantController::class, 'review'])->name('applicants.review');
 
-        // Other placeholders (can be replaced later)
-        Route::get('/interns', fn () => Inertia::render('Company/Interns'))->name('interns');
-        Route::get('/representatives', fn () => Inertia::render('Company/Representatives'))->name('representatives');
-        Route::get('/interviews', fn () => Inertia::render('Company/Interviews'))->name('interviews');
-        Route::get('/contact-support', fn () => Inertia::render('Company/ContactSupport'))->name('contact-support');
-        Route::get('/faqs', fn () => Inertia::render('Company/Faqs'))->name('faqs');
-        Route::get('/calendar', fn () => Inertia::render('Company/Calendar'))->name('calendar');
-    });
+    // Team Representatives 
+    Route::get('/representatives', [App\Http\Controllers\Company\RepresentativeController::class, 'index'])->name('representatives');
+
+    // Other placeholders
+    Route::get('/interns', fn () => Inertia::render('Company/Interns'))->name('interns');
+    Route::get('/interviews', fn () => Inertia::render('Company/Interviews'))->name('interviews');
+    Route::get('/contact-support', fn () => Inertia::render('Company/ContactSupport'))->name('contact-support');
+    Route::get('/faqs', fn () => Inertia::render('Company/Faqs'))->name('faqs');
+    Route::get('/calendar', fn () => Inertia::render('Company/Calendar'))->name('calendar');
+});
 
     // --- Student Routes ---
     Route::prefix('student')->name('student.')->group(function () {

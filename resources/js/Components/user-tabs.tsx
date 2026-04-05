@@ -10,7 +10,8 @@ import {
   Loader2,
   UserCog,
   GraduationCap,
-  ChevronDown
+  ChevronDown,
+  Link
 } from 'lucide-react'
 import {
   Dialog,
@@ -56,6 +57,7 @@ const UserTabs = () => {
   const [focalOpen, setFocalOpen] = useState(false);
   const [studentOpen, setStudentOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [assignModalOpen, setAssignModalOpen] = useState(false);
 
   const focalForm = useForm({
     username: '',
@@ -82,6 +84,11 @@ const UserTabs = () => {
     interview_required: false,
   });
 
+  const assignForm = useForm({
+    id: '',
+    company_id: '',
+  });
+
   const openEditModal = (user: any, role: 'Student' | 'Company') => {
     if (!user) return;
 
@@ -99,12 +106,30 @@ const UserTabs = () => {
     setEditModalOpen(true);
   };
 
+  const openAssignModal = (user: any) => {
+    assignForm.setData({
+      id: user.user_id,
+      company_id: '',
+    });
+    setAssignModalOpen(true);
+  };
+
   const submitUpdate = (e: React.FormEvent) => {
     e.preventDefault();
     updateForm.put(route('admin.manage-users.update', updateForm.data.id), {
       onSuccess: () => {
         setEditModalOpen(false);
         updateForm.reset();
+      }
+    });
+  };
+
+  const submitAssign = (e: React.FormEvent) => {
+    e.preventDefault();
+    assignForm.put(route('admin.manage-users.update', assignForm.data.id), {
+      onSuccess: () => {
+        setAssignModalOpen(false);
+        assignForm.reset();
       }
     });
   };
@@ -165,30 +190,69 @@ const UserTabs = () => {
                 <div className="grid gap-4 py-4">
                   <div className="grid gap-2">
                     <Label>Username</Label>
-                    <Input value={focalForm.data.username} onChange={e => focalForm.setData('username', e.target.value)} required />
+                    <Input
+                      value={focalForm.data.username}
+                      onChange={e => focalForm.setData('username', e.target.value)}
+                      required
+                    />
                   </div>
                   <div className="grid gap-2">
                     <Label>Email</Label>
-                    <Input type="email" value={focalForm.data.email} onChange={e => focalForm.setData('email', e.target.value)} required />
+                    <Input
+                      type="email"
+                      value={focalForm.data.email}
+                      onChange={e => focalForm.setData('email', e.target.value)}
+                      required
+                    />
                   </div>
                   <div className="grid gap-2">
                     <Label>Password</Label>
-                    <Input type="password" value={focalForm.data.password} onChange={e => focalForm.setData('password', e.target.value)} required />
+                    <Input
+                      type="password"
+                      value={focalForm.data.password}
+                      onChange={e => focalForm.setData('password', e.target.value)}
+                      required
+                    />
                   </div>
                   <div className="grid gap-2">
-                    <Label className="flex items-center gap-2 text-blue-600"><Building2 className="size-3.5" /> Assign Company</Label>
-                    <Select onValueChange={(val) => focalForm.setData('company_id', val)}>
-                      <SelectTrigger><SelectValue placeholder="Select Company" /></SelectTrigger>
+                    <Label className="flex items-center gap-2 text-blue-600">
+                      <Building2 className="size-3.5" /> Assign Company (Optional)
+                    </Label>
+                    <Select
+                      disabled={!companies || companies.length === 0}
+                      onValueChange={(val) => focalForm.setData('company_id', val)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder={(!companies || companies.length === 0) ? "No Companies Registered" : "Select Company"} />
+                      </SelectTrigger>
                       <SelectContent className="max-h-[200px]">
-                        {companies?.map((c: any) => (
-                          <SelectItem key={c.company_id} value={c.company_id.toString()}>{c.company_name}</SelectItem>
-                        ))}
+                        {companies && companies.length > 0 ? (
+                          companies.map((c: any) => (
+                            <SelectItem key={c.company_id} value={c.company_id.toString()}>
+                              {c.company_name}
+                            </SelectItem>
+                          ))
+                        ) : (
+                          <div className="flex flex-col items-center justify-center py-6 px-2 text-center text-slate-500">
+                            <p className="text-xs font-bold italic">No available companies</p>
+                            <p className="text-[10px] opacity-70 mt-1">You can skip this and assign a company later.</p>
+                          </div>
+                        )}
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button type="submit" disabled={focalForm.processing} className="w-full">
+                  <Button
+                    type="submit"
+                    disabled={
+                      focalForm.processing ||
+                      !focalForm.data.username ||
+                      !focalForm.data.email ||
+                      !focalForm.data.password
+                    }
+                    className="w-full"
+                  >
                     {focalForm.processing ? <Loader2 className="animate-spin size-4" /> : 'Create Focal Person'}
                   </Button>
                 </DialogFooter>
@@ -269,7 +333,14 @@ const UserTabs = () => {
               email: u.email,
               assigned_company_id: u.company?.company_id || null,
               company_name: u.company?.company_name || 'Unassigned',
-              onEdit: () => openEditModal(u, 'Company')
+              onEdit: () => openEditModal(u, 'Company'),
+              onAssign: () => openAssignModal(u),
+
+              customActions: u.company?.company_name ? null : (
+                <DropdownMenuItem onClick={() => openAssignModal(u)} className="text-blue-600 focus:text-blue-700">
+                  <Link className="mr-2 size-4" /> Assign Company
+                </DropdownMenuItem>
+              )
             })) || []}
             columns={repColumns}
           />
@@ -353,6 +424,51 @@ const UserTabs = () => {
             <DialogFooter className="p-6 border-t bg-slate-50 shrink-0">
               <Button type="submit" disabled={updateForm.processing} className="w-full bg-slate-900 font-bold uppercase text-xs tracking-widest h-11">
                 {updateForm.processing ? 'Updating...' : 'Update User Account'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Assign Company Dialog */}
+      <Dialog open={assignModalOpen} onOpenChange={setAssignModalOpen}>
+        <DialogContent className="sm:max-w-[400px]">
+          <form onSubmit={submitAssign}>
+            <DialogHeader>
+              <DialogTitle>Assign Company</DialogTitle>
+              <DialogDescription>
+                Link this focal person to a registered company profile.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-6">
+              <div className="space-y-2">
+                <Label className="text-[10px] font-bold uppercase text-slate-500">Target Company</Label>
+                <Select
+                  onValueChange={(val) => assignForm.setData('company_id', val)}
+                >
+                  <SelectTrigger className="h-11">
+                    <SelectValue placeholder="Select a company..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {companies?.map((c: any) => (
+                      <SelectItem key={c.company_id} value={c.company_id.toString()}>
+                        {c.company_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {assignForm.errors.company_id && (
+                  <p className="text-xs text-red-500">{assignForm.errors.company_id}</p>
+                )}
+              </div>
+            </div>
+            <DialogFooter>
+              <Button 
+                type="submit" 
+                disabled={assignForm.processing || !assignForm.data.company_id}
+                className="w-full bg-blue-600 hover:bg-blue-700"
+              >
+                {assignForm.processing ? <Loader2 className="animate-spin size-4" /> : 'Confirm Assignment'}
               </Button>
             </DialogFooter>
           </form>
