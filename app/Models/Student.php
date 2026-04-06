@@ -15,7 +15,9 @@ class Student extends Model
         'programme_id', 'intake_session', 'postal_address', 'date_of_birth',
         'place_of_birth', 'gender', 'religion', 'nationality', 'race',
         'mobile_phone', 'cgpa', 'work_experience', 'emergency_no',
-        'cv_file_path', 'vetting_status'
+        'cv_file_path', 'vetting_status',
+        'passport_photo_path',
+
     ];
 
     protected $casts = [
@@ -64,4 +66,9 @@ class Student extends Model
     {
         return $query->where('vetting_status', 'Pending');
     }
+
+ public function documents()
+{
+    return $this->hasManyThrough(Document::class, User::class, 'user_id', 'user_id', 'user_id', 'user_id');
+}
 }

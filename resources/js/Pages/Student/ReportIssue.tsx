@@ -1,4 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { router } from '@inertiajs/react';
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 
@@ -9,6 +10,7 @@ export default function ReportIssue() {
         issueType: '',
         otherIssueType: '',
     });
+    const [submitting, setSubmitting] = useState(false);
 
     const issueTypes = [
         'Harassment/Discrimination',
@@ -35,8 +37,17 @@ export default function ReportIssue() {
         setFormData({ ...formData, otherIssueType: e.target.value });
     };
 
-    const handleSubmit = () => {
-        console.log(formData);
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        setSubmitting(true);
+        router.post(route('student.report-issue.store'), formData, {
+            preserveScroll: true,
+            onSuccess: () => {
+                setFormData({ company: '', description: '', issueType: '', otherIssueType: '' });
+                // Optional: show a success message or redirect
+            },
+            onFinish: () => setSubmitting(false),
+        });
     };
 
     return (
@@ -51,7 +62,7 @@ export default function ReportIssue() {
                 </button>
             </div>
 
-            <div className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                     <label htmlFor="company" className="block text-sm font-medium">
                         Company Name
@@ -63,6 +74,7 @@ export default function ReportIssue() {
                         value={formData.company}
                         onChange={handleCompanyChange}
                         className="mt-2 w-full rounded-md border px-3 py-2 text-sm"
+                        required
                     />
                 </div>
 
@@ -76,6 +88,7 @@ export default function ReportIssue() {
                         value={formData.description}
                         onChange={handleDescriptionChange}
                         className="mt-2 h-[150px] w-full rounded-md border px-3 py-2 text-sm"
+                        required
                     />
                 </div>
 
@@ -92,6 +105,7 @@ export default function ReportIssue() {
                                     checked={formData.issueType === type}
                                     onChange={handleIssueTypeChange}
                                     className="h-4 w-4"
+                                    required
                                 />
                                 <label htmlFor={type} className="ml-2 text-sm">
                                     {type}
@@ -112,14 +126,14 @@ export default function ReportIssue() {
 
                 <div className="mt-4">
                     <button
-                        type="button"
-                        onClick={handleSubmit}
-                        className="rounded-md bg-black px-6 py-2 text-sm text-white"
+                        type="submit"
+                        disabled={submitting}
+                        className="rounded-md bg-black px-6 py-2 text-sm text-white disabled:opacity-50"
                     >
-                        Submit
+                        {submitting ? 'Submitting...' : 'Submit'}
                     </button>
                 </div>
-            </div>
+            </form>
         </div>
     );
 }

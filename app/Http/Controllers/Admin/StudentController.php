@@ -18,14 +18,23 @@ class StudentController extends Controller
         ]);
     }
 
-    public function show($id)
-    {
-        $student = Student::with(['user', 'programme.school', 'skills', 'languages'])->findOrFail($id);
+public function show($id)
+{
+    $student = Student::with([
+        'user',
+        'programme.school',
+        'skills',
+        'languages',
+        'user.documents',
+        'applications' => function ($query) {
+            $query->with(['quota.company'])->orderBy('apply_date', 'desc');
+        }
+    ])->findOrFail($id);
 
-        return Inertia::render('Admin/StudentShow', [
-            'student' => $student,
-        ]);
-    }
+    return Inertia::render('Admin/StudentShow', [
+        'student' => $student,
+    ]);
+}
 
     public function approve($id)
     {

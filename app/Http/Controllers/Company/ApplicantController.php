@@ -12,24 +12,17 @@ class ApplicantController extends Controller
     /**
      * Display all applications for the company's quotas
      */
-    public function index()
-    {
-        $company = auth()->user()->company;
-        if (!$company) {
-            abort(403, 'You are not associated with any company.');
-        }
-
-        $applications = Application::with(['student.user', 'quota'])
-            ->whereHas('quota', function ($query) use ($company) {
-                $query->where('company_id', $company->company_id);
-            })
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        return Inertia::render('Company/Applicants', [
-            'applications' => $applications,
-        ]);
-    }
+   // app/Http/Controllers/Company/ApplicantController.php
+public function index()
+{
+    $company = auth()->user()->company;
+    $applications = Application::with(['student.user', 'quota'])
+        ->whereHas('quota', fn($q) => $q->where('company_id', $company->company_id))
+        ->where('app_status', 'Pending_Company')
+        ->orderBy('created_at', 'desc')
+        ->get();
+    return Inertia::render('Company/Applicants', ['applications' => $applications]);
+}
 
     /**
      * Review an application (approve or reject)

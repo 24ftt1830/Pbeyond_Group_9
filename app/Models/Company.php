@@ -11,12 +11,19 @@ class Company extends Model
     public $timestamps = true;
 
     protected $fillable = [
-        'user_id', 'company_name', 'location_type',
-        'industry_sector', 'office_address', 'description', 'additional_information'
+
+        'company_name',
+        'location_type',
+        'industry_sector',
+        'office_address',
+        'description',
+        'additional_information',
+        'is_approved'
     ];
 
     public function users()
     {
+        // One company can have many users (Staff/HR)
         return $this->hasMany(User::class, 'company_id', 'company_id');
     }
 

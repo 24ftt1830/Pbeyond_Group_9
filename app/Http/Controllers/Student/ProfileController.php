@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class ProfileController extends Controller
@@ -12,14 +13,13 @@ class ProfileController extends Controller
     {
         $student = auth()->user()->student;
 
-        // If no student record exists, create one with minimal data
         if (!$student) {
             $student = auth()->user()->student()->create([
                 'pb_student_code' => 'STU' . auth()->id(),
                 'full_name' => auth()->user()->username,
                 'ic_number' => '',
                 'ic_colour' => 'Yellow',
-                'programme_id' => 1, // adjust to a valid programme ID
+                'programme_id' => 1,
                 'intake_session' => '',
                 'postal_address' => '',
                 'date_of_birth' => now(),
@@ -62,7 +62,16 @@ class ProfileController extends Controller
             'cgpa'             => 'required|numeric|min:0|max:4',
             'work_experience'  => 'nullable|string',
             'emergency_no'     => 'required|string|max:20',
+            'passport_photo'   => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
+
+        if ($request->hasFile('passport_photo')) {
+            if ($student->passport_photo_path) {
+                Storage::disk('public')->delete($student->passport_photo_path);
+            }
+            $path = $request->file('passport_photo')->store('passport_photos', 'public');
+            $student->passport_photo_path = $path;
+        }
 
         $student->update($validated);
 
