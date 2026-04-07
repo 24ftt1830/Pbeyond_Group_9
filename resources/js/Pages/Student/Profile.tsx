@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { router } from '@inertiajs/react';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 
 export default function Profile({ student }) {
     const [formData, setFormData] = useState({
@@ -21,19 +21,44 @@ export default function Profile({ student }) {
         emergency_no: student.emergency_no || '',
     });
 
+    const [passportPhoto, setPassportPhoto] = useState<File | null>(null);
+    const [passportPreview, setPassportPreview] = useState<string | null>(
+        student.passport_photo_path ? `/storage/${student.passport_photo_path}` : null
+    );
     const [saving, setSaving] = useState(false);
     const [errors, setErrors] = useState({});
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    const handlePhotoChange = (e) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setPassportPhoto(file);
+            setPassportPreview(URL.createObjectURL(file));
+        }
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
         setSaving(true);
-        router.post(route('student.profile.update'), formData, {
+
+        const data = new FormData();
+        Object.keys(formData).forEach(key => {
+            data.append(key, formData[key]);
+        });
+        if (passportPhoto) {
+            data.append('passport_photo', passportPhoto);
+        }
+
+        router.post(route('student.profile.update'), data, {
             preserveScroll: true,
-            onSuccess: () => setSaving(false),
+            onSuccess: () => {
+                setSaving(false);
+                if (fileInputRef.current) fileInputRef.current.value = '';
+            },
             onError: (err) => {
                 setErrors(err);
                 setSaving(false);
@@ -46,8 +71,34 @@ export default function Profile({ student }) {
             <h1 className="text-2xl font-semibold text-gray-900 mb-6">My Profile (Borang ILD)</h1>
 
             <form onSubmit={handleSubmit} className="space-y-6 bg-white shadow rounded-lg p-6">
+                {/* Passport Photo Section */}
+                <div className="border-b border-gray-200 pb-4">
+                    <h2 className="text-lg font-medium text-gray-900 mb-3">Passport Photo (Required)</h2>
+                    <div className="flex flex-col sm:flex-row items-start gap-6">
+                        <div className="w-32 h-32 bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center border border-gray-200">
+                            {passportPreview ? (
+                                <img src={passportPreview} alt="Passport preview" className="w-full h-full object-cover" />
+                            ) : (
+                                <span className="text-gray-400 text-xs text-center">No photo</span>
+                            )}
+                        </div>
+                        <div className="flex-1">
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept="image/jpeg,image/png,image/jpg"
+                                onChange={handlePhotoChange}
+                                required={!student.passport_photo_path}
+                                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                            />
+                            <p className="text-xs text-gray-500 mt-2">JPEG, PNG, JPG only. Max 2MB.</p>
+                            {errors.passport_photo && <p className="text-red-500 text-xs mt-1">{errors.passport_photo}</p>}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Personal Information Fields (unchanged) */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Full Name */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Full Name</label>
                         <input
@@ -61,7 +112,6 @@ export default function Profile({ student }) {
                         {errors.full_name && <p className="text-red-500 text-xs mt-1">{errors.full_name}</p>}
                     </div>
 
-                    {/* IC Number */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700">IC Number</label>
                         <input
@@ -75,7 +125,6 @@ export default function Profile({ student }) {
                         {errors.ic_number && <p className="text-red-500 text-xs mt-1">{errors.ic_number}</p>}
                     </div>
 
-                    {/* IC Colour */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700">IC Colour</label>
                         <select
@@ -92,7 +141,6 @@ export default function Profile({ student }) {
                         {errors.ic_colour && <p className="text-red-500 text-xs mt-1">{errors.ic_colour}</p>}
                     </div>
 
-                    {/* Intake Session */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Intake Session</label>
                         <input
@@ -106,7 +154,6 @@ export default function Profile({ student }) {
                         {errors.intake_session && <p className="text-red-500 text-xs mt-1">{errors.intake_session}</p>}
                     </div>
 
-                    {/* Postal Address */}
                     <div className="md:col-span-2">
                         <label className="block text-sm font-medium text-gray-700">Postal Address</label>
                         <textarea
@@ -120,7 +167,6 @@ export default function Profile({ student }) {
                         {errors.postal_address && <p className="text-red-500 text-xs mt-1">{errors.postal_address}</p>}
                     </div>
 
-                    {/* Date of Birth */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Date of Birth</label>
                         <input
@@ -134,7 +180,6 @@ export default function Profile({ student }) {
                         {errors.date_of_birth && <p className="text-red-500 text-xs mt-1">{errors.date_of_birth}</p>}
                     </div>
 
-                    {/* Place of Birth */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Place of Birth</label>
                         <input
@@ -148,7 +193,6 @@ export default function Profile({ student }) {
                         {errors.place_of_birth && <p className="text-red-500 text-xs mt-1">{errors.place_of_birth}</p>}
                     </div>
 
-                    {/* Gender */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Gender</label>
                         <select
@@ -164,7 +208,6 @@ export default function Profile({ student }) {
                         {errors.gender && <p className="text-red-500 text-xs mt-1">{errors.gender}</p>}
                     </div>
 
-                    {/* Religion */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Religion</label>
                         <input
@@ -178,7 +221,6 @@ export default function Profile({ student }) {
                         {errors.religion && <p className="text-red-500 text-xs mt-1">{errors.religion}</p>}
                     </div>
 
-                    {/* Nationality */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Nationality</label>
                         <input
@@ -192,7 +234,6 @@ export default function Profile({ student }) {
                         {errors.nationality && <p className="text-red-500 text-xs mt-1">{errors.nationality}</p>}
                     </div>
 
-                    {/* Race */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Race</label>
                         <input
@@ -206,7 +247,6 @@ export default function Profile({ student }) {
                         {errors.race && <p className="text-red-500 text-xs mt-1">{errors.race}</p>}
                     </div>
 
-                    {/* Mobile Phone */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Mobile Phone</label>
                         <input
@@ -220,7 +260,6 @@ export default function Profile({ student }) {
                         {errors.mobile_phone && <p className="text-red-500 text-xs mt-1">{errors.mobile_phone}</p>}
                     </div>
 
-                    {/* CGPA */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700">CGPA</label>
                         <input
@@ -235,7 +274,6 @@ export default function Profile({ student }) {
                         {errors.cgpa && <p className="text-red-500 text-xs mt-1">{errors.cgpa}</p>}
                     </div>
 
-                    {/* Emergency No */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Emergency Contact</label>
                         <input
@@ -249,7 +287,6 @@ export default function Profile({ student }) {
                         {errors.emergency_no && <p className="text-red-500 text-xs mt-1">{errors.emergency_no}</p>}
                     </div>
 
-                    {/* Work Experience (optional) */}
                     <div className="md:col-span-2">
                         <label className="block text-sm font-medium text-gray-700">Work Experience (if any)</label>
                         <textarea

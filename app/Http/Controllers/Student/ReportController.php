@@ -10,10 +10,10 @@ use Inertia\Inertia;
 class ReportController extends Controller
 {
     public function index()
-    {
-        $reports = Report::where('user_id', auth()->id())->orderBy('created_at', 'desc')->get();
-        return Inertia::render('Student/PastReports', ['reports' => $reports]);
-    }
+{
+    $reports = Report::where('user_id', auth()->id())->orderBy('created_at', 'desc')->get();
+    return Inertia::render('Student/PastReports', ['reports' => $reports]);
+}
 
     public function create()
     {

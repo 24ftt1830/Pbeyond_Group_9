@@ -50,6 +50,53 @@ class CompanyController extends Controller
         ]);
     }
 
+    public function apply(Request $request, $companyId)
+{
+    $student = auth()->user()->student;
+
+    // 1. Check student vetting status
+    if ($student->vetting_status !== 'Approved') {
+        return back()->withErrors('Your profile has not been approved yet.');
+    }
+
+    // 2. Find suitable quota
+    $quota = $student->programme->placementQuotas()
+        ->where('company_id', $companyId)
+        ->where('is_released', true)
+        ->where('quota_status', 'Approved')
+        ->first();
+
+    if (!$quota) {
+        return back()->withErrors('No available quota for this company.');
+    }
+
+    // 3. Check duplicate application
+    if ($student->applications()->where('quota_id', $quota->quota_id)->exists()) {
+        return back()->withErrors('You have already applied for this company.');
+    }
+
+    // 4. CGPA check
+    if ($quota->min_cgpa > $student->cgpa) {
+        return back()->withErrors('Your CGPA does not meet the requirement.');
+    }
+
+    // 5. Check slots availability
+    $approvedCount = $quota->applications()->where('app_status', 'Approved')->count();
+    if ($approvedCount >= $quota->total_slots) {
+        return back()->withErrors('No slots left for this company.');
+    }
+
+    // 6. Create application with Pending_ILD
+    Application::create([
+        'student_id' => $student->student_id,
+        'quota_id'   => $quota->quota_id,
+        'app_status' => 'Pending_ILD',
+        'apply_date' => now(),
+    ]);
+
+    return back()->with('success', 'Application submitted successfully. It will be reviewed by ILD.');
+}
+
     /**
      * Store a newly created company.
      */

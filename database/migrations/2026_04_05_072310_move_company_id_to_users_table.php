@@ -9,16 +9,36 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up()
+//     public function up()
+// {
+//     Schema::table('users', function (Blueprint $table) {
+//         $table->unsignedBigInteger('company_id')->nullable()->after('role');
+//         $table->foreign('company_id')->references('company_id')->on('companies')->onDelete('set null');
+//     });
+
+//     Schema::table('companies', function (Blueprint $table) {
+//         $table->dropForeign(['user_id']);
+//         $table->dropColumn('user_id');
+//     });
+// }
+
+public function up()
 {
     Schema::table('users', function (Blueprint $table) {
-        $table->unsignedBigInteger('company_id')->nullable()->after('role');
-        $table->foreign('company_id')->references('company_id')->on('companies')->onDelete('set null');
+
+        $table->integer('company_id')->nullable()->after('role');
+
+        $table->foreign('company_id')
+              ->references('company_id')
+              ->on('companies')
+              ->onDelete('set null');
     });
 
     Schema::table('companies', function (Blueprint $table) {
-        $table->dropForeign(['user_id']); 
-        $table->dropColumn('user_id');
+        if (Schema::hasColumn('companies', 'user_id')) {
+            $table->dropForeign(['user_id']);
+            $table->dropColumn('user_id');
+        }
     });
 }
 

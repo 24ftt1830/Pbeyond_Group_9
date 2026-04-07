@@ -20,6 +20,7 @@ import {
     ChartPie,
     Headset,
     CalendarDays,
+    ClipboardList,   // <-- added for Review Applications
 } from "lucide-react";
 
 const data = {
@@ -48,6 +49,11 @@ const data = {
             title: "Manage Users",
             url: route('admin.manage-users'),
             icon: UserPlus,
+        },
+        {
+            title: "Review Applications",   // <-- new gatekeeper page
+            url: route('admin.applications.review'),
+            icon: ClipboardList,
         },
     ],
     navSecondary: [

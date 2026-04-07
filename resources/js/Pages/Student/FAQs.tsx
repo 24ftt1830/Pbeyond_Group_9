@@ -1,5 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { useState } from 'react';
+import { ChevronRight, HelpCircle } from 'lucide-react';
 import type { ReactNode } from 'react';
 
 export default function FAQs() {
@@ -9,12 +10,12 @@ export default function FAQs() {
         {
             id: '1',
             question: 'What is PBeyond?',
-            answer: 'PBeyond is a platform designed to help students find and apply for internships, track their applications, and manage their internship experience. It provides features such as a companies list, application tracking, a calendar for important dates, and a favorites section to save preferred companies.',
+            answer: 'PBeyond is a platform designed to help students find and apply for internships, track their applications, and manage their internship experience.',
         },
         {
             id: '2',
             question: 'What is the application deadline?',
-            answer: 'Application deadlines vary by company. Please check each company\'s listing for their specific deadline dates. You can also contact the company directly for more information.',
+            answer: 'Application deadlines vary by company. Please check each company\'s listing for their specific deadline dates.',
         },
         {
             id: '3',
@@ -29,17 +30,17 @@ export default function FAQs() {
         {
             id: '5',
             question: 'How do I report an issue with my internship?',
-            answer: 'You can report any issues you encounter during your internship by navigating to the Report Issue page. There, you can fill out a form with details about the issue and submit it for review.',
+            answer: 'You can report any issues by navigating to the Report Issue page. There, you can fill out a form with details about the issue and submit it for review.',
         },
         {
             id: '6',
             question: 'Is there a calendar for important dates?',
-            answer: 'Yes, we have a Calendar feature that displays important dates and events related to your internship. You can navigate through months and view key information there.',
+            answer: 'Yes, we have a Calendar feature that displays important dates and events related to your internship.',
         },
         {
             id: '7',
             question: 'Do students get paid for their internships?',
-            answer: 'Yes, students are typically paid for their internships. The payment amount varies by company and position. You can check each company\'s listing for more details.',
+            answer: 'Yes, students are typically paid for their internships. The payment amount varies by company and position.',
         },
     ];
 
@@ -48,30 +49,55 @@ export default function FAQs() {
     };
 
     return (
-        <div className="p-6">
-            <h1 className="text-2xl font-bold mb-6">FAQs</h1>
-            <div className="max-w-3xl space-y-3">
-                {faqs.map((faq) => (
-                    <div
-                        key={faq.id}
-                        className="border border-muted rounded-lg overflow-hidden shadow-md"
-                    >
-                        <button
-                            onClick={() => toggleExpand(faq.id)}
-                            className="w-full px-4 py-4 text-left font-medium hover:bg-muted/50 transition-colors flex items-center justify-between"
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+            {/* Hero Section */}
+            <div className="text-center py-12 px-4">
+                <div className="inline-flex items-center justify-center p-2 bg-indigo-100 rounded-full mb-4">
+                    <HelpCircle className="w-6 h-6 text-indigo-600" />
+                </div>
+                <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl">
+                    Frequently Asked Questions
+                </h1>
+                <p className="mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl">
+                    Everything you need to know about PBeyond
+                </p>
+            </div>
+
+            {/* FAQ Grid */}
+            <div className="max-w-7xl mx-auto px-4 pb-16">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {faqs.map((faq) => (
+                        <div
+                            key={faq.id}
+                            className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100"
                         >
-                            <span>{faq.question}</span>
-                            <span className="text-lg">
-                                {expandedId === faq.id ? '−' : '+'}
-                            </span>
-                        </button>
-                        {expandedId === faq.id && (
-                            <div className="px-4 py-3 bg-muted/30 text-sm border-t border-muted">
-                                {faq.answer}
+                            <div className="p-6">
+                                <div className="flex items-start justify-between">
+                                    <h3 className="text-lg font-semibold text-gray-900 pr-4">
+                                        {faq.question}
+                                    </h3>
+                                    <button
+                                        onClick={() => toggleExpand(faq.id)}
+                                        className="flex-shrink-0 p-1 rounded-full bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition"
+                                    >
+                                        <ChevronRight
+                                            className={`w-5 h-5 transform transition-transform duration-300 ${
+                                                expandedId === faq.id ? 'rotate-90' : ''
+                                            }`}
+                                        />
+                                    </button>
+                                </div>
+                                <div
+                                    className={`mt-3 text-gray-600 text-sm transition-all duration-300 overflow-hidden ${
+                                        expandedId === faq.id ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'
+                                    }`}
+                                >
+                                    {faq.answer}
+                                </div>
                             </div>
-                        )}
-                    </div>
-                ))}
+                        </div>
+                    ))}
+                </div>
             </div>
         </div>
     );
