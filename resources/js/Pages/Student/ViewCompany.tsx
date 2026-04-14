@@ -8,19 +8,29 @@ type Company = {
     name: string;
     status: string;
     quota_availability: number;
-    interview_required: string;
-    school: string;
-    district: string;
+    interview_required: boolean | string;
+    job_title: string;
+    location: string;
+    min_cgpa: number;
+    application_deadline: string | null;
     description: string | null;
-    additional_information: string | null;
 };
 
-export default function ViewCompany({ company, hasApplied = false }: { company: Company; hasApplied?: boolean }) {
+interface Props {
+    company: Company;
+    hasApplied?: boolean;
+    userCgpa?: number;
+}
+
+export default function ViewCompany({ company, hasApplied = false, userCgpa }: Props) {
     const [showConfirmApplication, setShowConfirmApplication] = useState(false);
     const [showApplicationSuccess, setShowApplicationSuccess] = useState(false);
     const [showApplicationRejected, setShowApplicationRejected] = useState(false);
     const [isApplied, setIsApplied] = useState(hasApplied);
     const isCompanyFull = company.quota_availability <= 0 || company.status.toLowerCase() === 'full';
+
+    const hasMetCgpaRequirement = userCgpa !== undefined ? userCgpa >= company.min_cgpa : true;
+    const canApply = !isApplied && !isCompanyFull && hasMetCgpaRequirement;
 
     const handleStartApply = () => {
         if (isCompanyFull) {
@@ -89,20 +99,32 @@ export default function ViewCompany({ company, hasApplied = false }: { company: 
                                 <td className="py-2 text-black/80">{company.quota_availability}</td>
                             </tr>
                             <tr className="border-b border-black/10">
-                                <td className="py-2 pr-3 font-medium text-black">Status</td>
-                                <td className="py-2 text-black/80">{company.status}</td>
+                                <td className="py-2 pr-3 font-medium text-black">Location</td>
+                                <td className="py-2 text-black/80">{company.location}</td>
+                            </tr>
+                            <tr className="border-b border-black/10">
+                                <td className="py-2 pr-3 font-medium text-black">Min. CGPA</td>
+                                <td className="py-2 text-black/80">
+                                {company.min_cgpa}
+                                {!hasMetCgpaRequirement && (
+                                    <span className="ml-2 block text-xs font-bold text-red-600">
+                                        Requirement not met
+                                    </span>
+                                    )}
+                                </td>
+                            </tr>
+                            <tr className="border-b border-black/10">
+                                <td className="py-2 pr-3 font-medium text-black">Deadline</td>
+                                <td className="py-2 text-black/80">{company.application_deadline}</td>
                             </tr>
                             <tr className="border-b border-black/10">
                                 <td className="py-2 pr-3 font-medium text-black">Interview Required</td>
-                                <td className="py-2 text-black/80">{company.interview_required}</td>
-                            </tr>
-                            <tr className="border-b border-black/10">
-                                <td className="py-2 pr-3 font-medium text-black">School</td>
-                                <td className="py-2 text-black/80">{company.school}</td>
+                                <td className="py-2 text-black/80">{company.interview_required ? 'Yes' : 'No'}
+                                </td>
                             </tr>
                             <tr>
-                                <td className="py-2 pr-3 font-medium text-black">District</td>
-                                <td className="py-2 text-black/80">{company.district}</td>
+                                <td className="py-2 pr-3 font-medium text-black">Status</td>
+                                <td className="py-2 text-black/80">{company.status}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -113,8 +135,14 @@ export default function ViewCompany({ company, hasApplied = false }: { company: 
                         disabled={isApplied}
                         className="mt-5 w-full rounded-md bg-black px-4 py-2 text-sm font-medium text-white hover:bg-black/90 disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                        {isApplied ? 'Applied' : 'Apply'}
+                        {isApplied ? 'Applied' : !hasMetCgpaRequirement ? 'Ineligible' : 'Apply'}
                     </button>
+
+                    {!hasMetCgpaRequirement && (
+                        <p className="mt-2 text-center text-[10px] text-red-500">
+                            You do not meet the minimum CGPA requirement to apply for this company.
+                        </p>
+                        )}
                 </aside>
             </div>
 

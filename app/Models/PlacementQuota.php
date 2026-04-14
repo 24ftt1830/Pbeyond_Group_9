@@ -55,6 +55,6 @@ class PlacementQuota extends Model
         $approvedCount = $this->applications()
                               ->where('app_status', 'Approved')
                               ->count();
-        return $this->total_slots - $approvedCount;
+        return max(0, $this->total_slots - $approvedCount);
     }
 }

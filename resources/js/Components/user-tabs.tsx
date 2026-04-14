@@ -72,6 +72,7 @@ const UserTabs = () => {
     email: '',
     password: '',
     programme_id: '',
+    pb_student_code: '',
     role: 'Student'
   });
 
@@ -81,7 +82,6 @@ const UserTabs = () => {
     email: '',
     role: '',
     programme_id: '',
-    interview_required: false,
   });
 
   const assignForm = useForm({
@@ -101,7 +101,6 @@ const UserTabs = () => {
       email: user.email || '',
       role: role,
       programme_id: role === 'Student' ? user.student?.programme_id?.toString() : '',
-      interview_required: role === 'Student' ? !!user.student?.interview_required : false,
     });
     setEditModalOpen(true);
   };
@@ -154,6 +153,9 @@ const UserTabs = () => {
       onSuccess: () => {
         setStudentOpen(false);
         studentForm.reset();
+      },
+      onError: (errors) => {
+        console.error("Validation Errors:", errors);
       }
     });
   };
@@ -274,6 +276,13 @@ const UserTabs = () => {
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
                   <div className="grid gap-2">
+                    <Label>Student ID</Label>
+                    <Input 
+                    placeholder="e.g., 24FTB1001"
+                    value={studentForm.data.pb_student_code} onChange={e => studentForm.setData('pb_student_code', e.target.value)} required />
+                    {studentForm.errors.pb_student_code && <p className="text-xs text-red-500">{studentForm.errors.pb_student_code}</p>}
+                  </div>
+                  <div className="grid gap-2">
                     <Label>Full Name / Username</Label>
                     <Input value={studentForm.data.username} onChange={e => studentForm.setData('username', e.target.value)} required />
                   </div>
@@ -282,7 +291,7 @@ const UserTabs = () => {
                     <Input type="email" value={studentForm.data.email} onChange={e => studentForm.setData('email', e.target.value)} required />
                   </div>
                   <div className="grid gap-2">
-                    <Label>Temporary Password</Label>
+                    <Label>Password</Label>
                     <Input type="password" value={studentForm.data.password} onChange={e => studentForm.setData('password', e.target.value)} required />
                   </div>
                   <div className="grid gap-2">
@@ -409,17 +418,6 @@ const UserTabs = () => {
                         ))}
                       </SelectContent>
                     </Select>
-                  </div>
-
-                  <div className="flex items-center justify-between p-4 border rounded-xl bg-slate-50">
-                    <div className="space-y-0.5">
-                      <Label className="text-sm font-bold text-slate-700">Interview Required</Label>
-                      <p className="text-[11px] text-slate-500">Mark if student needs screening.</p>
-                    </div>
-                    <Switch
-                      checked={updateForm.data.interview_required}
-                      onCheckedChange={(val) => updateForm.setData('interview_required', val)}
-                    />
                   </div>
                 </>
               )}

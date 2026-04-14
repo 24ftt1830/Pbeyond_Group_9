@@ -41,6 +41,7 @@ class UserManagementController extends Controller
             $rules['company_id'] = 'nullable|exists:companies,company_id';
         } else {
             $rules['programme_id'] = 'required|exists:programmes,programme_id';
+            $rules['pb_student_code'] = 'required|string|max:50|unique:students,pb_student_code';
         }
 
         $validated = $request->validate($rules);
@@ -49,9 +50,9 @@ class UserManagementController extends Controller
             return DB::transaction(function () use ($validated) {
                 $userData = [
                     'username' => $validated['username'],
-                    'email' => $validated['email'],
+                    'email'    => $validated['email'],
                     'password' => Hash::make($validated['password']),
-                    'role' => $validated['role'],
+                    'role'     => $validated['role'],
                 ];
 
                 if ($validated['role'] === 'Company' && isset($validated['company_id'])) {
@@ -62,8 +63,10 @@ class UserManagementController extends Controller
 
                 if ($user->role === 'Student') {
                     $user->student()->create([
-                        'programme_id' => $validated['programme_id'],
-                        'cgpa' => 0.0,
+                        'pb_student_code' => $validated['pb_student_code'], // Map from UI
+                        'programme_id'    => $validated['programme_id'],
+                        'full_name'       => $validated['username'],
+                        'cgpa'            => 0.0,
                     ]);
                     $message = 'Student account created successfully.';
                 } else {
@@ -75,8 +78,7 @@ class UserManagementController extends Controller
 
         } catch (\Exception $e) {
             Log::error('User Management Store Error: '.$e->getMessage());
-
-            return redirect()->back()->withErrors(['message' => 'Failed to create user.']);
+            return redirect()->back()->withErrors(['message' => 'Failed to create user. ' . $e->getMessage()]);
         }
     }
 
@@ -85,14 +87,14 @@ class UserManagementController extends Controller
         $user = User::findOrFail($id);
 
         $rules = [
-            'username' => "sometimes|required|string|max:255|unique:users,username,{$id},user_id",
-            'email' => "sometimes|required|email|max:255|unique:users,email,{$id},user_id",
+            'username'   => "sometimes|required|string|max:255|unique:users,username,{$id},user_id",
+            'email'      => "sometimes|required|email|max:255|unique:users,email,{$id},user_id",
             'company_id' => 'nullable|exists:companies,company_id',
         ];
 
         if ($user->role === 'Student') {
-            $rules['programme_id'] = 'sometimes|required|exists:programmes,programme_id';
-            $rules['interview_required'] = 'boolean';
+            $rules['programme_id']     = 'sometimes|required|exists:programmes,programme_id';
+            $rules['pb_student_code']  = "sometimes|required|string|max:50|unique:students,pb_student_code,{$user->student?->student_id},student_id";
         }
 
         $validated = $request->validate($rules);
@@ -101,23 +103,20 @@ class UserManagementController extends Controller
             DB::transaction(function () use ($user, $validated, $request) {
                 $updateData = [];
 
-                if ($request->has('username')) {
-                    $updateData['username'] = $validated['username'];
-                }
-                if ($request->has('email')) {
-                    $updateData['email'] = $validated['email'];
-                }
-                if ($request->has('company_id')) {
-                    $updateData['company_id'] = $validated['company_id'];
-                }
+                if ($request->has('username'))   $updateData['username'] = $validated['username'];
+                if ($request->has('email'))      $updateData['email'] = $validated['email'];
+                if ($request->has('company_id')) $updateData['company_id'] = $validated['company_id'];
 
                 $user->update($updateData);
 
-                if ($user->role === 'Student' && $request->has('programme_id')) {
-                    $user->student()->update([
-                        'programme_id' => $validated['programme_id'],
-                        'interview_required' => $request->boolean('interview_required'),
-                    ]);
+                if ($user->role === 'Student') {
+                    $studentData = [];
+                    if ($request->has('programme_id'))    $studentData['programme_id'] = $validated['programme_id'];
+                    if ($request->has('pb_student_code')) $studentData['pb_student_code'] = $validated['pb_student_code'];
+
+                    if (!empty($studentData)) {
+                        $user->student()->update($studentData);
+                    }
                 }
             });
 
@@ -125,7 +124,6 @@ class UserManagementController extends Controller
 
         } catch (\Exception $e) {
             Log::error('User Update Error: '.$e->getMessage());
-
             return back()->withErrors(['message' => 'Failed to update user details.']);
         }
     }
@@ -133,18 +131,14 @@ class UserManagementController extends Controller
     public function destroy($id)
     {
         $user = User::findOrFail($id);
-
         $user->delete();
-
         return redirect()->route('admin.manage-users')->with('success', 'User deleted.');
     }
 
     public function unassignCompany($id)
     {
         $user = User::where('role', 'Company')->findOrFail($id);
-
         $user->update(['company_id' => null]);
-
         return redirect()->back()->with('success', 'Company unassigned successfully.');
     }
 }

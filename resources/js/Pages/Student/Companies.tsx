@@ -1,163 +1,148 @@
 import { useState, useMemo } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
-import { Search, Filter, X, Eye } from 'lucide-react';
-import { Input } from '@/Components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select";
+import { Search, Filter, X, Eye, LoaderCircleIcon, RotateCcw } from 'lucide-react';
 import { Button } from "@/Components/ui/button";
+import { Input } from '@/Components/ui/input';
 
-type Company = {
-    id: number;
-    name: string;
-    status: string;
-    quota_availability: number;
-    interview_required: string;
-    school: string;
-    district: string;
-};
+// --- Types ---
+interface Company {
+    company_id: number;
+    company_name: string;
+    industry_sector: string;
+    office_address: string;
+    available: number; 
+}
 
-const districtOptions = ['Brunei-Muara', 'Tutong', 'Temburong', 'Kuala Belait'];
+interface Props {
+    companies: Company[];
+}
+
+const districtOptions = ['Brunei Muara', 'Tutong', 'Temburong', 'Belait'];
 const statusOptions = ['Available', 'Full'];
-const schoolOptions = ['SICT', 'SBS', 'SHS', 'SSE', 'SPE'];
-const interviewOptions = ['Yes', 'No', 'Depending on the course'];
 
-export default function Companies({ companies = [] }: { companies?: Company[] }) {
+export default function Companies({ companies = [] }: Props) {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedDistricts, setSelectedDistricts] = useState<string[]>([]);
     const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
-    const [selectedSchools, setSelectedSchools] = useState<string[]>([]);
-    const [selectedInterviewRequired, setSelectedInterviewRequired] = useState<string[]>([]);
     const [filtersOpen, setFiltersOpen] = useState(false);
-
-    const toggleSelection = (value: string, selected: string[], setSelected: (val: string[]) => void) => {
-        if (selected.includes(value)) {
-            setSelected(selected.filter(item => item !== value));
-        } else {
-            setSelected([...selected, value]);
-        }
-    };
+    const [isSearching, setIsSearching] = useState(false);
 
     const filteredCompanies = useMemo(() => {
-        return companies.filter(company => {
-            const matchesSearch = !searchQuery || company.name.toLowerCase().includes(searchQuery.toLowerCase());
-            const matchesDistrict = selectedDistricts.length === 0 || selectedDistricts.includes(company.district);
-            const matchesStatus = selectedStatuses.length === 0 || selectedStatuses.includes(company.status);
-            const matchesSchool = selectedSchools.length === 0 || selectedSchools.includes(company.school);
-            const matchesInterview = selectedInterviewRequired.length === 0 || selectedInterviewRequired.includes(company.interview_required);
-            return matchesSearch && matchesDistrict && matchesStatus && matchesSchool && matchesInterview;
-        });
-    }, [companies, searchQuery, selectedDistricts, selectedStatuses, selectedSchools, selectedInterviewRequired]);
+        return companies
+            .map(company => ({
+                ...company,
+                calculatedStatus: company.available === 0 ? 'Full' : 'Available'
+            }))
+            .filter(company => {
+                const matchesSearch = !searchQuery || 
+                    company.company_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    company.office_address.toLowerCase().includes(searchQuery.toLowerCase());
+
+                const matchesDistrict = selectedDistricts.length === 0 || 
+                    selectedDistricts.includes(company.office_address);
+
+                const matchesStatus = selectedStatuses.length === 0 || 
+                    selectedStatuses.includes(company.calculatedStatus);
+
+                return matchesSearch && matchesDistrict && matchesStatus;
+            });
+    }, [companies, searchQuery, selectedDistricts, selectedStatuses]);
+
+    const toggleSelection = (value: string, selected: string[], setSelected: (val: string[]) => void) => {
+        setSelected(selected.includes(value) 
+            ? selected.filter(item => item !== value) 
+            : [...selected, value]
+        );
+    };
 
     const clearFilters = () => {
         setSearchQuery('');
         setSelectedDistricts([]);
         setSelectedStatuses([]);
-        setSelectedSchools([]);
-        setSelectedInterviewRequired([]);
     };
 
-    const hasActiveFilters = selectedDistricts.length > 0 || selectedStatuses.length > 0 || selectedSchools.length > 0 || selectedInterviewRequired.length > 0;
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchQuery(e.target.value);
+        setIsSearching(true);
+        setTimeout(() => setIsSearching(false), 500);
+    };
+
+    const hasActiveFilters = selectedDistricts.length > 0 || selectedStatuses.length > 0;
 
     return (
-        <div className="p-6">
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-bold">Companies List</h1>
-                <button
+        <div className="w-full px-4 py-10 mx-auto space-y-6 max-w-7xl sm:px-6 lg:px-8">
+            <Head title="Available Companies" />
+            
+            <div className="flex items-center justify-between w-full">
+                <header>
+                    <h1 className="text-3xl font-extrabold text-slate-900">Companies List</h1>
+                    <p className="text-sm text-slate-500">Browse and find placement opportunities</p>
+                </header>
+                
+                <Button
+                    variant="outline"
                     onClick={() => setFiltersOpen(!filtersOpen)}
-                    className="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-lg hover:bg-gray-50"
+                    className={`gap-2 ${filtersOpen ? 'bg-slate-100' : ''}`}
                 >
-                    <Filter className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm text-gray-700">Filters</span>
-                    {hasActiveFilters && <span className="bg-blue-100 text-blue-700 text-xs px-1.5 py-0.5 rounded-full">●</span>}
-                </button>
+                    <Filter className="size-4" />
+                    Filters
+                    {hasActiveFilters && <span className="w-2 h-2 bg-blue-600 rounded-full"></span>}
+                </Button>
             </div>
 
-            {/* Search Bar */}
-            <div className="mb-4">
-                <div className="relative max-w-sm">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                    <input
-                        type="text"
-                        placeholder="Search company..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-9 pr-3 py-2 border border-gray-200 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                </div>
+            <div className="relative w-full max-w-md">
+                <Search className="absolute text-gray-400 -translate-y-1/2 left-3 top-1/2 size-4" />
+                <Input
+                    placeholder="Search company or district..."
+                    value={searchQuery}
+                    onChange={handleSearchChange}
+                    className="pl-9"
+                />
+                {isSearching && (
+                    <LoaderCircleIcon className="absolute text-gray-400 -translate-y-1/2 right-3 top-1/2 size-4 animate-spin" />
+                )}
             </div>
 
-            {/* Filter Panel */}
             {filtersOpen && (
-                <div className="mb-6 bg-gray-50 border border-gray-200 rounded-xl p-5">
-                    <div className="flex justify-between items-center mb-3">
-                        <h2 className="text-sm font-semibold text-gray-700">Filter companies</h2>
+                <div className="w-full p-5 border border-gray-200 bg-gray-50 rounded-xl shadow-sm">
+                    <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Refine Search</h2>
                         {hasActiveFilters && (
-                            <button onClick={clearFilters} className="text-xs text-gray-500 hover:text-gray-700 flex items-center gap-1">
-                                <X className="h-3 w-3" /> Clear all
+                            <button onClick={clearFilters} className="flex items-center gap-1 text-xs font-medium text-red-500 hover:text-red-700">
+                                <RotateCcw className="size-3" /> Reset
                             </button>
                         )}
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                         <div>
-                            <h3 className="text-sm font-medium text-gray-700 mb-2">District</h3>
-                            <div className="space-y-1.5">
+                            <h3 className="mb-2 text-sm font-bold text-gray-800">District</h3>
+                            <div className="grid grid-cols-2 gap-2">
                                 {districtOptions.map(district => (
-                                    <label key={district} className="flex items-center gap-2 text-sm text-gray-600">
+                                    <label key={district} className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
                                         <input
                                             type="checkbox"
                                             checked={selectedDistricts.includes(district)}
                                             onChange={() => toggleSelection(district, selectedDistricts, setSelectedDistricts)}
-                                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                            className="text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                                         />
-                                        <span>{district}</span>
+                                        {district}
                                     </label>
                                 ))}
                             </div>
                         </div>
                         <div>
-                            <h3 className="text-sm font-medium text-gray-700 mb-2">Status</h3>
-                            <div className="space-y-1.5">
+                            <h3 className="mb-2 text-sm font-bold text-gray-800">Availability</h3>
+                            <div className="flex gap-4">
                                 {statusOptions.map(status => (
-                                    <label key={status} className="flex items-center gap-2 text-sm text-gray-600">
+                                    <label key={status} className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
                                         <input
                                             type="checkbox"
                                             checked={selectedStatuses.includes(status)}
                                             onChange={() => toggleSelection(status, selectedStatuses, setSelectedStatuses)}
-                                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                            className="text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                                         />
-                                        <span>{status}</span>
-                                    </label>
-                                ))}
-                            </div>
-                        </div>
-                        <div>
-                            <h3 className="text-sm font-medium text-gray-700 mb-2">School</h3>
-                            <div className="space-y-1.5">
-                                {schoolOptions.map(school => (
-                                    <label key={school} className="flex items-center gap-2 text-sm text-gray-600">
-                                        <input
-                                            type="checkbox"
-                                            checked={selectedSchools.includes(school)}
-                                            onChange={() => toggleSelection(school, selectedSchools, setSelectedSchools)}
-                                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                                        />
-                                        <span>{school}</span>
-                                    </label>
-                                ))}
-                            </div>
-                        </div>
-                        <div>
-                            <h3 className="text-sm font-medium text-gray-700 mb-2">Interview Required?</h3>
-                            <div className="space-y-1.5">
-                                {interviewOptions.map(opt => (
-                                    <label key={opt} className="flex items-center gap-2 text-sm text-gray-600">
-                                        <input
-                                            type="checkbox"
-                                            checked={selectedInterviewRequired.includes(opt)}
-                                            onChange={() => toggleSelection(opt, selectedInterviewRequired, setSelectedInterviewRequired)}
-                                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                                        />
-                                        <span>{opt}</span>
+                                        {status}
                                     </label>
                                 ))}
                             </div>
@@ -166,52 +151,50 @@ export default function Companies({ companies = [] }: { companies?: Company[] })
                 </div>
             )}
 
-            {/* Companies Table */}
-            <div className="overflow-x-auto">
-                <table className="min-w-full border border-gray-200 rounded-lg">
+            <div className="w-full overflow-hidden bg-white border border-gray-200 shadow-sm rounded-md">
+                <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                         <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company Name</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quota Availability</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Interview Required</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">School</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">District</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            <th className="px-6 py-4 text-xs font-semibold tracking-wider text-left text-gray-500 uppercase">Company Name</th>
+                            <th className="px-6 py-4 text-xs font-semibold tracking-wider text-left text-gray-500 uppercase">Sector</th>
+                            <th className="px-6 py-4 text-xs font-semibold tracking-wider text-left text-gray-500 uppercase">District</th>
+                            <th className="px-6 py-4 text-xs font-semibold tracking-wider text-right text-gray-500 uppercase">Actions</th>
                         </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
                         {filteredCompanies.length > 0 ? (
                             filteredCompanies.map((company) => (
-                                <tr key={company.id} className="hover:bg-gray-50">
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{company.id}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{company.name}</td>
+                                <tr key={company.company_id} className="transition-colors hover:bg-slate-50">
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                            company.status === 'Available' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                                        }`}>
-                                            {company.status}
-                                        </span>
+                                        <div className="text-sm font-bold text-gray-900">{company.company_name}</div>
+                                        <div className="text-xs">
+                                            {company.calculatedStatus === 'Full' ? (
+                                                <span className="text-red-500">Full</span>
+                                            ) : (
+                                                <span className="text-green-600">Available</span>
+                                            )}
+                                        </div>
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{company.quota_availability}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{company.interview_required}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{company.school}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{company.district}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                    <td className="px-6 py-4 text-sm text-gray-600 whitespace-nowrap">
+                                        {company.industry_sector}
+                                    </td>
+                                    <td className="px-6 py-4 text-sm text-gray-600 whitespace-nowrap">
+                                        {company.office_address}
+                                    </td>
+                                    <td className="px-6 py-4 text-sm text-right whitespace-nowrap">
                                         <Link
-                                            href={route('student.companies.view', company.id)}
-                                            className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-medium"
+                                            href={route('student.companies.view', company.company_id)}
+                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors font-semibold"
                                         >
-                                            <Eye className="w-4 h-4" /> View
+                                            <Eye className="size-4" /> View Details
                                         </Link>
                                     </td>
                                 </tr>
                             ))
                         ) : (
                             <tr>
-                                <td colSpan={8} className="px-6 py-12 text-center text-sm text-gray-500">
-                                    No companies match your filters.
+                                <td colSpan={4} className="px-6 py-16 text-center">
+                                    <p className="text-sm text-gray-400">No companies found matching your criteria.</p>
                                 </td>
                             </tr>
                         )}

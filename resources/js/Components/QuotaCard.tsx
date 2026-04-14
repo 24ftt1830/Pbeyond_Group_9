@@ -46,8 +46,8 @@ export default function QuotaCard({ quota, isEditMode, onDelete }: QuotaCardProp
     const status = getStatusStyles(quota.quota_status);
 
     return (
-        <div className={`bg-white rounded-2xl border shadow-sm transition-all duration-200 overflow-hidden ${
-            isEditMode ? 'border-red-200 ring-1 ring-red-50' : 'border-slate-200'
+        <div className={`bg-white rounded-md border border-outline transition-all duration-200 overflow-hidden ${
+            isEditMode ? 'border-red-200 ring-1 ring-red-50' : 'border-slate-250'
         }`}>
             <div className="p-6">
                 <div className="flex justify-between items-start mb-4">

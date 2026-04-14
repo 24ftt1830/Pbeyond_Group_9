@@ -47,7 +47,7 @@ class Student extends Model
 
     public function applications()
     {
-        return $this->hasMany(Application::class, 'student_id', 'student_id');
+        return $this->hasOne(Application::class, 'student_id', 'student_id');
     }
 
     public function supervisorAssignments()

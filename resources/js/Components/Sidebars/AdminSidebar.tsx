@@ -20,7 +20,7 @@ import {
     ChartPie,
     Headset,
     CalendarDays,
-    ClipboardList,   // <-- added for Review Applications
+    ClipboardList, 
 } from "lucide-react";
 
 const data = {
@@ -51,7 +51,7 @@ const data = {
             icon: UserPlus,
         },
         {
-            title: "Review Applications",   // <-- new gatekeeper page
+            title: "Applications",   
             url: route('admin.applications.review'),
             icon: ClipboardList,
         },

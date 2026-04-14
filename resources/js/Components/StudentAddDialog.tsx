@@ -1,3 +1,5 @@
+// This file is to be deleted
+
 import { useState } from 'react'
 import { useForm, usePage } from '@inertiajs/react'
 import { Button } from '@/Components/ui/button'

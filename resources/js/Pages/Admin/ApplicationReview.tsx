@@ -19,7 +19,7 @@ export default function ApplicationReview() {
 
     return (
         <div className="p-6">
-            <h1 className="text-2xl font-bold mb-6">Student Applications (Pending ILD Review)</h1>
+            <h1 className="text-2xl font-bold mb-6">Student Applications</h1>
             {applications.length === 0 ? (
                 <p className="text-gray-500">No pending applications.</p>
             ) : (

@@ -13,10 +13,7 @@ class PlacementController extends Controller
 {
     public function index()
     {
-        // 1. Get ALL Company Quota Requests (Pending, Approved, Rejected)
         $quotas = PlacementQuota::with(['company', 'programme'])->latest()->get();
-
-        // 2. Get Student Applications for placement table
         $applications = Application::with(['student.programme', 'quota.company'])->get();
 
         $placements = $applications->map(function ($app) {
@@ -24,7 +21,7 @@ class PlacementController extends Controller
                 'student_name' => $app->student->full_name,
                 'programme'    => $app->student->programme->programme_name,
                 'company_name' => $app->quota->company->company_name,
-                'status'       => $this->mapStatus($app->app_status),
+                'status'       => $this->mapStatus($app),
             ];
         });
 
@@ -43,46 +40,60 @@ class PlacementController extends Controller
         ]);
     }
 
-    private function mapStatus($status)
+    private function mapStatus($app)
     {
-        return match ($status) {
-            'Approved'  => 'Approved',
+        if ($app->app_status === 'Approved') {
+            return ($app->quota->interview_required) ? 'Waitlisted (Interview)' : 'Approved';
+        }
+
+        return match ($app->app_status) {
             'Rejected'  => 'Rejected',
-            'Reviewing' => 'Pending',  
+            'Reviewing' => 'Under Review',  
             default     => 'Pending',
         };
     }
 
+    /**
+     * Unified Approval: Instant Visibility
+     */
     public function approve($id)
     {
         $quota = PlacementQuota::findOrFail($id);
-        $quota->quota_status = 'Approved';
-        $quota->save();
+        
+        // Approve and Release in one go
+        $quota->update([
+            'quota_status' => 'Approved',
+            'is_released'  => true
+        ]);
 
-        return redirect()->back()->with('success', 'Quota approved successfully.');
+        return redirect()->back()->with('success', 'Quota approved and released to students.');
     }
 
     public function reject($id)
     {
         $quota = PlacementQuota::findOrFail($id);
-        $quota->quota_status = 'Rejected';
-        $quota->save();
+        
+        $quota->update([
+            'quota_status' => 'Rejected',
+            'is_released'  => false 
+        ]);
 
-        return redirect()->back()->with('success', 'Quota rejected.');
+        return redirect()->back()->with('success', 'Quota rejected and hidden from students.');
     }
 
+    // In case of manual approval to student view despite quota approval
     public function release($id)
     {
         $quota = PlacementQuota::findOrFail($id);
         $quota->is_released = true;
         $quota->save();
 
-        return redirect()->back()->with('success', 'Quota released to students.');
+        return redirect()->back()->with('success', 'Quota released.');
     }
 
     public function applications($id)
     {
-        $quota = PlacementQuota::with('applications.student')->findOrFail($id);
+        $quota = PlacementQuota::with('applications.student.user')->findOrFail($id);
         return Inertia::render('Admin/Applications', [
             'quota' => $quota
         ]);

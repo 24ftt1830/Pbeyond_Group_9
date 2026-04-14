@@ -163,7 +163,7 @@ export default function Placements({
             <Head title="Placements" />
 
             <header className="flex justify-between items-end w-full">
-                <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">PLACEMENTS</h1>
+                <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Placements</h1>
             </header>
 
             {/* Pending requests for admin to review quota submitted by Company */}
