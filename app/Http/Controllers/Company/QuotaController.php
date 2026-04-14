@@ -49,6 +49,7 @@ class QuotaController extends Controller
             'total_slots'  => 'required|integer|min:1',
             'min_cgpa'     => 'required|numeric|min:0|max:4.0',
             'interview_required' => 'required|boolean',
+            'application_deadline' => 'required|date|after:now',
         ]);
 
         $user->company->placementQuotas()->create([
@@ -56,7 +57,8 @@ class QuotaController extends Controller
             'job_title'          => $validated['job_title'],
             'total_slots'        => $validated['total_slots'],
             'min_cgpa'           => $validated['min_cgpa'],
-            'interview_required' => $validated['interview_required'], 
+            'interview_required' => $validated['interview_required'],
+            'application_deadline' => $validated['application_deadline'], 
             'quota_status'       => 'Pending', 
             'is_released'        => false,
             // 'job_description' => $request->job_description, // To be added if Text area is implemented

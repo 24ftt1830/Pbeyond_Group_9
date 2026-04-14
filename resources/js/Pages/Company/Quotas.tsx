@@ -28,6 +28,7 @@ import {
 } from "@/Components/ui/dialog";
 
 import QuotaNumberInput from '@/Components/QuotaNumberInput';
+import DatePickerTime from '@/Components/QuotaCalendar';
 
 interface QuotaForm {
     programme_id: number | string;
@@ -35,6 +36,7 @@ interface QuotaForm {
     min_cgpa: number;
     job_title: string;
     interview_required: boolean;
+    application_deadline: string;
 }
 
 export default function Quotas({ quotas = [], programmes = [] }) {
@@ -51,6 +53,7 @@ export default function Quotas({ quotas = [], programmes = [] }) {
         min_cgpa: 2.0,
         job_title: '',
         interview_required: false,
+        application_deadline: '',
     });
 
     const submit = (e: React.FormEvent) => {
@@ -185,6 +188,18 @@ export default function Quotas({ quotas = [], programmes = [] }) {
                                             checked={data.interview_required}
                                             onCheckedChange={(checked) => setData('interview_required', checked)}
                                         />
+                                    </div>
+
+                                    {/* Application Deadline */}
+                                    <div className="space-y-2">
+                                        <Label className="text-[10px] font-bold uppercase text-slate-500">Application Deadline</Label>
+                                        <DatePickerTime 
+                                        date={data.application_deadline}
+                                        setDate={(date) => setData('application_deadline', date)}
+                                        />
+                                        {errors.application_deadline && (
+                                            <p className="text-xs text-red-500">{errors.application_deadline}</p>
+                                        )}
                                     </div>
                                 </div>
 

@@ -24,7 +24,9 @@ class PlacementQuota extends Model
 
     protected $casts = [
         'is_released' => 'boolean',
-        'min_cgpa' => 'decimal:2'
+        'min_cgpa' => 'decimal:2',
+        'application_deadline' => 'datetime',
+        'interview_required' => 'boolean',
     ];
 
     public function company()
