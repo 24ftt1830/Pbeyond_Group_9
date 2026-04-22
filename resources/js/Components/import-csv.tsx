@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogTrigger } from "@/Components/ui/dialog";
 import { Button } from "@/Components/ui/button";
 import { FileUp } from 'lucide-react';
 import { toast } from "sonner";
-import { ImportModal } from '@/Components/import-modal-initial'; 
+import { ImportModal } from '@/Components/import-modal-initial';
 
 interface Programme {
     programme_id: number | string;
@@ -29,14 +29,14 @@ export function ImportStudentsDialog({ programmes }: { programmes: Programme[] }
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button variant="outline" className="flex items-center gap-2 shadow-sm">
-                    <FileUp className="size-4" />
+                <Button variant="outline" size="sm" className="flex items-center gap-1.5">
+                    <FileUp className="size-3.5" />
                     Import CSV
                 </Button>
             </DialogTrigger>
-            <ImportModal 
-                form={form} 
-                onComplete={handleImport} 
+            <ImportModal
+                form={form}
+                onComplete={handleImport}
                 programmes={programmes}
             />
         </Dialog>

@@ -1,7 +1,7 @@
 import * as React from "react"
 import { usePage, router } from '@inertiajs/react'
 import { PageProps, UserRole } from '@/types'
-import { Button } from "@/Components/ui/button"
+import { CommandMenu } from "@/Components/ui/command-menu"
 
 // Sidebar Components
 import { AdminSidebar } from "@/Components/Sidebars/AdminSidebar"
@@ -39,14 +39,14 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
         const roleMap: Record<UserRole, string> = {
             admin: 'Admin',
             company: 'Company',
-            user: 'Student' 
+            user: 'Student'
         };
 
         router.post(route('dev.switch-role', { role: roleMap[r] }), {}, {
             onSuccess: () => {
                 setActiveRole(r);
                 // Force a reload to pick up the new sidebar/dashboard content
-                window.location.reload(); 
+                window.location.reload();
             }
         });
     };
@@ -56,7 +56,12 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
             <SelectedSidebar />
 
             <SidebarInset>
-                <header className="flex h-16 shrink-0 items-center justify-between border-b px-4">
+                <header className="flex h-16 shrink-0 items-center justify-between border-b px-10">
+                        <CommandMenu />
+                    {/*
+                    hello dear juniors, before you start coding, uncomment the <div> section below to enable role preview buttons.
+                    you don't have to login/out multiple times to test diff views. just switch the toggles
+
                     <div className="flex items-center gap-2 bg-muted/50 p-1 rounded-md border">
                         <span className="text-[10px] font-bold px-2 uppercase text-muted-foreground">Preview Role:</span>
                         {(['admin', 'company', 'user'] as UserRole[]).map((r) => (
@@ -71,14 +76,15 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
                             </Button>
                         ))}
                     </div>
-
+                    
+                    // LOGOUT BUTTON
                     <Button
                         variant="destructive"
                         size="sm"
                         onClick={() => router.post(route('logout'))}
                     >
                         Logout
-                    </Button>
+                    </Button>*/}
                 </header>
 
                 <div className="flex flex-1 flex-col gap-4 p-4 pt-0">

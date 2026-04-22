@@ -46,36 +46,53 @@ const UserTable = ({ data = [], columns = [] }: UserTableProps) => {
 
   const handleUnassign = (id: number) => {
     if (confirm('Remove this user from their assigned company?')) {
-      // Ensure this route exists in your web.php
       router.post(route('admin.manage-users.unassign', id));
     }
   };
 
   return (
     <div className='w-full'>
-      <div className='overflow-hidden rounded-md border bg-white'>
-        <Table className="table-fixed w-full"> 
-          <TableHeader className="bg-slate-50">
-            <TableRow>
-              {columns.map((col) => (
-                <TableHead 
-                  key={col.key} 
-                  className={`font-bold text-slate-700 ${
-                    col.key === 'actions' ? 'w-[60px] text-right' : 'w-auto text-left'
-                  }`}
+      <div className='w-full'>
+        <Table className="border-separate border-spacing-0"> 
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              {columns.map((col, index) => (
+                <TableHead
+                  key={col.key}
+                  className={`text-xs font-medium text-slate-700 bg-[#f9f9f9]
+            ${col.key === 'actions' ? 'w-[60px] text-right' : 'text-left'}
+            ${index === 0 ? 'rounded-l-lg' : ''} 
+            ${index === columns.length - 1 ? 'rounded-r-lg' : ''}
+          `}
                 >
                   {col.header}
                 </TableHead>
               ))}
             </TableRow>
           </TableHeader>
+
           <TableBody>
             {data.length > 0 ? (
               data.map((item, index) => (
-                <TableRow key={item.id || index} className="hover:bg-slate-50/50">
+                <TableRow key={item.id || index} className="border-b border-slate-100 hover:bg-slate-50/50">
                   {columns.map((col) => (
-                    <TableCell key={col.key} className="py-3">
-                      {col.key === 'actions' ? (
+                    <TableCell key={col.key} className="py-3 text-sm text-slate-700">
+
+                      {/* Identity Column Logic */}
+                      {col.key === 'user_identity' ? (
+                        <div className="flex flex-col">
+                          <span className="font-medium text-slate-900">
+                            {item.role === 'Student' ? (item.student?.full_name || '—') : item.username}
+                          </span>
+                          <span className="text-xs text-slate-500">
+                            {item.email}
+                          </span>
+                        </div>
+                      ) : col.key === 'programme_name' ? (
+                        <span className="text-slate-600">
+                          {item.student?.programme?.programme_name || '—'}
+                        </span>
+                      ) : col.key === 'actions' ? (
                         <div className="flex justify-end">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -83,53 +100,46 @@ const UserTable = ({ data = [], columns = [] }: UserTableProps) => {
                                 <EllipsisVertical className="h-4 w-4" />
                               </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-52">
+                            <DropdownMenuContent align="end" className="w-56">
+                              {/* Header */}
                               <DropdownMenuLabel>User Actions</DropdownMenuLabel>
-                              
-                              {/* EDIT ACTION (Common for both) */}
-                              <DropdownMenuItem 
-                                onClick={() => item.onEdit()}
-                                className="cursor-pointer"
-                              >
-                                <UserRoundPen className="mr-2 h-4 w-4 text-slate-500" /> Edit Details
+                              <DropdownMenuSeparator />
+
+                              {/* Management Group */}
+                              <DropdownMenuItem onClick={() => item.onEdit()} className="gap-2 cursor-pointer">
+                                <UserRoundPen className="h-4 w-4 text-muted-foreground" />
+                                <span>Edit Details</span>
                               </DropdownMenuItem>
 
-                              {/* REPRESENTATIVE SPECIFIC: ASSIGN */}
                               {item.role === 'Company' && !item.company_id && (
-                                <DropdownMenuItem 
-                                  onClick={() => item.onAssign()}
-                                  className="cursor-pointer text-blue-600 focus:text-blue-700 font-medium"
-                                >
-                                  <Link className="mr-2 h-4 w-4" /> Assign Company
+                                <DropdownMenuItem onClick={() => item.onAssign()} className="gap-2 cursor-pointer">
+                                  <Link className="h-4 w-4 text-muted-foreground" />
+                                  <span>Assign Company</span>
                                 </DropdownMenuItem>
                               )}
 
-                              {/* REPRESENTATIVE SPECIFIC: UNASSIGN */}
                               {item.role === 'Company' && item.assigned_company_id && (
-                                <DropdownMenuItem 
-                                  onClick={() => handleUnassign(item.id)}
-                                  className="cursor-pointer"
-                                >
-                                  <Link2Off className="mr-2 h-4 w-4 text-slate-500" /> Unassign Company
+                                <DropdownMenuItem onClick={() => handleUnassign(item.id)} className="gap-2 cursor-pointer">
+                                  <Link2Off className="h-4 w-4 text-muted-foreground" />
+                                  <span>Unassign Company</span>
                                 </DropdownMenuItem>
                               )}
 
                               <DropdownMenuSeparator />
-                              
-                              {/* DELETE ACTION (Destructive Color) */}
-                              <DropdownMenuItem 
+
+                              {/* Destructive Group */}
+                              <DropdownMenuItem
                                 onClick={() => handleDelete(item.id)}
-                                className="text-destructive focus:bg-destructive focus:text-white cursor-pointer"
+                                className="gap-2 cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10"
                               >
-                                <Trash2 className="mr-2 h-4 w-4" /> Delete User
+                                <Trash2 className="h-4 w-4" />
+                                <span>Delete User</span>
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </div>
                       ) : (
-                        <span className="truncate block text-slate-600">
-                          {item[col.key] || '—'}
-                        </span>
+                        item[col.key] || '—'
                       )}
                     </TableCell>
                   ))}
@@ -137,7 +147,7 @@ const UserTable = ({ data = [], columns = [] }: UserTableProps) => {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center text-muted-foreground">
+                <TableCell colSpan={columns.length} className="h-24 text-center text-sm text-muted-foreground">
                   No users found in this category.
                 </TableCell>
               </TableRow>
@@ -145,7 +155,7 @@ const UserTable = ({ data = [], columns = [] }: UserTableProps) => {
           </TableBody>
         </Table>
       </div>
-      
+
       {data.length > 10 && (
         <Pagination className='mt-4'>
           <PaginationContent>

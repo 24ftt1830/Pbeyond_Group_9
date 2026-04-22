@@ -30,7 +30,11 @@ export default {
     			inter: [
     				'Inter',
     				'sans-serif'
-    			]
+    			],
+				sato: [
+					'Satoshi',
+					'sans-serif'
+				]
     		},
     		fontWeight: {
     			light: '300'
