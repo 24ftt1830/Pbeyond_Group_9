@@ -2,6 +2,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Link, router } from '@inertiajs/react';
 import { useState } from 'react';
 import type { ReactNode } from 'react';
+import { ChevronLeft } from 'lucide-react';
 
 type Company = {
     id: number;
@@ -58,18 +59,20 @@ export default function ViewCompany({ company, hasApplied = false, userCgpa }: P
 
     return (
         <div className="p-6">
-            <div className="mb-6 flex items-center justify-between">
-                <h1 className="text-2xl font-bold">View Company</h1>
+            <div className="mb-6 flex items-center justify-start gap-4">
                 <Link
                     href={route('student.companies')}
-                    className="rounded-md border border-black px-4 py-2 text-sm text-black hover:bg-black/5"
+                    className="group flex h-10 w-10 items-center justify-center rounded text-black"
+                    title="Back to Companies List"
                 >
-                    Back to Companies List
+                    <ChevronLeft className="h-5 w-5" />
                 </Link>
+
+                <h1 className="text-2xl font-bold">View Company</h1>
             </div>
 
             <div className="grid gap-6 lg:grid-cols-[1fr_auto_320px]">
-                <section className="rounded-xl border border-black/10 bg-white p-6 shadow">
+                <section className="rounded-md border border-black/10 bg-white p-6">
                     <h2 className="mb-3 text-lg font-semibold text-black">{company.name}</h2>
 
                     <div className="space-y-5 text-sm leading-relaxed text-black/80">

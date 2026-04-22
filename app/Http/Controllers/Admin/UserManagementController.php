@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
+use App\Imports\StudentsImport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class UserManagementController extends Controller
 {
@@ -50,9 +52,9 @@ class UserManagementController extends Controller
             return DB::transaction(function () use ($validated) {
                 $userData = [
                     'username' => $validated['username'],
-                    'email'    => $validated['email'],
+                    'email' => $validated['email'],
                     'password' => Hash::make($validated['password']),
-                    'role'     => $validated['role'],
+                    'role' => $validated['role'],
                 ];
 
                 if ($validated['role'] === 'Company' && isset($validated['company_id'])) {
@@ -63,10 +65,10 @@ class UserManagementController extends Controller
 
                 if ($user->role === 'Student') {
                     $user->student()->create([
-                        'pb_student_code' => $validated['pb_student_code'], // Map from UI
-                        'programme_id'    => $validated['programme_id'],
-                        'full_name'       => $validated['username'],
-                        'cgpa'            => 0.0,
+                        'pb_student_code' => $validated['pb_student_code'],
+                        'programme_id' => $validated['programme_id'],
+                        'full_name' => $validated['username'],
+                        'cgpa' => 0.0,
                     ]);
                     $message = 'Student account created successfully.';
                 } else {
@@ -78,23 +80,23 @@ class UserManagementController extends Controller
 
         } catch (\Exception $e) {
             Log::error('User Management Store Error: '.$e->getMessage());
-            return redirect()->back()->withErrors(['message' => 'Failed to create user. ' . $e->getMessage()]);
+
+            return redirect()->back()->withErrors(['message' => 'Failed to create user. '.$e->getMessage()]);
         }
     }
 
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
-
         $rules = [
-            'username'   => "sometimes|required|string|max:255|unique:users,username,{$id},user_id",
-            'email'      => "sometimes|required|email|max:255|unique:users,email,{$id},user_id",
+            'username' => "sometimes|required|string|max:255|unique:users,username,{$id},user_id",
+            'email' => "sometimes|required|email|max:255|unique:users,email,{$id},user_id",
             'company_id' => 'nullable|exists:companies,company_id',
         ];
 
         if ($user->role === 'Student') {
-            $rules['programme_id']     = 'sometimes|required|exists:programmes,programme_id';
-            $rules['pb_student_code']  = "sometimes|required|string|max:50|unique:students,pb_student_code,{$user->student?->student_id},student_id";
+            $rules['programme_id'] = 'sometimes|required|exists:programmes,programme_id';
+            $rules['pb_student_code'] = "sometimes|required|string|max:50|unique:students,pb_student_code,{$user->student?->student_id},student_id";
         }
 
         $validated = $request->validate($rules);
@@ -102,28 +104,37 @@ class UserManagementController extends Controller
         try {
             DB::transaction(function () use ($user, $validated, $request) {
                 $updateData = [];
-
-                if ($request->has('username'))   $updateData['username'] = $validated['username'];
-                if ($request->has('email'))      $updateData['email'] = $validated['email'];
-                if ($request->has('company_id')) $updateData['company_id'] = $validated['company_id'];
+                if ($request->has('username')) {
+                    $updateData['username'] = $validated['username'];
+                }
+                if ($request->has('email')) {
+                    $updateData['email'] = $validated['email'];
+                }
+                if ($request->has('company_id')) {
+                    $updateData['company_id'] = $validated['company_id'];
+                }
 
                 $user->update($updateData);
 
                 if ($user->role === 'Student') {
                     $studentData = [];
-                    if ($request->has('programme_id'))    $studentData['programme_id'] = $validated['programme_id'];
-                    if ($request->has('pb_student_code')) $studentData['pb_student_code'] = $validated['pb_student_code'];
+                    if ($request->has('programme_id')) {
+                        $studentData['programme_id'] = $validated['programme_id'];
+                    }
+                    if ($request->has('pb_student_code')) {
+                        $studentData['pb_student_code'] = $validated['pb_student_code'];
+                    }
 
-                    if (!empty($studentData)) {
+                    if (! empty($studentData)) {
                         $user->student()->update($studentData);
                     }
                 }
             });
 
             return redirect()->route('admin.manage-users')->with('success', 'User updated successfully.');
-
         } catch (\Exception $e) {
             Log::error('User Update Error: '.$e->getMessage());
+
             return back()->withErrors(['message' => 'Failed to update user details.']);
         }
     }
@@ -132,6 +143,7 @@ class UserManagementController extends Controller
     {
         $user = User::findOrFail($id);
         $user->delete();
+
         return redirect()->route('admin.manage-users')->with('success', 'User deleted.');
     }
 
@@ -139,6 +151,20 @@ class UserManagementController extends Controller
     {
         $user = User::where('role', 'Company')->findOrFail($id);
         $user->update(['company_id' => null]);
+
         return redirect()->back()->with('success', 'Company unassigned successfully.');
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:csv,txt,xlsx,xls',
+        ]);
+
+        DB::transaction(function () use ($request) {
+            Excel::import(new StudentsImport, $request->file('file'));
+        });
+
+        return redirect()->route('manage-users')->with('success', 'Batch import completed successfully.');
     }
 }

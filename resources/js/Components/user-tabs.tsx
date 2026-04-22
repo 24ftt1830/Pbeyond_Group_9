@@ -11,7 +11,8 @@ import {
   UserCog,
   GraduationCap,
   ChevronDown,
-  Link
+  Link,
+  Import
 } from 'lucide-react'
 import {
   Dialog,
@@ -36,6 +37,7 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/Components/ui/select"
+import { ImportStudentsDialog } from '@/Components/import-csv'
 
 const studentColumns = [
   { header: 'Username', key: 'username' },
@@ -169,21 +171,26 @@ const UserTabs = () => {
             <TabsTrigger value="reps">Representatives</TabsTrigger>
           </TabsList>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button className="flex items-center gap-2 shadow-sm">
-                <Plus className="size-4" /> Add User <ChevronDown className="size-3 opacity-50" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem onClick={() => setStudentOpen(true)} className="cursor-pointer">
-                <GraduationCap className="mr-2 size-4 text-slate-500" /> Student
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setFocalOpen(true)} className="cursor-pointer">
-                <UserCog className="mr-2 size-4 text-slate-500" /> Focal Person
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex items-center gap-2">
+            <ImportStudentsDialog programmes={programmes} />
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button className="flex items-center gap-2 shadow-sm">
+                  <Plus className="size-4" /> Add User <ChevronDown className="size-3 opacity-50" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={() => setStudentOpen(true)} className="cursor-pointer">
+                  <GraduationCap className="mr-2 size-4 text-slate-500" /> Student
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setFocalOpen(true)} className="cursor-pointer">
+                  <UserCog className="mr-2 size-4 text-slate-500" /> Focal Person
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
 
           {/* FOCAL PERSON DIALOG */}
           <Dialog open={focalOpen} onOpenChange={setFocalOpen}>
@@ -198,6 +205,7 @@ const UserTabs = () => {
                     <Label>Username</Label>
                     <Input
                       value={focalForm.data.username}
+                      className="shadow-none"
                       onChange={e => focalForm.setData('username', e.target.value)}
                       required
                     />
@@ -206,6 +214,7 @@ const UserTabs = () => {
                     <Label>Email</Label>
                     <Input
                       type="email"
+                      className="shadow-none"
                       value={focalForm.data.email}
                       onChange={e => focalForm.setData('email', e.target.value)}
                       required
@@ -215,14 +224,16 @@ const UserTabs = () => {
                     <Label>Password</Label>
                     <Input
                       type="password"
+                      className="shadow-none"
                       value={focalForm.data.password}
                       onChange={e => focalForm.setData('password', e.target.value)}
                       required
                     />
                   </div>
                   <div className="grid gap-2">
-                    <Label className="flex items-center gap-2 text-blue-600">
-                      <Building2 className="size-3.5" /> Assign Company (Optional)
+                    <Label className="flex items-center gap-2">
+                      Assign Company
+                      <span className="font-normal text-muted-foreground">(optional)</span>
                     </Label>
                     <Select
                       disabled={!companies || companies.length === 0}
@@ -267,6 +278,7 @@ const UserTabs = () => {
           </Dialog>
 
           {/* STUDENT DIALOG */}
+          {/* STUDENT DIALOG */}
           <Dialog open={studentOpen} onOpenChange={setStudentOpen}>
             <DialogContent className="sm:max-w-[425px]">
               <form onSubmit={submitStudent}>
@@ -274,30 +286,61 @@ const UserTabs = () => {
                   <DialogTitle>Register Student</DialogTitle>
                   <DialogDescription>Create a student account and assign their academic programme.</DialogDescription>
                 </DialogHeader>
+
                 <div className="grid gap-4 py-4">
                   <div className="grid gap-2">
                     <Label>Student ID</Label>
-                    <Input 
-                    placeholder="e.g., 24FTB1001"
-                    value={studentForm.data.pb_student_code} onChange={e => studentForm.setData('pb_student_code', e.target.value)} required />
+                    <Input
+                      placeholder="e.g., 24FTB1001"
+                      className="shadow-none"
+                      value={studentForm.data.pb_student_code}
+                      onChange={e => studentForm.setData('pb_student_code', e.target.value)}
+                      required
+                    />
                     {studentForm.errors.pb_student_code && <p className="text-xs text-red-500">{studentForm.errors.pb_student_code}</p>}
                   </div>
+
                   <div className="grid gap-2">
-                    <Label>Full Name / Username</Label>
-                    <Input value={studentForm.data.username} onChange={e => studentForm.setData('username', e.target.value)} required />
+                    <Label>Full Name</Label>
+                    <Input
+                      className="shadow-none"
+                      value={studentForm.data.username}
+                      onChange={e => studentForm.setData('username', e.target.value)}
+                      required
+                    />
                   </div>
+
                   <div className="grid gap-2">
                     <Label>Institutional Email</Label>
-                    <Input type="email" value={studentForm.data.email} onChange={e => studentForm.setData('email', e.target.value)} required />
+                    <Input
+                      type="email"
+                      className="shadow-none"
+                      value={studentForm.data.email}
+                      onChange={e => studentForm.setData('email', e.target.value)}
+                      required
+                    />
                   </div>
+
                   <div className="grid gap-2">
                     <Label>Password</Label>
-                    <Input type="password" value={studentForm.data.password} onChange={e => studentForm.setData('password', e.target.value)} required />
+                    <Input
+                      type="password"
+                      className="shadow-none"
+                      value={studentForm.data.password}
+                      onChange={e => studentForm.setData('password', e.target.value)}
+                      required
+                    />
                   </div>
+
                   <div className="grid gap-2">
                     <Label>Academic Programme</Label>
-                    <Select onValueChange={(val) => studentForm.setData('programme_id', val)}>
-                      <SelectTrigger><SelectValue placeholder="Select Programme" /></SelectTrigger>
+                    <Select
+                      value={studentForm.data.programme_id?.toString()}
+                      onValueChange={(val) => studentForm.setData('programme_id', val)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Programme" />
+                      </SelectTrigger>
                       <SelectContent className="max-h-[250px] overflow-y-auto">
                         {programmes && programmes.length > 0 ? (
                           programmes.map((p: any) => (
@@ -314,8 +357,20 @@ const UserTabs = () => {
                     </Select>
                   </div>
                 </div>
+
                 <DialogFooter>
-                  <Button type="submit" disabled={studentForm.processing} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white">
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={
+                      studentForm.processing ||
+                      !studentForm.data.pb_student_code ||
+                      !studentForm.data.username ||
+                      !studentForm.data.email ||
+                      !studentForm.data.password ||
+                      !studentForm.data.programme_id
+                    }
+                  >
                     {studentForm.processing ? <Loader2 className="animate-spin size-4" /> : 'Create Student'}
                   </Button>
                 </DialogFooter>
@@ -362,70 +417,74 @@ const UserTabs = () => {
 
       {/* EDIT USER DIALOG (Shared) */}
       <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
-        <DialogContent className="sm:max-w-[450px] p-0 overflow-hidden border-none rounded-2xl shadow-2xl max-h-[90vh] flex flex-col">
-          <form onSubmit={submitUpdate} className="flex flex-col max-h-[90vh]">
-
-            <div className="bg-slate-900 p-8 text-white shrink-0">
-              <h2 className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-1">
-                Account Management
-              </h2>
-              <DialogTitle className="text-2xl font-black text-white">
+        <DialogContent className="sm:max-w-[425px]">
+          <form onSubmit={submitUpdate}>
+            <DialogHeader>
+              <DialogTitle>
                 Edit {updateForm.data.role === 'Student' ? 'Student' : 'Representative'}
               </DialogTitle>
-              <DialogDescription className="mt-1 text-xs text-slate-400">
-                Update credentials and permissions.
+              <DialogDescription>
+                Update user credentials.
               </DialogDescription>
-            </div>
+            </DialogHeader>
 
-            <div className="px-8 py-6 space-y-5 overflow-y-auto custom-scrollbar">
-              <div className="space-y-2">
-                <Label className="text-[10px] font-bold uppercase text-slate-500">
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label>
                   {updateForm.data.role === 'Student' ? 'Full Name' : 'Focal Person Name'}
                 </Label>
                 <Input
                   value={updateForm.data.username}
-                  onChange={e => updateForm.setData('username', e.target.value)}
-                  className="h-11"
+                  onChange={(e) => updateForm.setData('username', e.target.value)}
+                  className="shadow-none"
                 />
-                {updateForm.errors.username && <p className="text-xs text-red-500">{updateForm.errors.username}</p>}
+                {updateForm.errors.username && (
+                  <p className="text-xs text-red-500">{updateForm.errors.username}</p>
+                )}
               </div>
 
-              <div className="space-y-2">
-                <Label className="text-[10px] font-bold uppercase text-slate-500">Email Address</Label>
+              <div className="grid gap-2">
+                <Label>Email Address</Label>
                 <Input
                   type="email"
                   value={updateForm.data.email}
-                  onChange={e => updateForm.setData('email', e.target.value)}
-                  className="h-11"
+                  onChange={(e) => updateForm.setData('email', e.target.value)}
+                  className="shadow-none"
                 />
-                {updateForm.errors.email && <p className="text-xs text-red-500">{updateForm.errors.email}</p>}
+                {updateForm.errors.email && (
+                  <p className="text-xs text-red-500">{updateForm.errors.email}</p>
+                )}
               </div>
 
               {updateForm.data.role === 'Student' && (
-                <>
-                  <div className="space-y-2">
-                    <Label className="text-[10px] font-bold uppercase text-slate-500">Academic Programme</Label>
-                    <Select
-                      value={updateForm.data.programme_id}
-                      onValueChange={(val) => updateForm.setData('programme_id', val)}
-                    >
-                      <SelectTrigger className="h-11"><SelectValue placeholder="Select Programme" /></SelectTrigger>
-                      <SelectContent>
-                        {programmes?.map((p: any) => (
-                          <SelectItem key={p.programme_id} value={p.programme_id.toString()}>
-                            {p.programme_name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </>
+                <div className="grid gap-2">
+                  <Label>Academic Programme</Label>
+                  <Select
+                    value={updateForm.data.programme_id}
+                    onValueChange={(val) => updateForm.setData('programme_id', val)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Programme" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {programmes?.map((p: any) => (
+                        <SelectItem key={p.programme_id} value={p.programme_id.toString()}>
+                          {p.programme_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               )}
             </div>
 
-            <DialogFooter className="p-6 border-t bg-slate-50 shrink-0">
-              <Button type="submit" disabled={updateForm.processing} className="w-full bg-slate-900 font-bold uppercase text-xs tracking-widest h-11">
-                {updateForm.processing ? 'Updating...' : 'Update User Account'}
+            <DialogFooter>
+              <Button
+                type="submit"
+                disabled={updateForm.processing}
+                className="w-full"
+              >
+                {updateForm.processing ? 'Updating...' : 'Update Account'}
               </Button>
             </DialogFooter>
           </form>

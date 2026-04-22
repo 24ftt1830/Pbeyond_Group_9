@@ -6,6 +6,7 @@ import {
   ChevronsUpDown,
   CreditCard,
   LogOut,
+  CircleUserRound
 } from "lucide-react"
 
 import {
@@ -80,8 +81,12 @@ export function NavUser({
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem>
+                <CircleUserRound />
+                Profile
+              </DropdownMenuItem>
+              <DropdownMenuItem>
                 <BadgeCheck />
-                Account
+                Account settings
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Bell />

@@ -76,6 +76,7 @@ Route::middleware('auth')->group(function () {
         // Manage Users
         Route::get('/manage-users', [App\Http\Controllers\Admin\UserManagementController::class, 'index'])->name('manage-users');
         Route::post('/manage-users', [App\Http\Controllers\Admin\UserManagementController::class, 'store'])->name('manage-users.store');
+        Route::post('/manage-users/import', [App\Http\Controllers\Admin\UserManagementController::class, 'import'])->name('manage-users.import');
         Route::get('/manage-users/{id}/edit', [App\Http\Controllers\Admin\UserManagementController::class, 'edit'])->name('manage-users.edit');
         Route::put('/manage-users/{id}', [App\Http\Controllers\Admin\UserManagementController::class, 'update'])->name('manage-users.update');
         Route::delete('/manage-users/{id}', [App\Http\Controllers\Admin\UserManagementController::class, 'destroy'])->name('manage-users.destroy');
