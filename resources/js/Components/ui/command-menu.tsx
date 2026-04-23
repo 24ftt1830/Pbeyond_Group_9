@@ -75,11 +75,6 @@ export function CommandMenu() {
                 <CommandShortcut>⌘P</CommandShortcut>
               </CommandItem>
               <CommandItem>
-                <CreditCardIcon />
-                <span>Billing</span>
-                <CommandShortcut>⌘B</CommandShortcut>
-              </CommandItem>
-              <CommandItem>
                 <SettingsIcon />
                 <span>Settings</span>
                 <CommandShortcut>⌘S</CommandShortcut>

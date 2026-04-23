@@ -7,17 +7,19 @@ use Illuminate\Database\Eloquent\Model;
 class PlacementQuota extends Model
 {
     protected $table = 'placement_quotas';
+
     protected $primaryKey = 'quota_id';
+
     public $timestamps = true;
 
     protected $fillable = [
-        'company_id', 
-        'programme_id', 
-        'job_title', 
+        'company_id',
+        'programme_id',
+        'job_title',
         'job_description',
-        'total_slots', 
-        'min_cgpa', 
-        'quota_status', 
+        'total_slots',
+        'min_cgpa',
+        'quota_status',
         'is_released',
         'interview_required',
     ];
@@ -48,15 +50,16 @@ class PlacementQuota extends Model
     public function scopeAvailable($query)
     {
         return $query->where('quota_status', 'Approved')
-                     ->where('is_released', true);
+            ->where('is_released', true);
     }
 
     // Get remaining slots
     public function getRemainingSlotsAttribute()
     {
         $approvedCount = $this->applications()
-                              ->where('app_status', 'Approved')
-                              ->count();
+            ->where('app_status', 'Approved')
+            ->count();
+
         return max(0, $this->total_slots - $approvedCount);
     }
 }

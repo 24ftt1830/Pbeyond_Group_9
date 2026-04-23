@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
-use App\Models\Document;
+use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -11,12 +11,19 @@ use Inertia\Inertia;
 class DocumentController extends Controller
 {
     public function index()
-{
-    $documents = Document::where('user_id', auth()->id())->get();
-    return Inertia::render('Student/Documentations', [
-        'documents' => $documents, // this is a Collection, which serializes to an array
-    ]);
-}
+    {
+        $student = auth()->user()->student;
+        
+        // Return relevant paths so your frontend can show which files are uploaded
+        return Inertia::render('Student/Documentations', [
+            'documents' => [
+                'cv' => $student->cv_file_path,
+                'identity_card' => $student->ic_file_path,
+                'drivers_license' => $student->license_file_path,
+                'results' => $student->results_file_path,
+            ],
+        ]);
+    }
 
     public function upload(Request $request)
     {
@@ -25,34 +32,57 @@ class DocumentController extends Controller
             'file' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
         ]);
 
-        $user = auth()->user();
+        $student = auth()->user()->student;
         $type = $request->type;
 
-        // Delete old file if exists
-        $old = Document::where('user_id', $user->user_id)->where('type', $type)->first();
-        if ($old) {
-            Storage::disk('public')->delete($old->file_path);
-            $old->delete();
+        // Map the type to the specific column in the students table
+        $columnMap = [
+            'cv' => 'cv_file_path',
+            'identity_card' => 'ic_file_path',
+            'drivers_license' => 'license_file_path',
+            'results' => 'results_file_path',
+        ];
+
+        $column = $columnMap[$type];
+
+        // Delete old file if it exists
+        if ($student->$column) {
+            Storage::disk('public')->delete($student->$column);
         }
 
         // Store new file
-        $path = $request->file('file')->store("documents/{$user->user_id}", 'public');
+        $path = $request->file('file')->store("students/{$student->student_id}", 'public');
 
-        Document::create([
-            'user_id'       => $user->user_id,
-            'type'          => $type,
-            'file_path'     => $path,
-            'original_name' => $request->file('file')->getClientOriginalName(),
+        // Update the student record
+        $student->update([
+            $column => $path,
         ]);
 
         return back()->with('success', 'Document uploaded successfully.');
     }
 
-    public function destroy($id)
+    public function destroy(Request $request)
     {
-        $doc = Document::where('user_id', auth()->id())->findOrFail($id);
-        Storage::disk('public')->delete($doc->file_path);
-        $doc->delete();
+        // Added validation to identify which document to delete
+        $request->validate(['type' => 'required|in:cv,identity_card,drivers_license,results']);
+        
+        $student = auth()->user()->student;
+        $type = $request->type;
+
+        $columnMap = [
+            'cv' => 'cv_file_path',
+            'identity_card' => 'ic_file_path',
+            'drivers_license' => 'license_file_path',
+            'results' => 'results_file_path',
+        ];
+
+        $column = $columnMap[$type];
+
+        // Delete file and clear column
+        if ($student->$column) {
+            Storage::disk('public')->delete($student->$column);
+            $student->update([$column => null]);
+        }
 
         return back()->with('success', 'Document deleted.');
     }

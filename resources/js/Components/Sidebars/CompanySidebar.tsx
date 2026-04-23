@@ -36,7 +36,7 @@ const data = {
             icon: CircleDashed,
         },
         {
-            title: "Applicants",
+            title: "Applications",
             url: route('company.applicants'),
             icon: FileUser,
         },

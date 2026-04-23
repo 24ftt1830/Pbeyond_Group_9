@@ -11,7 +11,7 @@ interface Company {
     company_name: string;
     industry_sector: string;
     office_address: string;
-    available: number; 
+    available: number;
 }
 
 interface Props {
@@ -35,14 +35,14 @@ export default function Companies({ companies = [] }: Props) {
                 calculatedStatus: company.available === 0 ? 'Full' : 'Available'
             }))
             .filter(company => {
-                const matchesSearch = !searchQuery || 
+                const matchesSearch = !searchQuery ||
                     company.company_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                     company.office_address.toLowerCase().includes(searchQuery.toLowerCase());
 
-                const matchesDistrict = selectedDistricts.length === 0 || 
+                const matchesDistrict = selectedDistricts.length === 0 ||
                     selectedDistricts.includes(company.office_address);
 
-                const matchesStatus = selectedStatuses.length === 0 || 
+                const matchesStatus = selectedStatuses.length === 0 ||
                     selectedStatuses.includes(company.calculatedStatus);
 
                 return matchesSearch && matchesDistrict && matchesStatus;
@@ -50,8 +50,8 @@ export default function Companies({ companies = [] }: Props) {
     }, [companies, searchQuery, selectedDistricts, selectedStatuses]);
 
     const toggleSelection = (value: string, selected: string[], setSelected: (val: string[]) => void) => {
-        setSelected(selected.includes(value) 
-            ? selected.filter(item => item !== value) 
+        setSelected(selected.includes(value)
+            ? selected.filter(item => item !== value)
             : [...selected, value]
         );
     };
@@ -73,13 +73,13 @@ export default function Companies({ companies = [] }: Props) {
     return (
         <div className="w-full px-4 py-10 mx-auto space-y-6 max-w-7xl sm:px-6 lg:px-8">
             <Head title="Available Companies" />
-            
+
             <div className="flex items-center justify-between w-full">
                 <header>
                     <h1 className="text-3xl font-extrabold text-slate-900">Companies List</h1>
                     <p className="text-sm text-slate-500">Browse and find placement opportunities</p>
                 </header>
-                
+
                 <Button
                     variant="outline"
                     onClick={() => setFiltersOpen(!filtersOpen)}
@@ -169,9 +169,13 @@ export default function Companies({ companies = [] }: Props) {
                                         <div className="text-sm font-bold text-gray-900">{company.company_name}</div>
                                         <div className="text-xs">
                                             {company.calculatedStatus === 'Full' ? (
-                                                <span className="text-red-500">Full</span>
+                                                <span className="inline-flex items-center rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20">
+                                                    Full
+                                                </span>
                                             ) : (
-                                                <span className="text-green-600">Available</span>
+                                                <span className="inline-flex items-center rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                                                    Available
+                                                </span>
                                             )}
                                         </div>
                                     </td>

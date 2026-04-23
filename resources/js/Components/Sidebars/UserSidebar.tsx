@@ -46,11 +46,6 @@ const data = {
             icon: Upload,
         },
         {
-            title: "Favourites",
-            url: route('student.favourites'),
-            icon: Heart,
-        },
-        {
             title: "Report Issue",
             url: route('student.report-issue'),
             icon: Flag,
@@ -59,7 +54,7 @@ const data = {
         {
              title: "My Profile",
              url: route('student.profile'),
-             icon: FileText, // import User from lucide-react
+             icon: FileText, 
 },
 
     ],

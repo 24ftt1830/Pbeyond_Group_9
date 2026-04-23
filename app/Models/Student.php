@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class Student extends Model
 {
     protected $table = 'students';
+
     protected $primaryKey = 'student_id';
+
     public $timestamps = true;
 
     protected $fillable = [
@@ -22,7 +24,7 @@ class Student extends Model
 
     protected $casts = [
         'date_of_birth' => 'date',
-        'cgpa' => 'decimal:2'
+        'cgpa' => 'decimal:2',
     ];
 
     public function user()
@@ -45,7 +47,7 @@ class Student extends Model
         return $this->hasMany(StudentLanguage::class, 'student_id', 'student_id');
     }
 
-    public function applications()
+    public function application()
     {
         return $this->hasOne(Application::class, 'student_id', 'student_id');
     }
@@ -67,8 +69,8 @@ class Student extends Model
         return $query->where('vetting_status', 'Pending');
     }
 
- public function documents()
-{
-    return $this->hasManyThrough(Document::class, User::class, 'user_id', 'user_id', 'user_id', 'user_id');
-}
+    public function documents()
+    {
+        return $this->hasManyThrough(Document::class, User::class, 'user_id', 'user_id', 'user_id', 'user_id');
+    }
 }

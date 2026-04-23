@@ -51,11 +51,23 @@ class CompanyController extends Controller
         ]);
     }
 
-    public function show($id)
+    public function show(Company $company)
     {
         $student = Auth::user()->student;
         $programmeId = $student->programme_id;
 
+        // Load only the relevant quotas for this company AND this student's programme
+    $company->load(['placementQuotas' => function ($query) use ($programmeId) {
+        $query->available()->where('programme_id', $programmeId);
+    }]);
+
+    return Inertia::render('Student/ViewCompany', [
+        'company' => $company,
+        'quotas' => $company->placementQuotas,
+    ]);
+    }
+    
+        /* TBR
         $company = Company::with(['placementQuotas' => function ($q) use ($programmeId) {
             $q->available()->where('programme_id', $programmeId);
         }])->findOrFail($id);
@@ -87,6 +99,7 @@ class CompanyController extends Controller
             'hasApplied' => $hasApplied,
         ]);
     }
+        */
 
     public function apply(Request $request, $companyId)
     {
