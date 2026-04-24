@@ -1,43 +1,22 @@
 import { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, router } from '@inertiajs/react';
-import { Plus, Edit2, Search, Loader2, AlertCircle, CheckCircle2, Clock, Globe } from 'lucide-react';
+import { Head, router, useForm, usePage } from '@inertiajs/react';
+import { Plus, Edit2, Search, Loader2, AlertCircle, Clock, Globe } from 'lucide-react';
+
 import { Input } from '@/Components/ui/input';
 import { Button } from "@/Components/ui/button";
 import { Label } from "@/Components/ui/label";
-import QuotaCard from '@/Components/QuotaCard';
 import { Toggle } from "@/Components/ui/toggle";
-import { useForm, usePage } from '@inertiajs/react';
 import { Switch } from "@/Components/ui/switch";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/Components/ui/select";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-    DialogClose,
+    Dialog, DialogContent, DialogDescription, DialogFooter,
+    DialogHeader, DialogTitle, DialogTrigger, DialogClose
 } from "@/Components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select";
 
+import QuotaCard from '@/Components/QuotaCard';
 import QuotaNumberInput from '@/Components/QuotaNumberInput';
 import DatePickerTime from '@/Components/QuotaCalendar';
-
-interface QuotaForm {
-    programme_id: number | string;
-    total_slots: number;
-    min_cgpa: number;
-    job_title: string;
-    interview_required: boolean;
-    application_deadline: string;
-}
 
 export default function Quotas({ quotas = [], programmes = [] }) {
     const { auth } = usePage().props as any;
@@ -47,7 +26,7 @@ export default function Quotas({ quotas = [], programmes = [] }) {
     const [isEditMode, setIsEditMode] = useState(false);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-    const { data, setData, post, processing, reset, errors } = useForm<QuotaForm>({
+    const { data, setData, post, processing, reset, errors } = useForm({
         programme_id: '',
         total_slots: 1,
         min_cgpa: 2.0,
@@ -64,86 +43,69 @@ export default function Quotas({ quotas = [], programmes = [] }) {
                 setIsDialogOpen(false);
             },
         });
-    }
+    };
 
     const handleDelete = (id: number) => {
-        if (confirm('Are you sure you want to delete this quota request? Only pending quotas can be deleted.')) {
-            router.delete(route('company.quotas.destroy', id), {
-                preserveScroll: true,
-            });
+        if (confirm('Are you sure you want to delete this quota request?')) {
+            router.delete(route('company.quotas.destroy', id), { preserveScroll: true });
         }
     };
 
     return (
-        <div className="w-full px-4 py-10 mx-auto space-y-8 max-w-7xl sm:px-6 lg:px-8">
-            <Head title="My Quotas" />
+        <div className="container py-10 mx-auto space-y-8 max-w-7xl">
+            <Head title="Placement Quotas" />
 
-            <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-                <header>
-                    <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Placement Quotas</h1>
-                    <p className="text-slate-500 text-sm mt-1">Manage slots available for students in your company.</p>
-                </header>
+            {/* Header Section */}
+            <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+                <div>
+                    <h1 className="text-3xl font-bold tracking-tight">Placement Quotas</h1>
+                    <p className="text-muted-foreground mt-1">Manage and track student placement opportunities.</p>
+                </div>
 
-                <div className="flex items-center gap-3">
-                    {!company && (
-                        <div className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-lg">
-                            <AlertCircle className="size-3.5" />
-                            Account not linked to a company profile.
-                        </div>
-                    )}
-
+                <div className="flex items-center gap-2">
                     <Toggle
                         pressed={isEditMode}
                         onPressedChange={setIsEditMode}
                         variant="outline"
-                        className="flex items-center gap-2 border-slate-200 text-slate-600 data-[state=on]:bg-slate-100 data-[state=on]:text-slate-900 shadow-sm"
+                        className="gap-2"
                     >
                         <Edit2 className="size-4" />
-                        Edit
+                        Edit Mode
                     </Toggle>
 
                     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                         <DialogTrigger asChild>
-                            <Button 
-                                disabled={!company} 
-                                className="flex items-center gap-2 shadow-sm bg-slate-900 hover:bg-slate-800 disabled:opacity-50"
-                            >
+                            <Button disabled={!company} className="gap-2">
                                 <Plus className="size-4" />
-                                Request New Quota
+                                New Request
                             </Button>
                         </DialogTrigger>
-                        <DialogContent className="sm:max-w-[480px] p-0 overflow-hidden border-none rounded-2xl shadow-2xl flex flex-col max-h-[90vh]">
-                            <form onSubmit={submit} className="flex flex-col h-full overflow-hidden">
-                                <div className="bg-slate-900 p-8 text-white shrink-0">
-                                    <h2 className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-1">Quota Submission</h2>
-                                    <DialogTitle className="text-2xl font-black text-white">New Placement Request</DialogTitle>
-                                    <DialogDescription className="mt-1 text-xs text-slate-400">
-                                        Submissions are reviewed by the ILD Admin before appearing for students.
+                        <DialogContent className="sm:max-w-[480px]">
+                            <form onSubmit={submit}>
+                                <DialogHeader className="mb-4">
+                                    <DialogTitle>New Placement Request</DialogTitle>
+                                    <DialogDescription>
+                                        Submit a quota request for admin review.
                                     </DialogDescription>
-                                </div>
+                                </DialogHeader>
 
-                                <div className="px-8 space-y-6 overflow-y-auto py-6">
-                                    {/* Job Title */}
+                                <div className="space-y-4">
                                     <div className="space-y-2">
-                                        <Label className="text-[10px] font-bold uppercase text-slate-500">Proposed Job Title</Label>
+                                        <Label>Job Title</Label>
                                         <Input
-                                            placeholder="e.g. Web Technology Assistant"
                                             value={data.job_title}
                                             onChange={e => setData('job_title', e.target.value)}
-                                            className="h-11"
                                         />
-                                        {errors.job_title && <p className="text-xs text-red-500">{errors.job_title}</p>}
                                     </div>
 
-                                    {/* Programme Selection */}
                                     <div className="space-y-2">
-                                        <Label className="text-[10px] font-bold uppercase text-slate-500">Target Academic Programme</Label>
+                                        <Label>Academic Programme</Label>
                                         <Select
                                             value={data.programme_id.toString()}
-                                            onValueChange={(val) => setData('programme_id', parseInt(val))}
+                                            onValueChange={(val) => setData('programme_id', parseInt(val) as any)}
                                         >
-                                            <SelectTrigger className="h-11">
-                                                <SelectValue placeholder="Select relevant course..." />
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select a programme" />
                                             </SelectTrigger>
                                             <SelectContent>
                                                 {programmes.map((p: any) => (
@@ -153,67 +115,33 @@ export default function Quotas({ quotas = [], programmes = [] }) {
                                                 ))}
                                             </SelectContent>
                                         </Select>
-                                        {errors.programme_id && <p className="text-xs text-red-500">{errors.programme_id}</p>}
                                     </div>
 
-                                    {/* Slots and CGPA */}
-                                    <div className="grid grid-cols-2 gap-6">
+                                    <div className="grid grid-cols-2 gap-4">
                                         <div className="space-y-2">
-                                            <Label className="text-[10px] font-bold uppercase text-slate-500">Total Slots</Label>
-                                            <QuotaNumberInput
-                                                defaultValue={data.total_slots}
-                                                onChange={(value) => setData('total_slots', value)}
-                                            />
-                                            {errors.total_slots && <p className="text-xs text-red-500">{errors.total_slots}</p>}
+                                            <Label>Total Slots</Label>
+                                            <QuotaNumberInput defaultValue={data.total_slots} onChange={(v) => setData('total_slots', v)} />
                                         </div>
                                         <div className="space-y-2">
-                                            <Label className="text-[10px] font-bold uppercase text-slate-500">Min. CGPA Requirement</Label>
-                                            <QuotaNumberInput
-                                                defaultValue={data.min_cgpa}
-                                                step={0.1}
-                                                maxValue={4}
-                                                onChange={(value) => setData('min_cgpa', value)}
-                                            />
-                                            {errors.min_cgpa && <p className="text-xs text-red-500">{errors.min_cgpa}</p>}
+                                            <Label>Min. CGPA</Label>
+                                            <QuotaNumberInput defaultValue={data.min_cgpa} step={0.1} maxValue={4} onChange={(v) => setData('min_cgpa', v)} />
                                         </div>
                                     </div>
 
-                                    {/* Interview Switch */}
-                                    <div className="flex items-center justify-between p-4 border border-slate-100 rounded-xl bg-slate-50/50">
+                                    <div className="flex items-center justify-between rounded-md border p-4">
                                         <div className="space-y-0.5">
-                                            <Label className="text-sm font-bold text-slate-700">Requires Interview</Label>
-                                            <p className="text-[11px] text-slate-500">If checked, candidates are required to undergo screening.</p>
+                                            <Label>Requires Interview</Label>
+                                            <p className="text-xs text-muted-foreground">Students must undergo screening.</p>
                                         </div>
-                                        <Switch
-                                            checked={data.interview_required}
-                                            onCheckedChange={(checked) => setData('interview_required', checked)}
-                                        />
-                                    </div>
-
-                                    {/* Application Deadline */}
-                                    <div className="space-y-2">
-                                        <Label className="text-[10px] font-bold uppercase text-slate-500">Application Deadline</Label>
-                                        <DatePickerTime 
-                                        date={data.application_deadline}
-                                        setDate={(date) => setData('application_deadline', date)}
-                                        />
-                                        {errors.application_deadline && (
-                                            <p className="text-xs text-red-500">{errors.application_deadline}</p>
-                                        )}
+                                        <Switch checked={data.interview_required} onCheckedChange={(v) => setData('interview_required', v)} />
                                     </div>
                                 </div>
 
-                                <DialogFooter className="gap-3 p-6 border-t bg-slate-50 sm:justify-between shrink-0">
+                                <DialogFooter className="mt-6">
                                     <DialogClose asChild>
-                                        <Button type="button" variant="outline" className="flex-1 text-xs font-bold uppercase">Back</Button>
+                                        <Button variant="ghost">Cancel</Button>
                                     </DialogClose>
-                                    <Button
-                                        type="submit"
-                                        disabled={processing}
-                                        className="flex-[2] bg-slate-900 font-bold uppercase text-xs tracking-widest"
-                                    >
-                                        {processing ? <Loader2 className="size-4 animate-spin" /> : "Submit Quota"}
-                                    </Button>
+                                    <Button type="submit" disabled={processing}>Submit Request</Button>
                                 </DialogFooter>
                             </form>
                         </DialogContent>
@@ -221,17 +149,23 @@ export default function Quotas({ quotas = [], programmes = [] }) {
                 </div>
             </div>
 
-            {/* Search and Quick Filters */}
-            <div className="flex items-center gap-4">
-                <div className="relative w-full max-w-md">
-                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
-                    <Input
-                        placeholder="Filter by job title..."
-                        className="h-12 pl-11 rounded-md border border-outline border-slate-200"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
+            {/* Warning Banner */}
+            {!company && (
+                <div className="flex items-center gap-3 p-4 text-sm bg-amber-50 text-amber-800 rounded-lg border border-amber-200">
+                    <AlertCircle className="size-4" />
+                    <span>Account is not linked to a company profile.</span>
                 </div>
+            )}
+
+            {/* Filter Section */}
+            <div className="relative max-w-sm">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                <Input
+                    placeholder="Search by job title..."
+                    className="pl-9"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
             </div>
 
             {/* Quota Listing */}
@@ -248,14 +182,14 @@ export default function Quotas({ quotas = [], programmes = [] }) {
                                 />
                                 <div className="absolute top-4 right-4 flex gap-2">
                                     {quota.quota_status === 'Pending' && (
-                                        <div className="flex items-center gap-1 px-2 py-1 bg-amber-100 text-amber-700 rounded text-[10px] font-bold uppercase">
-                                            <Clock className="size-3" /> Pending Review
-                                        </div>
+                                        <span className="flex items-center gap-1 text-[10px] font-medium uppercase px-2 py-1 rounded bg-amber-100 text-amber-700">
+                                            <Clock className="size-3" /> Pending
+                                        </span>
                                     )}
                                     {quota.is_released && (
-                                        <div className="flex items-center gap-1 px-2 py-1 bg-emerald-100 text-emerald-700 rounded text-[10px] font-bold uppercase shadow-sm">
+                                        <span className="flex items-center gap-1 text-[10px] font-medium uppercase px-2 py-1 rounded bg-emerald-100 text-emerald-700">
                                             <Globe className="size-3" /> Live
-                                        </div>
+                                        </span>
                                     )}
                                 </div>
                             </div>
@@ -263,12 +197,12 @@ export default function Quotas({ quotas = [], programmes = [] }) {
                     }
                 </div>
             ) : (
-                <div className="bg-white rounded-2xl border-2 border-dashed border-slate-200 min-h-[300px] flex flex-col items-center justify-center text-slate-400 p-8 text-center">
-                    <div className="bg-slate-50 p-4 rounded-full mb-4">
-                        <Plus className="size-8 text-slate-300" />
+                <div className="border-2 border-dashed rounded-xl p-12 flex flex-col items-center text-center text-muted-foreground">
+                    <div className="p-3 bg-muted rounded-full mb-4">
+                        <Plus className="size-6" />
                     </div>
-                    <p className="font-medium text-slate-600">No placement quotas submitted yet.</p>
-                    <p className="text-sm max-w-xs mt-1">Submit a new quota to start receiving student applications for the next cycle.</p>
+                    <p className="font-semibold text-foreground">No quotas found</p>
+                    <p className="text-sm max-w-xs mt-1">Submit your first placement request to get started.</p>
                 </div>
             )}
         </div>

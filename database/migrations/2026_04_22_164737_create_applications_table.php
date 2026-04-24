@@ -13,11 +13,15 @@ return new class extends Migration
 {
     Schema::create('applications', function (Blueprint $table) {
         $table->id();
-        // One student can only have ONE application record.
-        $table->foreignId('student_id')->unique()->constrained('students', 'student_id')->onDelete('cascade');
+        
+        $table->foreignId('student_id')->constrained('students', 'student_id')->onDelete('cascade');
         $table->foreignId('quota_id')->constrained('quotas', 'quota_id')->onDelete('cascade');
+        
         $table->enum('status', ['pending', 'accepted', 'rejected'])->default('pending');
         $table->timestamps();
+
+        // This ensures the combination of student + quota is unique.
+        $table->unique(['student_id', 'quota_id']); 
     });
 }
 

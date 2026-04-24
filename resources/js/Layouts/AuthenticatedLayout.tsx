@@ -2,6 +2,7 @@ import * as React from "react"
 import { usePage, router } from '@inertiajs/react'
 import { PageProps, UserRole } from '@/types'
 import { CommandMenu } from "@/Components/ui/command-menu"
+import { Toaster } from "@/Components/ui/sonner";
 
 // Sidebar Components
 import { AdminSidebar } from "@/Components/Sidebars/AdminSidebar"
@@ -89,6 +90,7 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
 
                 <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
                     {children}
+                    <Toaster />
                 </div>
             </SidebarInset>
         </SidebarProvider>

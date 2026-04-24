@@ -37,7 +37,7 @@ const data = {
         },
         {
             title: "Applications",
-            url: route('company.applicants'),
+            url: route('company.applications'),
             icon: FileUser,
         },
         {

@@ -56,15 +56,23 @@ class CompanyController extends Controller
         $student = Auth::user()->student;
         $programmeId = $student->programme_id;
 
-        // Load only the relevant quotas for this company AND this student's programme
-    $company->load(['placementQuotas' => function ($query) use ($programmeId) {
-        $query->available()->where('programme_id', $programmeId);
-    }]);
+        // Check if student has applied to any quota
+        $has_applied = Application::where('student_id', $student->student_id)->exists();
 
-    return Inertia::render('Student/ViewCompany', [
-        'company' => $company,
-        'quotas' => $company->placementQuotas,
-    ]);
+        // get id of quota user applied to (null if no application yet)
+        $appliedQuotaId = Application::where('student_id', $student->student_id)
+        ->value('quota_id');
+
+        // Load only the relevant quotas for this company AND this student's programme
+        $company->load(['placementQuotas' => function ($query) use ($programmeId) {
+            $query->available()->where('programme_id', $programmeId);
+        }]);
+
+        return Inertia::render('Student/ViewCompany', [
+            'company' => $company,
+            'quotas' => $company->placementQuotas,
+            'applied_quota_id' => $appliedQuotaId, 
+        ]);
     }
     
         /* TBR

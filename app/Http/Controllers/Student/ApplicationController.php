@@ -14,8 +14,13 @@ class ApplicationController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'quota_id' => 'required|exists:quotas,quota_id',
+            'quota_id' => 'required|exists:placement_quotas,quota_id',
         ]);
+
+        // Check if the student record exists before applying
+    if (!Auth::user()->student) {
+        return back()->withErrors(['error' => 'Student profile not found.']);
+    }
 
         try {
             StudentApplication::create([
@@ -25,7 +30,7 @@ class ApplicationController extends Controller
             ]);
             return back()->with('success', 'Application submitted successfully!');
         } catch (\Illuminate\Database\QueryException $e) {
-            return back()->withErrors(['error' => 'You have already submitted an application.']);
+            return back()->withErrors(['error' => 'You have already applied to this specific quota.']);
         }
     }
 }

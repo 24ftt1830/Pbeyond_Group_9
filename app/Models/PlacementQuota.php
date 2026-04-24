@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class PlacementQuota extends Model
 {
@@ -30,6 +31,20 @@ class PlacementQuota extends Model
         'application_deadline' => 'datetime',
         'interview_required' => 'boolean',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+        static::creating(function ($quota) {
+            $quota->slug = Str::slug($quota->job_title);
+        });
+    }
+
+    // slug for route binding
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
 
     public function company()
     {

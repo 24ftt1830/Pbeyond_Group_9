@@ -1,24 +1,20 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
-use Illuminate\Foundation\Application;
-use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
-use App\Http\Controllers\Admin\UserManagementController;
+use App\Http\Controllers\Admin\ApplicationController;
 use App\Http\Controllers\EventController;
-
-use App\Http\Controllers\Company\QuotaController;
-use App\Http\Controllers\Company\RepresentativeController;
-
-use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
-use App\Http\Controllers\Student\CompanyController as StudentCompanyController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Student\ApplicationController as StudentApplicationController;
+use App\Http\Controllers\Student\CalendarController as StudentCalendarController;
+use App\Http\Controllers\Student\CompanyController as StudentCompanyController;
+use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
 use App\Http\Controllers\Student\DocumentController as StudentDocumentController;
 use App\Http\Controllers\Student\FaqController as StudentFaqController;
 use App\Http\Controllers\Student\FavouriteController as StudentFavouriteController;
-use App\Http\Controllers\Student\ReportController as StudentReportController;
-use App\Http\Controllers\Student\CalendarController as StudentCalendarController;
 use App\Http\Controllers\Student\ProfileController as StudentProfileController;
+use App\Http\Controllers\Student\ReportController as StudentReportController;
+use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
 // Temporary file for debugging post-vps db connection
 Route::get('/test-route', function () {
@@ -27,6 +23,7 @@ Route::get('/test-route', function () {
 
 Route::get('/debug-session', function () {
     session(['test_key' => 'it_works!']);
+
     return session('test_key');
 });
 
@@ -50,6 +47,7 @@ Route::middleware('auth')->group(function () {
             return back()->withErrors('Invalid role');
         }
         auth()->user()->update(['role' => $role]);
+
         return back()->with('success', 'Role updated!');
     })->name('dev.switch-role');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -88,12 +86,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/students/{student}/reject', [App\Http\Controllers\Admin\StudentController::class, 'reject'])->name('students.reject');
 
         // Application review (Gatekeeper)
-        Route::get('/applications/review', [App\Http\Controllers\Admin\ApplicationReviewController::class, 'index'])->name('applications.review');
-        Route::post('/applications/{application}/approve', [App\Http\Controllers\Admin\ApplicationReviewController::class, 'approve'])->name('applications.approve');
-        Route::post('/applications/{application}/reject', [App\Http\Controllers\Admin\ApplicationReviewController::class, 'reject'])->name('applications.reject');
-
-        // Admin can update application status directly (optional)
-        Route::post('/applications/{application}/update', [App\Http\Controllers\Admin\ApplicationController::class, 'update'])->name('admin.applications.update');
+        Route::get('/applications', [App\Http\Controllers\Admin\ApplicationController::class, 'index'])->name('applications');
 
         // Reports (Grievance Portal) – using controller instead of closure
         Route::get('/reports', [App\Http\Controllers\Admin\ReportController::class, 'index'])->name('reports');
@@ -116,9 +109,9 @@ Route::middleware('auth')->group(function () {
         Route::post('/quotas', [App\Http\Controllers\Company\QuotaController::class, 'store'])->name('quotas.store');
         Route::delete('/quotas/{quota}', [App\Http\Controllers\Company\QuotaController::class, 'destroy'])->name('quotas.destroy');
 
-        // Applicants (will later be filtered to Pending_Company)
-        Route::get('/applicants', [App\Http\Controllers\Company\ApplicantController::class, 'index'])->name('applicants');
-        Route::post('/applicants/{application}/review', [App\Http\Controllers\Company\ApplicantController::class, 'review'])->name('applicants.review');
+        // Applications
+        Route::get('/applications', [App\Http\Controllers\Company\ApplicationController::class, 'index'])->name('applications');
+        Route::get('/applications/{quota}', [App\Http\Controllers\Company\ApplicationController::class, 'show'])->name('applications.show');
 
         // Representatives
         Route::get('/representatives', [App\Http\Controllers\Company\RepresentativeController::class, 'index'])->name('representatives');
@@ -142,6 +135,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/companies/{company}/apply', [StudentCompanyController::class, 'apply'])->name('companies.apply');
         Route::get('/application-tracking', [StudentApplicationController::class, 'index'])->name('application-tracking');
         Route::post('/applications/{application}/accept', [StudentApplicationController::class, 'accept'])->name('applications.accept');
+        Route::post('/applications/store', [StudentApplicationController::class, 'store'])->name('applications.store');
         Route::get('/calendar', [StudentCalendarController::class, 'index'])->name('calendar');
         Route::get('/documentations', [StudentDocumentController::class, 'index'])->name('documentations');
         Route::post('/documentations/upload', [StudentDocumentController::class, 'upload'])->name('documentations.upload');

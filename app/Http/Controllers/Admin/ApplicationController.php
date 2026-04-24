@@ -4,19 +4,23 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Application;
-use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class ApplicationController extends Controller
 {
-    public function update(Request $request, Application $application)
+    public function index()
     {
-        $request->validate([
-            'status' => 'required|in:approved,rejected',
+        // Removed the 'Pending_ILD' filter to allow full read-only access
+        $applications = Application::with([
+            'student.user', 
+            'student.programme', 
+            'quota.company'
+        ])
+        ->orderBy('apply_date', 'desc') // show newest application first
+        ->get();
+
+        return Inertia::render('Admin/ApplicationList', [
+            'applications' => $applications,
         ]);
-
-        $application->app_status = ucfirst($request->status);
-        $application->save();
-
-        return redirect()->back()->with('success', 'Application updated.');
     }
 }

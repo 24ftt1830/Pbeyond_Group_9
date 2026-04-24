@@ -17,7 +17,6 @@ import {
 } from "@/Components/ui/sidebar"
 import { Link } from '@inertiajs/react';
 
-// Define the structure of your menu items
 interface NavMainItem {
   title: string
   url: string

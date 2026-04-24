@@ -52,7 +52,7 @@ const data = {
         },
         {
             title: "Applications",   
-            url: route('admin.applications.review'),
+            url: route('admin.applications'),
             icon: ClipboardList,
         },
     ],
