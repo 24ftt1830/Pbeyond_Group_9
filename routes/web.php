@@ -112,13 +112,13 @@ Route::middleware('auth')->group(function () {
         // Applications
         Route::get('/applications', [App\Http\Controllers\Company\ApplicationController::class, 'index'])->name('applications');
         Route::get('/applications/{quota}', [App\Http\Controllers\Company\ApplicationController::class, 'show'])->name('applications.show');
+        Route::post('/applications/{quota:quota_id}/update-status/{application}', [App\Http\Controllers\Company\ApplicationController::class, 'updateStatus'])->name('applications.update-status');
 
         // Representatives
         Route::get('/representatives', [App\Http\Controllers\Company\RepresentativeController::class, 'index'])->name('representatives');
 
         // Other placeholders
         Route::get('/interns', fn () => Inertia::render('Company/Interns'))->name('interns');
-        Route::get('/interviews', fn () => Inertia::render('Company/Interviews'))->name('interviews');
         Route::get('/contact-support', fn () => Inertia::render('Company/ContactSupport'))->name('contact-support');
         Route::get('/faqs', fn () => Inertia::render('Company/Faqs'))->name('faqs');
         Route::get('/calendar', fn () => Inertia::render('Company/Calendar'))->name('calendar');

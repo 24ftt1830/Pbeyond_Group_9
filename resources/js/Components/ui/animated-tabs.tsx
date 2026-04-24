@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState, useLayoutEffect } from "react";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 
 interface TabItem {
   value: string;
@@ -9,47 +9,42 @@ interface TabItem {
 interface AnimatedTabsListProps {
   tabs: TabItem[];
   activeValue: string;
-  setActiveValue: (value: string) => void; 
+  setActiveValue: (value: string) => void;
   className?: string;
 }
 
 export function AnimatedTabsList({ tabs, activeValue, setActiveValue, className }: AnimatedTabsListProps) {
-  const tabsRef = useRef<(HTMLButtonElement | null)[]>([]);
-  const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
-
-  useLayoutEffect(() => {
-    const activeIndex = tabs.findIndex((t) => t.value === activeValue);
-    const activeTab = tabsRef.current[activeIndex];
-
-    if (activeTab) {
-      setIndicatorStyle({
-        left: activeTab.offsetLeft,
-        width: activeTab.clientWidth,
-      });
-    }
-  }, [activeValue, tabs]);
-
   return (
     <div className={cn("relative flex h-9 items-center rounded-full bg-muted p-1", className)}>
-      {/* Sliding Background Indicator */}
-      <div
-        className="absolute bottom-1 top-1 z-0 rounded-full bg-background shadow-sm transition-all duration-300 ease-out"
-        style={{ left: indicatorStyle.left, width: indicatorStyle.width }}
-      />
+      {tabs.map((tab) => {
+        const isActive = activeValue === tab.value;
 
-      {tabs.map((tab, index) => (
-        <button
-          key={tab.value}
-          ref={(el) => (tabsRef.current[index] = el)}
-          onClick={() => setActiveValue(tab.value)}
-          className={cn(
-            "relative z-10 flex h-7 flex-1 items-center justify-center whitespace-nowrap px-3 text-sm font-medium transition-colors",
-            activeValue === tab.value ? "text-foreground" : "text-muted-foreground hover:text-foreground"
-          )}
-        >
-          {tab.label}
-        </button>
-      ))}
+        return (
+          <button
+            key={tab.value}
+            onClick={() => setActiveValue(tab.value)}
+            className={cn(
+              "relative z-10 flex h-7 flex-1 items-center justify-center whitespace-nowrap px-3 text-sm font-medium transition-colors",
+              isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            {/* The sliding background pill */}
+            {isActive && (
+              <motion.div
+                layoutId="activeTab"
+                className="absolute inset-0 z-0 rounded-full bg-background shadow-sm"
+                transition={{
+                  type: "spring",
+                  stiffness: 300,
+                  damping: 30,
+                  bounce: 0.3,
+                }}
+              />
+            )}
+            <span className="relative z-10">{tab.label}</span>
+          </button>
+        );
+      })}
     </div>
   );
 }

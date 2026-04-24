@@ -40,4 +40,9 @@ class Application extends Model
     {
         return $query->where('app_status', 'Approved');
     }
+
+    public function placementQuota()
+    {
+        return $this->belongsTo(PlacementQuota::class, 'placement_quota_id');
+    }
 }

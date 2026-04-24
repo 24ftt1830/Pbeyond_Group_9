@@ -50,11 +50,6 @@ const data = {
             url: route('company.representatives'),
             icon: CircleUser,
         },
-        {
-            title: "Interviews",
-            url: route('company.interviews'),
-            icon: MessagesSquare,
-        },
     ],
     navSecondary: [
         {

@@ -197,13 +197,13 @@ const UserTabs = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <div className="flex items-center justify-between mb-4">
             <AnimatedTabsList
-      activeValue={activeTab}
-      setActiveValue={setActiveTab}
-      tabs={[
-        { value: "students", label: "Students" },
-        { value: "reps", label: "Representatives" }
-      ]}
-    />
+              activeValue={activeTab}
+              setActiveValue={setActiveTab}
+              tabs={[
+                { value: "students", label: "Students" },
+                { value: "reps", label: "Representatives" }
+              ]}
+            />
 
             <div className="relative">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
