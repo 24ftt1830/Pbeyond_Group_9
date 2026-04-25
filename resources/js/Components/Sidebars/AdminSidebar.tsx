@@ -31,11 +31,6 @@ const data = {
             icon: LayoutDashboard,
         },
         {
-            title: "Students",
-            url: route('admin.students'),
-            icon: Users,
-        },
-        {
             title: "Companies",
             url: route('admin.companies'),
             icon: Building2,

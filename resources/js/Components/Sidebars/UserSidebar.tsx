@@ -51,12 +51,6 @@ const data = {
             icon: Flag,
         },
 
-        {
-             title: "My Profile",
-             url: route('student.profile'),
-             icon: FileText, 
-},
-
     ],
     navSecondary: [
         {

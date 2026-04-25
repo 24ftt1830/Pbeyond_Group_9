@@ -1,15 +1,13 @@
 import { useState, useMemo } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/Components/ui/table';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/Components/ui/pagination';
-import { Button } from '@/Components/ui/button';
-import { Eye } from 'lucide-react';
 
 export interface PlacementData {
     id: number;
     student_name: string;
     programme: string;
     company_name: string;
-    status: 'Pending' | 'Approved' | 'Rejected' | 'Completed';
+    // status removed
 }
 
 interface PlacementDataTableProps {
@@ -26,15 +24,6 @@ const PlacementDataTable = ({ data }: PlacementDataTableProps) => {
         return data.slice(start, start + ITEMS_PER_PAGE);
     }, [data, currentPage]);
 
-    const getStatusColor = (status: string) => {
-        switch (status) {
-            case 'Approved': return 'bg-emerald-100 text-emerald-700';
-            case 'Pending': return 'bg-amber-100 text-amber-700';
-            case 'Rejected': return 'bg-red-100 text-red-700';
-            default: return 'bg-slate-100 text-slate-700';
-        }
-    };
-
     return (
         <div className='w-full'>
             <div className='overflow-hidden rounded-md border border-gray-200 bg-white'>
@@ -44,8 +33,6 @@ const PlacementDataTable = ({ data }: PlacementDataTableProps) => {
                             <TableHead className="px-6 py-4 text-xs font-bold uppercase text-gray-500">Student Name</TableHead>
                             <TableHead className="px-6 py-4 text-xs font-bold uppercase text-gray-500">Programme</TableHead>
                             <TableHead className="px-6 py-4 text-xs font-bold uppercase text-gray-500">Company Name</TableHead>
-                            <TableHead className="text-center px-6 py-4 text-xs font-bold uppercase text-gray-500">Status</TableHead>
-                            <TableHead className="text-right px-6 py-4 text-xs font-bold uppercase text-gray-500">Action</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -55,22 +42,12 @@ const PlacementDataTable = ({ data }: PlacementDataTableProps) => {
                                     <TableCell className="px-6 py-4 font-medium text-gray-900">{item.student_name}</TableCell>
                                     <TableCell className="px-6 py-4 text-gray-600">{item.programme}</TableCell>
                                     <TableCell className="px-6 py-4 text-gray-600">{item.company_name}</TableCell>
-                                    <TableCell className="text-center px-6 py-4">
-                                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${getStatusColor(item.status)}`}>
-                                            {item.status}
-                                        </span>
-                                    </TableCell>
-                                    <TableCell className="text-right px-6 py-4">
-                                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                            <Eye className="size-4" />
-                                        </Button>
-                                    </TableCell>
                                 </TableRow>
                             ))
                         ) : (
                             <TableRow>
-                                <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
-                                    No placements found.
+                                <TableCell colSpan={3} className="h-32 text-center text-muted-foreground">
+                                    No recruited placements found.
                                 </TableCell>
                             </TableRow>
                         )}

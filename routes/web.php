@@ -79,12 +79,6 @@ Route::middleware('auth')->group(function () {
         Route::put('/manage-users/{id}', [App\Http\Controllers\Admin\UserManagementController::class, 'update'])->name('manage-users.update');
         Route::delete('/manage-users/{id}', [App\Http\Controllers\Admin\UserManagementController::class, 'destroy'])->name('manage-users.destroy');
 
-        // Students
-        Route::get('/students', [App\Http\Controllers\Admin\StudentController::class, 'index'])->name('students');
-        Route::get('/students/{student}', [App\Http\Controllers\Admin\StudentController::class, 'show'])->name('students.show');
-        Route::post('/students/{student}/approve', [App\Http\Controllers\Admin\StudentController::class, 'approve'])->name('students.approve');
-        Route::post('/students/{student}/reject', [App\Http\Controllers\Admin\StudentController::class, 'reject'])->name('students.reject');
-
         // Application review (Gatekeeper)
         Route::get('/applications', [App\Http\Controllers\Admin\ApplicationController::class, 'index'])->name('applications');
 
@@ -118,6 +112,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/representatives', [App\Http\Controllers\Company\RepresentativeController::class, 'index'])->name('representatives');
 
         // Other placeholders
+        Route::get('/profile', [App\Http\Controllers\Company\ProfileController::class, 'index'])->name('profile');
         Route::get('/interns', fn () => Inertia::render('Company/Interns'))->name('interns');
         Route::get('/contact-support', fn () => Inertia::render('Company/ContactSupport'))->name('contact-support');
         Route::get('/faqs', fn () => Inertia::render('Company/Faqs'))->name('faqs');

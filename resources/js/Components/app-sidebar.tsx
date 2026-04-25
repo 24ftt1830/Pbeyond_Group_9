@@ -12,11 +12,9 @@ import {
     SquareTerminal,
 } from "lucide-react"
 
-// Inertia & Types
 import { usePage, Link } from '@inertiajs/react';
 import { PageProps, UserRole } from '@/types'; 
 
-// Components
 import { NavMain } from "@/Components/nav-main"
 import { NavProjects } from "@/Components/nav-projects"
 import { NavUser } from "@/Components/nav-user"
@@ -30,7 +28,6 @@ import {
     SidebarMenuItem,
 } from "@/Components/ui/sidebar"
 
-// Static data for secondary and project sections
 const data = {
     navSecondary: [
         { title: "Support", url: "#", icon: LifeBuoy },
@@ -64,7 +61,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         ],
     };
 
-    // Safely access the navigation based on role
     const navMainItems = roleNavigation[auth.user.role] || [];
 
     return (
@@ -91,17 +87,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarHeader>
 
             <SidebarContent>
-                {/* NavMain now receives the role-specific items. 
-                  If you want to keep the original shadcn 'Playground' items, 
-                  you would merge them here.
-                */}
                 <NavMain items={navMainItems} />
                 
                 <NavProjects projects={data.projects} />
             </SidebarContent>
 
             <SidebarFooter>
-                {/* Passing the real auth user to NavUser */}
                 <NavUser user={auth.user} />
             </SidebarFooter>
         </Sidebar>

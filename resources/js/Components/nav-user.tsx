@@ -4,7 +4,6 @@ import {
   BadgeCheck,
   Bell,
   ChevronsUpDown,
-  CreditCard,
   LogOut,
   CircleUserRound
 } from "lucide-react"
@@ -30,12 +29,10 @@ import {
   useSidebar,
 } from "@/Components/ui/sidebar"
 
-export function NavUser({
-  user,
-}: {
-  user: User
-}) {
-  const { isMobile } = useSidebar()
+export function NavUser({ user }: {user: User }) {
+const { isMobile } = useSidebar()
+
+  const profileRoute = user.role === 'Student' ? 'student.profile' : 'company.profile';
 
   return (
     <SidebarMenu>
@@ -49,7 +46,7 @@ export function NavUser({
               <Avatar className="w-8 h-8 rounded-lg">
                 <AvatarImage src={user.avatar} alt={user.name} />
                 <AvatarFallback
-                className="rounded-lg">
+                  className="rounded-lg">
                   {user?.name?.substring(0, 2).toUpperCase() ?? ''}
                 </AvatarFallback>
               </Avatar>
@@ -70,7 +67,9 @@ export function NavUser({
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="w-8 h-8 rounded-lg">
                   <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                  <AvatarFallback className="rounded-lg">
+                    {user?.name?.substring(0, 2).toUpperCase() ?? ''}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-sm leading-tight text-left">
                   <span className="font-semibold truncate">{user.name}</span>
@@ -80,9 +79,12 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <CircleUserRound />
-                Profile
+              {/* Dynamic Profile Link */}
+              <DropdownMenuItem asChild>
+                <Link href={route(profileRoute)}>
+                  <CircleUserRound className="h-4 w-4" />
+                  Profile
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <BadgeCheck />
@@ -95,18 +97,15 @@ export function NavUser({
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
-                {/* IMPORTANT: In Laravel, logout is usually a POST request.
-                  Inertia's Link makes this easy.
-                */}
-                <Link
-                    href={route('logout')}
-                    method="post"
-                    as="button"
-                    className="flex items-center w-full"
-                >
-                    <LogOut className="mr-2 size-4" />
-                    Log out
-                </Link>
+              <Link
+                href={route('logout')}
+                method="post"
+                as="button"
+                className="flex items-center w-full"
+              >
+                <LogOut className="mr-2 size-4" />
+                Log out
+              </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -114,3 +113,5 @@ export function NavUser({
     </SidebarMenu>
   )
 }
+
+  

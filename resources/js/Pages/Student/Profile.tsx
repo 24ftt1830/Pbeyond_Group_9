@@ -67,10 +67,10 @@ export default function Profile({ student }) {
     };
 
     return (
-        <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-            <h1 className="text-2xl font-semibold text-gray-900 mb-6">My Profile (Borang ILD)</h1>
+        <div className="p-6">
+            <h1 className="font-sato text-3xl font-bold mb-6">My Profile</h1>
 
-            <form onSubmit={handleSubmit} className="space-y-6 bg-white shadow rounded-lg p-6">
+            <form onSubmit={handleSubmit} className="space-y-6 bg-white">
                 {/* Passport Photo Section */}
                 <div className="border-b border-gray-200 pb-4">
                     <h2 className="text-lg font-medium text-gray-900 mb-3">Passport Photo (Required)</h2>

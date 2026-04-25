@@ -21,14 +21,16 @@ class PlacementController extends Controller
                 'student_name' => $app->student->full_name,
                 'programme'    => $app->student->programme->programme_name,
                 'company_name' => $app->quota->company->company_name,
-                'status'       => $this->mapStatus($app),
+                // Directly using the database field
+                'status'       => $app->app_status, 
             ];
         });
 
         $stats = [
             'total_students' => Student::count(),
             'total_applied'  => Application::count(),
-            'total_approved' => Application::where('app_status', 'Approved')->count(),
+            // Ensure these match your actual status strings in the database
+            'total_approved' => Application::where('app_status', 'Recruited')->count(),
             'pending_review' => Application::where('app_status', 'Pending')->count(),
             'pending_quotas' => PlacementQuota::where('quota_status', 'Pending')->count(),
         ];
@@ -40,19 +42,6 @@ class PlacementController extends Controller
         ]);
     }
 
-    private function mapStatus($app)
-    {
-        if ($app->app_status === 'Approved') {
-            return ($app->quota->interview_required) ? 'Waitlisted (Interview)' : 'Approved';
-        }
-
-        return match ($app->app_status) {
-            'Rejected'  => 'Rejected',
-            'Reviewing' => 'Under Review',  
-            default     => 'Pending',
-        };
-    }
-
     /**
      * Unified Approval: Instant Visibility
      */
@@ -60,7 +49,6 @@ class PlacementController extends Controller
     {
         $quota = PlacementQuota::findOrFail($id);
         
-        // Approve and Release in one go
         $quota->update([
             'quota_status' => 'Approved',
             'is_released'  => true
@@ -81,7 +69,6 @@ class PlacementController extends Controller
         return redirect()->back()->with('success', 'Quota rejected and hidden from students.');
     }
 
-    // In case of manual approval to student view despite quota approval
     public function release($id)
     {
         $quota = PlacementQuota::findOrFail($id);
