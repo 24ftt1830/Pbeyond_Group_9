@@ -1,0 +1,44 @@
+---
+- name: Deploy Laravel Inertia Application
+  hosts: webservers
+  become: yes
+  vars:
+    app_root: /var/www/pbeyond
+    git_repo: git@github.com:hara-mono/PBeyond.git
+
+  tasks:
+    - name: Ensure app directory is clean
+      file:
+        path: "{{ app_root }}"
+        state: absent
+
+    - name: Ensure app directory exists
+      file:
+        path: "{{ app_root }}"
+        state: directory
+        owner: www-data
+        group: www-data
+
+    - name: Clone the repository manually
+      command: git clone {{ git_repo }} "{{ app_root }}"
+
+    - name: Copy .env file
+      copy:
+        src: ../.env.production
+        dest: "{{ app_root }}/.env"
+
+    - name: Start Docker containers
+      community.docker.docker_compose:
+        project_src: "{{ app_root }}"
+        state: present
+        build: yes
+
+    - name: Run Database Migrations
+      command: docker-compose exec -T app php artisan migrate --force
+      args:
+        chdir: "{{ app_root }}"
+
+    - name: Clear Cache
+      command: docker-compose exec -T app php artisan optimize
+      args:
+        chdir: "{{ app_root }}"
