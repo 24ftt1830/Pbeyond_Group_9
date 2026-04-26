@@ -16,8 +16,16 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /var/www
 
-# Copy existing application directory contents
+# --- CRITICAL CHANGE ---
+# 1. Copy composer files first to leverage layer caching
+COPY composer.json composer.lock ./
+
+# 2. Install dependencies (this creates the vendor folder)
+RUN composer install --no-dev --optimize-autoloader --no-scripts
+
+# 3. Copy the rest of the application
 COPY . .
+# -----------------------
 
 # Expose port 9000
 EXPOSE 9000
