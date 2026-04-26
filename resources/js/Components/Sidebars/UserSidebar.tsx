@@ -5,22 +5,30 @@ import {
     SidebarTrigger,
     SidebarSeparator,
     SidebarFooter,
+    SidebarMenu,
+    SidebarMenuItem,
+    SidebarMenuButton,
 } from "@/Components/ui/sidebar"
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/Components/ui/dropdown-menu"
 import { NavMain } from "@/Components/nav-main"
 import { NavUser } from "@/Components/nav-user"
-import { usePage } from '@inertiajs/react'
+import { usePage, Link } from '@inertiajs/react'
 import { PageProps } from '@/types'
-import { Link } from '@inertiajs/react';
 import {
     LayoutDashboard,
     Building2,
     ClipboardList,
-    Upload,
-    Heart,
-    Flag,
-    HelpCircle,
     CalendarDays,
     FileText,
+    LifeBuoy,
+    Flag,
+    HelpCircle,
+    ChevronUp,
 } from "lucide-react";
 
 const data = {
@@ -40,28 +48,12 @@ const data = {
             url: route('student.application-tracking'),
             icon: ClipboardList,
         },
-        {
-            title: "Documentations",
-            url: route('student.documentations'),
-            icon: Upload,
-        },
-        {
-            title: "Report Issue",
-            url: route('student.report-issue'),
-            icon: Flag,
-        },
-
     ],
     navSecondary: [
         {
             title: "Past Reports",
             url: route('student.past-reports'),
             icon: FileText,
-        },
-        {
-            title: "FAQs",
-            url: route('student.faqs'),
-            icon: HelpCircle,
         },
         {
             title: "Calendar",
@@ -105,6 +97,39 @@ export function UserSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) 
             </SidebarContent>
 
             <SidebarFooter>
+                {/* Support Dropdown */}
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <SidebarMenuButton className="focus-visible:ring-0">
+                                    <LifeBuoy />
+                                    <span>Support</span>
+                                    <ChevronUp className="ml-auto" />
+                                </SidebarMenuButton>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent
+                                side="top"
+                                className="w-[--radix-popper-anchor-width]"
+                            >
+                                <DropdownMenuItem asChild>
+                                    <Link href={route('student.report-issue')}>
+                                        <Flag className="mr-2 size-4" />
+                                        <span>Report Issue</span>
+                                    </Link>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem asChild>
+                                    <Link href={route('student.faqs')}>
+                                        <HelpCircle className="mr-2 size-4" />
+                                        <span>FAQs</span>
+                                    </Link>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </SidebarMenuItem>
+                </SidebarMenu>
+
+                {/* User Account */}
                 <NavUser user={auth.user} />
             </SidebarFooter>
         </Sidebar>

@@ -34,6 +34,14 @@ export default {
 				sato: [
 					'Satoshi',
 					'sans-serif'
+				],
+				lora: [
+					'Lora',
+					'serif'
+				],
+				libre: [
+					'Libre Baskerville',
+					'serif'
 				]
     		},
     		fontWeight: {

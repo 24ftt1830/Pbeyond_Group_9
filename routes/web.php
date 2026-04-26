@@ -3,7 +3,7 @@
 use App\Http\Controllers\Admin\ApplicationController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\Student\ApplicationController as StudentApplicationController;
+use App\Http\Controllers\Student\ApplicationTrackingController;
 use App\Http\Controllers\Student\CalendarController as StudentCalendarController;
 use App\Http\Controllers\Student\CompanyController as StudentCompanyController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
@@ -128,13 +128,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/companies', [StudentCompanyController::class, 'index'])->name('companies');
         Route::get('/companies/{company}', [StudentCompanyController::class, 'show'])->name('companies.view');
         Route::post('/companies/{company}/apply', [StudentCompanyController::class, 'apply'])->name('companies.apply');
-        Route::get('/application-tracking', [StudentApplicationController::class, 'index'])->name('application-tracking');
-        Route::post('/applications/{application}/accept', [StudentApplicationController::class, 'accept'])->name('applications.accept');
-        Route::post('/applications/store', [StudentApplicationController::class, 'store'])->name('applications.store');
+        Route::get('/application-tracking', [App\Http\Controllers\Student\ApplicationTrackingController::class, 'index'])->name('application-tracking');
         Route::get('/calendar', [StudentCalendarController::class, 'index'])->name('calendar');
-        Route::get('/documentations', [StudentDocumentController::class, 'index'])->name('documentations');
-        Route::post('/documentations/upload', [StudentDocumentController::class, 'upload'])->name('documentations.upload');
-        Route::delete('/documentations/{document}', [StudentDocumentController::class, 'destroy'])->name('documentations.destroy');
         Route::get('/faqs', [StudentFaqController::class, 'index'])->name('faqs');
         Route::get('/favourites', [StudentFavouriteController::class, 'index'])->name('favourites');
         Route::post('/favourites/{company}', [StudentFavouriteController::class, 'store'])->name('favourites.store');

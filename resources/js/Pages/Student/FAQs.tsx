@@ -49,16 +49,16 @@ export default function FAQs() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+        <div>
             {/* Hero Section */}
             <div className="text-center py-12 px-4">
                 <div className="inline-flex items-center justify-center p-2 bg-indigo-100 rounded-full mb-4">
                     <HelpCircle className="w-6 h-6 text-indigo-600" />
                 </div>
-                <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl">
+                <h1 className="text-3xl font-sato font-extrabold text-gray-900">
                     Frequently Asked Questions
                 </h1>
-                <p className="mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl">
+                <p className="text-base text-gray-500">
                     Everything you need to know about PBeyond
                 </p>
             </div>
@@ -69,7 +69,7 @@ export default function FAQs() {
                     {faqs.map((faq) => (
                         <div
                             key={faq.id}
-                            className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100"
+                            className="bg-sidebar-background rounded-2xl border border-gray-100"
                         >
                             <div className="p-6">
                                 <div className="flex items-start justify-between">

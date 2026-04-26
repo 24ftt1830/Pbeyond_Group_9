@@ -21,7 +21,6 @@ class PlacementController extends Controller
                 'student_name' => $app->student->full_name,
                 'programme'    => $app->student->programme->programme_name,
                 'company_name' => $app->quota->company->company_name,
-                // Directly using the database field
                 'status'       => $app->app_status, 
             ];
         });
@@ -29,7 +28,6 @@ class PlacementController extends Controller
         $stats = [
             'total_students' => Student::count(),
             'total_applied'  => Application::count(),
-            // Ensure these match your actual status strings in the database
             'total_approved' => Application::where('app_status', 'Recruited')->count(),
             'pending_review' => Application::where('app_status', 'Pending')->count(),
             'pending_quotas' => PlacementQuota::where('quota_status', 'Pending')->count(),

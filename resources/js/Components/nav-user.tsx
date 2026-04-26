@@ -41,7 +41,7 @@ const { isMobile } = useSidebar()
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="border data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              className="border data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground focus-visible:ring-0"
             >
               <Avatar className="w-8 h-8 rounded-lg">
                 <AvatarImage src={user.avatar} alt={user.name} />
@@ -101,9 +101,9 @@ const { isMobile } = useSidebar()
                 href={route('logout')}
                 method="post"
                 as="button"
-                className="flex items-center w-full"
+                className="flex items-center w-full text-destructive"
               >
-                <LogOut className="mr-2 size-4" />
+                <LogOut className="size-4 text-destructive" />
                 Log out
               </Link>
             </DropdownMenuItem>

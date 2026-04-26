@@ -1,9 +1,42 @@
+import { useRef, useState, FormEvent, ChangeEvent } from 'react';
+import { useForm } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { router } from '@inertiajs/react';
-import { useState, useRef } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
+import { Label } from "@/Components/ui/label";
+import { Input } from "@/Components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select";
+import { Textarea } from "@/Components/ui/textarea";
 
-export default function Profile({ student }) {
-    const [formData, setFormData] = useState({
+interface Student {
+    full_name: string;
+    ic_number: string;
+    ic_colour: string;
+    intake_session: string;
+    postal_address: string;
+    date_of_birth: string;
+    place_of_birth: string;
+    gender: string;
+    religion: string;
+    nationality: string;
+    race: string;
+    mobile_phone: string;
+    cgpa: string;
+    emergency_no: string;
+    work_experience: string;
+    passport_photo_path?: string;
+}
+
+interface ProfileProps {
+    student: Student;
+}
+
+export default function Profile({ student }: ProfileProps) {
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [passportPreview, setPassportPreview] = useState<string | null>(
+        student.passport_photo_path ? `/storage/${student.passport_photo_path}` : null
+    );
+
+    const { data, setData, post, processing, errors } = useForm({
         full_name: student.full_name || '',
         ic_number: student.ic_number || '',
         ic_colour: student.ic_colour || 'Yellow',
@@ -17,301 +50,172 @@ export default function Profile({ student }) {
         race: student.race || '',
         mobile_phone: student.mobile_phone || '',
         cgpa: student.cgpa || '',
-        work_experience: student.work_experience || '',
         emergency_no: student.emergency_no || '',
+        work_experience: student.work_experience || '',
+        passport_photo: null as File | null,
+        cv: null as File | null,
+        identity_card: null as File | null,
+        drivers_license: null as File | null,
+        results: null as File | null,
     });
 
-    const [passportPhoto, setPassportPhoto] = useState<File | null>(null);
-    const [passportPreview, setPassportPreview] = useState<string | null>(
-        student.passport_photo_path ? `/storage/${student.passport_photo_path}` : null
-    );
-    const [saving, setSaving] = useState(false);
-    const [errors, setErrors] = useState({});
-    const fileInputRef = useRef<HTMLInputElement>(null);
-
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+    const submit = (e: FormEvent) => {
+        e.preventDefault();
+        post(route('profile.update'), {
+            preserveScroll: true,
+        });
     };
 
-    const handlePhotoChange = (e) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            setPassportPhoto(file);
+    const handlePhotoChange = (e: ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            setData('passport_photo', file);
             setPassportPreview(URL.createObjectURL(file));
         }
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        setSaving(true);
-
-        const data = new FormData();
-        Object.keys(formData).forEach(key => {
-            data.append(key, formData[key]);
-        });
-        if (passportPhoto) {
-            data.append('passport_photo', passportPhoto);
+    const handleFileChange = (e: ChangeEvent<HTMLInputElement>, fieldName: keyof typeof data) => {
+        if (e.target.files && e.target.files[0]) {
+            setData(fieldName, e.target.files[0]);
         }
-
-        router.post(route('student.profile.update'), data, {
-            preserveScroll: true,
-            onSuccess: () => {
-                setSaving(false);
-                if (fileInputRef.current) fileInputRef.current.value = '';
-            },
-            onError: (err) => {
-                setErrors(err);
-                setSaving(false);
-            },
-        });
     };
 
     return (
-        <div className="p-6">
-            <h1 className="font-sato text-3xl font-bold mb-6">My Profile</h1>
+        <AuthenticatedLayout>
+            <div className="p-6 space-y-6">
+                <h1 className="text-3xl font-bold">My Profile</h1>
 
-            <form onSubmit={handleSubmit} className="space-y-6 bg-white">
-                {/* Passport Photo Section */}
-                <div className="border-b border-gray-200 pb-4">
-                    <h2 className="text-lg font-medium text-gray-900 mb-3">Passport Photo (Required)</h2>
-                    <div className="flex flex-col sm:flex-row items-start gap-6">
-                        <div className="w-32 h-32 bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center border border-gray-200">
-                            {passportPreview ? (
-                                <img src={passportPreview} alt="Passport preview" className="w-full h-full object-cover" />
-                            ) : (
-                                <span className="text-gray-400 text-xs text-center">No photo</span>
-                            )}
-                        </div>
-                        <div className="flex-1">
-                            <input
-                                ref={fileInputRef}
-                                type="file"
-                                accept="image/jpeg,image/png,image/jpg"
-                                onChange={handlePhotoChange}
-                                required={!student.passport_photo_path}
-                                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                            />
-                            <p className="text-xs text-gray-500 mt-2">JPEG, PNG, JPG only. Max 2MB.</p>
-                            {errors.passport_photo && <p className="text-red-500 text-xs mt-1">{errors.passport_photo}</p>}
-                        </div>
-                    </div>
-                </div>
+                <form onSubmit={submit} className="space-y-6">
+                    {/* Personal Information Card */}
+                    <Card className="shadow-none">
+                        <CardHeader>
+                            <CardTitle>Personal Information</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-6">
+                            <div className="border-b pb-6">
+                                <Label className="mb-3 block">Passport Photo (Required)</Label>
+                                <div className="flex flex-col sm:flex-row items-center gap-6">
+                                    <div className="w-32 h-32 bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center border border-gray-200">
+                                        {passportPreview ? (
+                                            <img src={passportPreview} alt="Passport preview" className="w-full h-full object-cover" />
+                                        ) : (
+                                            <span className="text-gray-400 text-xs text-center">No photo</span>
+                                        )}
+                                    </div>
+                                    <div className="flex-1 w-full">
+                                        <Input
+                                            ref={fileInputRef}
+                                            type="file"
+                                            accept="image/jpeg,image/png,image/jpg"
+                                            onChange={handlePhotoChange}
+                                            className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                        />
+                                        <p className="text-xs text-gray-500 mt-2">JPEG, PNG, JPG only. Max 2MB.</p>
+                                        {errors.passport_photo && <p className="text-red-500 text-xs mt-1">{errors.passport_photo}</p>}
+                                    </div>
+                                </div>
+                            </div>
 
-                {/* Personal Information Fields (unchanged) */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Full Name</label>
-                        <input
-                            type="text"
-                            name="full_name"
-                            value={formData.full_name}
-                            onChange={handleChange}
-                            required
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                        />
-                        {errors.full_name && <p className="text-red-500 text-xs mt-1">{errors.full_name}</p>}
-                    </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <Label>Full Name</Label>
+                                    <Input value={data.full_name} onChange={e => setData('full_name', e.target.value)} required />
+                                    {errors.full_name && <p className="text-red-500 text-xs">{errors.full_name}</p>}
+                                </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">IC Number</label>
-                        <input
-                            type="text"
-                            name="ic_number"
-                            value={formData.ic_number}
-                            onChange={handleChange}
-                            required
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                        />
-                        {errors.ic_number && <p className="text-red-500 text-xs mt-1">{errors.ic_number}</p>}
-                    </div>
+                                <div className="space-y-2">
+                                    <Label>IC Number</Label>
+                                    <Input value={data.ic_number} onChange={e => setData('ic_number', e.target.value)} required />
+                                    {errors.ic_number && <p className="text-red-500 text-xs">{errors.ic_number}</p>}
+                                </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">IC Colour</label>
-                        <select
-                            name="ic_colour"
-                            value={formData.ic_colour}
-                            onChange={handleChange}
-                            required
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                <div className="space-y-2">
+                                    <Label>IC Colour</Label>
+                                    <Select value={data.ic_colour} onValueChange={(val) => setData('ic_colour', val)}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select color" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="Yellow">Yellow</SelectItem>
+                                            <SelectItem value="Red">Red</SelectItem>
+                                            <SelectItem value="Purple">Purple</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label>Intake Session</Label>
+                                    <Input value={data.intake_session} onChange={e => setData('intake_session', e.target.value)} />
+                                </div>
+
+                                <div className="md:col-span-2 space-y-2">
+                                    <Label>Postal Address</Label>
+                                    <Textarea value={data.postal_address} onChange={e => setData('postal_address', e.target.value)} />
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Required Documents Card */}
+                    <Card className="shadow-none">
+                        <CardHeader>
+                            <CardTitle>Required Documents</CardTitle>
+                        </CardHeader>
+                        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                                <Label>Curriculum Vitae (CV)</Label>
+                                <Input type="file" onChange={(e) => handleFileChange(e, 'cv')} />
+                                {errors.cv && <p className="text-red-500 text-xs">{errors.cv}</p>}
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label>Identity Card (IC)</Label>
+                                <Input type="file" onChange={(e) => handleFileChange(e, 'identity_card')} />
+                                {errors.identity_card && <p className="text-red-500 text-xs">{errors.identity_card}</p>}
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label>Driver's License</Label>
+                                <Input type="file" onChange={(e) => handleFileChange(e, 'drivers_license')} />
+                                {errors.drivers_license && <p className="text-red-500 text-xs">{errors.drivers_license}</p>}
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label>Academic Results</Label>
+                                <Input type="file" onChange={(e) => handleFileChange(e, 'results')} />
+                                {errors.results && <p className="text-red-500 text-xs">{errors.results}</p>}
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Professional Details Card */}
+                    <Card className="shadow-none">
+                        <CardHeader>
+                            <CardTitle>Professional Details</CardTitle>
+                        </CardHeader>
+                        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                                <Label>CGPA</Label>
+                                <Input type="number" step="0.01" value={data.cgpa} onChange={e => setData('cgpa', e.target.value)} />
+                            </div>
+                            <div className="md:col-span-2 space-y-2">
+                                <Label>Work Experience</Label>
+                                <Textarea value={data.work_experience} onChange={e => setData('work_experience', e.target.value)} />
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    <div className="flex justify-end">
+                        <button
+                            type="submit"
+                            disabled={processing}
+                            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-md disabled:opacity-50"
                         >
-                            <option value="Yellow">Yellow</option>
-                            <option value="Red">Red</option>
-                            <option value="Purple">Purple</option>
-                        </select>
-                        {errors.ic_colour && <p className="text-red-500 text-xs mt-1">{errors.ic_colour}</p>}
+                            {processing ? 'Saving...' : 'Save Profile'}
+                        </button>
                     </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Intake Session</label>
-                        <input
-                            type="text"
-                            name="intake_session"
-                            value={formData.intake_session}
-                            onChange={handleChange}
-                            required
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                        />
-                        {errors.intake_session && <p className="text-red-500 text-xs mt-1">{errors.intake_session}</p>}
-                    </div>
-
-                    <div className="md:col-span-2">
-                        <label className="block text-sm font-medium text-gray-700">Postal Address</label>
-                        <textarea
-                            name="postal_address"
-                            rows={2}
-                            value={formData.postal_address}
-                            onChange={handleChange}
-                            required
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                        />
-                        {errors.postal_address && <p className="text-red-500 text-xs mt-1">{errors.postal_address}</p>}
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Date of Birth</label>
-                        <input
-                            type="date"
-                            name="date_of_birth"
-                            value={formData.date_of_birth}
-                            onChange={handleChange}
-                            required
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                        />
-                        {errors.date_of_birth && <p className="text-red-500 text-xs mt-1">{errors.date_of_birth}</p>}
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Place of Birth</label>
-                        <input
-                            type="text"
-                            name="place_of_birth"
-                            value={formData.place_of_birth}
-                            onChange={handleChange}
-                            required
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                        />
-                        {errors.place_of_birth && <p className="text-red-500 text-xs mt-1">{errors.place_of_birth}</p>}
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Gender</label>
-                        <select
-                            name="gender"
-                            value={formData.gender}
-                            onChange={handleChange}
-                            required
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                        >
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
-                        </select>
-                        {errors.gender && <p className="text-red-500 text-xs mt-1">{errors.gender}</p>}
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Religion</label>
-                        <input
-                            type="text"
-                            name="religion"
-                            value={formData.religion}
-                            onChange={handleChange}
-                            required
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                        />
-                        {errors.religion && <p className="text-red-500 text-xs mt-1">{errors.religion}</p>}
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Nationality</label>
-                        <input
-                            type="text"
-                            name="nationality"
-                            value={formData.nationality}
-                            onChange={handleChange}
-                            required
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                        />
-                        {errors.nationality && <p className="text-red-500 text-xs mt-1">{errors.nationality}</p>}
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Race</label>
-                        <input
-                            type="text"
-                            name="race"
-                            value={formData.race}
-                            onChange={handleChange}
-                            required
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                        />
-                        {errors.race && <p className="text-red-500 text-xs mt-1">{errors.race}</p>}
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Mobile Phone</label>
-                        <input
-                            type="tel"
-                            name="mobile_phone"
-                            value={formData.mobile_phone}
-                            onChange={handleChange}
-                            required
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                        />
-                        {errors.mobile_phone && <p className="text-red-500 text-xs mt-1">{errors.mobile_phone}</p>}
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">CGPA</label>
-                        <input
-                            type="number"
-                            step="0.01"
-                            name="cgpa"
-                            value={formData.cgpa}
-                            onChange={handleChange}
-                            required
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                        />
-                        {errors.cgpa && <p className="text-red-500 text-xs mt-1">{errors.cgpa}</p>}
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Emergency Contact</label>
-                        <input
-                            type="tel"
-                            name="emergency_no"
-                            value={formData.emergency_no}
-                            onChange={handleChange}
-                            required
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                        />
-                        {errors.emergency_no && <p className="text-red-500 text-xs mt-1">{errors.emergency_no}</p>}
-                    </div>
-
-                    <div className="md:col-span-2">
-                        <label className="block text-sm font-medium text-gray-700">Work Experience (if any)</label>
-                        <textarea
-                            name="work_experience"
-                            rows={3}
-                            value={formData.work_experience}
-                            onChange={handleChange}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                        />
-                        {errors.work_experience && <p className="text-red-500 text-xs mt-1">{errors.work_experience}</p>}
-                    </div>
-                </div>
-
-                <div className="flex justify-end">
-                    <button
-                        type="submit"
-                        disabled={saving}
-                        className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
-                    >
-                        {saving ? 'Saving...' : 'Save Profile'}
-                    </button>
-                </div>
-            </form>
-        </div>
+                </form>
+            </div>
+        </AuthenticatedLayout>
     );
 }
-
-Profile.layout = (page) => <AuthenticatedLayout children={page} />;
