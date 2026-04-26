@@ -22,7 +22,6 @@ export default function Applications({ quotas = [] }: { quotas: any[] }) {
                             <TableHeader>
                                 <TableRow>
                                     <TableHead className="w-[300px]">Job Title</TableHead>
-                                    <TableHead>Programme</TableHead>
                                     <TableHead>Status</TableHead>
                                     <TableHead className="text-right">Applications</TableHead>
                                     <TableHead>Deadline</TableHead>

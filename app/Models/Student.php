@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Student extends Model
 {
@@ -47,9 +48,9 @@ class Student extends Model
         return $this->hasMany(StudentLanguage::class, 'student_id', 'student_id');
     }
 
-    public function application()
+    public function applications(): HasMany
     {
-        return $this->hasOne(Application::class, 'student_id', 'student_id');
+        return $this->hasMany(Application::class, 'student_id', 'student_id');
     }
 
     public function supervisorAssignments()

@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Company;
+use App\Models\PlacementQuota; 
+use App\Models\Application;   
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -45,8 +47,8 @@ class CompanyController extends Controller
         ];
 
         return Inertia::render('Admin/Companies', [
-            'companies' => $companiesData,
-            'stats'     => $stats,
+            'companies' => $companiesData, 
+            'stats'              => $stats,
         ]);
     }
 
@@ -65,45 +67,45 @@ class CompanyController extends Controller
     }
 
     public function apply(Request $request, $companyId)
-{
-    $student = auth()->user()->student;
+    {
+        $student = auth()->user()->student;
 
-    if ($student->vetting_status !== 'Approved') {
-        return back()->withErrors('Your profile has not been approved yet.');
+        if ($student->vetting_status !== 'Approved') {
+            return back()->withErrors('Your profile has not been approved yet.');
+        }
+
+        $quota = $student->programme->placementQuotas()
+            ->where('company_id', $companyId)
+            ->where('is_released', true)
+            ->where('quota_status', 'Approved')
+            ->first();
+
+        if (!$quota) {
+            return back()->withErrors('No available quota for this company.');
+        }
+
+        if ($student->applications()->where('quota_id', $quota->quota_id)->exists()) {
+            return back()->withErrors('You have already applied for this company.');
+        }
+
+        if ($quota->min_cgpa > $student->cgpa) {
+            return back()->withErrors('Your CGPA does not meet the requirement.');
+        }
+
+        $approvedCount = $quota->applications()->where('app_status', 'Approved')->count();
+        if ($approvedCount >= $quota->total_slots) {
+            return back()->withErrors('No slots left for this company.');
+        }
+
+        Application::create([
+            'student_id' => $student->student_id,
+            'quota_id'   => $quota->quota_id,
+            'app_status' => 'Pending_ILD',
+            'apply_date' => now(),
+        ]);
+
+        return back()->with('success', 'Application submitted successfully. It will be reviewed by ILD.');
     }
-
-    $quota = $student->programme->placementQuotas()
-        ->where('company_id', $companyId)
-        ->where('is_released', true)
-        ->where('quota_status', 'Approved')
-        ->first();
-
-    if (!$quota) {
-        return back()->withErrors('No available quota for this company.');
-    }
-
-    if ($student->applications()->where('quota_id', $quota->quota_id)->exists()) {
-        return back()->withErrors('You have already applied for this company.');
-    }
-
-    if ($quota->min_cgpa > $student->cgpa) {
-        return back()->withErrors('Your CGPA does not meet the requirement.');
-    }
-
-    $approvedCount = $quota->applications()->where('app_status', 'Approved')->count();
-    if ($approvedCount >= $quota->total_slots) {
-        return back()->withErrors('No slots left for this company.');
-    }
-
-    Application::create([
-        'student_id' => $student->student_id,
-        'quota_id'   => $quota->quota_id,
-        'app_status' => 'Pending_ILD',
-        'apply_date' => now(),
-    ]);
-
-    return back()->with('success', 'Application submitted successfully. It will be reviewed by ILD.');
-}
 
     /**
      * Store a newly created company.

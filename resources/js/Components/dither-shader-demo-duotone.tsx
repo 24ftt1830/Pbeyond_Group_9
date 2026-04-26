@@ -1,5 +1,5 @@
 import { DitherShader } from "@/Components/ui/dither-shader";
-import bridge from '../../images/bridge-cropped-top.png';
+import bridge from '../../images/bridge-cropped-top-two.png';
 
 export default function DitherShaderDemoDuotone() {
   return (
