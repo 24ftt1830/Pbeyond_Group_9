@@ -15,7 +15,6 @@ export default function DitherShaderDemoDuotone() {
         className="h-full w-full object-cover object-bottom"
       />
 
-      {/* Text Box Overlay */}
       <div
         className="absolute top-10 left-10 max-w-sm"
       >

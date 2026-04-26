@@ -71,12 +71,10 @@ export default function Companies({ companies = [] }: Props) {
     const hasActiveFilters = selectedDistricts.length > 0 || selectedStatuses.length > 0;
 
     return (
-        <div className="w-full px-4 py-10 mx-auto space-y-6 max-w-7xl sm:px-6 lg:px-8">
-            <Head title="Available Companies" />
-
-            <div className="flex items-center justify-between w-full">
+        <div className="p-6">
+            <div className="flex items-center justify-between mb-6">
                 <header>
-                    <h1 className="text-3xl font-extrabold text-slate-900">Companies List</h1>
+                    <h1 className="font-sato text-3xl font-bold">Companies List</h1>
                     <p className="text-sm text-slate-500">Browse and find placement opportunities</p>
                 </header>
 

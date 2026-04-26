@@ -34,7 +34,7 @@ interface PlacementsProps {
         pending_review: number;
         pending_quotas: number;
     };
-    placements: (Placement & { status: string })[]; // Kept locally for logic, but not for display
+    placements: (Placement & { status: string })[];
     quotas: Quota[];
 }
 
@@ -143,20 +143,7 @@ export default function Placements({
 
             <PendingRequests />
 
-            {/* Filter Section */}
             <div className="w-full rounded-xl flex flex-wrap items-end gap-4">
-                <div className="w-40 flex-shrink-0 space-y-1.5">
-                    <label className="text-[10px] font-bold uppercase text-slate-500 ml-1">Programme</label>
-                    <Select value={filterProgramme} onValueChange={setFilterProgramme}>
-                        <SelectTrigger className="bg-white w-full"><SelectValue placeholder="Programme" /></SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All</SelectItem>
-                            <SelectItem value="DWTY02">DWTY02</SelectItem>
-                            <SelectItem value="DANF03">DANF03</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
-
                 <div className="flex-[2] min-w-[300px] space-y-1.5">
                     <label className="text-[10px] font-bold uppercase text-slate-500 ml-1">Search</label>
                     <div className="relative w-full">
@@ -165,14 +152,10 @@ export default function Placements({
                             placeholder="Search student or company..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-9 bg-white w-full"
+                            className="pl-9 bg-white w-full focus-visible:ring-0 shadow-none"
                         />
                     </div>
                 </div>
-
-                <Button variant="outline" onClick={resetFilters} className="flex-shrink-0">
-                    <RotateCcw className="mr-2 size-4" /> Reset Filter
-                </Button>
             </div>
 
             <div className="w-full overflow-hidden rounded-xl border border-slate-200 bg-white">

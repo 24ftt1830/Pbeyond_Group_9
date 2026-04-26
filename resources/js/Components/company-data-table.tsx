@@ -18,24 +18,23 @@ import {
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
   DialogTitle,
 } from "@/Components/ui/dialog";
-import { Building2, MapPin, Tag, Users, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { MapPin, Tag, Users, CheckCircle2, AlertTriangle } from 'lucide-react';
 
 export interface CompanyData {
   company_id: number;
-  company_name: string;      
-  office_address: string;    
+  company_name: string;
+  office_address: string;
   total_quota: number;
   filled: number;
   available: number;
-  industry_sector?: string;  
+  industry_sector?: string;
   status?: string;
 }
 
 interface CompanyDataTableProps {
-  data: CompanyData[];
+  data: any[]; 
 }
 
 const CompanyDataTable = ({ data }: CompanyDataTableProps) => {
@@ -43,12 +42,25 @@ const CompanyDataTable = ({ data }: CompanyDataTableProps) => {
   const [selectedCompany, setSelectedCompany] = useState<CompanyData | null>(null);
   const ITEMS_PER_PAGE = 10;
 
-  const totalPages = Math.ceil(data.length / ITEMS_PER_PAGE);
+  const processedData: CompanyData[] = useMemo(() => {
+    return data.map((item) => ({
+      company_id: item.company_id,
+      company_name: item.company_name,
+      office_address: item.office_address || 'N/A',
+      industry_sector: item.industry_sector || 'N/A',
+      status: item.status || 'Active',
+      total_quota: Number(item.total_quota ?? item.total_slots ?? 0),
+      filled: Number(item.filled ?? 0),
+      available: Number(item.available ?? ((item.total_slots ?? 0) - (item.filled ?? 0))),
+    }));
+  }, [data]);
+
+  const totalPages = Math.ceil(processedData.length / ITEMS_PER_PAGE);
 
   const paginatedData = useMemo(() => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    return data.slice(start, start + ITEMS_PER_PAGE);
-  }, [data, currentPage]);
+    return processedData.slice(start, start + ITEMS_PER_PAGE);
+  }, [processedData, currentPage]);
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {

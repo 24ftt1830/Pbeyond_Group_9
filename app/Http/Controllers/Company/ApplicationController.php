@@ -20,6 +20,7 @@ class ApplicationController extends Controller
         $company = Auth::user()->company;
 
         $quotas = $company->placementQuotas()
+            ->withCount('applications')
             ->where('quota_status', 'Approved')
             ->latest()
             ->get();

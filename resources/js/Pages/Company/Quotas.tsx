@@ -52,31 +52,35 @@ export default function Quotas({ quotas = [], programmes = [] }) {
     };
 
     return (
-        <div className="container py-10 mx-auto space-y-8 max-w-7xl">
+        <div className="p-6">
             <Head title="Placement Quotas" />
 
-            {/* Header Section */}
-            <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+            <div className="flex items-center justify-between mb-6">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Placement Quotas</h1>
+                    <h1 className="font-sato text-3xl font-bold">Placement Quotas</h1>
                     <p className="text-muted-foreground mt-1">Manage and track student placement opportunities.</p>
                 </div>
 
                 <div className="flex items-center gap-2">
                     <Toggle
+                        size="sm"
                         pressed={isEditMode}
                         onPressedChange={setIsEditMode}
                         variant="outline"
-                        className="gap-2"
+                        className="flex items-center gap-1.5 shadow-sm"
                     >
-                        <Edit2 className="size-4" />
-                        Edit Mode
+                        <Edit2 className="size-3.5" />
+                        Edit
                     </Toggle>
 
                     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                         <DialogTrigger asChild>
-                            <Button disabled={!company} className="gap-2">
-                                <Plus className="size-4" />
+                            <Button
+                                size="sm"
+                                disabled={!company}
+                                className="flex items-center gap-1.5 shadow-sm"
+                            >
+                                <Plus className="size-3.5" />
                                 New Request
                             </Button>
                         </DialogTrigger>
@@ -95,6 +99,7 @@ export default function Quotas({ quotas = [], programmes = [] }) {
                                         <Input
                                             value={data.job_title}
                                             onChange={e => setData('job_title', e.target.value)}
+                                            className="shadow-none"
                                         />
                                     </div>
 
@@ -104,7 +109,7 @@ export default function Quotas({ quotas = [], programmes = [] }) {
                                             value={data.programme_id.toString()}
                                             onValueChange={(val) => setData('programme_id', parseInt(val) as any)}
                                         >
-                                            <SelectTrigger>
+                                            <SelectTrigger className="shadow-none">
                                                 <SelectValue placeholder="Select a programme" />
                                             </SelectTrigger>
                                             <SelectContent>

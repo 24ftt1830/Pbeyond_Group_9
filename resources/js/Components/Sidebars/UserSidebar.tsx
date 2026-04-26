@@ -28,7 +28,7 @@ import {
     LifeBuoy,
     Flag,
     HelpCircle,
-    ChevronUp,
+    ChevronDown,
 } from "lucide-react";
 
 const data = {
@@ -102,12 +102,12 @@ export function UserSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) 
                     <SidebarMenuItem>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <SidebarMenuButton className="focus-visible:ring-0">
-                                    <LifeBuoy />
+                                <SidebarMenuButton size="sm" className="focus-visible:ring-0">
+                                    <LifeBuoy className="size-4" /> 
                                     <span>Support</span>
-                                    <ChevronUp className="ml-auto" />
                                 </SidebarMenuButton>
                             </DropdownMenuTrigger>
+
                             <DropdownMenuContent
                                 side="top"
                                 className="w-[--radix-popper-anchor-width]"

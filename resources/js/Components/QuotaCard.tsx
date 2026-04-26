@@ -1,6 +1,8 @@
 import { Trash2, Clock, CheckCircle2, XCircle } from 'lucide-react';
 import { Button } from "@/Components/ui/button";
 import { Badge } from "@/Components/ui/badge";
+import { Card, CardContent, CardHeader } from "@/Components/ui/card";
+import { cn } from "@/lib/utils"; 
 
 interface QuotaCardProps {
     quota: {
@@ -10,96 +12,91 @@ interface QuotaCardProps {
         min_cgpa: string | number;
         quota_status: string;
         programme?: {
-            programme_name: string; 
+            programme_name: string;
         };
-        interview_required?: boolean; 
+        interview_required?: boolean;
     };
     isEditMode: boolean;
-    onDelete?: (id: number) => void; 
+    onDelete?: (id: number) => void;
 }
 
 export default function QuotaCard({ quota, isEditMode, onDelete }: QuotaCardProps) {
     
-    const getStatusStyles = (status: string) => {
+    const getStatusConfig = (status: string) => {
         switch (status?.toLowerCase()) {
             case 'approved':
                 return {
-                    className: "bg-emerald-50 text-emerald-600 border-emerald-100",
+                    className: "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100",
                     icon: <CheckCircle2 className="size-3 mr-1" />,
                     label: "Approved"
                 };
             case 'rejected':
                 return {
-                    className: "bg-red-50 text-red-600 border-red-100",
+                    className: "bg-red-50 text-red-700 border-red-200 hover:bg-red-100",
                     icon: <XCircle className="size-3 mr-1" />,
                     label: "Rejected"
                 };
-            default: // Pending
+            default:
                 return {
-                    className: "bg-amber-50 text-amber-600 border-amber-100",
+                    className: "bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100",
                     icon: <Clock className="size-3 mr-1" />,
                     label: "Pending Review"
                 };
         }
     };
 
-    const status = getStatusStyles(quota.quota_status);
+    const status = getStatusConfig(quota.quota_status);
 
     return (
-        <div className={`bg-white rounded-md border border-outline transition-all duration-200 overflow-hidden ${
-            isEditMode ? 'border-red-200 ring-1 ring-red-50' : 'border-slate-250'
-        }`}>
-            <div className="p-6">
-                <div className="flex justify-between items-start mb-4">
-                    <div className="space-y-1">
-                        <Badge 
-                            variant="outline" 
-                            className={`${status.className} text-[10px] font-bold uppercase tracking-wider py-0.5 px-2 flex items-center w-fit mb-2`}
-                        >
-                            {status.icon}
-                            {status.label}
-                        </Badge>
-                        
-                        <h3 className="text-lg font-bold text-slate-900 leading-tight">
+        <Card className={cn(
+            "shadow-none",
+            isEditMode && "border-destructive/50 ring-1 ring-destructive/10"
+        )}>
+            <CardHeader className="pb-4">
+                <div className="flex flex-col items-start gap-2">
+                    <Badge variant="outline" className={cn("text-[10px] font-bold uppercase tracking-wider px-2 py-0.5", status.className)}>
+                        {status.icon}
+                        {status.label}
+                    </Badge>
+                    <div className="space-y-0.5">
+                        <h3 className="text-lg font-bold leading-tight tracking-tight">
                             {quota.job_title}
                         </h3>
-                        
-                        <p className="text-xs text-slate-500 font-medium">
+                        <p className="text-xs text-muted-foreground font-medium">
                             {quota.programme?.programme_name || 'General Programme'}
                         </p>
                     </div>
                 </div>
+            </CardHeader>
 
-                <div className="grid grid-cols-3 gap-4 pt-4 border-t border-slate-50">
-                    <div className="space-y-1">
-                        <span className="text-[10px] font-bold uppercase text-slate-400">Seats</span>
-                        <p className="text-sm font-mono font-bold text-slate-700">{quota.total_slots}</p>
-                    </div>
-                    <div className="space-y-1">
-                        <span className="text-[10px] font-bold uppercase text-slate-400">CGPA</span>
-                        <p className="text-sm font-mono font-bold text-slate-700">{quota.min_cgpa}</p>
-                    </div>
-                    <div className="space-y-1">
-                        <span className="text-[10px] font-bold uppercase text-slate-400">Interview</span>
-                        <p className="text-sm font-bold text-slate-700">
-                            {quota.interview_required ? 'Yes' : 'No'}
-                        </p>
-                    </div>
+            <CardContent className="grid grid-cols-3 gap-4 border-t border-border pt-4">
+                <div className="space-y-1">
+                    <span className="text-[10px] font-bold uppercase text-muted-foreground">Seats</span>
+                    <p className="text-sm font-mono font-bold">{quota.total_slots}</p>
                 </div>
-            </div>
+                <div className="space-y-1">
+                    <span className="text-[10px] font-bold uppercase text-muted-foreground">CGPA</span>
+                    <p className="text-sm font-mono font-bold">{quota.min_cgpa}</p>
+                </div>
+                <div className="space-y-1">
+                    <span className="text-[10px] font-bold uppercase text-muted-foreground">Interview</span>
+                    <p className="text-sm font-bold">{quota.interview_required ? 'Yes' : 'No'}</p>
+                </div>
+            </CardContent>
 
             {isEditMode && (
-                <div className="bg-slate-50 border-t border-slate-100 p-3 animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="bg-muted/50 p-3 border-t border-border">
                     <Button 
                         variant="destructive" 
-                        className="w-full flex items-center gap-2 h-9 text-xs font-bold uppercase tracking-widest"
-                        onClick={() => onDelete && onDelete(quota.quota_id)}
+                        size="sm"
+                        className="w-full flex items-center gap-2"
+                        onClick={() => onDelete?.(quota.quota_id)}
                     >
                         <Trash2 className="size-3.5" />
                         Delete Quota
                     </Button>
                 </div>
             )}
-        </div>
+        </Card>
     );
 }

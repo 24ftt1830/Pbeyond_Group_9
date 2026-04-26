@@ -6,6 +6,15 @@ import { DataTable } from "@/Components/ui/data-table";
 import { getColumns } from '@/Components/Applications/columns';
 import { Button } from '@/Components/ui/button';
 import { AnimatedTabsList } from '@/Components/ui/animated-tabs';
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+} from "@/Components/ui/breadcrumb";
+import { Link } from '@inertiajs/react';
 
 export default function Show({ quota, applications }: { quota: any, applications: any[] }) {
     const [selectedStudent, setSelectedStudent] = useState<any | null>(null);
@@ -42,6 +51,19 @@ export default function Show({ quota, applications }: { quota: any, applications
             <Head title={`Applicants - ${quota.job_title}`} />
 
             <div className="p-6">
+                <Breadcrumb className="mb-4">
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink asChild>
+                            <Link href={route('company.applications')}>Applications</Link>
+                        </BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbPage>{quota.job_title}</BreadcrumbPage>
+                    </BreadcrumbItem>
+                </BreadcrumbList>
+            </Breadcrumb>
                 <div className="flex items-center justify-between mb-6">
                     <div>
                         <h1 className="font-sato text-3xl font-bold">{quota.job_title}</h1>

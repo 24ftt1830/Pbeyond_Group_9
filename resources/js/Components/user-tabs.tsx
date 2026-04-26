@@ -59,11 +59,22 @@ const UserTabs = () => {
   const { students, companyUsers, companies, programmes } = usePage<any>().props;
 
   const [activeTab, setActiveTab] = useState('students');
-
   const [focalOpen, setFocalOpen] = useState(false);
   const [studentOpen, setStudentOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [assignModalOpen, setAssignModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Filter logic
+  const filteredStudents = students?.filter((s: any) => 
+    s.username?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    s.email?.toLowerCase().includes(searchQuery.toLowerCase())
+  ) || [];
+
+  const filteredCompanyUsers = companyUsers?.filter((u: any) => 
+    u.username?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    u.email?.toLowerCase().includes(searchQuery.toLowerCase())
+  ) || [];
 
   const focalForm = useForm({
     username: '',
@@ -97,9 +108,7 @@ const UserTabs = () => {
 
   const openEditModal = (user: any, role: 'Student' | 'Company') => {
     if (!user) return;
-
     const userId = user.user_id || user.id;
-
     updateForm.clearErrors();
     updateForm.setData({
       id: userId,
@@ -210,6 +219,8 @@ const UserTabs = () => {
               <Input
                 type="search"
                 placeholder="Search..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="h-9 w-[250px] pl-8 text-sm rounded-full bg-muted shadow-none border-none"
               />
               <ListFilter className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -262,7 +273,7 @@ const UserTabs = () => {
                         disabled={!companies || companies.length === 0}
                         onValueChange={(val) => focalForm.setData('company_id', val)}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger className="shadow-none">
                           <SelectValue placeholder={(!companies || companies.length === 0) ? "No Companies Registered" : "Select Company"} />
                         </SelectTrigger>
                         <SelectContent className="max-h-[200px]">
@@ -360,7 +371,7 @@ const UserTabs = () => {
                         value={studentForm.data.programme_id?.toString()}
                         onValueChange={(val) => studentForm.setData('programme_id', val)}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger className="shadow-none">
                           <SelectValue placeholder="Select Programme" />
                         </SelectTrigger>
                         <SelectContent className="max-h-[250px] overflow-y-auto">
@@ -403,19 +414,19 @@ const UserTabs = () => {
 
           <TabsContent value="students">
             <UserTable
-              data={students?.map((s: any) => ({
+              data={filteredStudents.map((s: any) => ({
                 ...s,
                 id: s.user_id,
                 role: 'Student',
                 programme_name: s.student?.programme?.programme_name || 'Not Assigned',
                 onEdit: () => openEditModal(s, 'Student')
-              })) || []}
+              }))}
               columns={studentColumns} />
           </TabsContent>
 
           <TabsContent value="reps">
             <UserTable
-              data={companyUsers?.map((u: any) => ({
+              data={filteredCompanyUsers.map((u: any) => ({
                 ...u,
                 id: u.user_id,
                 role: 'Company',
@@ -431,13 +442,14 @@ const UserTabs = () => {
                     <Link className="mr-2 size-4" /> Assign Company
                   </DropdownMenuItem>
                 )
-              })) || []}
+              }))}
               columns={repColumns}
             />
           </TabsContent>
         </Tabs>
 
-        {/* EDIT USER DIALOG (Shared) */}
+        {/* ... DIALOGS REMAIN THE SAME ... */}
+        {/* EDIT USER DIALOG */}
         <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
           <DialogContent className="sm:max-w-[425px]">
             <form onSubmit={submitUpdate}>
