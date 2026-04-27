@@ -15,7 +15,7 @@ return new class extends Migration
         $table->id();
         
         $table->foreignId('student_id')->constrained('students', 'student_id')->onDelete('cascade');
-        $table->foreignId('quota_id')->constrained('quotas', 'quota_id')->onDelete('cascade');
+        $table->foreignId('quota_id')->constrained('placement_quotas', 'quota_id')->onDelete('cascade');
         
         $table->enum('status', ['pending', 'accepted', 'rejected'])->default('pending');
         $table->timestamps();
