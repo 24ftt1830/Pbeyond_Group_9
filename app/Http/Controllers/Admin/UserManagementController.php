@@ -165,6 +165,6 @@ class UserManagementController extends Controller
             Excel::import(new StudentsImport, $request->file('file'));
         });
 
-        return redirect()->route('manage-users')->with('success', 'Batch import completed successfully.');
+        return redirect()->route('admin.manage-users')->with('success', 'Batch import completed successfully.');
     }
 }

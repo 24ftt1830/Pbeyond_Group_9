@@ -9,6 +9,20 @@ export default function IndexLayout({
     auth,
     children,
 }: PropsWithChildren<PageProps>) {
+    const getDashboardRoute = () => {
+        if (!auth.user) return route('login');
+
+        const role = auth.user.role as 'Admin' | 'Student' | 'Company';
+        switch (role) {
+            case 'Admin':
+                return route('admin.dashboard');
+            case 'Student':
+                return route('student.dashboard');
+            case 'Company':
+                return route('company.dashboard');
+        }
+    };
+
     return (
         <div className="relative">
             {/* 1. Main Content Wrapper */}
@@ -18,7 +32,7 @@ export default function IndexLayout({
                     <header className="grid grid-cols-2 items-center gap-2 py-10 lg:grid-cols-3">
                         <nav className="-mx-3 flex flex-1 justify-end">
                             {auth.user ? (
-                                <Link href={route('dashboard')} className="rounded-md px-3 py-2 text-black transition hover:text-black/70 dark:text-white dark:hover:text-white/80">
+                                <Link href={getDashboardRoute()} className="rounded-md px-3 py-2 text-black transition hover:text-black/70 dark:text-white dark:hover:text-white/80">
                                     Dashboard
                                 </Link>
                             ) : (

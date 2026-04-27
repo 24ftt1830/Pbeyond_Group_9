@@ -11,7 +11,6 @@ class CompanySeeder extends Seeder
     {
         DB::table('companies')->insert([
             [
-                'user_id' => 9,
                 'company_name' => 'TechCorp Brunei',
                 'location_type' => 'Local',
                 'industry_sector' => 'IT Services',
@@ -19,7 +18,6 @@ class CompanySeeder extends Seeder
                 'created_at' => now()
             ],
             [
-                'user_id' => 10,
                 'company_name' => 'GlobalTech Solutions',
                 'location_type' => 'International',
                 'industry_sector' => 'Software Development',
@@ -27,7 +25,6 @@ class CompanySeeder extends Seeder
                 'created_at' => now()
             ],
             [
-                'user_id' => 11,
                 'company_name' => 'DataTech Analytics',
                 'location_type' => 'Local',
                 'industry_sector' => 'Data Analytics',
@@ -35,7 +32,6 @@ class CompanySeeder extends Seeder
                 'created_at' => now()
             ],
             [
-                'user_id' => 12,
                 'company_name' => 'Brunei Shell Petroleum',
                 'location_type' => 'Local',
                 'industry_sector' => 'Oil & Gas',

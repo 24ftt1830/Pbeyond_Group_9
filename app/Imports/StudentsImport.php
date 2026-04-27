@@ -15,9 +15,8 @@ class StudentsImport implements ToModel, WithHeadingRow
      * @return \Illuminate\Database\Eloquent\Model|null
      */
     public function model(array $row)
-    {
+    {        
         // Access data by header name (slugified)
-        // Ensure your Excel headers match these names (e.g., "Student Code", "Full Name")
         $studentCode = $row['student_code'] ?? null;
         $fullName    = $row['full_name'] ?? null;
         $programmeId = $row['programme_id'] ?? null;
@@ -27,7 +26,7 @@ class StudentsImport implements ToModel, WithHeadingRow
             return null; // Skip invalid rows
         }
 
-        $email = $studentCode . '@pb.student.edu.bn';
+        $email = $studentCode . '@student.pb.edu.bn';
 
         // 1. Create User
         $user = User::firstOrCreate(

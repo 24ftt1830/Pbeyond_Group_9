@@ -42,7 +42,7 @@ import {
 import { ImportStudentsDialog } from '@/Components/import-csv'
 
 const studentColumns = [
-  { header: 'Full Name', key: 'username' },
+  { header: 'Full Name', key: 'full_name' },
   { header: 'Email Address', key: 'email' },
   { header: 'Academic Programme', key: 'programme_name' },
   { header: '', key: 'actions' },
@@ -66,13 +66,13 @@ const UserTabs = () => {
   const [searchQuery, setSearchQuery] = useState("");
 
   // Filter logic
-  const filteredStudents = students?.filter((s: any) => 
-    s.username?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+  const filteredStudents = students?.filter((s: any) =>
+    s.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     s.email?.toLowerCase().includes(searchQuery.toLowerCase())
   ) || [];
 
-  const filteredCompanyUsers = companyUsers?.filter((u: any) => 
-    u.username?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+  const filteredCompanyUsers = companyUsers?.filter((u: any) =>
+    u.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     u.email?.toLowerCase().includes(searchQuery.toLowerCase())
   ) || [];
 
@@ -86,6 +86,7 @@ const UserTabs = () => {
 
   const studentForm = useForm({
     username: '',
+    full_name: '',
     email: '',
     password: '',
     programme_id: '',
@@ -337,8 +338,8 @@ const UserTabs = () => {
                       <Label>Full Name</Label>
                       <Input
                         className="shadow-none"
-                        value={studentForm.data.username}
-                        onChange={e => studentForm.setData('username', e.target.value)}
+                        value={studentForm.data.full_name}
+                        onChange={e => studentForm.setData('full_name', e.target.value)}
                         required
                       />
                     </div>
@@ -418,10 +419,12 @@ const UserTabs = () => {
                 ...s,
                 id: s.user_id,
                 role: 'Student',
+                full_name: s.student?.full_name || 'N/A',
                 programme_name: s.student?.programme?.programme_name || 'Not Assigned',
                 onEdit: () => openEditModal(s, 'Student')
               }))}
-              columns={studentColumns} />
+              columns={studentColumns}
+            />
           </TabsContent>
 
           <TabsContent value="reps">

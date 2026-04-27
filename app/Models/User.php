@@ -22,6 +22,21 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    public function isCompany(): bool
+    {
+        return $this->role === 'company';
+    }
+
+    public function isStudent(): bool
+    {
+        return $this->role === 'student';
+    }
+
     public function getAuthPassword()
     {
         return $this->password;

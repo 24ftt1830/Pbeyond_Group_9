@@ -29,10 +29,16 @@ import {
   useSidebar,
 } from "@/Components/ui/sidebar"
 
-export function NavUser({ user }: {user: User }) {
-const { isMobile } = useSidebar()
+export function NavUser({ user }: { user: User }) {
+  const { isMobile } = useSidebar();
 
-  const profileRoute = user.role === 'Student' ? 'student.profile' : 'company.profile';
+  const profileRouteMap: Record<string, string> = {
+    Admin: 'admin.profile',
+    Student: 'student.profile',
+    Company: 'company.profile',
+  };
+
+  const profileRoute = profileRouteMap[user.role] ?? 'profile.edit';
 
   return (
     <SidebarMenu>
@@ -45,8 +51,7 @@ const { isMobile } = useSidebar()
             >
               <Avatar className="w-8 h-8 rounded-lg">
                 <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback
-                  className="rounded-lg">
+                <AvatarFallback className="rounded-lg">
                   {user?.name?.substring(0, 2).toUpperCase() ?? ''}
                 </AvatarFallback>
               </Avatar>
@@ -79,7 +84,6 @@ const { isMobile } = useSidebar()
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              {/* Dynamic Profile Link */}
               <DropdownMenuItem asChild>
                 <Link href={route(profileRoute)}>
                   <CircleUserRound className="h-4 w-4" />
@@ -113,5 +117,3 @@ const { isMobile } = useSidebar()
     </SidebarMenu>
   )
 }
-
-  

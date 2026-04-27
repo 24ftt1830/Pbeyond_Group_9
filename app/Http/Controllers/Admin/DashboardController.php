@@ -34,7 +34,7 @@ class DashboardController extends Controller
         // 3. Activity Feed (Using whereHas to ensure we only get valid Student/User links)
         $activities = Application::whereHas('student.user')
             ->with(['student.user', 'quota.company'])
-            ->orderBy('apply_date', 'desc')
+            ->orderBy('created_at', 'desc')
             ->take(6)
             ->get()
             ->map(function ($app) {
@@ -44,7 +44,7 @@ class DashboardController extends Controller
                 return [
                     'id' => $app->application_id,
                     'status' => $app->app_status,
-                    'date' => $app->apply_date ? Carbon::parse($app->apply_date)->diffForHumans() : 'Recently',
+                    'date' => $app->created_at ? Carbon::parse($app->created_at)->diffForHumans() : 'Recently',
                     'student_name' => $name,
                     'company_name' => $app->quota->company->company_name ?? 'N/A',
                     'initials' => strtoupper(substr($name, 0, 2)),

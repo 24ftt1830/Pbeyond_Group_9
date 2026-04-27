@@ -188,7 +188,7 @@ export function ImportModal({
                             disabled={form.processing || !form.data.file}
                             className="w-full"
                         >
-                            {form.processing ? 'Importing...' : 'Start Import'}
+                            {form.processing ? 'Importing...' : 'Import'}
                         </Button>
                     </DialogFooter>
                 </>

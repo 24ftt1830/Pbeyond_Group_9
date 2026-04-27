@@ -32,11 +32,11 @@ export default function Quotas({ quotas = [], programmes = [] }) {
         min_cgpa: 2.0,
         job_title: '',
         interview_required: false,
-        application_deadline: '',
     });
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
+
         post(route('company.quotas.store'), {
             onSuccess: () => {
                 reset();
@@ -58,7 +58,7 @@ export default function Quotas({ quotas = [], programmes = [] }) {
             <div className="flex items-center justify-between mb-6">
                 <div>
                     <h1 className="font-sato text-3xl font-bold">Placement Quotas</h1>
-                    <p className="text-muted-foreground mt-1">Manage and track student placement opportunities.</p>
+                    <p className="text-muted-foreground mt-1">Create and manage student placement opportunities.</p>
                 </div>
 
                 <div className="flex items-center gap-2">

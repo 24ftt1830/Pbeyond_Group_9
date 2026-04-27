@@ -16,7 +16,7 @@ class ApplicationController extends Controller
             'student.programme', 
             'quota.company'
         ])
-        ->orderBy('apply_date', 'desc') // show newest application first
+        ->orderBy('created_at', 'desc') // show newest application first
         ->get();
 
         return Inertia::render('Admin/ApplicationList', [

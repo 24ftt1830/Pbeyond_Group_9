@@ -15,14 +15,14 @@ class DashboardController extends Controller
         // 1. Recent Applications (latest 3)
         $recentApplications = $student->applications()
             ->with(['quota.company'])
-            ->latest('apply_date')
+            ->latest('created_at')
             ->take(3)
             ->get()
             ->map(fn($app) => [
                 'id'         => $app->application_id,
                 'company'    => $app->quota->company->company_name ?? 'Unknown',
                 'status'     => $app->app_status,
-                'applied_at' => $app->apply_date->format('d M Y'),
+                'applied_at' => $app->created_at->format('d M Y'),
             ]);
 
         // 2. Recommended Companies

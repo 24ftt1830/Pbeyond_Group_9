@@ -16,17 +16,6 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-// Temporary file for debugging post-vps db connection
-Route::get('/test-route', function () {
-    return 'The application is working but theres STILL AN ISSUE';
-});
-
-Route::get('/debug-session', function () {
-    session(['test_key' => 'it_works!']);
-
-    return session('test_key');
-});
-
 Route::get('/', function () {
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
@@ -36,82 +25,57 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
 Route::middleware('auth')->group(function () {
-    // Dev access for me
+    // --- Shared / Dev Routes ---
     Route::post('/dev/switch-role/{role}', function ($role) {
         if (! in_array($role, ['Admin', 'Student', 'Company'])) {
             return back()->withErrors('Invalid role');
         }
         auth()->user()->update(['role' => $role]);
-
         return back()->with('success', 'Role updated!');
     })->name('dev.switch-role');
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // --- Admin Routes (protected by admin middleware) ---
-    Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix('admin')->name('admin.')->group(function () {
+    // --- Admin Routes ---
+    Route::middleware(['role:Admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
-
-        // Companies
         Route::get('/companies', [App\Http\Controllers\Admin\CompanyController::class, 'index'])->name('companies');
         Route::post('/companies/{company}/approve', [App\Http\Controllers\Admin\CompanyController::class, 'approve'])->name('companies.approve');
         Route::post('/companies/{company}/reject', [App\Http\Controllers\Admin\CompanyController::class, 'reject'])->name('companies.reject');
         Route::post('/companies', [App\Http\Controllers\Admin\CompanyController::class, 'store'])->name('companies.store');
-
-        // Placements
         Route::get('/placements', [App\Http\Controllers\Admin\PlacementController::class, 'index'])->name('placements');
         Route::post('/placements/{quota}/approve', [App\Http\Controllers\Admin\PlacementController::class, 'approve'])->name('placements.approve');
         Route::post('/placements/{quota}/reject', [App\Http\Controllers\Admin\PlacementController::class, 'reject'])->name('placements.reject');
         Route::post('/placements/{quota}/release', [App\Http\Controllers\Admin\PlacementController::class, 'release'])->name('placements.release');
         Route::get('/placements/{quota}/applications', [App\Http\Controllers\Admin\PlacementController::class, 'applications'])->name('placements.applications');
-
-        // Manage Users
         Route::get('/manage-users', [App\Http\Controllers\Admin\UserManagementController::class, 'index'])->name('manage-users');
         Route::post('/manage-users', [App\Http\Controllers\Admin\UserManagementController::class, 'store'])->name('manage-users.store');
-        Route::post('/manage-users/import', [App\Http\Controllers\Admin\UserManagementController::class, 'import'])->name('manage-users.import');
+        Route::post('/manage-users/import', [App\Http\Controllers\Admin\UserManagementController::class, 'import'])->name('students.import');
         Route::get('/manage-users/{id}/edit', [App\Http\Controllers\Admin\UserManagementController::class, 'edit'])->name('manage-users.edit');
         Route::put('/manage-users/{id}', [App\Http\Controllers\Admin\UserManagementController::class, 'update'])->name('manage-users.update');
         Route::delete('/manage-users/{id}', [App\Http\Controllers\Admin\UserManagementController::class, 'destroy'])->name('manage-users.destroy');
-
-        // Application review (Gatekeeper)
         Route::get('/applications', [App\Http\Controllers\Admin\ApplicationController::class, 'index'])->name('applications');
-
-        // Reports (Grievance Portal) – using controller instead of closure
+        Route::get('/profile', [App\Http\Controllers\Admin\ProfileController::class, 'index'])->name('profile');
         Route::get('/reports', [App\Http\Controllers\Admin\ReportController::class, 'index'])->name('reports');
         Route::post('/reports/{report}/resolve', [App\Http\Controllers\Admin\ReportController::class, 'resolve'])->name('reports.resolve');
-
-        // Other admin pages
         Route::get('/support', fn () => Inertia::render('Admin/Support'))->name('support');
         Route::get('/calendar', fn () => Inertia::render('Admin/Calendar'))->name('calendar');
-
-        // Calendar events
         Route::post('/events', [EventController::class, 'store'])->name('events.store');
     });
 
     // --- Company Routes ---
-    Route::middleware(['auth'])->prefix('company')->name('company.')->group(function () {
+    Route::middleware(['role:Company'])->prefix('company')->name('company.')->group(function () {
         Route::get('/dashboard', fn () => Inertia::render('Company/Dashboard'))->name('dashboard');
-
-        // Quota Management
         Route::get('/quotas', [App\Http\Controllers\Company\QuotaController::class, 'index'])->name('quotas');
         Route::post('/quotas', [App\Http\Controllers\Company\QuotaController::class, 'store'])->name('quotas.store');
         Route::delete('/quotas/{quota}', [App\Http\Controllers\Company\QuotaController::class, 'destroy'])->name('quotas.destroy');
-
-        // Applications
         Route::get('/applications', [App\Http\Controllers\Company\ApplicationController::class, 'index'])->name('applications');
         Route::get('/applications/{quota}', [App\Http\Controllers\Company\ApplicationController::class, 'show'])->name('applications.show');
         Route::post('/applications/{quota:quota_id}/update-status/{application}', [App\Http\Controllers\Company\ApplicationController::class, 'updateStatus'])->name('applications.update-status');
-
-        // Representatives
         Route::get('/representatives', [App\Http\Controllers\Company\RepresentativeController::class, 'index'])->name('representatives');
-
-        // Other placeholders
         Route::get('/profile', [App\Http\Controllers\Company\ProfileController::class, 'index'])->name('profile');
         Route::get('/interns', fn () => Inertia::render('Company/Interns'))->name('interns');
         Route::get('/contact-support', fn () => Inertia::render('Company/ContactSupport'))->name('contact-support');
@@ -120,10 +84,9 @@ Route::middleware('auth')->group(function () {
     });
 
     // --- Student Routes ---
-    Route::prefix('student')->name('student.')->group(function () {
+    Route::middleware(['role:Student'])->prefix('student')->name('student.')->group(function () {
         Route::get('/profile', [StudentProfileController::class, 'index'])->name('profile');
         Route::post('/profile', [StudentProfileController::class, 'update'])->name('profile.update');
-
         Route::get('/dashboard', [StudentDashboardController::class, 'index'])->name('dashboard');
         Route::get('/companies', [StudentCompanyController::class, 'index'])->name('companies');
         Route::get('/companies/{company}', [StudentCompanyController::class, 'show'])->name('companies.view');

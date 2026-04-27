@@ -6,27 +6,27 @@ import { Button } from "@/Components/ui/button"
 import fileStack from "../../../images/file-stack.png";
 import lanyard from "../../../images/lanyard-two.png";
 
-export interface Artwork {
-  artist: string
-  art: string 
+export interface Steps {
+  title: string
+  image: string 
 }
 
-export const works: Artwork[] = [
-  { artist: "Ornella Binni", art: fileStack },
-  { artist: "Tom Byrom", art: lanyard },
+export const step: Steps[] = [
+  { title: "Step 1", image: fileStack },
+  { title: "Step 2", image: lanyard },
 ]
 
 export function ScrollAreaHorizontalDemo() {
   return (
     <ScrollArea className="w-full">
       <div className="flex w-max space-x-4 p-4">
-        {works.map((artwork) => (
-          <Card key={artwork.artist} className="w-[400px] shrink-0 flex flex-row overflow-hidden">
+        {step.map((step) => (
+          <Card key={step.title} className="w-[400px] shrink-0 flex flex-row overflow-hidden">
             
             <div className="w-[150px] shrink-0 bg-muted">
               <img
-                src={artwork.art}
-                alt={`Photo by ${artwork.artist}`}
+                src={step.image}
+                alt={`Photo by ${step.title}`}
                 className="h-full w-full object-cover" 
               />
             </div>
@@ -34,7 +34,7 @@ export function ScrollAreaHorizontalDemo() {
             {/* 3. Right Column: Content + Buttons */}
             <div className="flex flex-col p-4 justify-between flex-grow">
               <div className="space-y-1">
-                <h3 className="font-semibold">{artwork.artist}</h3>
+                <h3 className="font-semibold">{step.title}</h3>
                 <p className="text-sm text-muted-foreground">
                   Here is some detailed information about this work.
                 </p>
