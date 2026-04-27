@@ -40,21 +40,28 @@ interface Props {
 export default function ViewCompany({ company, quotas, applied_quota_id }: Props) {
 
     const handleApply = (quota_id: number) => {
-        router.post(route('student.applications.store'), { quota_id }, {
+        router.post(route('student.companies.apply', { company: company.company_id }), {
+            quota_id
+        }, {
             preserveScroll: true,
             onSuccess: () => {
-                toast('Application submitted successfully!', {
-                    description: 'Your application has been received.',
-                    action: {
-                        label: 'View Tracking',
-                        onClick: () => router.visit(route('student.application-tracking')),
-                    },
-                });
+                // Success logic
             },
             onError: (errors: any) => {
+                const errorMessage = typeof errors === 'string'
+                    ? errors
+                    : Object.values(errors)[0] || 'An unknown error occurred';
+
                 toast.error('Application Failed', {
-                    description: errors.error || 'Please try again later.',
-                });
+    description: errorMessage as string,
+    classNames: {
+        description: '!text-black font-semibold', 
+    },
+    style: {
+        background: '#fff1f2',
+        border: '1px solid #fecaca',
+    },
+});
             }
         });
     };

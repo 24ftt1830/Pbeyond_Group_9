@@ -3,7 +3,7 @@ import bridge from '../../images/bridge-cropped-top-two.png';
 
 export default function DitherShaderDemoDuotone() {
   return (
-    <div className="h-full w-full relative">
+    <div className="h-full w-full relative bg-muted aspect-[9/16] lg:aspect-auto">
       <DitherShader
         src={bridge}
         gridSize={1}

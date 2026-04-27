@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router, useForm, usePage } from '@inertiajs/react';
-import { Plus, Edit2, Search, Loader2, AlertCircle, Clock, Globe } from 'lucide-react';
+import { Plus, Edit2, Search, Loader2, AlertCircle, Clock, Globe, CircleX } from 'lucide-react';
 
 import { Input } from '@/Components/ui/input';
 import { Button } from "@/Components/ui/button";
@@ -185,6 +185,7 @@ export default function Quotas({ quotas = [], programmes = [] }) {
                                     isEditMode={isEditMode}
                                     onDelete={handleDelete}
                                 />
+
                                 <div className="absolute top-4 right-4 flex gap-2">
                                     {quota.quota_status === 'Pending' && (
                                         <span className="flex items-center gap-1 text-[10px] font-medium uppercase px-2 py-1 rounded bg-amber-100 text-amber-700">
@@ -194,6 +195,11 @@ export default function Quotas({ quotas = [], programmes = [] }) {
                                     {quota.is_released && (
                                         <span className="flex items-center gap-1 text-[10px] font-medium uppercase px-2 py-1 rounded bg-emerald-100 text-emerald-700">
                                             <Globe className="size-3" /> Live
+                                        </span>
+                                    )}
+                                    {quota.quota_status === 'Rejected' && (
+                                        <span className="flex items-center gap-1 text-[10px] font-medium uppercase px-2 py-1 rounded bg-red-100 text-red-700">
+                                            <CircleX className="size-3" /> Rejected
                                         </span>
                                     )}
                                 </div>

@@ -4,6 +4,12 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
+        <link 
+        rel="preload" 
+        href="{{ Vite::asset('resources/images/bridge-cropped-top-two.png') }}" 
+        as="image"
+    >
+
         <title inertia>{{ config('app.name', 'Pbeyond') }}</title>
 
         <!-- Fonts -->

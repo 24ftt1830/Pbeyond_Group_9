@@ -77,62 +77,6 @@ export default function Placements({
         setFilterProgramme('all');
     };
 
-    const PendingRequests = () => {
-
-        const pending = quotas.filter(q => q.quota_status === 'Pending');
-
-
-
-        if (pending.length === 0) return null;
-
-
-
-        return (
-            <div className="space-y-4 animate-in fade-in slide-in-from-top-4 duration-500">
-                <div className="flex items-center gap-2">
-                    <h2 className="text-xl font-bold text-slate-900 uppercase">Quota Requests</h2>
-                    <Badge className="bg-amber-500 hover:bg-amber-600">{pending.length}</Badge>
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    {pending.map((quota) => (
-                        <div key={quota.quota_id} className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm flex items-center justify-between">
-                            <div className="flex items-center gap-4">
-                                <div className="p-3 bg-slate-50 rounded-lg border border-slate-100">
-                                    <Building2 className="text-slate-400 size-6" />
-                                </div>
-                                <div>
-                                    <h4 className="font-bold text-slate-900">{quota.job_title}</h4>
-                                    <p className="text-xs text-slate-500 font-medium uppercase tracking-tight">
-                                        {quota.company?.company_name} • {quota.total_slots} Slots
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="flex gap-2">
-                                <Button 
-                                    size="sm" 
-                                    variant="outline"
-                                    className="border-emerald-200 text-emerald-600 hover:bg-emerald-50 h-8"
-                                    onClick={() => handleApprove(quota.quota_id)}
-                                >
-                                    <Check className="size-4 mr-1" /> Approve
-                                </Button>
-                                <Button 
-                                    size="sm" 
-                                    variant="outline"
-                                    className="border-red-200 text-red-600 hover:bg-red-50 h-8"
-                                    onClick={() => handleReject(quota.quota_id)}
-                                >
-                                    <X className="size-4 mr-1" />
-                                </Button>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        );
-    };
-
     return (
         <div className="w-full max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8 space-y-8">
             <Head title="Placements" />
@@ -140,8 +84,6 @@ export default function Placements({
             <header className="flex justify-between items-end w-full">
                 <h1 className="text-3xl font-jakarta font-extrabold text-slate-900 tracking-tight">Placements</h1>
             </header>
-
-            <PendingRequests />
 
             <div className="w-full rounded-xl flex flex-wrap items-end gap-4">
                 <div className="flex-[2] min-w-[300px] space-y-1.5">

@@ -76,6 +76,7 @@ export default function Show({ quota, applications }: { quota: any, applications
 
                 <div className="mb-6">
                     <AnimatedTabsList
+                    groupId="student-applications"
                         activeValue={activeTab}
                         setActiveValue={setActiveTab}
                         tabs={[

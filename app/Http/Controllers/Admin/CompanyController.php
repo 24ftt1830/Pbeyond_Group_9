@@ -46,9 +46,14 @@ class CompanyController extends Controller
             'available_slots' => $companiesData->sum('available'),
         ];
 
+        $quotas = PlacementQuota::with(['company', 'programme'])
+            ->latest()
+            ->get();
+
         return Inertia::render('Admin/Companies', [
             'companies' => $companiesData, 
-            'stats'              => $stats,
+            'stats'     => $stats,
+            'quotas'    => $quotas, 
         ]);
     }
 

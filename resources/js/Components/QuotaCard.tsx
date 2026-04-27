@@ -1,6 +1,5 @@
-import { Trash2, Clock, CheckCircle2, XCircle } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { Button } from "@/Components/ui/button";
-import { Badge } from "@/Components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/Components/ui/card";
 import { cn } from "@/lib/utils"; 
 
@@ -21,51 +20,19 @@ interface QuotaCardProps {
 }
 
 export default function QuotaCard({ quota, isEditMode, onDelete }: QuotaCardProps) {
-    
-    const getStatusConfig = (status: string) => {
-        switch (status?.toLowerCase()) {
-            case 'approved':
-                return {
-                    className: "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100",
-                    icon: <CheckCircle2 className="size-3 mr-1" />,
-                    label: "Approved"
-                };
-            case 'rejected':
-                return {
-                    className: "bg-red-50 text-red-700 border-red-200 hover:bg-red-100",
-                    icon: <XCircle className="size-3 mr-1" />,
-                    label: "Rejected"
-                };
-            default:
-                return {
-                    className: "bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100",
-                    icon: <Clock className="size-3 mr-1" />,
-                    label: "Pending Review"
-                };
-        }
-    };
-
-    const status = getStatusConfig(quota.quota_status);
-
     return (
         <Card className={cn(
-            "shadow-none",
+            "shadow-none h-full", 
             isEditMode && "border-destructive/50 ring-1 ring-destructive/10"
         )}>
-            <CardHeader className="pb-4">
-                <div className="flex flex-col items-start gap-2">
-                    <Badge variant="outline" className={cn("text-[10px] font-bold uppercase tracking-wider px-2 py-0.5", status.className)}>
-                        {status.icon}
-                        {status.label}
-                    </Badge>
-                    <div className="space-y-0.5">
-                        <h3 className="text-lg font-bold leading-tight tracking-tight">
-                            {quota.job_title}
-                        </h3>
-                        <p className="text-xs text-muted-foreground font-medium">
-                            {quota.programme?.programme_name || 'General Programme'}
-                        </p>
-                    </div>
+            <CardHeader className="pb-4 pr-24"> 
+                <div className="flex flex-col items-start gap-1">
+                    <h3 className="text-lg font-bold leading-tight tracking-tight">
+                        {quota.job_title}
+                    </h3>
+                    <p className="text-xs text-muted-foreground font-medium">
+                        {quota.programme?.programme_name || 'General Programme'}
+                    </p>
                 </div>
             </CardHeader>
 

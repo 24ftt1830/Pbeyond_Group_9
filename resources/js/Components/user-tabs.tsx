@@ -207,6 +207,7 @@ const UserTabs = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <div className="flex items-center justify-between mb-4">
             <AnimatedTabsList
+            groupId="users"
               activeValue={activeTab}
               setActiveValue={setActiveTab}
               tabs={[

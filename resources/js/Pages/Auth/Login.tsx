@@ -6,6 +6,7 @@ import { Label } from '@/Components/ui/label';
 import pbLogo from '../../../images/PB-Secondary-Logo.png';
 import InputError from '@/Components/InputError';
 import DitherShaderDemoDuotone from "@/Components/dither-shader-demo-duotone";
+import { LoaderCircleIcon } from 'lucide-react';
 
 export default function Login({ status, canResetPassword }: { status?: string; canResetPassword: boolean }) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -30,7 +31,7 @@ export default function Login({ status, canResetPassword }: { status?: string; c
                         <img
                             src={pbLogo}
                             alt="PBeyond Logo"
-                            className="size-7 object-contain" 
+                            className="size-7 object-contain"
                         />
                         <span className="font-sato">PBeyond</span>
                     </Link>
@@ -83,7 +84,14 @@ export default function Login({ status, canResetPassword }: { status?: string; c
                                 </div>
 
                                 <Button type="submit" className="w-full shadow-none" disabled={processing}>
-                                    {processing ? 'Logging in...' : 'Log in'}
+                                    {processing ? (
+                                        <>
+                                            <LoaderCircleIcon className="mr-2 size-4 animate-spin" />
+                                            Logging in...
+                                        </>
+                                    ) : (
+                                        'Log in'
+                                    )}
                                 </Button>
                             </div>
                         </form>

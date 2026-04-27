@@ -42,25 +42,44 @@ Route::middleware('auth')->group(function () {
     // --- Admin Routes ---
     Route::middleware(['role:Admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
-        Route::get('/companies', [App\Http\Controllers\Admin\CompanyController::class, 'index'])->name('companies');
-        Route::post('/companies/{company}/approve', [App\Http\Controllers\Admin\CompanyController::class, 'approve'])->name('companies.approve');
-        Route::post('/companies/{company}/reject', [App\Http\Controllers\Admin\CompanyController::class, 'reject'])->name('companies.reject');
-        Route::post('/companies', [App\Http\Controllers\Admin\CompanyController::class, 'store'])->name('companies.store');
+
+        // Company Management
+        Route::prefix('companies')->group(function () {
+            Route::get('/', [App\Http\Controllers\Admin\CompanyController::class, 'index'])->name('companies');
+            Route::post('/', [App\Http\Controllers\Admin\CompanyController::class, 'store'])->name('companies.store');
+            Route::post('/{company}/approve', [App\Http\Controllers\Admin\CompanyController::class, 'approve'])->name('companies.approve');
+            Route::post('/{company}/reject', [App\Http\Controllers\Admin\CompanyController::class, 'reject'])->name('companies.reject');
+        });
+
+        // Placements / Quotas (Renamed prefix to 'quotas' to avoid collision)
+        Route::prefix('quotas')->name('placements.')->group(function () {
+            Route::post('/{quota}/approve', [App\Http\Controllers\Admin\PlacementController::class, 'approve'])->name('approve');
+            Route::post('/{quota}/reject', [App\Http\Controllers\Admin\PlacementController::class, 'reject'])->name('reject');
+            Route::post('/{quota}/release', [App\Http\Controllers\Admin\PlacementController::class, 'release'])->name('release');
+            Route::get('/{quota}/applications', [App\Http\Controllers\Admin\PlacementController::class, 'applications'])->name('applications');
+        });
+        
+        // General Placements index
         Route::get('/placements', [App\Http\Controllers\Admin\PlacementController::class, 'index'])->name('placements');
-        Route::post('/placements/{quota}/approve', [App\Http\Controllers\Admin\PlacementController::class, 'approve'])->name('placements.approve');
-        Route::post('/placements/{quota}/reject', [App\Http\Controllers\Admin\PlacementController::class, 'reject'])->name('placements.reject');
-        Route::post('/placements/{quota}/release', [App\Http\Controllers\Admin\PlacementController::class, 'release'])->name('placements.release');
-        Route::get('/placements/{quota}/applications', [App\Http\Controllers\Admin\PlacementController::class, 'applications'])->name('placements.applications');
-        Route::get('/manage-users', [App\Http\Controllers\Admin\UserManagementController::class, 'index'])->name('manage-users');
-        Route::post('/manage-users', [App\Http\Controllers\Admin\UserManagementController::class, 'store'])->name('manage-users.store');
-        Route::post('/manage-users/import', [App\Http\Controllers\Admin\UserManagementController::class, 'import'])->name('students.import');
-        Route::get('/manage-users/{id}/edit', [App\Http\Controllers\Admin\UserManagementController::class, 'edit'])->name('manage-users.edit');
-        Route::put('/manage-users/{id}', [App\Http\Controllers\Admin\UserManagementController::class, 'update'])->name('manage-users.update');
-        Route::delete('/manage-users/{id}', [App\Http\Controllers\Admin\UserManagementController::class, 'destroy'])->name('manage-users.destroy');
+
+        // User Management
+        Route::prefix('manage-users')->group(function () {
+            Route::get('/', [App\Http\Controllers\Admin\UserManagementController::class, 'index'])->name('manage-users');
+            Route::post('/', [App\Http\Controllers\Admin\UserManagementController::class, 'store'])->name('manage-users.store');
+            Route::post('/import', [App\Http\Controllers\Admin\UserManagementController::class, 'import'])->name('students.import');
+            Route::get('/{id}/edit', [App\Http\Controllers\Admin\UserManagementController::class, 'edit'])->name('manage-users.edit');
+            Route::put('/{id}', [App\Http\Controllers\Admin\UserManagementController::class, 'update'])->name('manage-users.update');
+            Route::delete('/{id}', [App\Http\Controllers\Admin\UserManagementController::class, 'destroy'])->name('manage-users.destroy');
+        });
+
         Route::get('/applications', [App\Http\Controllers\Admin\ApplicationController::class, 'index'])->name('applications');
         Route::get('/profile', [App\Http\Controllers\Admin\ProfileController::class, 'index'])->name('profile');
-        Route::get('/reports', [App\Http\Controllers\Admin\ReportController::class, 'index'])->name('reports');
-        Route::post('/reports/{report}/resolve', [App\Http\Controllers\Admin\ReportController::class, 'resolve'])->name('reports.resolve');
+        
+        Route::prefix('reports')->group(function () {
+            Route::get('/', [App\Http\Controllers\Admin\ReportController::class, 'index'])->name('reports');
+            Route::post('/{report}/resolve', [App\Http\Controllers\Admin\ReportController::class, 'resolve'])->name('reports.resolve');
+        });
+
         Route::get('/support', fn () => Inertia::render('Admin/Support'))->name('support');
         Route::get('/calendar', fn () => Inertia::render('Admin/Calendar'))->name('calendar');
         Route::post('/events', [EventController::class, 'store'])->name('events.store');
