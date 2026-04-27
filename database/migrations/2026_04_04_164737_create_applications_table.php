@@ -11,7 +11,8 @@ return new class extends Migration
      */
     public function up(): void
 {
-    Schema::create('applications', function (Blueprint $table) {
+    if(!Schema::hasTable('applications')) {
+	Schema::create('applications', function (Blueprint $table) {
         $table->id();
         
         $table->foreignId('student_id')->constrained('students', 'student_id')->onDelete('cascade');
@@ -23,6 +24,7 @@ return new class extends Migration
         // This ensures the combination of student + quota is unique.
         $table->unique(['student_id', 'quota_id']); 
     });
+}
 }
 
     /**

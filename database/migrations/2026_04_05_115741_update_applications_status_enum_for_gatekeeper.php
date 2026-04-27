@@ -7,6 +7,10 @@ return new class extends Migration
 {
     public function up()
     {
+	Schema::table('applications', function ($table) {
+	    $table->renameColumn('status', 'app_status');
+	});
+
         // Step 1: Add new status values to the ENUM temporarily (keep old ones)
         DB::statement("ALTER TABLE applications MODIFY app_status ENUM('Pending', 'Reviewing', 'Approved', 'Rejected', 'Pending_ILD', 'Pending_Company', 'Interview_Scheduled') DEFAULT 'Pending'");
 
