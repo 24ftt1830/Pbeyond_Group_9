@@ -100,6 +100,15 @@ export default function Companies({ stats, companies, quotas = [] }: Props) {
         },
     ], []);
 
+    const companyColumns = useMemo(() => [
+        { accessorKey: "company_name", header: "Company Name" },
+        { accessorKey: "industry_sector", header: "Industry Sector" },
+        { accessorKey: "office_address", header: "Office Address" },
+        { accessorKey: "total_quota", header: "Total Quota" },
+        { accessorKey: "filled", header: "Filled" },
+        { accessorKey: "available", header: "Available" },
+    ], []);
+
     const allQuotasColumns = useMemo(() => [
         { accessorKey: "company.company_name", header: "Company" },
         { accessorKey: "job_title", header: "Job Title" },
@@ -123,13 +132,15 @@ export default function Companies({ stats, companies, quotas = [] }: Props) {
     };
 
     const handleApprove = (id: number) => {
-        router.post(`/admin/placements/${id}/approve`, {}, {
-            preserveScroll: true,
-        });
+        router.post(route('admin.placements.approve', { quota: id }), {}, {
+        preserveScroll: true,
+    });
     };
 
     const handleReject = (id: number) => {
-        router.post(`/admin/placements/${id}/reject`);
+        router.post(route('admin.placements.reject', { quota: id }), {}, {
+        preserveScroll: true,
+    });
     };
 
     const processedCompanies = useMemo(() => {
@@ -198,7 +209,42 @@ export default function Companies({ stats, companies, quotas = [] }: Props) {
                                     <Label htmlFor="co-name">Company Name</Label>
                                     <Input id="co-name" value={formData.company_name} onChange={(e) => setFormData({ ...formData, company_name: e.target.value })} required />
                                 </div>
-                                {/* ... Selects omitted for brevity, same as your original code ... */}
+                                <div className="grid gap-2">
+                                    <Label htmlFor="co-category">Industrial Category</Label>
+                                    <Select
+                                        value={formData.industry_sector}
+                                        onValueChange={(value) => setFormData({ ...formData, industry_sector: value })}
+                                    >
+                                        <SelectTrigger id="co-category" className="shadow-none">
+                                            <SelectValue placeholder="Select category" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="Tech">Technology</SelectItem>
+                                            <SelectItem value="Service">Service</SelectItem>
+                                            <SelectItem value="Design">Design</SelectItem>
+                                            <SelectItem value="Oil & Gas">Oil & Gas</SelectItem>
+                                            <SelectItem value="Government">Government</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <div className="grid gap-2">
+                                    <Label htmlFor="co-location">District</Label>
+                                    <Select
+                                        value={formData.office_address}
+                                        onValueChange={(value) => setFormData({ ...formData, office_address: value })}
+                                    >
+                                        <SelectTrigger id="co-location" className="shadow-none">
+                                            <SelectValue placeholder="Select District" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="Brunei Muara">Brunei Muara</SelectItem>
+                                            <SelectItem value="Belait">Belait</SelectItem>
+                                            <SelectItem value="Tutong">Tutong</SelectItem>
+                                            <SelectItem value="Temburong">Temburong</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
                             </div>
                             <DialogFooter>
                                 <Button type="submit" disabled={submitting} className="w-full">
@@ -237,24 +283,36 @@ export default function Companies({ stats, companies, quotas = [] }: Props) {
             <div className="mt-4">
                 {activeTab === 'all_companies' && (
                     <div className="space-y-4">
-                        <div className="flex flex-wrap items-end gap-4 bg-white rounded-xl">
+                        <div className="flex flex-wrap items-end gap-4 bg-white rounded-xl py-2">
                             <div className="flex-1 min-w-[240px] space-y-2">
                                 <label className="ml-1 text-xs font-semibold text-gray-500 uppercase">Search Company</label>
                                 <div className="relative">
                                     <SearchIcon className="absolute text-gray-400 -translate-y-1/2 left-3 top-1/2 size-4" />
-                                    <Input placeholder="Type company name or district..." value={searchTerm} onChange={handleSearchChange} className="pl-9 pr-9 shadow-none" />
+                                    <Input
+                                        placeholder="Type company name or district..."
+                                        value={searchTerm}
+                                        onChange={handleSearchChange}
+                                        className="pl-9 pr-9 shadow-none focus-visible:ring-transparent"
+                                    />
                                 </div>
                             </div>
-                            <Button variant="ghost" onClick={resetFilters} className="text-gray-500 hover:text-red-600">
-                                <RotateCcw className="mr-2 size-4" /> Reset
+                            <Button variant="ghost" size="sm" onClick={resetFilters} className="text-gray-500 hover:text-red-600">
+                                <RotateCcw className="size-3.5" /> Reset
                             </Button>
                         </div>
-                        <CompanyDataTable data={processedCompanies} />
+
+                        <div className="rounded-xl bg-white">
+                            {processedCompanies.length > 0 ? (
+                                <DataTable columns={companyColumns} data={processedCompanies} />
+                            ) : (
+                                <p className="text-center py-10 text-slate-500">No companies found.</p>
+                            )}
+                        </div>
                     </div>
                 )}
 
                 {activeTab === 'pending_quotas' && (
-                    <div className="rounded-xl bg-white">
+                    <div className="rounded-xl bg-white py-2">
                         {pendingQuotas.length > 0 ? (
                             <DataTable columns={columns} data={pendingQuotas} />
                         ) : (
@@ -264,7 +322,7 @@ export default function Companies({ stats, companies, quotas = [] }: Props) {
                 )}
 
                 {activeTab === 'all_quotas' && (
-                    <div className="rounded-xl bg-white">
+                    <div className="rounded-xl bg-white py-2">
                         {approvedQuotas.length > 0 ? (
                             <DataTable
                                 columns={allQuotasColumns}

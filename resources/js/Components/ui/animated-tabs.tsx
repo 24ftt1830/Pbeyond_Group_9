@@ -47,7 +47,7 @@ export function AnimatedTabsList({ tabs, activeValue, setActiveValue, className,
               {tab.label}
               
               {tab.count !== undefined && tab.count > 0 && (
-                <span className="flex size-5 items-center justify-center rounded-full bg-primary-foreground px-1.5 text-[10px] font-bold text-primary shadow-sm">
+                <span className="flex size-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-primary-foreground shadow-sm">
                   {tab.count > 99 ? '99+' : tab.count}
                 </span>
               )}

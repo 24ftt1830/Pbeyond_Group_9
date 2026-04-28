@@ -34,10 +34,10 @@ type Company = {
 interface Props {
     company: Company;
     quotas: Quota[];
-    applied_quota_id: number | null;
+    applied_quota_ids: number[]; // Updated from number | null
 }
 
-export default function ViewCompany({ company, quotas, applied_quota_id }: Props) {
+export default function ViewCompany({ company, quotas, applied_quota_ids }: Props) {
 
     const handleApply = (quota_id: number) => {
         router.post(route('student.companies.apply', { company: company.company_id }), {
@@ -45,7 +45,7 @@ export default function ViewCompany({ company, quotas, applied_quota_id }: Props
         }, {
             preserveScroll: true,
             onSuccess: () => {
-                // Success logic
+                toast.success('Application submitted successfully!');
             },
             onError: (errors: any) => {
                 const errorMessage = typeof errors === 'string'
@@ -53,15 +53,15 @@ export default function ViewCompany({ company, quotas, applied_quota_id }: Props
                     : Object.values(errors)[0] || 'An unknown error occurred';
 
                 toast.error('Application Failed', {
-    description: errorMessage as string,
-    classNames: {
-        description: '!text-black font-semibold', 
-    },
-    style: {
-        background: '#fff1f2',
-        border: '1px solid #fecaca',
-    },
-});
+                    description: errorMessage as string,
+                    classNames: {
+                        description: '!text-black font-semibold',
+                    },
+                    style: {
+                        background: '#fff1f2',
+                        border: '1px solid #fecaca',
+                    },
+                });
             }
         });
     };
@@ -77,25 +77,32 @@ export default function ViewCompany({ company, quotas, applied_quota_id }: Props
 
             <div className="space-y-8">
                 <section className="rounded-xl border border-black/10 bg-white p-6">
-                    <h2 className="mb-3 text-xl font-bold text-black">{company.company_name}</h2>
+                    <h2 className="mb-3 text-xl font-sato font-bold text-black">{company.company_name}</h2>
                     <p className="text-sm text-black/70 leading-relaxed">{company.description || 'No description available.'}</p>
                 </section>
 
                 <section className="space-y-4">
-                    <h2 className="text-lg font-bold text-black">Available Positions</h2>
+                    <h2 className="text-lg font-bold font-sato text-black">Available Positions</h2>
                     {quotas.map((quota) => {
-                        const isApplied = quota.quota_id === applied_quota_id;
-                        const isDisabled = applied_quota_id !== null;
+                        // Check if this specific quota is in the applied list
+                        const isApplied = applied_quota_ids.includes(quota.quota_id);
+
+                        // Disable buttons if user has already applied to any position (length > 0)
+                        const isDisabled = applied_quota_ids.length > 0;
 
                         return (
                             <Card key={quota.quota_id} className="shadow-none">
                                 <CardContent className="flex items-start justify-between p-6">
                                     <div className="flex-1">
-                                        <h3 className="mb-4 text-lg font-bold text-black">{quota.job_title}</h3>
+                                        <h3 className="mb-4 text-lg font-bold font-sato text-black">{quota.job_title}</h3>
                                         <div className="flex gap-8">
                                             <div>
-                                                <p className="text-[10px] uppercase font-bold text-black/50">Seats</p>
-                                                <p className="text-sm font-semibold">{quota.total_slots}</p>
+                                                <p className="text-[12px] font-semibold text-black/40">Slots</p>
+                                                <p className="text-sm">{quota.total_slots}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-[12px] font-semibold text-black/40">Interview Required</p>
+                                                <p className="text-sm">{quota.interview_required ? 'Yes' : 'No'}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -103,7 +110,7 @@ export default function ViewCompany({ company, quotas, applied_quota_id }: Props
                                     <div className="ml-4 flex flex-col gap-2">
                                         <AlertDialog>
                                             <AlertDialogTrigger asChild>
-                                                <Button className="w-24" disabled={isDisabled}>
+                                                <Button className="w-24" size="sm" disabled={isDisabled}>
                                                     {isApplied ? 'Applied' : 'Apply'}
                                                 </Button>
                                             </AlertDialogTrigger>
@@ -124,7 +131,7 @@ export default function ViewCompany({ company, quotas, applied_quota_id }: Props
                                             </AlertDialogContent>
                                         </AlertDialog>
 
-                                        <Button variant="outline" className="w-24 gap-2">
+                                        <Button variant="outline" className="w-24 gap-2" size="sm">
                                             <Heart className="h-4 w-4" /> Save
                                         </Button>
                                     </div>

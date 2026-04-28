@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Switch } from "@/Components/ui/switch";
+import { DataTable } from '@/Components/ui/data-table';
 import { useForm, usePage } from '@inertiajs/react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/Components/ui/tabs'
 import UserTable from '@/Components/data-table'
@@ -42,17 +43,17 @@ import {
 import { ImportStudentsDialog } from '@/Components/import-csv'
 
 const studentColumns = [
-  { header: 'Full Name', key: 'full_name' },
-  { header: 'Email Address', key: 'email' },
-  { header: 'Academic Programme', key: 'programme_name' },
-  { header: '', key: 'actions' },
+  { id: 'full_name', header: 'Full Name', accessorKey: 'full_name' },
+  { id: 'email', header: 'Email Address', accessorKey: 'email' },
+  { id: 'programme_name', header: 'Academic Programme', accessorKey: 'programme_name' },
+  { id: 'actions', header: '', accessorKey: 'actions' },
 ];
 
 const repColumns = [
-  { header: 'Focal Person', key: 'display_name' },
-  { header: 'Email Address', key: 'email' },
-  { header: 'Assigned Company', key: 'company_name' },
-  { header: '', key: 'actions' },
+  { id: 'display_name', header: 'Focal Person', accessorKey: 'display_name' },
+  { id: 'email', header: 'Email Address', accessorKey: 'email' },
+  { id: 'company_name', header: 'Assigned Company', accessorKey: 'company_name' },
+  { id: 'actions', header: '', accessorKey: 'actions' },
 ];
 
 const UserTabs = () => {
@@ -414,42 +415,54 @@ const UserTabs = () => {
             </Dialog>
           </div>
 
-          <TabsContent value="students">
-            <UserTable
-              data={filteredStudents.map((s: any) => ({
-                ...s,
-                id: s.user_id,
-                role: 'Student',
-                full_name: s.student?.full_name || 'N/A',
-                programme_name: s.student?.programme?.programme_name || 'Not Assigned',
-                onEdit: () => openEditModal(s, 'Student')
-              }))}
-              columns={studentColumns}
+                      
+<TabsContent value="students" className="mt-4">
+    <div className="rounded-xl bg-white">
+        {filteredStudents.length > 0 ? (
+            <DataTable 
+                columns={studentColumns} 
+                data={filteredStudents.map((s: any) => ({
+                    ...s,
+                    id: s.user_id,
+                    role: 'Student',
+                    full_name: s.student?.full_name || 'N/A',
+                    programme_name: s.student?.programme?.programme_name || 'Not Assigned',
+                    onEdit: () => openEditModal(s, 'Student')
+                }))} 
             />
-          </TabsContent>
+        ) : (
+            <p className="text-center py-10 text-slate-500">No students found.</p>
+        )}
+    </div>
+</TabsContent>
 
-          <TabsContent value="reps">
-            <UserTable
-              data={filteredCompanyUsers.map((u: any) => ({
-                ...u,
-                id: u.user_id,
-                role: 'Company',
-                display_name: u.username,
-                email: u.email,
-                assigned_company_id: u.company?.company_id || null,
-                company_name: u.company?.company_name || 'Unassigned',
-                onEdit: () => openEditModal(u, 'Company'),
-                onAssign: () => openAssignModal(u),
-
-                customActions: u.company?.company_name ? null : (
-                  <DropdownMenuItem onClick={() => openAssignModal(u)}>
-                    <Link className="mr-2 size-4" /> Assign Company
-                  </DropdownMenuItem>
-                )
-              }))}
-              columns={repColumns}
+<TabsContent value="reps" className="mt-4">
+    <div className="rounded-xl bg-white">
+        {filteredCompanyUsers.length > 0 ? (
+            <DataTable 
+                columns={repColumns} 
+                data={filteredCompanyUsers.map((u: any) => ({
+                    ...u,
+                    id: u.user_id,
+                    role: 'Company',
+                    display_name: u.username,
+                    email: u.email,
+                    assigned_company_id: u.company?.company_id || null,
+                    company_name: u.company?.company_name || 'Unassigned',
+                    onEdit: () => openEditModal(u, 'Company'),
+                    onAssign: () => openAssignModal(u),
+                    customActions: u.company?.company_name ? null : (
+                        <DropdownMenuItem onClick={() => openAssignModal(u)}>
+                            <Link className="mr-2 size-4" /> Assign Company
+                        </DropdownMenuItem>
+                    )
+                }))} 
             />
-          </TabsContent>
+        ) : (
+            <p className="text-center py-10 text-slate-500">No representatives found.</p>
+        )}
+    </div>
+</TabsContent>
         </Tabs>
 
         {/* ... DIALOGS REMAIN THE SAME ... */}

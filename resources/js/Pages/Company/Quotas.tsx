@@ -179,7 +179,7 @@ export default function Quotas({ quotas = [], programmes = [] }) {
                     {quotas
                         .filter((q: any) => q.job_title?.toLowerCase().includes(searchTerm.toLowerCase()))
                         .map((quota: any) => (
-                            <div key={quota.quota_id} className="relative group">
+                            <div key={quota.quota_id} className="relative group py-4">
                                 <QuotaCard
                                     quota={quota}
                                     isEditMode={isEditMode}
@@ -188,17 +188,17 @@ export default function Quotas({ quotas = [], programmes = [] }) {
 
                                 <div className="absolute top-4 right-4 flex gap-2">
                                     {quota.quota_status === 'Pending' && (
-                                        <span className="flex items-center gap-1 text-[10px] font-medium uppercase px-2 py-1 rounded bg-amber-100 text-amber-700">
+                                        <span className="mt-6 flex items-center gap-1 text-[10px] font-medium uppercase px-2 py-1 rounded bg-amber-100 text-amber-700">
                                             <Clock className="size-3" /> Pending
                                         </span>
                                     )}
                                     {quota.is_released && (
-                                        <span className="flex items-center gap-1 text-[10px] font-medium uppercase px-2 py-1 rounded bg-emerald-100 text-emerald-700">
+                                        <span className="mt-6 flex items-center gap-1 text-[10px] font-medium uppercase px-2 py-1 rounded bg-emerald-100 text-emerald-700">
                                             <Globe className="size-3" /> Live
                                         </span>
                                     )}
                                     {quota.quota_status === 'Rejected' && (
-                                        <span className="flex items-center gap-1 text-[10px] font-medium uppercase px-2 py-1 rounded bg-red-100 text-red-700">
+                                        <span className="mt-6 flex items-center gap-1 text-[10px] font-medium uppercase px-2 py-1 rounded bg-red-100 text-red-700">
                                             <CircleX className="size-3" /> Rejected
                                         </span>
                                     )}

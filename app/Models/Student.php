@@ -25,7 +25,7 @@ class Student extends Model
 
     protected $casts = [
         'date_of_birth' => 'date',
-        'cgpa' => 'decimal:2',
+        // tbr 'cgpa' => 'decimal:2',
     ];
 
     public function user()

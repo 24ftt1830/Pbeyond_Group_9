@@ -60,11 +60,13 @@ export default function Profile({ student }: ProfileProps) {
     });
 
     const submit = (e: FormEvent) => {
-        e.preventDefault();
-        post(route('profile.update'), {
-            preserveScroll: true,
-        });
-    };
+    e.preventDefault();
+    console.log("Submit button clicked! sending data");
+
+    post(route('student.profile.update'), {
+        preserveScroll: true,
+    });
+};
 
     const handlePhotoChange = (e: ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -93,7 +95,7 @@ export default function Profile({ student }: ProfileProps) {
                         </CardHeader>
                         <CardContent className="space-y-6">
                             <div className="border-b pb-6">
-                                <Label className="mb-3 block">Passport Photo (Required)</Label>
+                                <Label className="mb-3 block">Passport Photo</Label>
                                 <div className="flex flex-col sm:flex-row items-center gap-6">
                                     <div className="w-32 h-32 bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center border border-gray-200">
                                         {passportPreview ? (
@@ -119,13 +121,13 @@ export default function Profile({ student }: ProfileProps) {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-2">
                                     <Label>Full Name</Label>
-                                    <Input value={data.full_name} onChange={e => setData('full_name', e.target.value)} required />
+                                    <Input value={data.full_name} onChange={e => setData('full_name', e.target.value)} />
                                     {errors.full_name && <p className="text-red-500 text-xs">{errors.full_name}</p>}
                                 </div>
 
                                 <div className="space-y-2">
                                     <Label>IC Number</Label>
-                                    <Input value={data.ic_number} onChange={e => setData('ic_number', e.target.value)} required />
+                                    <Input value={data.ic_number} onChange={e => setData('ic_number', e.target.value)} />
                                     {errors.ic_number && <p className="text-red-500 text-xs">{errors.ic_number}</p>}
                                 </div>
 

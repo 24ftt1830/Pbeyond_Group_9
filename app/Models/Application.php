@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class Application extends Model
 {
     protected $table = 'applications';
-    protected $primaryKey = 'application_id';
     public $timestamps = false;
 
     protected $fillable = [
