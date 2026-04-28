@@ -4,6 +4,8 @@ import { Head, Link } from '@inertiajs/react';
 import { Search, Filter, X, Eye, LoaderCircleIcon, RotateCcw } from 'lucide-react';
 import { Button } from "@/Components/ui/button";
 import { Input } from '@/Components/ui/input';
+import { ColumnDef } from '@tanstack/react-table';
+import { DataTable } from '@/Components/ui/data-table';
 
 // --- Types ---
 interface Company {
@@ -27,6 +29,49 @@ export default function Companies({ companies = [] }: Props) {
     const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
     const [filtersOpen, setFiltersOpen] = useState(false);
     const [isSearching, setIsSearching] = useState(false);
+
+    const columns = useMemo<ColumnDef<Company>[]>(() => [
+        {
+            accessorKey: 'company_name',
+            header: 'Company Name',
+            cell: ({ row }) => (
+                <div className="flex items-center gap-2">
+                <span className="text-sm font-bold text-gray-900">
+                    {row.original.company_name}
+                </span>
+                {row.original.available === 0 ? (
+                    <span className="inline-flex items-center rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20">
+                        Full
+                    </span>
+                ) : (
+                    <span className="inline-flex items-center rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                        Available
+                    </span>
+                )}
+            </div>
+            ),
+        },
+        {
+            accessorKey: 'industry_sector',
+            header: 'Sector',
+        },
+        {
+            accessorKey: 'office_address',
+            header: 'District',
+        },
+        {
+            id: 'actions',
+            header: 'Actions',
+            cell: ({ row }) => (
+                <Link
+                    href={route('student.companies.view', row.original.company_id)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
+                >
+                    <Eye className="size-4" /> View Details
+                </Link>
+            ),
+        },
+    ], []);
 
     const filteredCompanies = useMemo(() => {
         return companies
@@ -89,17 +134,19 @@ export default function Companies({ companies = [] }: Props) {
                 </Button>
             </div>
 
-            <div className="relative w-full max-w-md">
-                <Search className="absolute text-gray-400 -translate-y-1/2 left-3 top-1/2 size-4" />
+            <div className="relative w-[250px] max-w-md">
+                <Search className="absolute text-muted-foreground -translate-y-1/2 left-3 top-1/2 size-4" />
                 <Input
                     placeholder="Search company or district..."
                     value={searchQuery}
                     onChange={handleSearchChange}
-                    className="pl-9"
+                    className="h-9 w-[250px] pl-8 shadow-none text-sm rounded-full bg-muted border-none focus-visible:ring-transparent"
                 />
+                {/*}
                 {isSearching && (
-                    <LoaderCircleIcon className="absolute text-gray-400 -translate-y-1/2 right-3 top-1/2 size-4 animate-spin" />
+                    <LoaderCircleIcon className="absolute text-muted-foreground right-3 top-1/2 size-4 animate-spin" />
                 )}
+                */}
             </div>
 
             {filtersOpen && (
@@ -149,59 +196,11 @@ export default function Companies({ companies = [] }: Props) {
                 </div>
             )}
 
-            <div className="w-full overflow-hidden bg-white border border-gray-200 shadow-sm rounded-md">
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                        <tr>
-                            <th className="px-6 py-4 text-xs font-semibold tracking-wider text-left text-gray-500 uppercase">Company Name</th>
-                            <th className="px-6 py-4 text-xs font-semibold tracking-wider text-left text-gray-500 uppercase">Sector</th>
-                            <th className="px-6 py-4 text-xs font-semibold tracking-wider text-left text-gray-500 uppercase">District</th>
-                            <th className="px-6 py-4 text-xs font-semibold tracking-wider text-right text-gray-500 uppercase">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                        {filteredCompanies.length > 0 ? (
-                            filteredCompanies.map((company) => (
-                                <tr key={company.company_id} className="transition-colors hover:bg-slate-50">
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="text-sm font-bold text-gray-900">{company.company_name}</div>
-                                        <div className="text-xs">
-                                            {company.calculatedStatus === 'Full' ? (
-                                                <span className="inline-flex items-center rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20">
-                                                    Full
-                                                </span>
-                                            ) : (
-                                                <span className="inline-flex items-center rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
-                                                    Available
-                                                </span>
-                                            )}
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 text-sm text-gray-600 whitespace-nowrap">
-                                        {company.industry_sector}
-                                    </td>
-                                    <td className="px-6 py-4 text-sm text-gray-600 whitespace-nowrap">
-                                        {company.office_address}
-                                    </td>
-                                    <td className="px-6 py-4 text-sm text-right whitespace-nowrap">
-                                        <Link
-                                            href={route('student.companies.view', company.company_id)}
-                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors font-semibold"
-                                        >
-                                            <Eye className="size-4" /> View Details
-                                        </Link>
-                                    </td>
-                                </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan={4} className="px-6 py-16 text-center">
-                                    <p className="text-sm text-gray-400">No companies found matching your criteria.</p>
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
+            <div className="mt-4 w-full overflow-hidden bg-white">
+                <DataTable
+                    columns={columns}
+                    data={filteredCompanies}
+                />
             </div>
         </div>
     );

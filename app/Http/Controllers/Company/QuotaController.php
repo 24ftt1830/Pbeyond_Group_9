@@ -25,7 +25,6 @@ class QuotaController extends Controller
         return Inertia::render('Company/Quotas', [
             'quotas' => $quotas,
             'programmes' => Programme::select('programme_id', 'programme_name')->get(),
-            // Pass the company object so the frontend button guard works
             'company' => $user->company 
         ]);
     }

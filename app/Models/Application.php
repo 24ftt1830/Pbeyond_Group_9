@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Application extends Model
 {
     protected $table = 'applications';
-    public $timestamps = false;
+    // public $timestamps = false;
 
     protected $fillable = [
         'student_id', 'quota_id', 'apply_date',

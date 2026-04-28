@@ -93,7 +93,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('/quotas/{quota}', [App\Http\Controllers\Company\QuotaController::class, 'destroy'])->name('quotas.destroy');
         Route::get('/applications', [App\Http\Controllers\Company\ApplicationController::class, 'index'])->name('applications');
         Route::get('/applications/{quota}', [App\Http\Controllers\Company\ApplicationController::class, 'show'])->name('applications.show');
-        Route::post('/applications/{quota:quota_id}/update-status/{application}', [App\Http\Controllers\Company\ApplicationController::class, 'updateStatus'])->name('applications.update-status');
+        Route::put('/applications/{quota:quota_id}/update-status/{application}', [App\Http\Controllers\Company\ApplicationController::class, 'updateStatus'])->name('applications.update-status');
         Route::get('/representatives', [App\Http\Controllers\Company\RepresentativeController::class, 'index'])->name('representatives');
         Route::get('/profile', [App\Http\Controllers\Company\ProfileController::class, 'index'])->name('profile');
         Route::get('/interns', fn () => Inertia::render('Company/Interns'))->name('interns');

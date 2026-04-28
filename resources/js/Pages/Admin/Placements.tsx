@@ -78,29 +78,28 @@ export default function Placements({
     };
 
     return (
-        <div className="w-full max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8 space-y-8">
+        <div className="p-6">
             <Head title="Placements" />
 
             <header className="flex justify-between items-end w-full">
-                <h1 className="text-3xl font-jakarta font-extrabold text-slate-900 tracking-tight">Placements</h1>
+                <h1 className="text-3xl font-sato font-bold mb-6">Placements</h1>
             </header>
 
-            <div className="w-full rounded-xl flex flex-wrap items-end gap-4">
+            <div className="w-full rounded-xl flex flex-wrap items-end">
                 <div className="flex-[2] min-w-[300px] space-y-1.5">
-                    <label className="text-[10px] font-bold uppercase text-slate-500 ml-1">Search</label>
                     <div className="relative w-full">
                         <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
                         <Input
                             placeholder="Search student or company..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-9 bg-white w-full focus-visible:ring-0 shadow-none"
+                            className="h-9 w-[250px] pl-8 bg-muted text-sm focus-visible:ring-0 shadow-none border-none rounded-full mb-4"
                         />
                     </div>
                 </div>
             </div>
 
-            <div className="w-full overflow-hidden rounded-xl border border-slate-200 bg-white">
+            <div className="w-full overflow-hidden rounded-xlbg-white">
                 <PlacementDataTable data={filteredData} />
             </div>
         </div>

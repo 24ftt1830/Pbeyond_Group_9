@@ -1,11 +1,14 @@
 import { useState, useMemo } from 'react';
-import { Head, router } from '@inertiajs/react';
+import { Head, router, Link } from '@inertiajs/react';
+import { MoreHorizontal, MoreVertical, Eye, MessageCircle, Clock, Check } from 'lucide-react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/Components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/Components/ui/sheet";
 import { DataTable } from "@/Components/ui/data-table";
 import { getColumns } from '@/Components/Applications/columns';
 import { Button } from '@/Components/ui/button';
 import { AnimatedTabsList } from '@/Components/ui/animated-tabs';
+import { Badge } from '@/Components/ui/badge';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/Components/ui/dropdown-menu';
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -14,29 +17,40 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from "@/Components/ui/breadcrumb";
-import { Link } from '@inertiajs/react';
+
+
+const getInitials = (name: string) => {
+    return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+};
+
+
+const DetailItem = ({ label, value }: { label: string, value: string | null | undefined }) => (
+    <div>
+        <p className="text-muted-foreground font-medium text-xs mb-2">{label}</p>
+        <p className="font-normal">{value || 'N/A'}</p>
+    </div>
+);
+
 
 export default function Show({ quota, applications }: { quota: any, applications: any[] }) {
-    const [selectedStudent, setSelectedStudent] = useState<any | null>(null);
     const [activeTab, setActiveTab] = useState("all");
+    const [selectedApplication, setSelectedApplication] = useState<any | null>(null);
+    const isPending = !selectedApplication?.app_status || selectedApplication?.app_status?.toLowerCase() === 'pending';
 
     const filteredApplications = useMemo(() => {
         if (activeTab === "all") return applications;
-
         return applications.filter((app) =>
             (app.app_status || 'pending').toLowerCase() === activeTab
         );
     }, [activeTab, applications]);
 
-    const updateStatus = (applicationId: number, status: string) => {
-        router.post(
+    const updateStatus = (quotaId: number, applicationId: number, status: string) => {
+        router.put(
             route('company.applications.update-status', {
-                quota: quota.quota_id,
+                quota: quotaId,
                 application: applicationId
             }),
-            {
-                status: status
-            },
+            { status: status },
             {
                 preserveScroll: true,
                 preserveState: true,
@@ -44,7 +58,11 @@ export default function Show({ quota, applications }: { quota: any, applications
         );
     };
 
-    const columns = getColumns(updateStatus, setSelectedStudent);
+    const columns = getColumns(updateStatus, setSelectedApplication);
+
+    const currentIndex = selectedApplication
+        ? applications.findIndex(a => a.id === selectedApplication.id) + 1
+        : 0;
 
     return (
         <>
@@ -52,23 +70,21 @@ export default function Show({ quota, applications }: { quota: any, applications
 
             <div className="p-6">
                 <Breadcrumb className="mb-4">
-                <BreadcrumbList>
-                    <BreadcrumbItem>
-                        <BreadcrumbLink asChild>
-                            <Link href={route('company.applications')}>Applications</Link>
-                        </BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator />
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>{quota.job_title}</BreadcrumbPage>
-                    </BreadcrumbItem>
-                </BreadcrumbList>
-            </Breadcrumb>
-                <div className="flex items-center justify-between mb-6">
-                    <div>
-                        <h1 className="font-sato text-3xl font-bold">{quota.job_title}</h1>
-                    </div>
+                    <BreadcrumbList>
+                        <BreadcrumbItem>
+                            <BreadcrumbLink asChild>
+                                <Link href={route('company.applications')}>Applications</Link>
+                            </BreadcrumbLink>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem>
+                            <BreadcrumbPage>{quota.job_title}</BreadcrumbPage>
+                        </BreadcrumbItem>
+                    </BreadcrumbList>
+                </Breadcrumb>
 
+                <div className="flex items-center justify-between mb-6">
+                    <h1 className="font-sato text-3xl font-bold">{quota.job_title}</h1>
                     <Button variant="outline" size="sm" className="shadow-sm">
                         Close application
                     </Button>
@@ -76,7 +92,7 @@ export default function Show({ quota, applications }: { quota: any, applications
 
                 <div className="mb-6">
                     <AnimatedTabsList
-                    groupId="student-applications"
+                        groupId="student-applications"
                         activeValue={activeTab}
                         setActiveValue={setActiveTab}
                         tabs={[
@@ -91,21 +107,91 @@ export default function Show({ quota, applications }: { quota: any, applications
                 <DataTable columns={columns} data={filteredApplications} />
             </div>
 
-            <Sheet open={!!selectedStudent} onOpenChange={() => setSelectedStudent(null)}>
-                <SheetContent className="sm:max-w-md">
-                    <SheetHeader>
-                        <SheetTitle>Student Details</SheetTitle>
-                        <SheetDescription>Comprehensive profile information.</SheetDescription>
+            <Sheet open={!!selectedApplication} onOpenChange={() => setSelectedApplication(null)}>
+                <SheetContent className="sm:max-w-md overflow-y-auto">
+                    <SheetHeader className="flex flex-row items-center justify-between">
+                        <SheetTitle className="text-xs text-muted-foreground font-normal">
+                            {currentIndex} out of {applications.length} candidates
+                        </SheetTitle>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon" className="bg-transparent text-muted-foreground pr-7"><MoreVertical /></Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                {['Waitlisted', 'Recruited', 'Declined'].map((status) => (
+                                    <DropdownMenuItem key={status} onClick={() => updateStatus(selectedApplication?.quota_id, selectedApplication?.id, status)}>
+                                        Mark as {status}
+                                    </DropdownMenuItem>
+                                ))}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </SheetHeader>
-                    {selectedStudent && (
-                        <div className="mt-6 space-y-6">
-                            <div className="space-y-1">
-                                <p className="text-sm font-medium text-muted-foreground">Full Name</p>
-                                <p className="text-base font-semibold">{selectedStudent.full_name}</p>
+
+                    {selectedApplication && (
+                        <div className="mt-4 space-y-6">
+                            <div className="flex items-center gap-4">
+                                <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center text-xl font-bold text-primary">
+                                    {selectedApplication.student.user_image ? (
+                                        <img src={selectedApplication.student.user_image} className="rounded-full w-full h-full object-cover" />
+                                    ) : getInitials(selectedApplication.student.full_name)}
+                                </div>
+                                <div>
+                                    <h2 className="text-xl font-sato font-bold">{selectedApplication.student.full_name}</h2>
+                                    <p className="text-sm text-muted-foreground">{selectedApplication.student.email}</p>
+                                </div>
                             </div>
-                            <div className="space-y-1">
-                                <p className="text-sm font-medium text-muted-foreground">Email Address</p>
-                                <p className="text-base">{selectedStudent.email}</p>
+
+                            <div className="grid grid-cols-2 gap-4 border-b pb-4">
+                                <div>
+                                    <p className="text-xs text-muted-foreground font-medium mb-2">Stage</p>
+                                    <p className="text-sm font-normal">Application review</p>
+                                </div>
+                                <div>
+                                    <p className="text-xs text-muted-foreground font-medium mb-2">State</p>
+                                    <p className="text-sm font-normal flex items-center gap-1">
+                                        {isPending ? (
+                                            <>
+                                                <Clock className="h-4 w-4" />
+                                                Pending
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Check className="h-4 w-4" />
+                                                Completed
+                                            </>
+                                        )}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="space-y-4">
+                                <h3 className="font-semibold text-sm">Academic Details</h3>
+                                <div className="grid grid-cols-2 gap-y-3 text-sm">
+                                    <DetailItem label="Student ID" value={selectedApplication.student.student_code} />
+                                    <DetailItem label="Email" value={selectedApplication.student.email} />
+                                    <DetailItem label="Phone" value={selectedApplication.student.phone} />
+                                    <DetailItem label="CGPA" value={selectedApplication.student.cgpa} />
+                                    <DetailItem label="Programme" value={selectedApplication.student.programme?.programme_name} />
+                                </div>
+                                {selectedApplication.student.cv_path && (
+                                    <Button variant="outline" className="w-full" onClick={() => window.open(selectedApplication.student.cv_path, '_blank')}>
+                                        View CV Attachment
+                                    </Button>
+                                )}
+                            </div>
+
+                            <div className="space-y-4 pt-4 border-t">
+                                <h3 className="font-semibold text-sm">Activity</h3>
+                                <div className="relative border-l ml-2 pl-6 space-y-6">
+                                    <div className="relative before:absolute before:-left-[29px] before:top-1 before:h-3 before:w-3 before:rounded-full before:bg-primary">
+                                        <p className="text-sm font-medium">Application submitted</p>
+                                        <p className="text-xs text-muted-foreground">{new Date(selectedApplication.created_at).toLocaleString()}</p>
+                                    </div>
+                                    <div className="relative before:absolute before:-left-[29px] before:top-1 before:h-3 before:w-3 before:rounded-full before:bg-muted-foreground">
+                                        <p className="text-sm font-medium">Application review stage</p>
+                                        <p className="text-xs text-muted-foreground">{new Date(selectedApplication.updated_at).toLocaleString()}</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     )}

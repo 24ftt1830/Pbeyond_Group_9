@@ -6,6 +6,11 @@ import { Label } from "@/Components/ui/label";
 import { Input } from "@/Components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select";
 import { Textarea } from "@/Components/ui/textarea";
+import {
+    Field,
+    FieldDescription,
+    FieldLabel,
+} from "@/Components/ui/field"
 
 interface Student {
     full_name: string;
@@ -60,13 +65,13 @@ export default function Profile({ student }: ProfileProps) {
     });
 
     const submit = (e: FormEvent) => {
-    e.preventDefault();
-    console.log("Submit button clicked! sending data");
+        e.preventDefault();
+        console.log("Submit button clicked! sending data");
 
-    post(route('student.profile.update'), {
-        preserveScroll: true,
-    });
-};
+        post(route('student.profile.update'), {
+            preserveScroll: true,
+        });
+    };
 
     const handlePhotoChange = (e: ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -85,10 +90,9 @@ export default function Profile({ student }: ProfileProps) {
     return (
         <AuthenticatedLayout>
             <div className="p-6 space-y-6">
-                <h1 className="text-3xl font-bold">My Profile</h1>
+                <h1 className="font-sato text-3xl font-bold">My Profile</h1>
 
                 <form onSubmit={submit} className="space-y-6">
-                    {/* Personal Information Card */}
                     <Card className="shadow-none">
                         <CardHeader>
                             <CardTitle>Personal Information</CardTitle>
@@ -104,7 +108,16 @@ export default function Profile({ student }: ProfileProps) {
                                             <span className="text-gray-400 text-xs text-center">No photo</span>
                                         )}
                                     </div>
-                                    <div className="flex-1 w-full">
+                                    <div>
+                                        <Field>
+                                            <Input 
+                                            id="picture" 
+                                            type="file" 
+                                            onChange={handlePhotoChange}
+                                            className="border-outline shadow-none pt-1.5"
+                                            />
+                                        </Field>
+                                        {/*}
                                         <Input
                                             ref={fileInputRef}
                                             type="file"
@@ -112,6 +125,7 @@ export default function Profile({ student }: ProfileProps) {
                                             onChange={handlePhotoChange}
                                             className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                                         />
+                                        */}
                                         <p className="text-xs text-gray-500 mt-2">JPEG, PNG, JPG only. Max 2MB.</p>
                                         {errors.passport_photo && <p className="text-red-500 text-xs mt-1">{errors.passport_photo}</p>}
                                     </div>
@@ -121,13 +135,13 @@ export default function Profile({ student }: ProfileProps) {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-2">
                                     <Label>Full Name</Label>
-                                    <Input value={data.full_name} onChange={e => setData('full_name', e.target.value)} />
+                                    <Input value={data.full_name} onChange={e => setData('full_name', e.target.value)} className="shadow-none" />
                                     {errors.full_name && <p className="text-red-500 text-xs">{errors.full_name}</p>}
                                 </div>
 
                                 <div className="space-y-2">
                                     <Label>IC Number</Label>
-                                    <Input value={data.ic_number} onChange={e => setData('ic_number', e.target.value)} />
+                                    <Input value={data.ic_number} onChange={e => setData('ic_number', e.target.value)} className="shadow-none" />
                                     {errors.ic_number && <p className="text-red-500 text-xs">{errors.ic_number}</p>}
                                 </div>
 
@@ -147,12 +161,12 @@ export default function Profile({ student }: ProfileProps) {
 
                                 <div className="space-y-2">
                                     <Label>Intake Session</Label>
-                                    <Input value={data.intake_session} onChange={e => setData('intake_session', e.target.value)} />
+                                    <Input value={data.intake_session} onChange={e => setData('intake_session', e.target.value)} className="shadow-none" />
                                 </div>
 
                                 <div className="md:col-span-2 space-y-2">
                                     <Label>Postal Address</Label>
-                                    <Textarea value={data.postal_address} onChange={e => setData('postal_address', e.target.value)} />
+                                    <Textarea value={data.postal_address} onChange={e => setData('postal_address', e.target.value)} className="shadow-none" />
                                 </div>
                             </div>
                         </CardContent>
@@ -166,25 +180,25 @@ export default function Profile({ student }: ProfileProps) {
                         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
                                 <Label>Curriculum Vitae (CV)</Label>
-                                <Input type="file" onChange={(e) => handleFileChange(e, 'cv')} />
+                                <Input type="file" onChange={(e) => handleFileChange(e, 'cv')} className="shadow-none pt-1.5" />
                                 {errors.cv && <p className="text-red-500 text-xs">{errors.cv}</p>}
                             </div>
 
                             <div className="space-y-2">
                                 <Label>Identity Card (IC)</Label>
-                                <Input type="file" onChange={(e) => handleFileChange(e, 'identity_card')} />
+                                <Input type="file" onChange={(e) => handleFileChange(e, 'identity_card')} className="shadow-none pt-1.5" />
                                 {errors.identity_card && <p className="text-red-500 text-xs">{errors.identity_card}</p>}
                             </div>
 
                             <div className="space-y-2">
                                 <Label>Driver's License</Label>
-                                <Input type="file" onChange={(e) => handleFileChange(e, 'drivers_license')} />
+                                <Input type="file" onChange={(e) => handleFileChange(e, 'drivers_license')} className="shadow-none pt-1.5" />
                                 {errors.drivers_license && <p className="text-red-500 text-xs">{errors.drivers_license}</p>}
                             </div>
 
                             <div className="space-y-2">
                                 <Label>Academic Results</Label>
-                                <Input type="file" onChange={(e) => handleFileChange(e, 'results')} />
+                                <Input type="file" onChange={(e) => handleFileChange(e, 'results')} className="shadow-none pt-1.5" />
                                 {errors.results && <p className="text-red-500 text-xs">{errors.results}</p>}
                             </div>
                         </CardContent>
@@ -198,11 +212,11 @@ export default function Profile({ student }: ProfileProps) {
                         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
                                 <Label>CGPA</Label>
-                                <Input type="number" step="0.01" value={data.cgpa} onChange={e => setData('cgpa', e.target.value)} />
+                                <Input type="number" step="0.01" value={data.cgpa} onChange={e => setData('cgpa', e.target.value)} className="shadow-none" />
                             </div>
                             <div className="md:col-span-2 space-y-2">
                                 <Label>Work Experience</Label>
-                                <Textarea value={data.work_experience} onChange={e => setData('work_experience', e.target.value)} />
+                                <Textarea value={data.work_experience} onChange={e => setData('work_experience', e.target.value)} className="shadow-none" />
                             </div>
                         </CardContent>
                     </Card>

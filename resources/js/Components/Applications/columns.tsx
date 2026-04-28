@@ -10,8 +10,17 @@ const STATUS_OPTIONS = [
     { label: "Decline", value: "Declined" },
 ];
 
+const getBadgeVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
+    switch (status) {
+        case "Recruited": return "default";
+        case "Waitlisted": return "secondary";
+        case "Declined": return "destructive";
+        default: return "outline";
+    }
+};
+
 export const getColumns = (
-    updateStatus: (id: number, status: string) => void,
+    updateStatus: (quotaId: number, applicationId: number, status: string) => void,
     onViewDetails: (student: any) => void
 ): ColumnDef<any>[] => [
         {
@@ -28,25 +37,24 @@ export const getColumns = (
             header: "Status",
             cell: ({ row }) => {
                 const app = row.original;
-                const colors: Record<string, string> = {
-                    Recruited: 'bg-green-500',
-                    Waitlisted: 'bg-yellow-500',
-                    Declined: 'bg-red-500',
-                    Pending: 'bg-gray-400'
-                };
                 const status = app.app_status || 'Pending';
-                const badgeColor = colors[status] || 'bg-gray-500';
 
                 return (
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Badge className={`cursor-pointer ${colors[app.app_status] || 'bg-gray-500'}`}>
-                                {app.app_status || 'Pending'}
+                            <Badge
+                                variant={getBadgeVariant(status)}
+                                className="cursor-pointer hover:opacity-80 transition-opacity"
+                            >
+                                {status}
                             </Badge>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent>
                             {STATUS_OPTIONS.map((opt) => (
-                                <DropdownMenuItem key={opt.value} onClick={() => updateStatus(app.application_id, opt.value)}>
+                                <DropdownMenuItem
+                                    key={opt.value}
+                                    onClick={() => updateStatus(app.quota_id, app.application_id, opt.value)}
+                                >
                                     {opt.label}
                                 </DropdownMenuItem>
                             ))}
@@ -56,10 +64,10 @@ export const getColumns = (
             },
         },
         {
-            accessorKey: "apply_date",
+            accessorKey: "created_at",
             header: "Applied On",
             cell: ({ row }) => {
-                const date = row.original.apply_date;
+                const date = row.original.created_at;
                 return date
                     ? new Date(date).toLocaleString(undefined, {
                         dateStyle: 'medium',
@@ -75,18 +83,19 @@ export const getColumns = (
                 return (
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon"><MoreHorizontal className="w-4 h-4" /></Button>
+                            <Button variant="ghost" size="icon" className="bg-transparent"><MoreHorizontal className="w-4 h-4" /></Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                             <DropdownMenuItem onClick={() => alert('Remark feature coming soon')}>
                                 <MessageCircle className="w-4 h-4" /> Remark
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onViewDetails(app.student)}>
+                            <DropdownMenuItem onClick={() => onViewDetails(app)}>
                                 <Eye className="w-4 h-4" /> View Details
                             </DropdownMenuItem>
-                            {/* Status Actions in the main menu */}
                             {STATUS_OPTIONS.map((opt) => (
-                                <DropdownMenuItem key={opt.value} onClick={() => updateStatus(app.application_id, opt.value)}>
+                                <DropdownMenuItem 
+                                key={opt.value} 
+                                onClick={() => updateStatus(app.quota_id, app.id, opt.value)}>
                                     {opt.label}
                                 </DropdownMenuItem>
                             ))}

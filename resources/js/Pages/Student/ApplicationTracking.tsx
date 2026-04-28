@@ -39,7 +39,7 @@ export default function ApplicationTracking({ applications = [] }: { application
 
     return (
         <div className="p-6">
-            <h1 className="text-3xl font-bold mb-6">Application Tracking</h1>
+            <h1 className="text-3xl font-bold font-sato mb-6">Application Tracking</h1>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2">
