@@ -83,7 +83,7 @@ export function UserSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) 
                     </Link>
 
                     <div className="flex items-center group-data-[collapsible=icon]:w-full group-data-[collapsible=icon]:justify-center">
-                        <SidebarTrigger className="hover:bg-sidebar-accent" />
+                        <SidebarTrigger className="bg-transparent" />
                     </div>
                 </div>
             </SidebarHeader>
@@ -93,7 +93,8 @@ export function UserSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) 
                     <NavMain items={data.navPrimary} label="Student Portal" />
                 </div>
                 <SidebarSeparator />
-                <NavMain items={data.navSecondary} label="Resources" />
+            
+                    <NavMain items={data.navSecondary} label="Resources" />
             </SidebarContent>
 
             <SidebarFooter>
@@ -103,7 +104,7 @@ export function UserSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) 
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <SidebarMenuButton size="sm" className="focus-visible:ring-0">
-                                    <LifeBuoy className="size-4" /> 
+                                    <LifeBuoy className="size-4" />
                                     <span>Support</span>
                                 </SidebarMenuButton>
                             </DropdownMenuTrigger>
@@ -130,7 +131,8 @@ export function UserSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) 
                 </SidebarMenu>
 
                 {/* User Account */}
-                <NavUser user={auth.user} />
+                    <NavUser user={auth.user} />
+
             </SidebarFooter>
         </Sidebar>
     )

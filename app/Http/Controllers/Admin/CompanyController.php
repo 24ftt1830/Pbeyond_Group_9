@@ -17,14 +17,17 @@ class CompanyController extends Controller
     public function index()
     {
         $companies = Company::with(['placementQuotas.applications' => function ($query) {
-            $query->where('app_status', 'Approved');
+            $query->where('app_status', 'Recruited');
         }])->get();
 
         $companiesData = $companies->map(function ($company) {
             $totalQuota = $company->placementQuotas->sum('total_slots');
+            
+            // count applications with 'Recruited'
             $filled = $company->placementQuotas->sum(function ($quota) {
                 return $quota->applications->count();
             });
+
             $available = $totalQuota - $filled;
 
             return [
@@ -34,6 +37,7 @@ class CompanyController extends Controller
                 'total_quota'     => (int)$totalQuota,
                 'filled'          => (int)$filled,
                 'available'       => (int)$available,
+                'is_full'         => $available <= 0,
                 'industry_sector' => $company->industry_sector ?? 'General',
                 'is_approved'     => (bool)$company->is_approved,
             ];

@@ -55,7 +55,7 @@ export default function Representatives({ company, representatives = [] }: Props
                                 <Card key={rep.user_id} className="shadow-none">
                                     <CardHeader className="pb-3">
                                         <div className="flex items-center justify-between">
-                                            <div className="p-2 bg-slate-100 rounded-lg w-fit">
+                                            <div className="rounded-lg w-fit">
                                                 <Users className="size-5 text-slate-600" />
                                             </div>
                                             {rep.user_id === auth.user.user_id && (

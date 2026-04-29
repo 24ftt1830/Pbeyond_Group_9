@@ -4,70 +4,50 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\PlacementQuota;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        $student = auth()->user()->student;
+        $student = Auth::user()->student;
+        $programmeId= $student->programme_id;
 
-        // 1. Recent Applications (latest 3)
-        $recentApplications = $student->applications()
-            ->with(['quota.company'])
-            ->latest('created_at')
-            ->take(3)
-            ->get()
-            ->map(fn($app) => [
-                'id'         => $app->application_id,
-                'company'    => $app->quota->company->company_name ?? 'Unknown',
-                'status'     => $app->app_status,
-                'applied_at' => $app->created_at->format('d M Y'),
-            ]);
-
-        // 2. Recommended Companies
-        // Get quotas that match student's programme, are released, approved, have available slots,
-        // and the student hasn't applied to.
-        $appliedQuotaIds = $student->applications()->pluck('quota_id')->toArray();
-
-        $recommendedQuotas = PlacementQuota::with('company')
-            ->where('programme_id', $student->programme_id)
-            ->where('is_released', true)
-            ->where('quota_status', 'Approved')
-            ->whereNotIn('quota_id', $appliedQuotaIds)
-            ->whereRaw('total_slots > (SELECT COUNT(*) FROM applications WHERE applications.quota_id = placement_quotas.quota_id AND applications.app_status = "Approved")')
-            ->orderBy('min_cgpa')
-            ->take(5)
-            ->get()
-            ->map(fn($quota) => [
-                'id'       => $quota->company->company_id,
-                'name'     => $quota->company->company_name,
-                'job_title'=> $quota->job_title,
-                'slots'    => $quota->total_slots - $quota->applications()->where('app_status', 'Approved')->count(),
-            ]);
-
-        // 3. Reminders
-        $reminders = [];
-
-        $pendingCount = $student->applications()->where('app_status', 'Pending')->count();
-        if ($pendingCount > 0) {
-            $reminders[] = "You have {$pendingCount} pending application(s). Check your tracking page for updates.";
-        }
-
-        if ($student->applications()->count() == 0) {
-            $reminders[] = "You haven't applied to any company yet. Browse companies and start your internship journey!";
-        }
-
+        // retrieve quotas where programme_id matches the student's
+        $quotas = PlacementQuota::where('programme_id', $programmeId)
+            ->with([
+                'company:company_id,company_name,office_address',
+            'applications' => function ($query) {
+                $query->where('app_status', 'Recruited');
+            }
+            ])
+            ->get();
+        
         // Optional: add upcoming deadlines if you have a 'deadline' field on quotas
         // $upcomingDeadlines = PlacementQuota::where('deadline', '>=', now())->orderBy('deadline')->take(3)->get();
         // foreach ($upcomingDeadlines as $deadline) {
         //     $reminders[] = "Application deadline for {$deadline->company->company_name} is on " . $deadline->deadline->format('d M Y');
         // }
 
+        $quotasWithStats = $quotas->map(function ($quota) {
+        $filled = $quota->applications->count();
+        $available = $quota->total_slots - $filled;
+
+        return [
+            'quota_id'        => $quota->quota_id,
+            'position_title'  => $quota->job_title,
+            'total_slots'     => $quota->total_slots,
+            'filled'          => $filled,
+            'available'       => max(0, $available), 
+            'is_full'         => $available <= 0,
+            'company'         => $quota->company,
+        ];
+    });
+
         return Inertia::render('Student/Dashboard', [
-            'recentApplications'  => $recentApplications,
-            'recommendedCompanies' => $recommendedQuotas,
-            'reminders'           => $reminders,
+            'availableQuotas' => $quotasWithStats,
+            'studentProgramme' => $student->programme->programme_name,
         ]);
     }
 }

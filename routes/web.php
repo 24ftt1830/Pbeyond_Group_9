@@ -27,6 +27,7 @@ Route::get('/', function () {
 
 Route::middleware('auth')->group(function () {
     // --- Shared / Dev Routes ---
+    if (app()->environment('local', 'staging')) {
     Route::post('/dev/switch-role/{role}', function ($role) {
         if (! in_array($role, ['Admin', 'Student', 'Company'])) {
             return back()->withErrors('Invalid role');
@@ -34,6 +35,7 @@ Route::middleware('auth')->group(function () {
         auth()->user()->update(['role' => $role]);
         return back()->with('success', 'Role updated!');
     })->name('dev.switch-role');
+}
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');

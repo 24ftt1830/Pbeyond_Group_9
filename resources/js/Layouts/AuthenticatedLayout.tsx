@@ -54,7 +54,7 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
         <SidebarProvider>
             <SelectedSidebar />
 
-            <SidebarInset className="min-w-0 overflow-x-hidden">
+            <SidebarInset className="min-w-0 h-screen flex flex-col">
                 <header className="flex h-16 shrink-0 items-center justify-between border-b px-10">
                         <CommandMenu />
                     {/*
@@ -86,7 +86,7 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
                     </Button>*/}
                 </header>
 
-                <div className="flex flex-1 flex-col gap-4 p-4 pt-0 min-h-screen overflow-x-hidden">
+                <div className="main-scroll flex flex-1 flex-col gap-4 p-4 pt-0 overflow-y-auto overflow-x-hidden">
                     {children}
                     <Toaster />
                 </div>

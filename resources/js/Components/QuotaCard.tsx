@@ -38,15 +38,15 @@ export default function QuotaCard({ quota, isEditMode, onDelete }: QuotaCardProp
 
             <CardContent className="grid grid-cols-3 gap-4 border-t border-border pt-4">
                 <div className="space-y-1">
-                    <span className="text-[10px] font-bold uppercase text-muted-foreground">Seats</span>
+                    <span className="text-xs font-semibold text-muted-foreground">Seats</span>
                     <p className="text-sm font-mono font-bold">{quota.total_slots}</p>
                 </div>
                 <div className="space-y-1">
-                    <span className="text-[10px] font-bold uppercase text-muted-foreground">CGPA</span>
+                    <span className="text-xs font-semibold text-muted-foreground">CGPA</span>
                     <p className="text-sm font-mono font-bold">{quota.min_cgpa}</p>
                 </div>
                 <div className="space-y-1">
-                    <span className="text-[10px] font-bold uppercase text-muted-foreground">Interview</span>
+                    <span className="text-xs font-semibold text-muted-foreground">Interview</span>
                     <p className="text-sm font-bold">{quota.interview_required ? 'Yes' : 'No'}</p>
                 </div>
             </CardContent>

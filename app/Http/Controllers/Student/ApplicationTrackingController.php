@@ -26,11 +26,15 @@ class ApplicationTrackingController extends Controller
             return [
                 'id' => $app->id,
                 'status_label' => $app->app_status, 
-                'applied_at' => $app->apply_date,
+                'applied_at' => $app->created_at,
+                'reviewed_at' => in_array($app->app_status, ['Recruited', 'Declined']) ? $app->updated_at : null,
                 'step' => $this->calculateStep($app->app_status), 
                 'company' => [
                     'name' => $app->quota->company->company_name ?? 'Unknown Company',
                 ],
+                'quota' => [
+                    'job_title' => $app->quota->job_title ?? 'N/A',
+                ]
             ];
         });
 

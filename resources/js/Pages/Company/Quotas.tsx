@@ -164,10 +164,10 @@ export default function Quotas({ quotas = [], programmes = [] }) {
 
             {/* Filter Section */}
             <div className="relative max-w-sm">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground size-4" />
                 <Input
                     placeholder="Search by job title..."
-                    className="pl-9"
+                    className="h-9 w-[250px] pl-8 shadow-none text-sm rounded-full bg-muted border-none focus-visible:ring-transparent"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />

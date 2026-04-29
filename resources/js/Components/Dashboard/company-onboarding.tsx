@@ -7,8 +7,6 @@ import { DitherShader } from "@/Components/ui/dither-shader";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/Components/ui/sheet";
 import { Info } from "lucide-react";
 import profile from "../../../images/profile-two.png";
-import fileStack from "../../../images/file-stack-2.png";
-import magnify from "../../../images/magnify.png";
 import pointer from "../../../images/pointer.png";
 import pin from "../../../images/pin.png";
 
@@ -45,34 +43,28 @@ const steps: Step[] = [
   {
     title: "Set up your profile",
     image: profile,
-    description: "Complete your details so organizations can learn more about you.",
-    buttons: [{ label: "Edit Profile", href: "/student/profile" }],
+    description: "Complete your details so students can learn more about your team.",
+    buttons: [{ label: "Edit Profile", href: "/company/profile" }],
     info: {
       title: "Why set up your profile?",
       description: (
         <div className="space-y-2 text-sm text-muted-foreground">
-          <p>A complete profile helps organizations find and evaluate you faster.</p>
-          <p>Make sure to include your skills, resume, and a short bio.</p>
+          <p>A complete profile helps students learn more about your team and increases your visibility to prospective candidates.</p>
         </div>
       ),
     },
   },
   {
-    title: "Browse for opportunities",
-    image: magnify,
-    description: "Check out the latest internships and job openings offered by organizations.",
-    buttons: [{ label: "Browse quotas", href: "/student/companies" }],
-  },
-  {
-    title: "Apply to a position",
+    title: "Publish a quota",
     image: pointer,
-    description: "Submit your application for the position you're interested in.",
+    description: "Start creating job postings to attract talented students.",
+    buttons: [{ label: "Create quotas", href: "/company/quotas" }],
   },
   {
-    title: "Track your application",
+    title: "Track applications",
     image: pin,
-    description: "Stay updated on the status of your application.",
-    buttons: [{ label: "View status", href: "/student/application-tracking" }],
+    description: "Review and manage the applications you've received.",
+    buttons: [{ label: "View all", href: "/company/applications" }],
   },
 ];
 
