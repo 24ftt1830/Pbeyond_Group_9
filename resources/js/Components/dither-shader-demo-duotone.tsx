@@ -6,12 +6,12 @@ export default function DitherShaderDemoDuotone() {
     <div className="h-full w-full relative bg-muted aspect-[9/16] lg:aspect-auto">
       <DitherShader
         src={bridge}
-        gridSize={1}
-        ditherMode="bayer"
+        gridSize={2}
+        ditherMode="crosshatch"
         colorMode="duotone"
         primaryColor="#f5f5f5"
         secondaryColor="#214cf1"
-        threshold={0.45}
+        threshold={0.5}
         className="h-full w-full object-cover object-bottom"
       />
 

@@ -11,6 +11,7 @@ import {
     FieldDescription,
     FieldLabel,
 } from "@/Components/ui/field"
+import { Button } from '@/Components/ui/button';
 
 interface Student {
     full_name: string;
@@ -222,13 +223,14 @@ export default function Profile({ student }: ProfileProps) {
                     </Card>
 
                     <div className="flex justify-end">
-                        <button
+                        <Button
                             type="submit"
+                            size="lg"
                             disabled={processing}
                             className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-md disabled:opacity-50"
                         >
                             {processing ? 'Saving...' : 'Save Profile'}
-                        </button>
+                        </Button>
                     </div>
                 </form>
             </div>

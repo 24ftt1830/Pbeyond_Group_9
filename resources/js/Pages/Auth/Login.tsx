@@ -86,8 +86,7 @@ export default function Login({ status, canResetPassword }: { status?: string; c
                                 <Button type="submit" className="w-full shadow-none" disabled={processing}>
                                     {processing ? (
                                         <>
-                                            <LoaderCircleIcon className="mr-2 size-4 animate-spin" />
-                                            Logging in...
+                                            <LoaderCircleIcon className="size-4 animate-spin" />
                                         </>
                                     ) : (
                                         'Log in'

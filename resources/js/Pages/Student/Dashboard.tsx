@@ -18,11 +18,15 @@ export default function Dashboard() {
                 There are a few more steps required before you can start collaborating with industry partners.
             </p>
 
-            <div>
+        <div>
                 <ScrollAreaHorizontalDemo />
             </div>
+
+            <div className="mt-4">
+                <h1 className="text-xl font-bold font-sato">Available quotas</h1>
+            </div>
         </div>
-            
+
     );
 }
 

@@ -4,12 +4,10 @@ import { PageProps, UserRole } from '@/types'
 import { CommandMenu } from "@/Components/ui/command-menu"
 import { Toaster } from "@/Components/ui/sonner";
 
-// Sidebar Components
 import { AdminSidebar } from "@/Components/Sidebars/AdminSidebar"
 import { CompanySidebar } from "@/Components/Sidebars/CompanySidebar"
 import { UserSidebar } from "@/Components/Sidebars/UserSidebar"
 
-// Shadcn UI Components
 import { SidebarInset, SidebarProvider } from "@/Components/ui/sidebar"
 
 export default function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
@@ -56,7 +54,7 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
         <SidebarProvider>
             <SelectedSidebar />
 
-            <SidebarInset>
+            <SidebarInset className="min-w-0 overflow-x-hidden">
                 <header className="flex h-16 shrink-0 items-center justify-between border-b px-10">
                         <CommandMenu />
                     {/*
@@ -88,7 +86,7 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
                     </Button>*/}
                 </header>
 
-                <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+                <div className="flex flex-1 flex-col gap-4 p-4 pt-0 min-h-screen overflow-x-hidden">
                     {children}
                     <Toaster />
                 </div>
