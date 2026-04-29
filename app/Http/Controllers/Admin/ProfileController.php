@@ -10,7 +10,7 @@ use Inertia\Inertia;
 class ProfileController extends Controller
 {
     public function index(Request $request)
-    {;
+    {
 
         return Inertia::render('Admin/Profile', [
             'user' => Auth::user(),

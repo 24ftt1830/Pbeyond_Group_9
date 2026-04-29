@@ -1,13 +1,10 @@
 <?php
 
-use App\Http\Controllers\Admin\ApplicationController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\Student\ApplicationTrackingController;
 use App\Http\Controllers\Student\CalendarController as StudentCalendarController;
 use App\Http\Controllers\Student\CompanyController as StudentCompanyController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
-use App\Http\Controllers\Student\DocumentController as StudentDocumentController;
 use App\Http\Controllers\Student\FaqController as StudentFaqController;
 use App\Http\Controllers\Student\FavouriteController as StudentFavouriteController;
 use App\Http\Controllers\Student\ProfileController as StudentProfileController;
@@ -28,14 +25,15 @@ Route::get('/', function () {
 Route::middleware('auth')->group(function () {
     // --- Shared / Dev Routes ---
     if (app()->environment('local', 'staging')) {
-    Route::post('/dev/switch-role/{role}', function ($role) {
-        if (! in_array($role, ['Admin', 'Student', 'Company'])) {
-            return back()->withErrors('Invalid role');
-        }
-        auth()->user()->update(['role' => $role]);
-        return back()->with('success', 'Role updated!');
-    })->name('dev.switch-role');
-}
+        Route::post('/dev/switch-role/{role}', function ($role) {
+            if (! in_array($role, ['Admin', 'Student', 'Company'])) {
+                return back()->withErrors('Invalid role');
+            }
+            auth()->user()->update(['role' => $role]);
+
+            return back()->with('success', 'Role updated!');
+        })->name('dev.switch-role');
+    }
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -60,7 +58,7 @@ Route::middleware('auth')->group(function () {
             Route::post('/{quota}/release', [App\Http\Controllers\Admin\PlacementController::class, 'release'])->name('release');
             Route::get('/{quota}/applications', [App\Http\Controllers\Admin\PlacementController::class, 'applications'])->name('applications');
         });
-        
+
         // General Placements index
         Route::get('/placements', [App\Http\Controllers\Admin\PlacementController::class, 'index'])->name('placements');
 
@@ -76,7 +74,7 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/applications', [App\Http\Controllers\Admin\ApplicationController::class, 'index'])->name('applications');
         Route::get('/profile', [App\Http\Controllers\Admin\ProfileController::class, 'index'])->name('profile');
-        
+
         Route::prefix('reports')->group(function () {
             Route::get('/', [App\Http\Controllers\Admin\ReportController::class, 'index'])->name('reports');
             Route::post('/{report}/resolve', [App\Http\Controllers\Admin\ReportController::class, 'resolve'])->name('reports.resolve');
@@ -89,15 +87,16 @@ Route::middleware('auth')->group(function () {
 
     // --- Company Routes ---
     Route::middleware(['role:Company'])->prefix('company')->name('company.')->group(function () {
-        Route::get('/dashboard', fn () => Inertia::render('Company/Dashboard'))->name('dashboard');
+        Route::get('/dashboard', [App\Http\Controllers\Company\DashboardController::class, 'index'])->name('dashboard');
         Route::get('/quotas', [App\Http\Controllers\Company\QuotaController::class, 'index'])->name('quotas');
         Route::post('/quotas', [App\Http\Controllers\Company\QuotaController::class, 'store'])->name('quotas.store');
         Route::delete('/quotas/{quota}', [App\Http\Controllers\Company\QuotaController::class, 'destroy'])->name('quotas.destroy');
         Route::get('/applications', [App\Http\Controllers\Company\ApplicationController::class, 'index'])->name('applications');
         Route::get('/applications/{quota}', [App\Http\Controllers\Company\ApplicationController::class, 'show'])->name('applications.show');
+        Route::get('/application/{application}', [App\Http\Controllers\Company\ApplicationController::class, 'viewSingle'])->name('applications.view');
         Route::put('/applications/{quota:quota_id}/update-status/{application}', [App\Http\Controllers\Company\ApplicationController::class, 'updateStatus'])->name('applications.update-status');
         Route::get('/representatives', [App\Http\Controllers\Company\RepresentativeController::class, 'index'])->name('representatives');
-        Route::get('/profile', [App\Http\Controllers\Company\ProfileController::class, 'index'])->name('profile');
+        Route::get('/profile', [App\Http\Controllers\Company\ProfileController::class, 'show'])->name('profile');
         Route::get('/interns', fn () => Inertia::render('Company/Interns'))->name('interns');
         Route::get('/contact-support', fn () => Inertia::render('Company/ContactSupport'))->name('contact-support');
         Route::get('/faqs', fn () => Inertia::render('Company/Faqs'))->name('faqs');

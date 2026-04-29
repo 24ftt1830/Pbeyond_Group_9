@@ -2,121 +2,121 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
 import { Users, Building2, ClipboardCheck, AlertCircle, ArrowRight, TrendingUp } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/Components/ui/card";
+import { Badge } from "@/Components/ui/badge";
+import { Avatar, AvatarFallback } from "@/Components/ui/avatar";
 
-export default function AdminDashboard({ auth, stats, activities, chartData }: any) {
+const MOCK_DATA = {
+    stats: {
+        pending_companies: 12,
+        pending_quotas: 8,
+        total_students: 156,
+        unplaced_students: 42
+    },
+    chart: [
+        { name: 'Placed', value: 114, color: '#10b981' },
+        { name: 'Unplaced', value: 42, color: '#f43f5e' },
+    ],
+    activities: [
+        { id: 1, initials: 'JD', student_name: 'John Doe', company_name: 'TechCorp Solutions', status: 'Accepted', date: '2 hours ago' },
+        { id: 2, initials: 'AS', student_name: 'Alice Smith', company_name: 'Innovate Ltd', status: 'Pending', date: '5 hours ago' },
+    ]
+};
+
+export default function AdminDashboard() {
     return (
-        <AuthenticatedLayout
-            user={auth.user}
-            header={<h2 className="font-semibold text-xl text-zinc-800 leading-tight">Admin Insights</h2>}
-        >
+        <>
             <Head title="Admin Dashboard" />
 
-            <div className="p-8 bg-zinc-50 min-h-screen">
-                {/* Metric Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-                    <StatCard label="Pending Companies" value={stats.pending_companies} icon={<Building2 />} color="orange" link="/admin/companies" />
-                    <StatCard label="Quota Requests" value={stats.pending_quotas} icon={<ClipboardCheck />} color="blue" link="/admin/quotas" />
-                    <StatCard label="Total Students" value={stats.total_students} icon={<Users />} color="purple" link="/admin/students" />
-                    <StatCard label="Unplaced Students" value={stats.unplaced_students} icon={<AlertCircle />} color="red" link="/admin/applications" />
-                </div>
+            <div className="p-6">
+                <h1 className="text-3xl font-sato font-bold mb-6">Overview</h1>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Donut Chart */}
-                    <div className="lg:col-span-1 bg-white p-8 rounded-2xl border border-zinc-200 shadow-sm flex flex-col">
-                        <div className="flex items-center gap-2 mb-6">
-                            <TrendingUp className="h-4 w-4 text-zinc-400" />
-                            <h3 className="font-bold text-zinc-800 uppercase text-xs tracking-widest">Placement Rate</h3>
-                        </div>
-                        <div className="flex-1 min-h-[250px]">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <PieChart>
-                                    <Pie
-                                        data={chartData}
-                                        innerRadius={70}
-                                        outerRadius={90}
-                                        paddingAngle={10}
-                                        dataKey="value"
-                                        stroke="none"
-                                    >
-                                        {chartData.map((entry: any, index: number) => (
-                                            <Cell key={`cell-${index}`} fill={entry.color} cornerRadius={8} />
-                                        ))}
-                                    </Pie>
-                                    <Tooltip contentStyle={{ borderRadius: '12px', border: 'none' }} />
-                                </PieChart>
-                            </ResponsiveContainer>
-                        </div>
-                        <div className="mt-4 space-y-2">
-                            {chartData.map((item: any) => (
-                                <div key={item.name} className="flex justify-between items-center text-sm">
-                                    <div className="flex items-center gap-2 text-zinc-600">
-                                        <div className="h-2 w-2 rounded-full" style={{ backgroundColor: item.color }} />
-                                        {item.name}
-                                    </div>
-                                    <span className="font-bold text-zinc-900">{item.value}</span>
-                                </div>
-                            ))}
-                        </div>
+                <div className="space-y-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <StatCard 
+                            label="Pending Companies" 
+                            // Using the static object directly
+                            value={MOCK_DATA.stats.pending_companies} 
+                            icon={<Building2 className="size-4" />} 
+                            link="/admin/companies" 
+                        />
+                        <StatCard label="Quota Requests" value={MOCK_DATA.stats.pending_quotas} icon={<ClipboardCheck className="size-4" />} link="/admin/quotas" />
+                        <StatCard label="Total Students" value={MOCK_DATA.stats.total_students} icon={<Users className="size-4" />} link="/admin/students" />
+                        <StatCard label="Unplaced Students" value={MOCK_DATA.stats.unplaced_students} icon={<AlertCircle className="size-4" />} link="/admin/applications" />
                     </div>
 
-                    {/* Activity Feed */}
-                    <div className="lg:col-span-2 bg-white rounded-2xl border border-zinc-200 shadow-sm overflow-hidden flex flex-col">
-                        <div className="px-8 py-6 border-b border-zinc-100 flex justify-between items-center">
-                            <h3 className="font-bold text-zinc-800 uppercase text-xs tracking-widest">Live Activity</h3>
-                        </div>
-                        <div className="divide-y divide-zinc-50 overflow-y-auto max-h-[450px]">
-                            {activities.map((item: any) => (
-                                <div key={item.id} className="px-8 py-4 flex items-center justify-between hover:bg-zinc-50/50 transition">
-                                    <div className="flex items-center gap-4">
-                                        <div className="h-10 w-10 rounded-full bg-zinc-100 flex items-center justify-center font-bold text-zinc-400 text-xs">
-                                            {item.initials}
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-bold text-zinc-900">{item.student_name}</p>
-                                            <p className="text-xs text-zinc-500">applied to <span className="font-medium text-zinc-700">{item.company_name}</span></p>
-                                        </div>
-                                    </div>
-                                    <div className="text-right">
-                                        <span className={`px-2 py-1 rounded text-[10px] font-black uppercase tracking-wider ${
-                                            item.status === 'Accepted' ? 'bg-emerald-50 text-emerald-600' :
-                                            item.status === 'Rejected' ? 'bg-rose-50 text-rose-600' : 'bg-amber-50 text-amber-600'
-                                        }`}>
-                                            {item.status}
-                                        </span>
-                                        <p className="text-[10px] text-zinc-400 mt-1 uppercase">{item.date}</p>
-                                    </div>
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <Card className="lg:col-span-1 shadow-none border-zinc-200">
+                            <CardHeader className="pb-2">
+                                <div className="flex items-center gap-2">
+                                    <TrendingUp className="h-4 w-4 text-zinc-500" />
+                                    <CardTitle className="text-sm font-semibold text-zinc-900 uppercase tracking-wider">Placement Rate</CardTitle>
                                 </div>
-                            ))}
-                        </div>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="h-[250px] w-full mt-4">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <PieChart>
+                                            <Pie data={MOCK_DATA.chart} innerRadius={75} outerRadius={90} paddingAngle={8} dataKey="value" stroke="none">
+                                                {MOCK_DATA.chart.map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={entry.color} />
+                                                ))}
+                                            </Pie>
+                                            <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e4e4e7', fontSize: '12px' }} />
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        <Card className="lg:col-span-2 shadow-none border-zinc-200">
+                            <CardHeader>
+                                <CardTitle className="text-sm font-semibold text-zinc-900 uppercase tracking-wider">Live Activity</CardTitle>
+                            </CardHeader>
+                            <CardContent className="p-0">
+                                <div className="divide-y divide-zinc-100">
+                                    {MOCK_DATA.activities.map((item) => (
+                                        <div key={item.id} className="px-6 py-4 flex items-center justify-between">
+                                            <div className="flex items-center gap-4">
+                                                <Avatar className="h-9 w-9 border border-zinc-200">
+                                                    <AvatarFallback className="text-[10px]">{item.initials}</AvatarFallback>
+                                                </Avatar>
+                                                <div>
+                                                    <p className="text-sm font-medium">{item.student_name}</p>
+                                                    <p className="text-xs text-zinc-500">Applied to {item.company_name}</p>
+                                                </div>
+                                            </div>
+                                            <Badge variant="outline">{item.status}</Badge>
+                                        </div>
+                                    ))}
+                                </div>
+                            </CardContent>
+                        </Card>
                     </div>
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </>
     );
 }
 
-function StatCard({ label, value, icon, color, link }: any) {
-    const colors: any = {
-        orange: 'bg-orange-50 text-orange-600 border-orange-100',
-        blue: 'bg-blue-50 text-blue-600 border-blue-100',
-        purple: 'bg-purple-50 text-purple-600 border-purple-100',
-        red: 'bg-red-50 text-red-600 border-red-100'
-    };
-
+function StatCard({ label, value, icon, link }: any) {
     return (
-        <Link href={link} className="p-6 rounded-2xl border bg-white shadow-sm hover:shadow-md transition group">
-            <div className="flex justify-between items-start">
-                <div>
-                    <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-1">{label}</p>
-                    <h4 className="text-3xl font-black text-zinc-900">{value}</h4>
-                </div>
-                <div className={`p-3 rounded-xl ${colors[color]}`}>
-                    {icon}
-                </div>
-            </div>
-            <div className="mt-4 flex items-center text-[10px] font-bold text-blue-600 uppercase tracking-tighter opacity-0 group-hover:opacity-100 transition">
-                Manage <ArrowRight className="ml-1 h-3 w-3" />
-            </div>
+        <Link href={link}>
+            <Card className="shadow-none border-zinc-200 hover:border-zinc-300 transition-colors group">
+                <CardContent className="p-6">
+                    <div className="flex justify-between items-start">
+                        <div className="space-y-1">
+                            <p className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest">{label}</p>
+                            <h4 className="text-3xl font-bold text-zinc-900">{value}</h4>
+                        </div>
+                        <div className="p-2.5 rounded-md border border-zinc-100 bg-zinc-50 group-hover:text-zinc-900 transition-colors">
+                            {icon}
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
         </Link>
     );
 }
+
+AdminDashboard.layout = (page: React.ReactNode) => <AuthenticatedLayout children={page} />;

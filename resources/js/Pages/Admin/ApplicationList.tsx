@@ -1,11 +1,14 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { usePage } from '@inertiajs/react';
-import type { ReactNode } from 'react';
+import { usePage, Head } from '@inertiajs/react';
+import { useMemo, type ReactNode } from 'react';
+import { DataTable } from '@/Components/ui/data-table';
+import { ColumnDef } from '@tanstack/react-table';
+import { Badge } from '@/Components/ui/badge';
 
 interface Application {
     application_id: number;
-    apply_date: string;
-    app_status: string; 
+    created_at: string;
+    app_status: string;
     student: {
         full_name: string;
         programme: {
@@ -28,63 +31,79 @@ interface PageProps {
 export default function ApplicationList() {
     const { applications } = usePage<PageProps>().props;
 
-    // Helper for status colors
-    const getStatusStyles = (status: string) => {
-        const styles: Record<string, string> = {
-            Recruited: 'bg-green-100 text-green-800',
-            Waitlisted: 'bg-yellow-100 text-yellow-800',
-            Declined: 'bg-red-100 text-red-800',
-            Pending: 'bg-gray-100 text-gray-800'
-        };
-        return styles[status] || 'bg-gray-100 text-gray-800';
-    };
+    const columns = useMemo<ColumnDef<Application>[]>(() => [
+        {
+            accessorKey: 'student.full_name',
+            header: 'Student',
+            cell: ({ row }) => <span className="text-zinc-900">{row.original.student?.full_name}</span>
+        },
+        {
+            accessorKey: 'student.programme.programme_name',
+            header: 'Programme',
+            cell: ({ row }) => <span className="text-zinc-900">{row.original.student?.programme?.programme_name}</span>
+        },
+        {
+            accessorKey: 'quota.company.company_name',
+            header: 'Company',
+            cell: ({ row }) => <span className="text-zinc-900">{row.original.quota?.company?.company_name}</span>
+        },
+        {
+            accessorKey: 'quota.job_title',
+            header: 'Quota',
+            cell: ({ row }) => <span className="text-zinc-900">{row.original.quota?.job_title}</span>
+        },
+        {
+            accessorKey: 'created_at',
+            header: 'Applied On',
+            cell: ({ row }) => (
+                <span className="text-zinc-900">
+                    {new Date(row.original.created_at).toLocaleString(undefined, {
+                        dateStyle: 'medium',
+                    })}
+                </span>
+            )
+        },
+        {
+            accessorKey: 'app_status',
+            header: 'Status',
+            cell: ({ row }) => {
+                const status = row.original.app_status || 'Pending';
+                
+                const variants: Record<string, string> = {
+                    Recruited: 'border-emerald-200 bg-emerald-50/30 text-emerald-700',
+                    Waitlisted: 'border-amber-200 bg-amber-50/30 text-amber-700',
+                    Declined: 'border-rose-200 bg-rose-50/30 text-rose-700',
+                    Pending: 'border-zinc-200 bg-zinc-50/30 text-zinc-700',
+                };
+
+                return (
+                    <Badge 
+                        variant="outline" 
+                        className={`text-[10px] uppercase tracking-tighter font-semibold ${variants[status] || variants.Pending}`}
+                    >
+                        {status}
+                    </Badge>
+                );
+            }
+        },
+    ], []);
 
     return (
-        <div className="p-6">
-            <div className="flex items-center justify-between mb-6">
-                <h1 className="font-sato text-3xl font-bold">Student Applications</h1>
-            </div>
-
-            {applications.length === 0 ? (
-                <p className="text-gray-500">No applications found.</p>
-            ) : (
-                <div className="overflow-x-auto">
-                    <table className="min-w-full border border-gray-200 rounded-lg">
-                        <thead className="bg-gray-50">
-                            <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Programme</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quota</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applied On</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                            {applications.map((app) => (
-                                <tr key={app.application_id} className="hover:bg-gray-50">
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{app.student?.full_name}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{app.student?.programme?.programme_name}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{app.quota?.company?.company_name}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{app.quota?.job_title}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {new Date(app.apply_date).toLocaleString(undefined, {
-                                            dateStyle: 'medium',
-                                            timeStyle: 'short'
-                                        })}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusStyles(app.app_status)}`}>
-                                            {app.app_status || 'Pending'}
-                                        </span>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+        <>
+            <Head title="Student Applications" />
+            <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                    <h1 className="font-sato text-3xl font-bold">Student Applications</h1>
                 </div>
-            )}
-        </div>
+
+                <div className="rounded-xl bg-white overflow-hidden">
+                    <DataTable
+                        columns={columns}
+                        data={applications}
+                    />
+                </div>
+            </div>
+        </>
     );
 }
 
