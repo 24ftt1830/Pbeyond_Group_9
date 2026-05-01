@@ -7,7 +7,8 @@ import { DataTable } from "@/Components/ui/data-table";
 import { getColumns } from '@/Components/Applications/columns';
 import { Button } from '@/Components/ui/button';
 import { AnimatedTabsList } from '@/Components/ui/animated-tabs';
-import { Badge } from '@/Components/ui/badge';
+import { toast } from 'sonner';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/Components/ui/alert-dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/Components/ui/dropdown-menu';
 import {
     Breadcrumb,
@@ -58,6 +59,14 @@ export default function Show({ quota, applications }: { quota: any, applications
         );
     };
 
+    const closeQuota = () => {
+        router.post(route('company.quotas.close', quota.quota_id), {}, {
+            onSuccess: () => {
+                toast.success('Application submitted successfully!');
+            }
+        });
+    };
+
     const columns = getColumns(updateStatus, setSelectedApplication);
 
     const currentIndex = selectedApplication
@@ -85,9 +94,33 @@ export default function Show({ quota, applications }: { quota: any, applications
 
                 <div className="flex items-center justify-between mb-6">
                     <h1 className="font-sato text-3xl font-bold">{quota.job_title}</h1>
-                    <Button variant="outline" size="sm" className="shadow-sm">
-                        Close application
-                    </Button>
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="shadow-sm border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
+                                disabled={quota.status === 'Closed'}
+                            >
+                                {quota.status === 'Closed' ? 'Application Closed' : 'Close application'}
+                            </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    This will stop students from applying to this position.
+                                    Any remaining pending applications will be marked as "Declined".
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={closeQuota} className="bg-red-600 hover:bg-red-700">
+                                    Close Position
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
                 </div>
 
                 <div className="mb-6">

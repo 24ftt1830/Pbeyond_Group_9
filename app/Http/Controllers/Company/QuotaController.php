@@ -85,4 +85,25 @@ class QuotaController extends Controller
 
         return redirect()->back()->with('success', 'Quota deleted.');
     }
+
+    public function close(PlacementQuota $quota)
+{
+    // ensure user owns this quota
+    if ($quota->company_id !== auth()->user()->company->id) {
+        abort(403);
+    }
+
+    // update the quota status
+    $quota->update(['status' => 'Closed']);
+
+    // bulk decline remaining pending applications
+    Application::where('quota_id', $quota->id)
+        ->where('app_status', 'Pending')
+        ->update([
+            'app_status' => 'Declined',
+            'updated_at' => now()
+        ]);
+
+    return back()->with('success', 'Application process closed and pending candidates notified.');
+}
 }

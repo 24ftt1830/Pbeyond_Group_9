@@ -91,6 +91,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/quotas', [App\Http\Controllers\Company\QuotaController::class, 'index'])->name('quotas');
         Route::post('/quotas', [App\Http\Controllers\Company\QuotaController::class, 'store'])->name('quotas.store');
         Route::delete('/quotas/{quota}', [App\Http\Controllers\Company\QuotaController::class, 'destroy'])->name('quotas.destroy');
+        Route::post('/quotas/{quota}/close', [App\Http\Controllers\Company\QuotaController::class, 'close'])->name('quotas.close');
         Route::get('/applications', [App\Http\Controllers\Company\ApplicationController::class, 'index'])->name('applications');
         Route::get('/applications/{quota}', [App\Http\Controllers\Company\ApplicationController::class, 'show'])->name('applications.show');
         Route::get('/application/{application}', [App\Http\Controllers\Company\ApplicationController::class, 'viewSingle'])->name('applications.view');

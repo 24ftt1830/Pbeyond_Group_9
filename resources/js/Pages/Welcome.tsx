@@ -8,6 +8,7 @@ import { useRef } from 'react';
 import RadarDot from '@/Components/ui/radar-dot';
 import TextReveal from '@/Components/ui/text-reveal';
 import CtaButton from '@/Components/ui/cta-button';
+import CtaButtonTwo from '@/Components/ui/cta-button-two';
 
 const stickyItems = [
     {
@@ -116,7 +117,7 @@ export default function Welcome({
                             {stickyItems.map((item, i) => (
                                 <div key={item.number} className="flex flex-col gap-4">
                                     <div className="flex items-center gap-2">
-                                        <div className="w-2.5 h-2.5 bg-white rounded-sm" />
+                                        <div className="w-2.5 h-2.5 bg-white" />
                                         <span className="text-xs font-mono text-white/80">{item.number} — {item.label}</span>
                                     </div>
                                     <h3 className="text-2xl font-sato font-semibold text-white leading-snug">
@@ -153,17 +154,22 @@ export default function Welcome({
                     </div>
                 </section>
 
+                {/*}
                 <section className="bg-white">
                     <div className="flex flex-col items-center justify-center py-24 text-center">
                         <h2 className="text-4xl font-bold text-zinc-900">Meet the Team</h2>
                         <p className="mt-4 text-zinc-600">Join the network and elevate your professional journey.</p>
                     </div>
                 </section>
+                */}
 
                 <section className="bg-white rounded-b-[2rem]">
-                    <div className="flex flex-col items-center justify-center py-24 text-center">
+                    <div className="flex flex-col items-center justify-center py-40 text-center">
                         <h2 className="text-3xl font-bold text-zinc-900">Ready to start?</h2>
                         <p className="mt-4 text-zinc-600">Join the network and elevate your professional journey.</p>
+                        <div className="mt-8">
+                        <CtaButtonTwo href="/login" label="Get Started" />
+                    </div>
                     </div>
                 </section>
 
