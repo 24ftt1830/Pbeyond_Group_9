@@ -14,37 +14,28 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
     const { auth } = usePage<PageProps>().props
 
     const isValidRole = (role: any): role is UserRole => {
-        const normalized = String(role).toLowerCase();
-        return ['admin', 'company', 'user'].includes(normalized);
+        return ['Admin', 'Company', 'Student'].includes(role);
     };
 
     const [activeRole, setActiveRole] = React.useState<UserRole>(
-        isValidRole(auth?.user?.role) ? (auth.user.role.toLowerCase() as UserRole) : 'user'
+        isValidRole(auth?.user?.role) ? auth.user.role : 'Student'
     )
 
     if (!auth?.user) {
         return <div className="flex h-screen items-center justify-center">Loading...</div>
     }
 
-    const Sidebars: Record<string, React.ComponentType> = {
-        admin: AdminSidebar,
-        company: CompanySidebar,
-        user: UserSidebar,
+    const Sidebars: Record<UserRole, React.ComponentType> = {
+        Admin: AdminSidebar,
+        Company: CompanySidebar,
+        Student: UserSidebar, 
     }
 
     const SelectedSidebar = Sidebars[activeRole] || UserSidebar
 
     const handleRoleSwitch = (r: UserRole) => {
-        const roleMap: Record<UserRole, string> = {
-            admin: 'Admin',
-            company: 'Company',
-            user: 'Student'
-        };
-
-        router.post(route('dev.switch-role', { role: roleMap[r] }), {}, {
+        router.post(route('dev.switch-role', { role: r }), {}, {
             onSuccess: () => {
-                setActiveRole(r);
-                // Force a reload to pick up the new sidebar/dashboard content
                 window.location.reload();
             }
         });
@@ -63,7 +54,7 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
 
                     <div className="flex items-center gap-2 bg-muted/50 p-1 rounded-md border">
                         <span className="text-[10px] font-bold px-2 uppercase text-muted-foreground">Preview Role:</span>
-                        {(['admin', 'company', 'user'] as UserRole[]).map((r) => (
+                        {(['Admin', 'Company', 'User'] as UserRole[]).map((r) => (
                             <Button
                                 key={r}
                                 variant={activeRole === r ? "default" : "ghost"}

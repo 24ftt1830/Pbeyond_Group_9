@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
-import { Users, Building2, ClipboardCheck, AlertCircle, ArrowRight, TrendingUp } from 'lucide-react';
+import { Users, Building2, ClipboardCheck, AlertCircle, TrendingUp } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/Components/ui/card";
 import { Badge } from "@/Components/ui/badge";

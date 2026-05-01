@@ -28,6 +28,7 @@ export default function PastReports() {
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                         </tr>
                     </thead>
+                    {/*
                     <tbody className="bg-white divide-y divide-gray-200">
                         {reports.length === 0 ? (
                             <tr>
@@ -54,6 +55,7 @@ export default function PastReports() {
                             ))
                         )}
                     </tbody>
+                    */}
                 </table>
             </div>
         </div>

@@ -119,4 +119,4 @@ export default function Calendar() {
     );
 }
 
-Calendar.layout = (page) => <AuthenticatedLayout children={page} />;
+Calendar.layout = (page:React.ReactNode) => <AuthenticatedLayout children={page} />;

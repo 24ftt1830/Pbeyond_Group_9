@@ -49,14 +49,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
      * so TypeScript knows auth.user.role is a valid index.
      */
     const roleNavigation: Record<UserRole, { title: string; url: string; icon: any; items?: any[] }[]> = {
-        user: [
+        Student: [
             { title: "My Profile", url: route('profile.edit'), icon: Settings2 },
         ],
-        admin: [
+        Admin: [
             { title: "Application Status", url: route('admin.stats'), icon: SquareTerminal },
             { title: "Users", url: route('admin.users'), icon: Bot },
         ],
-        company: [
+        Company: [
             { title: "Organization", url: route('company.organization'), icon: BookOpen },
         ],
     };
