@@ -3,7 +3,6 @@ import { Head, Link, useForm } from '@inertiajs/react';
 import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
 import { Label } from '@/Components/ui/label';
-import pbLogo from '../../../images/PB-Secondary-Logo.png';
 import InputError from '@/Components/InputError';
 import DitherShaderDemoDuotone from "@/Components/dither-shader-demo-duotone";
 import { LoaderCircleIcon } from 'lucide-react';
@@ -29,7 +28,7 @@ export default function Login({ status, canResetPassword }: { status?: string; c
                 <div className="flex justify-center gap-2 md:justify-start">
                     <Link href="/" className="flex items-center gap-2 font-medium">
                         <img
-                            src={pbLogo}
+                            src="/images/pb-secondary-logo.png"
                             alt="PBeyond Logo"
                             className="size-7 object-contain"
                         />
