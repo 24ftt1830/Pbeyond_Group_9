@@ -45,7 +45,7 @@ class ApplicationController extends Controller
             abort(404, 'Quota not found or not yet approved.');
         }
 
-        $quota->load('applications.student.programme');
+        $quota->load('applications.student.programme', 'applications.student.user');
 
         return Inertia::render('Company/Applications/Show', [
             'quota' => $quota,

@@ -120,7 +120,7 @@ export default function ApplicationTracking({ applications = [] }: { application
                 {/* Sidebar */}
                 <Card className="shadow-none">
                     <CardHeader>
-                        <CardTitle className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                        <CardTitle className="text-sm font-semibold tracking-wide text-muted-foreground">
                             Your Applications
                         </CardTitle>
                     </CardHeader>

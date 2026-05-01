@@ -137,7 +137,7 @@ export default function Show({ quota, applications }: { quota: any, applications
                                 </div>
                                 <div>
                                     <h2 className="text-xl font-sato font-bold">{selectedApplication.student.full_name}</h2>
-                                    <p className="text-sm text-muted-foreground">{selectedApplication.student.email}</p>
+                                    <p className="text-sm text-muted-foreground">{selectedApplication.student.user?.email}</p>
                                 </div>
                             </div>
 
@@ -167,8 +167,8 @@ export default function Show({ quota, applications }: { quota: any, applications
                             <div className="space-y-4">
                                 <h3 className="font-semibold text-sm">Academic Details</h3>
                                 <div className="grid grid-cols-2 gap-y-3 text-sm">
-                                    <DetailItem label="Student ID" value={selectedApplication.student.student_code} />
-                                    <DetailItem label="Email" value={selectedApplication.student.email} />
+                                    <DetailItem label="Student ID" value={selectedApplication.student.pb_student_code} />
+                                    <DetailItem label="Email" value={selectedApplication.student.user?.email} />
                                     <DetailItem label="Phone" value={selectedApplication.student.phone} />
                                     <DetailItem label="CGPA" value={selectedApplication.student.cgpa} />
                                     <DetailItem label="Programme" value={selectedApplication.student.programme?.programme_name} />
