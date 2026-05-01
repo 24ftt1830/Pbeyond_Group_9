@@ -80,9 +80,19 @@
     @apply border-border;
   }
 
+html {
+    scrollbar-color: transparent transparent;
+    scrollbar-width: none;
+}
+
+::-webkit-scrollbar {
+    display: none;
+}
+
   body {
     @apply bg-background text-foreground;
   }
+
 
   .sidebar-scroll-custom {
     overflow-y: auto;

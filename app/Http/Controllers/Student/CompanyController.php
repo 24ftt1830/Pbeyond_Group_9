@@ -76,8 +76,8 @@ class CompanyController extends Controller
 
         // look for the quota requested by the user
         $quota = PlacementQuota::available()
-            ->where('quota_id', $request->quota_id) // USE THE REQUESTED ID
-            ->where('company_id', $companyId)       // SECURITY: Ensure quota belongs to this company
+            ->where('quota_id', $request->quota_id) 
+            ->where('company_id', $companyId)       
             ->where('programme_id', $student->programme_id)
             ->first();
 
