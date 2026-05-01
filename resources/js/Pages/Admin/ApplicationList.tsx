@@ -24,6 +24,9 @@ interface Application {
 }
 
 interface PageProps {
+    auth: {
+        user: any; 
+    };
     applications: Application[];
     [key: string]: unknown;
 }
