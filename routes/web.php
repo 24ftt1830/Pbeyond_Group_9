@@ -51,7 +51,7 @@ Route::middleware('auth')->group(function () {
             Route::post('/{company}/reject', [App\Http\Controllers\Admin\CompanyController::class, 'reject'])->name('companies.reject');
         });
 
-        // Placements / Quotas (Renamed prefix to 'quotas' to avoid collision)
+        // Placements / Quotas
         Route::prefix('quotas')->name('placements.')->group(function () {
             Route::post('/{quota}/approve', [App\Http\Controllers\Admin\PlacementController::class, 'approve'])->name('approve');
             Route::post('/{quota}/reject', [App\Http\Controllers\Admin\PlacementController::class, 'reject'])->name('reject');
@@ -59,7 +59,6 @@ Route::middleware('auth')->group(function () {
             Route::get('/{quota}/applications', [App\Http\Controllers\Admin\PlacementController::class, 'applications'])->name('applications');
         });
 
-        // General Placements index
         Route::get('/placements', [App\Http\Controllers\Admin\PlacementController::class, 'index'])->name('placements');
 
         // User Management
@@ -88,16 +87,40 @@ Route::middleware('auth')->group(function () {
     // --- Company Routes ---
     Route::middleware(['role:Company'])->prefix('company')->name('company.')->group(function () {
         Route::get('/dashboard', [App\Http\Controllers\Company\DashboardController::class, 'index'])->name('dashboard');
+
         Route::get('/quotas', [App\Http\Controllers\Company\QuotaController::class, 'index'])->name('quotas');
         Route::post('/quotas', [App\Http\Controllers\Company\QuotaController::class, 'store'])->name('quotas.store');
+
+        // --- Company Routes ---
+        Route::middleware(['role:Company'])->prefix('company')->name('company.')->group(function () {
+        Route::get('/dashboard', [App\Http\Controllers\Company\DashboardController::class, 'index'])->name('dashboard');
+
+        Route::get('/quotas', [App\Http\Controllers\Company\QuotaController::class, 'index'])->name('quotas');
+        Route::post('/quotas', [App\Http\Controllers\Company\QuotaController::class, 'store'])->name('quotas.store');
+
+        // B3 - Edit existing quota
+        Route::put('/quotas/{quota}', [App\Http\Controllers\Company\QuotaController::class, 'update'])->name('quotas.update');
+
         Route::delete('/quotas/{quota}', [App\Http\Controllers\Company\QuotaController::class, 'destroy'])->name('quotas.destroy');
         Route::post('/quotas/{quota}/close', [App\Http\Controllers\Company\QuotaController::class, 'close'])->name('quotas.close');
+
+        // ... other routes
+    });
+
+        Route::delete('/quotas/{quota}', [App\Http\Controllers\Company\QuotaController::class, 'destroy'])->name('quotas.destroy');
+        Route::post('/quotas/{quota}/close', [App\Http\Controllers\Company\QuotaController::class, 'close'])->name('quotas.close');
+
         Route::get('/applications', [App\Http\Controllers\Company\ApplicationController::class, 'index'])->name('applications');
         Route::get('/applications/{quota}', [App\Http\Controllers\Company\ApplicationController::class, 'show'])->name('applications.show');
         Route::get('/application/{application}', [App\Http\Controllers\Company\ApplicationController::class, 'viewSingle'])->name('applications.view');
         Route::put('/applications/{quota:quota_id}/update-status/{application}', [App\Http\Controllers\Company\ApplicationController::class, 'updateStatus'])->name('applications.update-status');
+
         Route::get('/representatives', [App\Http\Controllers\Company\RepresentativeController::class, 'index'])->name('representatives');
+
+        // Company Profile
         Route::get('/profile', [App\Http\Controllers\Company\ProfileController::class, 'show'])->name('profile');
+        Route::put('/profile', [App\Http\Controllers\Company\ProfileController::class, 'update'])->name('profile.update');
+
         Route::get('/interns', fn () => Inertia::render('Company/Interns'))->name('interns');
         Route::get('/contact-support', fn () => Inertia::render('Company/ContactSupport'))->name('contact-support');
         Route::get('/faqs', fn () => Inertia::render('Company/Faqs'))->name('faqs');
@@ -108,16 +131,22 @@ Route::middleware('auth')->group(function () {
     Route::middleware(['role:Student'])->prefix('student')->name('student.')->group(function () {
         Route::get('/profile', [StudentProfileController::class, 'index'])->name('profile');
         Route::post('/profile', [StudentProfileController::class, 'update'])->name('profile.update');
+
         Route::get('/dashboard', [StudentDashboardController::class, 'index'])->name('dashboard');
+
         Route::get('/companies', [StudentCompanyController::class, 'index'])->name('companies');
         Route::get('/companies/{company}', [StudentCompanyController::class, 'show'])->name('companies.view');
         Route::post('/companies/{company}/apply', [StudentCompanyController::class, 'apply'])->name('companies.apply');
+
         Route::get('/application-tracking', [App\Http\Controllers\Student\ApplicationTrackingController::class, 'index'])->name('application-tracking');
+
         Route::get('/calendar', [StudentCalendarController::class, 'index'])->name('calendar');
         Route::get('/faqs', [StudentFaqController::class, 'index'])->name('faqs');
+
         Route::get('/favourites', [StudentFavouriteController::class, 'index'])->name('favourites');
         Route::post('/favourites/{company}', [StudentFavouriteController::class, 'store'])->name('favourites.store');
         Route::delete('/favourites/{company}', [StudentFavouriteController::class, 'destroy'])->name('favourites.destroy');
+
         Route::get('/past-reports', [StudentReportController::class, 'index'])->name('past-reports');
         Route::get('/report-issue', [StudentReportController::class, 'create'])->name('report-issue');
         Route::post('/report-issue', [StudentReportController::class, 'store'])->name('report-issue.store');

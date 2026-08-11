@@ -106,4 +106,34 @@ class QuotaController extends Controller
 
     return back()->with('success', 'Application process closed and pending candidates notified.');
 }
+        /**
+     * Update an existing quota.
+     */
+    public function update(Request $request, $id)
+    {
+        $quota = PlacementQuota::findOrFail($id);
+        $user = Auth::user();
+
+        if (!$user->company || $quota->company_id !== $user->company->company_id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $validated = $request->validate([
+            'programme_id' => 'required|integer|exists:programmes,programme_id',
+            'job_title' => 'required|string|max:150',
+            'total_slots' => 'required|integer|min:1',
+            'min_cgpa' => 'required|numeric|min:0|max:4.0',
+            'interview_required' => 'required|boolean',
+        ]);
+
+        $quota->update([
+            'programme_id' => $validated['programme_id'],
+            'job_title' => $validated['job_title'],
+            'total_slots' => $validated['total_slots'],
+            'min_cgpa' => $validated['min_cgpa'],
+            'interview_required' => $validated['interview_required'],
+        ]);
+
+        return back()->with('success', 'Quota updated successfully.');
+    }
 }

@@ -18,7 +18,12 @@ class EnsureUserHasRole
         
         if ($request->user() && $request->user()->role !== $role) {
             // Redirect based on their actual role if they try to access wrong route
-            return redirect('/dashboard')->with('error', 'Unauthorized access.');
+            return redirect(match ($request->user()->role) {
+                'Admin' => '/admin/dashboard',
+                'Student' => '/student/dashboard',
+                'Company' => '/company/dashboard',
+                default => '/',
+            })->with('error', 'Unauthorized access.');
         }
 
         return $next($request);

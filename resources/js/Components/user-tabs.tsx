@@ -336,12 +336,25 @@ const UserTabs = () => {
                       {studentForm.errors.pb_student_code && <p className="text-xs text-red-500">{studentForm.errors.pb_student_code}</p>}
                     </div>
 
-                    <div className="grid gap-2">
+                    {/* cek sni krg */}
+                    {/* <div className="grid gap-2">
                       <Label>Full Name</Label>
                       <Input
                         className="shadow-none"
                         value={studentForm.data.full_name}
                         onChange={e => studentForm.setData('full_name', e.target.value)}
+                        required
+                      />
+                    </div> */}
+                    <div className="grid gap-2">
+                      <Label>Full Name</Label>
+                      <Input
+                        className="shadow-none"
+                        value={studentForm.data.full_name}
+                        onChange={(e) => {
+                          studentForm.setData('full_name', e.target.value);
+                          studentForm.setData('username', e.target.value);
+                        }}
                         required
                       />
                     </div>

@@ -9,11 +9,11 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            //UserSeeder::class,
-            //SchoolSeeder::class,
-            //ProgrammeSeeder::class,
-            //IldAdminSeeder::class,
-            //StudentSeeder::class,
+            UserSeeder::class,
+            SchoolSeeder::class,
+            ProgrammeSeeder::class,
+            IldAdminSeeder::class,
+            StudentSeeder::class,
             //StudentSkillSeeder::class,
             //StudentLanguageSeeder::class,
             CompanySeeder::class,

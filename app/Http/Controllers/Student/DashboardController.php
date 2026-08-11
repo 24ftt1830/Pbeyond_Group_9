@@ -16,13 +16,14 @@ class DashboardController extends Controller
 
         // retrieve quotas where programme_id matches the student's
         $quotas = PlacementQuota::where('programme_id', $programmeId)
+            ->where('status', 'Live')
             ->with([
                 'company:company_id,company_name,office_address',
-            'applications' => function ($query) {
-                $query->where('app_status', 'Recruited');
-            }
-            ])
-            ->get();
+                'applications' => function ($query) {
+                     $query->where('app_status', 'Recruited');
+        }
+    ])
+    ->get();
         
         // Optional: add upcoming deadlines if you have a 'deadline' field on quotas
         // $upcomingDeadlines = PlacementQuota::where('deadline', '>=', now())->orderBy('deadline')->take(3)->get();

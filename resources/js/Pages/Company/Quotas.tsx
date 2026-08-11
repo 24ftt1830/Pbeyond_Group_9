@@ -26,7 +26,21 @@ export default function Quotas({ quotas = [], programmes = [] }) {
     const [isEditMode, setIsEditMode] = useState(false);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-    const { data, setData, post, processing, reset, errors } = useForm({
+    const [editingQuota, setEditingQuota] = useState<any | null>(null);
+
+    const handleEdit = (quota: any) => {
+        setEditingQuota(quota);
+        setData({
+            programme_id: quota.programme_id,
+            total_slots: quota.total_slots,
+            min_cgpa: quota.min_cgpa,
+            job_title: quota.job_title,
+            interview_required: quota.interview_required,
+        });
+        setIsDialogOpen(true);
+    };
+
+    const { data, setData, post, put, processing, reset, errors } = useForm({
         programme_id: '',
         total_slots: 1,
         min_cgpa: 2.0,
@@ -185,6 +199,18 @@ export default function Quotas({ quotas = [], programmes = [] }) {
                                     isEditMode={isEditMode}
                                     onDelete={handleDelete}
                                 />
+
+                                {isEditMode && quota.quota_status !== 'Approved' && (
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="absolute top-4 left-4 z-10"
+                                        onClick={() => handleEdit(quota)}
+                                    >
+                                        <Edit2 className="size-4 mr-1" />
+                                        Edit
+                                    </Button>
+                                )}
 
                                 <div className="absolute top-4 right-4 flex gap-2">
                                     {quota.quota_status === 'Pending' && (
