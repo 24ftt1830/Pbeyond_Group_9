@@ -85,27 +85,31 @@ Route::middleware('auth')->group(function () {
     });
 
     // --- Company Routes ---
-    Route::middleware(['role:Company'])->prefix('company')->name('company.')->group(function () {
-        Route::get('/dashboard', [App\Http\Controllers\Company\DashboardController::class, 'index'])->name('dashboard');
-
-        Route::get('/quotas', [App\Http\Controllers\Company\QuotaController::class, 'index'])->name('quotas');
-        Route::post('/quotas', [App\Http\Controllers\Company\QuotaController::class, 'store'])->name('quotas.store');
-
-        // --- Company Routes ---
+    
         Route::middleware(['role:Company'])->prefix('company')->name('company.')->group(function () {
-        Route::get('/dashboard', [App\Http\Controllers\Company\DashboardController::class, 'index'])->name('dashboard');
+            Route::get('/dashboard', [App\Http\Controllers\Company\DashboardController::class, 'index'])->name('dashboard');
 
-        Route::get('/quotas', [App\Http\Controllers\Company\QuotaController::class, 'index'])->name('quotas');
-        Route::post('/quotas', [App\Http\Controllers\Company\QuotaController::class, 'store'])->name('quotas.store');
+            Route::get('/quotas', [App\Http\Controllers\Company\QuotaController::class, 'index'])->name('quotas');
+            Route::post('/quotas', [App\Http\Controllers\Company\QuotaController::class, 'store'])->name('quotas.store');
+            Route::put('/quotas/{quota}', [App\Http\Controllers\Company\QuotaController::class, 'update'])->name('quotas.update');
+            Route::delete('/quotas/{quota}', [App\Http\Controllers\Company\QuotaController::class, 'destroy'])->name('quotas.destroy');
+            Route::post('/quotas/{quota}/close', [App\Http\Controllers\Company\QuotaController::class, 'close'])->name('quotas.close');
 
-        // B3 - Edit existing quota
-        Route::put('/quotas/{quota}', [App\Http\Controllers\Company\QuotaController::class, 'update'])->name('quotas.update');
+            Route::get('/applications', [App\Http\Controllers\Company\ApplicationController::class, 'index'])->name('applications');
+            Route::get('/applications/{quota}', [App\Http\Controllers\Company\ApplicationController::class, 'show'])->name('applications.show');
+            Route::get('/application/{application}', [App\Http\Controllers\Company\ApplicationController::class, 'viewSingle'])->name('applications.view');
+            Route::put('/applications/{quota:quota_id}/update-status/{application}', [App\Http\Controllers\Company\ApplicationController::class, 'updateStatus'])->name('applications.update-status');
 
-        Route::delete('/quotas/{quota}', [App\Http\Controllers\Company\QuotaController::class, 'destroy'])->name('quotas.destroy');
-        Route::post('/quotas/{quota}/close', [App\Http\Controllers\Company\QuotaController::class, 'close'])->name('quotas.close');
+            Route::get('/representatives', [App\Http\Controllers\Company\RepresentativeController::class, 'index'])->name('representatives');
 
-        // ... other routes
-    });
+            Route::get('/profile', [App\Http\Controllers\Company\ProfileController::class, 'show'])->name('profile');
+            Route::put('/profile', [App\Http\Controllers\Company\ProfileController::class, 'update'])->name('profile.update');
+
+            Route::get('/interns', fn () => Inertia::render('Company/Interns'))->name('interns');
+            Route::get('/contact-support', fn () => Inertia::render('Company/ContactSupport'))->name('contact-support');
+            Route::get('/faqs', fn () => Inertia::render('Company/Faqs'))->name('faqs');
+            Route::get('/calendar', fn () => Inertia::render('Company/Calendar'))->name('calendar');
+        });
 
         Route::delete('/quotas/{quota}', [App\Http\Controllers\Company\QuotaController::class, 'destroy'])->name('quotas.destroy');
         Route::post('/quotas/{quota}/close', [App\Http\Controllers\Company\QuotaController::class, 'close'])->name('quotas.close');
@@ -151,6 +155,5 @@ Route::middleware('auth')->group(function () {
         Route::get('/report-issue', [StudentReportController::class, 'create'])->name('report-issue');
         Route::post('/report-issue', [StudentReportController::class, 'store'])->name('report-issue.store');
     });
-});
 
 require __DIR__.'/auth.php';
