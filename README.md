@@ -106,7 +106,7 @@ If using Laravel Herd, access the project through your Herd domain (for example,
 
 Otherwise, start the backend and frontend separately.
 
-Open **VS Code** and create two terminals.
+1. Open **VS Code** and create two terminals.
 
 Terminal 1
 
@@ -115,6 +115,8 @@ Terminal 1
 Terminal 2
 
 `npm run dev`
+
+## Open the website using the *Herd* app
 
 ## Important
 
