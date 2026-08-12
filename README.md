@@ -60,7 +60,7 @@ Proceed to Step 2.
 ## Step 2: Install Dependencies
 
 
-##Important: Run the following commands in order.
+## Important: Run the following commands in order.
 
 PHP / Laravel Dependencies
 
@@ -70,7 +70,7 @@ React / JavaScript Dependencies
 
 `npm install`
 
-Step 3: Environment Setup
+## Step 3: Environment Setup
 
 If you are using PowerShell on Windows:
 
@@ -90,7 +90,7 @@ Generate the Laravel application key:
 
 `php artisan key:generate`
 
-Step 4: Database Setup
+## Step 4: Database Setup
 
 Configure your database credentials in the `.env` file, then run the following commands in order:
 
@@ -106,7 +106,7 @@ If using Laravel Herd, access the project through your Herd domain (for example,
 
 Otherwise, start the backend and frontend separately.
 
-Open VS Code and create two terminals.
+Open **VS Code** and create two terminals.
 
 Terminal 1
 
