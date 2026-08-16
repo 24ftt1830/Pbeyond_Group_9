@@ -143,3 +143,87 @@ html {
     @apply bg-slate-100 text-slate-800 px-1.5 py-0.5 rounded-md text-[0.85em] border border-slate-200 mx-0.5 ml-1;
   }
 }
+
+/* ===== Fix mina-scheduler Add Event modal layout ===== */
+
+.mina-scheduler-modal,
+.mina-scheduler-modal * {
+    box-sizing: border-box;
+}
+
+.mina-scheduler-modal {
+    width: 100%;
+    max-width: 640px;
+    padding: 24px;
+    background: #fff;
+    border-radius: 16px;
+}
+
+.mina-scheduler-modal h2,
+.mina-scheduler-modal h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.mina-scheduler-modal label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+}
+
+.mina-scheduler-modal input,
+.mina-scheduler-modal textarea,
+.mina-scheduler-modal select {
+    width: 100%;
+    display: block;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    background: #fff;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.mina-scheduler-modal textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.mina-scheduler-modal .date-range,
+.mina-scheduler-modal .time-range {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.mina-scheduler-modal .color-picker {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.mina-scheduler-modal .actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.mina-scheduler-modal button {
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+.mina-scheduler-modal .cancel-btn {
+    background: #f3f4f6;
+    color: #111827;
+}
+
+.mina-scheduler-modal .save-btn {
+    background: #2563eb;
+    color: white;
+}
