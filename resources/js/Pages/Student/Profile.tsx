@@ -65,14 +65,14 @@ export default function Profile({ student }: ProfileProps) {
         results: null as File | null,
     });
 
-    const submit = (e: FormEvent) => {
-        e.preventDefault();
-        console.log("Submit button clicked! sending data");
+            const submit = (e: FormEvent) => {
+            e.preventDefault();
 
-        post(route('student.profile.update'), {
-            preserveScroll: true,
-        });
-    };
+            post(route('student.profile.update'), {
+                preserveScroll: true,
+                forceFormData: true,
+            });
+        };
 
     const handlePhotoChange = (e: ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {

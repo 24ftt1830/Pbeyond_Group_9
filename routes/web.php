@@ -12,6 +12,7 @@ use App\Http\Controllers\Student\ReportController as StudentReportController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Models\Event;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -42,6 +43,8 @@ Route::middleware('auth')->group(function () {
     // --- Admin Routes ---
     Route::middleware(['role:Admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
+        Route::delete('/events/{event}', [EventController::class, 'destroy'])
+    ->name('events.destroy');
 
         // Company Management
         Route::prefix('companies')->group(function () {
@@ -80,8 +83,23 @@ Route::middleware('auth')->group(function () {
         });
 
         Route::get('/support', fn () => Inertia::render('Admin/Support'))->name('support');
-        Route::get('/calendar', fn () => Inertia::render('Admin/Calendar'))->name('calendar');
-        Route::post('/events', [EventController::class, 'store'])->name('events.store');
+
+    Route::get('/calendar', function () {
+        return Inertia::render('Admin/Calendar', [
+            'events' => Event::all()->map(function ($event) {
+                return [
+                    'id' => $event->id,
+                    'title' => $event->title,
+                    'description' => $event->description,
+                    'startDate' => $event->start_date,
+                    'endDate' => $event->end_date,
+                    'variant' => $event->variant ?? 'primary',
+                ];
+            }),
+        ]);
+    })->name('calendar');
+
+    Route::post('/events', [EventController::class, 'store'])->name('events.store');
     });
 
     // --- Company Routes ---
