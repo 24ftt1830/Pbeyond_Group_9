@@ -23,6 +23,7 @@ import {
     LayoutDashboard,
     Building2,
     ClipboardList,
+    BookOpen,
     CalendarDays,
     FileText,
     LifeBuoy,
@@ -47,6 +48,11 @@ const data = {
             title: "Application Tracking",
             url: route('student.application-tracking'),
             icon: ClipboardList,
+        },
+        {
+            title: "Logbook",
+            url: route('student.logbook'),
+            icon: BookOpen,
         },
     ],
     navSecondary: [

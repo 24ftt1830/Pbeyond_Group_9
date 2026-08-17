@@ -7,6 +7,7 @@ use App\Http\Controllers\Student\CompanyController as StudentCompanyController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
 use App\Http\Controllers\Student\FaqController as StudentFaqController;
 use App\Http\Controllers\Student\FavouriteController as StudentFavouriteController;
+use App\Http\Controllers\Student\LogbookController;
 use App\Http\Controllers\Student\ProfileController as StudentProfileController;
 use App\Http\Controllers\Student\ReportController as StudentReportController;
 use Illuminate\Foundation\Application;
@@ -161,6 +162,8 @@ Route::middleware('auth')->group(function () {
         Route::post('/companies/{company}/apply', [StudentCompanyController::class, 'apply'])->name('companies.apply');
 
         Route::get('/application-tracking', [App\Http\Controllers\Student\ApplicationTrackingController::class, 'index'])->name('application-tracking');
+
+        Route::get('/logbook', [LogbookController::class, 'index'])->name('logbook');
 
         Route::get('/calendar', [StudentCalendarController::class, 'index'])->name('calendar');
         Route::get('/faqs', [StudentFaqController::class, 'index'])->name('faqs');
