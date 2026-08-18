@@ -34,7 +34,7 @@ type Company = {
 interface Props {
     company: Company;
     quotas: Quota[];
-    applied_quota_ids: number[]; // Updated from number | null
+    applied_quota_ids: number[];
 }
 
 export default function ViewCompany({ company, quotas, applied_quota_ids }: Props) {
@@ -66,13 +66,23 @@ export default function ViewCompany({ company, quotas, applied_quota_ids }: Prop
         });
     };
 
+    const MAX_APPLICATIONS = 3;
+    const remainingChoices = MAX_APPLICATIONS - applied_quota_ids.length;
+
     return (
         <div className="p-6">
-            <div className="mb-8 flex items-center gap-4">
-                <Link href={route('student.companies')} className="group flex h-10 w-10 items-center justify-center rounded-full border border-black/10 bg-white">
-                    <ChevronLeft className="h-5 w-5" />
-                </Link>
-                <h1 className="text-2xl font-bold">Company Overview</h1>
+            <div className="mb-8 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                    <Link href={route('student.companies')} className="group flex h-10 w-10 items-center justify-center rounded-full border border-black/10 bg-white">
+                        <ChevronLeft className="h-5 w-5" />
+                    </Link>
+                    <h1 className="text-2xl font-bold">Company Overview</h1>
+                </div>
+                
+                {/* Visual badge showing remaining application slots */}
+                <div className="rounded-full bg-blue-50 px-4 py-1.5 text-xs font-semibold text-blue-700 ring-1 ring-inset ring-blue-700/10">
+                    Choices Remaining: {remainingChoices} / {MAX_APPLICATIONS}
+                </div>
             </div>
 
             <div className="space-y-8">
@@ -84,11 +94,10 @@ export default function ViewCompany({ company, quotas, applied_quota_ids }: Prop
                 <section className="space-y-4">
                     <h2 className="text-lg font-bold font-sato text-black">Available Positions</h2>
                     {quotas.map((quota) => {
-                        // Check if this specific quota is in the applied list
                         const isApplied = applied_quota_ids.includes(quota.quota_id);
 
-                        // Disable buttons if user has already applied to any position (length > 0)
-                        const isDisabled = applied_quota_ids.length > 0;
+                        // Disable if student already applied to this quota OR hit the limit of 3 choices
+                        const isDisabled = isApplied || applied_quota_ids.length >= MAX_APPLICATIONS;
 
                         return (
                             <Card key={quota.quota_id} className="shadow-none">
@@ -116,10 +125,9 @@ export default function ViewCompany({ company, quotas, applied_quota_ids }: Prop
                                             </AlertDialogTrigger>
                                             <AlertDialogContent>
                                                 <AlertDialogHeader>
-                                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                    <AlertDialogTitle>Confirm Application</AlertDialogTitle>
                                                     <AlertDialogDescription>
-                                                        You are about to apply for {quota.job_title}.
-                                                        Please note that you can only apply to one quota in the entire system.
+                                                        You are about to apply for {quota.job_title}. You have {remainingChoices} application choice(s) remaining out of {MAX_APPLICATIONS}.
                                                     </AlertDialogDescription>
                                                 </AlertDialogHeader>
                                                 <AlertDialogFooter>
