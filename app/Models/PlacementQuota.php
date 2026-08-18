@@ -34,12 +34,13 @@ class PlacementQuota extends Model
     protected static function boot()
     {
         parent::boot();
+
         static::creating(function ($quota) {
             $quota->slug = Str::slug($quota->job_title);
         });
     }
 
-    // slug for route binding
+    // Slug for route binding
     public function getRouteKeyName()
     {
         return 'slug';
@@ -47,23 +48,51 @@ class PlacementQuota extends Model
 
     public function company()
     {
-        return $this->belongsTo(Company::class, 'company_id', 'company_id');
+        return $this->belongsTo(
+            Company::class,
+            'company_id',
+            'company_id'
+        );
     }
 
+    // OLD relationship - kept temporarily
     public function programme()
     {
-        return $this->belongsTo(Programme::class, 'programme_id', 'programme_id');
+        return $this->belongsTo(
+            Programme::class,
+            'programme_id',
+            'programme_id'
+        );
+    }
+
+    // NEW relationship:
+    // One quota can have multiple programmes.
+    public function programmes()
+    {
+        return $this->belongsToMany(
+            Programme::class,
+            'quota_programme',
+            'quota_id',
+            'programme_id',
+            'quota_id',
+            'programme_id'
+        )->withTimestamps();
     }
 
     public function applications()
     {
-        return $this->hasMany(Application::class, 'quota_id', 'quota_id');
+        return $this->hasMany(
+            Application::class,
+            'quota_id',
+            'quota_id'
+        );
     }
 
     // Scope for approved and released quotas
     public function scopeAvailable($query)
     {
-        return $query->where('quota_status', 'Approved')
+        return $query
+            ->where('quota_status', 'Approved')
             ->where('is_released', true);
     }
 
@@ -74,6 +103,9 @@ class PlacementQuota extends Model
             ->where('app_status', 'Approved')
             ->count();
 
-        return max(0, $this->total_slots - $approvedCount);
+        return max(
+            0,
+            $this->total_slots - $approvedCount
+        );
     }
 }

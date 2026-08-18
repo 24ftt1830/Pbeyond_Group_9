@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Application;
 use App\Models\Company;
 use App\Models\PlacementQuota;
-use App\Models\Programme;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -14,26 +13,44 @@ use Inertia\Inertia;
 class CompanyController extends Controller
 {
     /**
-     * Display a listing of companies with available quotas for the student's school.
+     * Display companies with quotas available
+     * for the student's exact programme.
      */
     public function index()
     {
         $student = Auth::user()->student;
 
-        // Fetch all programme IDs belonging to the student's school (e.g. SICT)
-        $schoolProgrammeIds = Programme::where('school_id', $student->programme->school_id)
-            ->pluck('programme_id');
+        $programmeId = $student->programme_id;
 
-        $companies = Company::whereHas('placementQuotas', function ($query) use ($schoolProgrammeIds) {
-            $query->available()->whereIn('programme_id', $schoolProgrammeIds);
-        })
-            ->with(['placementQuotas' => function ($query) use ($schoolProgrammeIds) {
-                $query->available()->whereIn('programme_id', $schoolProgrammeIds);
-            }])
-            ->get();
+        $companies = Company::whereHas(
+            'placementQuotas',
+            function ($query) use ($programmeId) {
+                $query->available()
+                    ->whereHas('programmes', function ($programmeQuery) use ($programmeId) {
+                        $programmeQuery->where(
+                            'programmes.programme_id',
+                            $programmeId
+                        );
+                    });
+            }
+        )
+        ->with([
+            'placementQuotas' => function ($query) use ($programmeId) {
+                $query->available()
+                    ->whereHas('programmes', function ($programmeQuery) use ($programmeId) {
+                        $programmeQuery->where(
+                            'programmes.programme_id',
+                            $programmeId
+                        );
+                    })
+                    ->with('programmes');
+            }
+        ])
+        ->get();
 
         $companiesData = $companies->map(function ($company) {
-            $available = $company->placementQuotas->sum(fn ($q) => $q->remaining_slots);
+            $available = $company->placementQuotas
+                ->sum(fn ($q) => $q->remaining_slots);
 
             return [
                 'company_id'      => $company->company_id,
@@ -51,26 +68,28 @@ class CompanyController extends Controller
     }
 
     /**
-     * Display specific company details and available positions.
+     * Display a specific company and positions
+     * available for the student's exact programme.
      */
     public function show($id)
     {
         $student = Auth::user()->student;
 
-        // Fetch programme IDs for student's school
-        $schoolProgrammeIds = Programme::where('school_id', $student->programme->school_id)
-            ->pluck('programme_id');
+        $programmeId = $student->programme_id;
 
-        // Fetch company
         $company = Company::findOrFail($id);
 
-        // Fetch positions/quotas available for this school
         $quotas = PlacementQuota::available()
             ->where('company_id', $id)
-            ->whereIn('programme_id', $schoolProgrammeIds)
+            ->whereHas('programmes', function ($query) use ($programmeId) {
+                $query->where(
+                    'programmes.programme_id',
+                    $programmeId
+                );
+            })
+            ->with('programmes')
             ->get();
 
-        // Fetch IDs of all quotas the student has already applied to
         $appliedQuotaIds = $student->applications()
             ->pluck('quota_id')
             ->toArray();
@@ -89,46 +108,87 @@ class CompanyController extends Controller
     {
         $student = Auth::user()->student;
 
-        $schoolProgrammeIds = Programme::where('school_id', $student->programme->school_id)
-            ->pluck('programme_id');
+        $programmeId = $student->programme_id;
 
         $request->validate([
-            'quota_id' => 'required|exists:placement_quotas,quota_id',
+            'quota_id' => [
+                'required',
+                'exists:placement_quotas,quota_id',
+            ],
         ]);
 
-        // Enforce the 3 choices maximum limit globally across all companies/quotas
+        /**
+         * Enforce the maximum of 3 application choices
+         * across all companies and quotas.
+         */
         if ($student->applications()->count() >= 3) {
-            return back()->withErrors(['message' => 'You have reached the maximum limit of 3 application choices.']);
+            return back()->withErrors([
+                'message' => 'You have reached the maximum limit of 3 application choices.',
+            ]);
         }
 
+        /**
+         * Find the quota only if:
+         *
+         * 1. It is available/released.
+         * 2. It belongs to the selected company.
+         * 3. The student's exact programme is one of
+         *    the programmes selected by the company.
+         */
         $quota = PlacementQuota::available()
-            ->where('quota_id', $request->quota_id) 
-            ->where('company_id', $companyId)       
-            ->whereIn('programme_id', $schoolProgrammeIds)
+            ->where('quota_id', $request->quota_id)
+            ->where('company_id', $companyId)
+            ->whereHas('programmes', function ($query) use ($programmeId) {
+                $query->where(
+                    'programmes.programme_id',
+                    $programmeId
+                );
+            })
             ->first();
 
-        if (! $quota) {
-            return back()->withErrors(['message' => 'This position is not available for your school.']);
+        if (!$quota) {
+            return back()->withErrors([
+                'message' => 'This position is not available for your programme.',
+            ]);
         }
 
-        if ((float)$student->cgpa < (float)$quota->min_cgpa) {
-            return back()->withErrors(['message' => "This position requires a minimum CGPA of {$quota->min_cgpa}."]);
+        /**
+         * Prevent duplicate application.
+         */
+        if (
+            $student->applications()
+                ->where('quota_id', $quota->quota_id)
+                ->exists()
+        ) {
+            return back()->withErrors([
+                'message' => 'You have already applied for this position.',
+            ]);
         }
 
-        if ($student->applications()->where('quota_id', $quota->quota_id)->exists()) {
-            return back()->withErrors(['message' => 'You have already applied for this position.']);
-        }
-
+        /**
+         * Check whether the quota still has available slots.
+         */
         if ($quota->remaining_slots <= 0) {
-            return back()->withErrors(['message' => 'This quota is already full.']);
+            return back()->withErrors([
+                'message' => 'This quota is already full.',
+            ]);
         }
 
+        /**
+         * CGPA is intentionally NOT checked.
+         *
+         * Eligibility is based on the student's
+         * programme selection only.
+         */
         Application::create([
             'student_id' => $student->student_id,
             'quota_id'   => $quota->quota_id,
             'app_status' => 'Pending',
         ]);
 
-        return back()->with('success', 'Application submitted!');
+        return back()->with(
+            'success',
+            'Application submitted!'
+        );
     }
 }

@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Company;
 
 use App\Http\Controllers\Controller;
 use App\Models\PlacementQuota;
-use App\Models\Programme; 
+use App\Models\Programme;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -12,25 +12,34 @@ use Inertia\Inertia;
 class QuotaController extends Controller
 {
     /**
-     * Display the company's own quotas and the list of available programmes.
+     * Display the company's own quotas and available programmes.
      */
     public function index()
     {
         $user = Auth::user();
-        
-        $quotas = $user->company 
-            ? $user->company->placementQuotas()->with('programme')->latest()->get() 
+
+        $quotas = $user->company
+            ? $user->company->placementQuotas()
+                ->with(['programme', 'programmes.school'])
+                ->latest()
+                ->get()
             : [];
 
         return Inertia::render('Company/Quotas', [
             'quotas' => $quotas,
-            'programmes' => Programme::select('programme_id', 'programme_name')->get(),
-            'company' => $user->company 
+            'programmes' => Programme::with('school')
+                ->select(
+                    'programme_id',
+                    'programme_name',
+                    'school_id'
+                )
+                ->get(),
+            'company' => $user->company,
         ]);
     }
 
     /**
-     * Store a newly created quota with a 'Pending' status.
+     * Store a newly created quota.
      */
     public function store(Request $request)
     {
@@ -38,30 +47,67 @@ class QuotaController extends Controller
 
         if (!$user->company) {
             return redirect()->back()->withErrors([
-                'message' => 'You must have a company profile to submit quotas.'
+                'message' => 'You must have a company profile to submit quotas.',
             ]);
         }
 
         $validated = $request->validate([
-            'programme_id' => 'required|integer|exists:programmes,programme_id',
-            'job_title'    => 'required|string|max:150',
-            'total_slots'  => 'required|integer|min:1',
-            'min_cgpa'     => 'required|numeric|min:0|max:4.0',
-            'interview_required' => 'required|boolean',
+            'programme_ids' => [
+                'required',
+                'array',
+                'min:3',
+                'max:5',
+            ],
+
+            'programme_ids.*' => [
+                'required',
+                'integer',
+                'distinct',
+                'exists:programmes,programme_id',
+            ],
+
+            'job_title' => [
+                'required',
+                'string',
+                'max:150',
+            ],
+
+            'total_slots' => [
+                'required',
+                'integer',
+                'min:1',
+            ],
+
+            'interview_required' => [
+                'required',
+                'boolean',
+            ],
+        ], [
+            'programme_ids.required' => 'Please select at least 3 programmes.',
+            'programme_ids.min' => 'Please select at least 3 programmes.',
+            'programme_ids.max' => 'You can select a maximum of 5 programmes.',
+            'programme_ids.*.distinct' => 'You cannot select the same programme twice.',
         ]);
 
-        $user->company->placementQuotas()->create([
-            'programme_id'       => $validated['programme_id'],
-            'job_title'          => $validated['job_title'],
-            'total_slots'        => $validated['total_slots'],
-            'min_cgpa'           => $validated['min_cgpa'],
+        $quota = $user->company->placementQuotas()->create([
+            // Temporary compatibility with the old database column.
+            // The real programme selection is stored in quota_programme.
+            'programme_id' => $validated['programme_ids'][0],
+
+            'job_title' => $validated['job_title'],
+            'total_slots' => $validated['total_slots'],
             'interview_required' => $validated['interview_required'],
-            'quota_status'       => 'Pending', 
-            'is_released'        => false,
-            // 'job_description' => $request->job_description, // To be added if Text area is implemented
+            'quota_status' => 'Pending',
+            'is_released' => false,
         ]);
 
-        return redirect()->back()->with('success', 'Quota submitted for admin approval!');
+        // Attach the selected 3–5 programmes
+        $quota->programmes()->sync($validated['programme_ids']);
+
+        return redirect()->back()->with(
+            'success',
+            'Quota submitted for admin approval!'
+        );
     }
 
     /**
@@ -70,70 +116,99 @@ class QuotaController extends Controller
     public function destroy($id)
     {
         $quota = PlacementQuota::findOrFail($id);
-        
+
         $user = Auth::user();
 
-        if (!$user->company || $quota->company_id !== $user->company->company_id) {
+        if (
+            !$user->company ||
+            $quota->company_id !== $user->company->company_id
+        ) {
             abort(403, 'Unauthorized action.');
         }
 
         if ($quota->quota_status === 'Approved') {
-            return redirect()->back()->withErrors(['message' => 'Cannot delete an approved quota.']);
+            return redirect()->back()->withErrors([
+                'message' => 'Cannot delete an approved quota.',
+            ]);
         }
 
         $quota->delete();
 
-        return redirect()->back()->with('success', 'Quota deleted.');
+        return redirect()->back()->with(
+            'success',
+            'Quota deleted.'
+        );
     }
 
-    public function close(PlacementQuota $quota)
-{
-    // ensure user owns this quota
-    if ($quota->company_id !== auth()->user()->company->id) {
-        abort(403);
-    }
-
-    // update the quota status
-    $quota->update(['status' => 'Closed']);
-
-    // bulk decline remaining pending applications
-    Application::where('quota_id', $quota->id)
-        ->where('app_status', 'Pending')
-        ->update([
-            'app_status' => 'Declined',
-            'updated_at' => now()
-        ]);
-
-    return back()->with('success', 'Application process closed and pending candidates notified.');
-}
-        /**
+    /**
      * Update an existing quota.
      */
     public function update(Request $request, $id)
     {
         $quota = PlacementQuota::findOrFail($id);
+
         $user = Auth::user();
 
-        if (!$user->company || $quota->company_id !== $user->company->company_id) {
+        if (
+            !$user->company ||
+            $quota->company_id !== $user->company->company_id
+        ) {
             abort(403, 'Unauthorized action.');
         }
 
         $validated = $request->validate([
-            'programme_id' => 'required|integer|exists:programmes,programme_id',
-            'job_title' => 'required|string|max:150',
-            'total_slots' => 'required|integer|min:1',
-            'min_cgpa' => 'required|numeric|min:0|max:4.0',
-            'interview_required' => 'required|boolean',
+            'programme_ids' => [
+                'required',
+                'array',
+                'min:3',
+                'max:5',
+            ],
+
+            'programme_ids.*' => [
+                'required',
+                'integer',
+                'distinct',
+                'exists:programmes,programme_id',
+            ],
+
+            'job_title' => [
+                'required',
+                'string',
+                'max:150',
+            ],
+
+            'total_slots' => [
+                'required',
+                'integer',
+                'min:1',
+            ],
+
+            'interview_required' => [
+                'required',
+                'boolean',
+            ],
+        ], [
+            'programme_ids.required' => 'Please select at least 3 programmes.',
+            'programme_ids.min' => 'Please select at least 3 programmes.',
+            'programme_ids.max' => 'You can select a maximum of 5 programmes.',
+            'programme_ids.*.distinct' => 'You cannot select the same programme twice.',
         ]);
 
         $quota->update([
-            'programme_id' => $validated['programme_id'],
+            // Temporary compatibility with the old database column.
+            'programme_id' => $validated['programme_ids'][0],
+
             'job_title' => $validated['job_title'],
             'total_slots' => $validated['total_slots'],
-            'min_cgpa' => $validated['min_cgpa'],
             'interview_required' => $validated['interview_required'],
         ]);
 
-        return back()->with('success', 'Quota updated successfully.');
+        // Replace the quota's programme selections
+        $quota->programmes()->sync($validated['programme_ids']);
+
+        return back()->with(
+            'success',
+            'Quota updated successfully.'
+        );
     }
 }

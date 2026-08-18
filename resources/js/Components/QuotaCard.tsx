@@ -1,63 +1,150 @@
-import { Trash2 } from 'lucide-react';
+import { Trash2, Edit2, Clock, Globe, CircleX } from 'lucide-react';
 import { Button } from "@/Components/ui/button";
 import { Card, CardContent, CardHeader } from "@/Components/ui/card";
-import { cn } from "@/lib/utils"; 
+import { cn } from "@/lib/utils";
 
 interface QuotaCardProps {
     quota: {
         quota_id: number;
         job_title: string;
         total_slots: number;
-        min_cgpa: string | number;
         quota_status: string;
+        is_released?: boolean;
+        interview_required?: boolean;
+
         programme?: {
             programme_name: string;
         };
-        interview_required?: boolean;
+
+        programmes?: {
+            programme_id: number;
+            programme_name: string;
+            school?: {
+                school_name: string;
+            };
+        }[];
     };
+
     isEditMode: boolean;
     onDelete?: (id: number) => void;
+    onEdit?: (quota: any) => void;
 }
 
-export default function QuotaCard({ quota, isEditMode, onDelete }: QuotaCardProps) {
+export default function QuotaCard({
+    quota,
+    isEditMode,
+    onDelete,
+    onEdit,
+}: QuotaCardProps) {
+    const programmeName =
+        quota.programme?.programme_name ||
+        quota.programmes?.[0]?.programme_name ||
+        'General Programme';
+
     return (
-        <Card className={cn(
-            "shadow-none h-full", 
-            isEditMode && "border-destructive/50 ring-1 ring-destructive/10"
-        )}>
-            <CardHeader className="pb-4 pr-24"> 
-                <div className="flex flex-col items-start gap-1">
-                    <h3 className="text-lg font-bold leading-tight tracking-tight">
-                        {quota.job_title}
-                    </h3>
-                    <p className="text-xs text-muted-foreground font-medium">
-                        {quota.programme?.programme_name || 'General Programme'}
-                    </p>
+        <Card
+            className={cn(
+                "h-full overflow-hidden shadow-none",
+                isEditMode &&
+                    "border-destructive/50 ring-1 ring-destructive/10"
+            )}
+        >
+            {/* Header */}
+            <CardHeader className="px-6 py-5">
+                <div className="flex items-start justify-between gap-5">
+
+                    {/* Job information */}
+                    <div className="min-w-0 flex-1">
+                        <h3 className="text-lg font-bold leading-tight tracking-tight">
+                            {quota.job_title}
+                        </h3>
+
+                        <p className="mt-1 text-xs font-medium text-muted-foreground">
+                            {programmeName}
+                        </p>
+                    </div>
+
+                    {/* Status + Edit */}
+                    <div className="flex w-[86px] shrink-0 flex-col items-stretch gap-2">
+
+                        {/* Pending */}
+                        {quota.quota_status === 'Pending' && (
+                            <div className="flex h-7 items-center justify-center gap-1 rounded-md bg-amber-100 px-2 text-[10px] font-semibold uppercase text-amber-700">
+                                <Clock className="size-3" />
+                                Pending
+                            </div>
+                        )}
+
+                        {/* Live */}
+                        {quota.is_released && (
+                            <div className="flex h-7 items-center justify-center gap-1 rounded-md bg-emerald-100 px-2 text-[10px] font-semibold uppercase text-emerald-700">
+                                <Globe className="size-3" />
+                                Live
+                            </div>
+                        )}
+
+                        {/* Rejected */}
+                        {quota.quota_status === 'Rejected' && (
+                            <div className="flex h-7 items-center justify-center gap-1 rounded-md bg-red-100 px-2 text-[10px] font-semibold uppercase text-red-700">
+                                <CircleX className="size-3" />
+                                Rejected
+                            </div>
+                        )}
+
+                        {/* Edit */}
+                        {quota.quota_status !== 'Approved' && (
+                            <Button
+                                type="button"
+                                size="sm"
+                                variant="outline"
+                                title="Edit quota"
+                                onClick={() => onEdit?.(quota)}
+                                className="h-8 w-full justify-center gap-1.5 bg-background px-2 text-xs shadow-sm"
+                            >
+                                <Edit2 className="size-3.5" />
+                                Edit
+                            </Button>
+                        )}
+                    </div>
                 </div>
             </CardHeader>
 
-            <CardContent className="grid grid-cols-3 gap-4 border-t border-border pt-4">
+            {/* Details */}
+            <CardContent className="grid grid-cols-2 gap-4 border-t border-border px-6 py-5">
+
                 <div className="space-y-1">
-                    <span className="text-xs font-semibold text-muted-foreground">Seats</span>
-                    <p className="text-sm font-mono font-bold">{quota.total_slots}</p>
+                    <span className="text-xs font-semibold text-muted-foreground">
+                        Seats
+                    </span>
+
+                    <p className="text-sm font-mono font-bold">
+                        {quota.total_slots}
+                    </p>
                 </div>
+
                 <div className="space-y-1">
-                    <span className="text-xs font-semibold text-muted-foreground">CGPA</span>
-                    <p className="text-sm font-mono font-bold">{quota.min_cgpa}</p>
-                </div>
-                <div className="space-y-1">
-                    <span className="text-xs font-semibold text-muted-foreground">Interview</span>
-                    <p className="text-sm font-bold">{quota.interview_required ? 'Yes' : 'No'}</p>
+                    <span className="text-xs font-semibold text-muted-foreground">
+                        Interview
+                    </span>
+
+                    <p className="text-sm font-bold">
+                        {quota.interview_required
+                            ? 'Yes'
+                            : 'No'}
+                    </p>
                 </div>
             </CardContent>
 
+            {/* Delete */}
             {isEditMode && (
-                <div className="bg-muted/50 p-3 border-t border-border">
-                    <Button 
-                        variant="destructive" 
+                <div className="border-t border-border bg-muted/50 p-3">
+                    <Button
+                        variant="destructive"
                         size="sm"
-                        className="w-full flex items-center gap-2"
-                        onClick={() => onDelete?.(quota.quota_id)}
+                        className="flex w-full items-center justify-center gap-2"
+                        onClick={() =>
+                            onDelete?.(quota.quota_id)
+                        }
                     >
                         <Trash2 className="size-3.5" />
                         Delete Quota

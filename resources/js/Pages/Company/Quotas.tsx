@@ -1,166 +1,525 @@
 import { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router, useForm, usePage } from '@inertiajs/react';
-import { Plus, Edit2, Search, Loader2, AlertCircle, Clock, Globe, CircleX } from 'lucide-react';
+import {
+    Plus,
+    Edit2,
+    Search,
+    AlertCircle,
+    Clock,
+    Globe,
+    CircleX,
+    Check,
+} from 'lucide-react';
 
 import { Input } from '@/Components/ui/input';
-import { Button } from "@/Components/ui/button";
-import { Label } from "@/Components/ui/label";
-import { Toggle } from "@/Components/ui/toggle";
-import { Switch } from "@/Components/ui/switch";
+import { Button } from '@/Components/ui/button';
+import { Label } from '@/Components/ui/label';
+import { Switch } from '@/Components/ui/switch';
+
 import {
-    Dialog, DialogContent, DialogDescription, DialogFooter,
-    DialogHeader, DialogTitle, DialogTrigger, DialogClose
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+    DialogClose,
 } from "@/Components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select";
 
 import QuotaCard from '@/Components/QuotaCard';
 import QuotaNumberInput from '@/Components/QuotaNumberInput';
-import DatePickerTime from '@/Components/QuotaCalendar';
 
 export default function Quotas({ quotas = [], programmes = [] }) {
     const { auth } = usePage().props as any;
     const company = auth.user.company;
 
     const [searchTerm, setSearchTerm] = useState('');
-    const [isEditMode, setIsEditMode] = useState(false);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-
     const [editingQuota, setEditingQuota] = useState<any | null>(null);
+    const [programmeDropdownOpen, setProgrammeDropdownOpen] = useState(false);
 
-    const handleEdit = (quota: any) => {
-        setEditingQuota(quota);
-        setData({
-            programme_id: quota.programme_id,
-            total_slots: quota.total_slots,
-            min_cgpa: quota.min_cgpa,
-            job_title: quota.job_title,
-            interview_required: quota.interview_required,
-        });
-        setIsDialogOpen(true);
-    };
-
-    const { data, setData, post, put, processing, reset, errors } = useForm({
-        programme_id: '',
+    const {
+        data,
+        setData,
+        post,
+        put,
+        processing,
+        reset,
+        errors,
+    } = useForm({
+        programme_ids: [] as number[],
         total_slots: 1,
-        min_cgpa: 2.0,
         job_title: '',
         interview_required: false,
     });
 
+    const handleEdit = (quota: any) => {
+        setEditingQuota(quota);
+
+        const existingProgrammeIds =
+            quota.programmes?.map((p: any) => Number(p.programme_id)) ??
+            (quota.programme_id
+                ? [Number(quota.programme_id)]
+                : []);
+
+        setData({
+            programme_ids: existingProgrammeIds,
+            total_slots: quota.total_slots,
+            job_title: quota.job_title,
+            interview_required: quota.interview_required,
+        });
+
+        setProgrammeDropdownOpen(false);
+        setIsDialogOpen(true);
+    };
+
+    const resetForm = () => {
+        reset();
+        setEditingQuota(null);
+        setProgrammeDropdownOpen(false);
+    };
+
+    const handleProgrammeToggle = (programmeId: number) => {
+        const currentIds = data.programme_ids ?? [];
+
+        if (currentIds.includes(programmeId)) {
+            setData(
+                'programme_ids',
+                currentIds.filter((id) => id !== programmeId)
+            );
+            return;
+        }
+
+        if (currentIds.length >= 5) {
+            return;
+        }
+
+        setData(
+            'programme_ids',
+            [...currentIds, programmeId]
+        );
+    };
+
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        post(route('company.quotas.store'), {
-            onSuccess: () => {
-                reset();
-                setIsDialogOpen(false);
-            },
-        });
+        if (data.programme_ids.length < 3) {
+            return;
+        }
+
+        if (data.programme_ids.length > 5) {
+            return;
+        }
+
+        if (editingQuota) {
+            put(
+                route(
+                    'company.quotas.update',
+                    editingQuota.quota_id
+                ),
+                {
+                    onSuccess: () => {
+                        resetForm();
+                        setIsDialogOpen(false);
+                    },
+                }
+            );
+        } else {
+            post(
+                route('company.quotas.store'),
+                {
+                    onSuccess: () => {
+                        resetForm();
+                        setIsDialogOpen(false);
+                    },
+                }
+            );
+        }
     };
 
     const handleDelete = (id: number) => {
-        if (confirm('Are you sure you want to delete this quota request?')) {
-            router.delete(route('company.quotas.destroy', id), { preserveScroll: true });
+        if (
+            confirm(
+                'Are you sure you want to delete this quota request?'
+            )
+        ) {
+            router.delete(
+                route('company.quotas.destroy', id),
+                {
+                    preserveScroll: true,
+                }
+            );
         }
     };
+
+    const getSchoolName = (programme: any) => {
+        return (
+            programme.school?.school_name ??
+            programme.school_name ??
+            'School not specified'
+        );
+    };
+
+    const programmeSelectionValid =
+        data.programme_ids.length >= 3 &&
+        data.programme_ids.length <= 5;
 
     return (
         <div className="p-6">
             <Head title="Placement Quotas" />
 
+            {/* Header */}
             <div className="flex items-center justify-between mb-6">
                 <div>
-                    <h1 className="font-sato text-3xl font-bold">Placement Quotas</h1>
-                    <p className="text-muted-foreground mt-1">Create and manage student placement opportunities.</p>
+                    <h1 className="font-sato text-3xl font-bold">
+                        Placement Quotas
+                    </h1>
+
+                    <p className="text-muted-foreground mt-1">
+                        Create and manage student placement opportunities.
+                    </p>
                 </div>
 
                 <div className="flex items-center gap-2">
-                    <Toggle
-                        size="sm"
-                        pressed={isEditMode}
-                        onPressedChange={setIsEditMode}
-                        variant="outline"
-                        className="flex items-center gap-1.5 shadow-sm"
-                    >
-                        <Edit2 className="size-3.5" />
-                        Edit
-                    </Toggle>
+                    <Dialog
+                        open={isDialogOpen}
+                        onOpenChange={(open) => {
+                            setIsDialogOpen(open);
 
-                    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                            if (!open) {
+                                resetForm();
+                            }
+                        }}
+                    >
                         <DialogTrigger asChild>
                             <Button
                                 size="sm"
                                 disabled={!company}
                                 className="flex items-center gap-1.5 shadow-sm"
+                                onClick={() => {
+                                    setEditingQuota(null);
+                                    resetForm();
+                                }}
                             >
                                 <Plus className="size-3.5" />
                                 New Request
                             </Button>
                         </DialogTrigger>
-                        <DialogContent className="sm:max-w-[480px]">
+
+                        <DialogContent className="sm:max-w-[560px]">
                             <form onSubmit={submit}>
                                 <DialogHeader className="mb-4">
-                                    <DialogTitle>New Placement Request</DialogTitle>
+                                    <DialogTitle>
+                                        {editingQuota
+                                            ? 'Edit Placement Request'
+                                            : 'New Placement Request'}
+                                    </DialogTitle>
+
                                     <DialogDescription>
-                                        Submit a quota request for admin review.
+                                        {editingQuota
+                                            ? 'Update your placement quota request.'
+                                            : 'Submit a quota request for admin review.'}
                                     </DialogDescription>
                                 </DialogHeader>
 
                                 <div className="space-y-4">
+
+                                    {/* Job Title */}
                                     <div className="space-y-2">
-                                        <Label>Job Title</Label>
+                                        <Label>
+                                            Job Title
+                                        </Label>
+
                                         <Input
                                             value={data.job_title}
-                                            onChange={e => setData('job_title', e.target.value)}
+                                            onChange={(e) =>
+                                                setData(
+                                                    'job_title',
+                                                    e.target.value
+                                                )
+                                            }
                                             className="shadow-none"
+                                            placeholder="e.g. Software Developer Intern"
                                         />
+
+                                        {errors.job_title && (
+                                            <p className="text-sm text-red-500">
+                                                {errors.job_title}
+                                            </p>
+                                        )}
                                     </div>
 
+                                    {/* Eligible Programmes */}
                                     <div className="space-y-2">
-                                        <Label>Academic Programme</Label>
-                                        <Select
-                                            value={data.programme_id.toString()}
-                                            onValueChange={(val) => setData('programme_id', parseInt(val) as any)}
-                                        >
-                                            <SelectTrigger className="shadow-none">
-                                                <SelectValue placeholder="Select a programme" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {programmes.map((p: any) => (
-                                                    <SelectItem key={p.programme_id} value={p.programme_id.toString()}>
-                                                        {p.programme_name}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
+                                        <div className="flex items-center justify-between">
+                                            <Label>
+                                                Eligible Programmes
+                                            </Label>
+
+                                            <span className="text-xs text-muted-foreground">
+                                                Select 3–5 programmes
+                                            </span>
+                                        </div>
+
+                                        <div className="relative">
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                className="w-full justify-between shadow-none"
+                                                onClick={() =>
+                                                    setProgrammeDropdownOpen(
+                                                        !programmeDropdownOpen
+                                                    )
+                                                }
+                                            >
+                                                <span>
+                                                    {data.programme_ids.length === 0
+                                                        ? 'Select programmes'
+                                                        : `${data.programme_ids.length} programmes selected`}
+                                                </span>
+
+                                                <span className="text-muted-foreground">
+                                                    {programmeDropdownOpen
+                                                        ? '▲'
+                                                        : '▼'}
+                                                </span>
+                                            </Button>
+
+                                            {programmeDropdownOpen && (
+                                                <div className="absolute left-0 right-0 z-50 mt-2 overflow-hidden rounded-md border bg-background shadow-lg">
+
+                                                    <div className="max-h-64 overflow-y-auto p-2">
+                                                        {programmes.length === 0 ? (
+                                                            <p className="p-3 text-sm text-muted-foreground">
+                                                                No programmes available.
+                                                            </p>
+                                                        ) : (
+                                                            programmes.map(
+                                                                (programme: any) => {
+                                                                    const programmeId =
+                                                                        Number(
+                                                                            programme.programme_id
+                                                                        );
+
+                                                                    const isSelected =
+                                                                        data.programme_ids.includes(
+                                                                            programmeId
+                                                                        );
+
+                                                                    const maxReached =
+                                                                        data.programme_ids.length >= 5 &&
+                                                                        !isSelected;
+
+                                                                    return (
+                                                                        <button
+                                                                            key={
+                                                                                programmeId
+                                                                            }
+                                                                            type="button"
+                                                                            disabled={
+                                                                                maxReached
+                                                                            }
+                                                                            onClick={() =>
+                                                                                handleProgrammeToggle(
+                                                                                    programmeId
+                                                                                )
+                                                                            }
+                                                                            className={`flex w-full items-center justify-between rounded-md px-3 py-2.5 text-left transition ${
+                                                                                isSelected
+                                                                                    ? 'bg-muted'
+                                                                                    : 'hover:bg-muted'
+                                                                            } ${
+                                                                                maxReached
+                                                                                    ? 'cursor-not-allowed opacity-40'
+                                                                                    : ''
+                                                                            }`}
+                                                                        >
+                                                                            <div className="min-w-0 pr-3">
+                                                                                <div className="truncate text-sm font-medium">
+                                                                                    {
+                                                                                        programme.programme_name
+                                                                                    }
+                                                                                </div>
+
+                                                                                <div className="truncate text-xs text-muted-foreground">
+                                                                                    {getSchoolName(
+                                                                                        programme
+                                                                                    )}
+                                                                                </div>
+                                                                            </div>
+
+                                                                            {isSelected && (
+                                                                                <Check className="size-4 shrink-0" />
+                                                                            )}
+                                                                        </button>
+                                                                    );
+                                                                }
+                                                            )
+                                                        )}
+                                                    </div>
+
+                                                    <div className="flex items-center justify-between border-t px-3 py-2 text-xs text-muted-foreground">
+                                                        <span>
+                                                            {data.programme_ids.length}{' '}
+                                                            of 5 selected
+                                                        </span>
+
+                                                        <span>
+                                                            Minimum 3
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="flex items-center justify-between">
+                                            <p
+                                                className={`text-xs ${
+                                                    data.programme_ids.length < 3
+                                                        ? 'text-amber-600'
+                                                        : 'text-emerald-600'
+                                                }`}
+                                            >
+                                                {data.programme_ids.length < 3
+                                                    ? `Select ${
+                                                          3 -
+                                                          data.programme_ids.length
+                                                      } more programme${
+                                                          3 -
+                                                              data.programme_ids.length ===
+                                                          1
+                                                              ? ''
+                                                              : 's'
+                                                      }.`
+                                                    : 'Programme selection is valid.'}
+                                            </p>
+
+                                            <p className="text-xs font-medium">
+                                                {data.programme_ids.length}/5
+                                            </p>
+                                        </div>
+
+                                        {errors.programme_ids && (
+                                            <p className="text-sm text-red-500">
+                                                {errors.programme_ids}
+                                            </p>
+                                        )}
                                     </div>
 
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-2">
-                                            <Label>Total Slots</Label>
-                                            <QuotaNumberInput defaultValue={data.total_slots} onChange={(v) => setData('total_slots', v)} />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label>Min. CGPA</Label>
-                                            <QuotaNumberInput defaultValue={data.min_cgpa} step={0.1} maxValue={4} onChange={(v) => setData('min_cgpa', v)} />
-                                        </div>
+                                    {/* Total Slots */}
+                                    <div className="space-y-2">
+                                        <Label>
+                                            Total Slots
+                                        </Label>
+
+                                        <QuotaNumberInput
+                                            defaultValue={
+                                                data.total_slots
+                                            }
+                                            onChange={(v) =>
+                                                setData(
+                                                    'total_slots',
+                                                    v
+                                                )
+                                            }
+                                        />
+
+                                        {errors.total_slots && (
+                                            <p className="text-sm text-red-500">
+                                                {errors.total_slots}
+                                            </p>
+                                        )}
                                     </div>
 
+                                    {/* Interview */}
                                     <div className="flex items-center justify-between rounded-md border p-4">
                                         <div className="space-y-0.5">
-                                            <Label>Requires Interview</Label>
-                                            <p className="text-xs text-muted-foreground">Students must undergo screening.</p>
+                                            <Label>
+                                                Requires Interview
+                                            </Label>
+
+                                            <p className="text-xs text-muted-foreground">
+                                                Students must undergo screening.
+                                            </p>
                                         </div>
-                                        <Switch checked={data.interview_required} onCheckedChange={(v) => setData('interview_required', v)} />
+
+                                        <Switch
+                                            checked={
+                                                data.interview_required
+                                            }
+                                            onCheckedChange={(v) =>
+                                                setData(
+                                                    'interview_required',
+                                                    v
+                                                )
+                                            }
+                                        />
                                     </div>
                                 </div>
 
-                                <DialogFooter className="mt-6">
-                                    <DialogClose asChild>
-                                        <Button variant="ghost">Cancel</Button>
-                                    </DialogClose>
-                                    <Button type="submit" disabled={processing}>Submit Request</Button>
+                                <DialogFooter className="mt-6 sm:justify-between">
+                                    {/* Remove Quota */}
+                                    {editingQuota &&
+                                        editingQuota.quota_status === 'Pending' && (
+                                            <Button
+                                                type="button"
+                                                variant="destructive"
+                                                className="mr-auto"
+                                                disabled={processing}
+                                                onClick={() => {
+                                                    if (
+                                                        confirm(
+                                                            'Are you sure you want to remove this quota request? This action cannot be undone.'
+                                                        )
+                                                    ) {
+                                                        router.delete(
+                                                            route(
+                                                                'company.quotas.destroy',
+                                                                editingQuota.quota_id
+                                                            ),
+                                                            {
+                                                                preserveScroll: true,
+                                                                onSuccess: () => {
+                                                                    resetForm();
+                                                                    setIsDialogOpen(false);
+                                                                },
+                                                            }
+                                                        );
+                                                    }
+                                                }}
+                                            >
+                                                Remove Quota
+                                            </Button>
+                                        )}
+
+                                    <div className="flex items-center gap-2">
+                                        <DialogClose asChild>
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                            >
+                                                Cancel
+                                            </Button>
+                                        </DialogClose>
+
+                                        <Button
+                                            type="submit"
+                                            disabled={
+                                                processing ||
+                                                !data.job_title ||
+                                                !programmeSelectionValid ||
+                                                !data.total_slots
+                                            }
+                                        >
+                                            {processing
+                                                ? 'Submitting...'
+                                                : editingQuota
+                                                ? 'Update Request'
+                                                : 'Submit Request'}
+                                        </Button>
+                                    </div>
                                 </DialogFooter>
                             </form>
                         </DialogContent>
@@ -172,18 +531,24 @@ export default function Quotas({ quotas = [], programmes = [] }) {
             {!company && (
                 <div className="flex items-center gap-3 p-4 text-sm bg-amber-50 text-amber-800 rounded-lg border border-amber-200">
                     <AlertCircle className="size-4" />
-                    <span>Account is not linked to a company profile.</span>
+
+                    <span>
+                        Account is not linked to a company profile.
+                    </span>
                 </div>
             )}
 
-            {/* Filter Section */}
+            {/* Search */}
             <div className="relative max-w-sm">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground size-4" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+
                 <Input
                     placeholder="Search by job title..."
                     className="h-9 w-[250px] pl-8 shadow-none text-sm rounded-full bg-muted border-none focus-visible:ring-transparent"
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onChange={(e) =>
+                        setSearchTerm(e.target.value)
+                    }
                 />
             </div>
 
@@ -191,59 +556,46 @@ export default function Quotas({ quotas = [], programmes = [] }) {
             {quotas.length > 0 ? (
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {quotas
-                        .filter((q: any) => q.job_title?.toLowerCase().includes(searchTerm.toLowerCase()))
+                        .filter((q: any) =>
+                            q.job_title
+                                ?.toLowerCase()
+                                .includes(
+                                    searchTerm.toLowerCase()
+                                )
+                        )
                         .map((quota: any) => (
-                            <div key={quota.quota_id} className="relative group py-4">
+                            <div
+                                key={quota.quota_id}
+                                className="relative group py-4"
+                            >
                                 <QuotaCard
-                                    quota={quota}
-                                    isEditMode={isEditMode}
-                                    onDelete={handleDelete}
-                                />
-
-                                {isEditMode && quota.quota_status !== 'Approved' && (
-                                    <Button
-                                        size="sm"
-                                        variant="outline"
-                                        className="absolute top-4 left-4 z-10"
-                                        onClick={() => handleEdit(quota)}
-                                    >
-                                        <Edit2 className="size-4 mr-1" />
-                                        Edit
-                                    </Button>
-                                )}
-
-                                <div className="absolute top-4 right-4 flex gap-2">
-                                    {quota.quota_status === 'Pending' && (
-                                        <span className="mt-6 flex items-center gap-1 text-[10px] font-medium uppercase px-2 py-1 rounded bg-amber-100 text-amber-700">
-                                            <Clock className="size-3" /> Pending
-                                        </span>
-                                    )}
-                                    {quota.is_released && (
-                                        <span className="mt-6 flex items-center gap-1 text-[10px] font-medium uppercase px-2 py-1 rounded bg-emerald-100 text-emerald-700">
-                                            <Globe className="size-3" /> Live
-                                        </span>
-                                    )}
-                                    {quota.quota_status === 'Rejected' && (
-                                        <span className="mt-6 flex items-center gap-1 text-[10px] font-medium uppercase px-2 py-1 rounded bg-red-100 text-red-700">
-                                            <CircleX className="size-3" /> Rejected
-                                        </span>
-                                    )}
-                                </div>
+                                quota={quota}
+                                isEditMode={false}
+                                onDelete={handleDelete}
+                                onEdit={handleEdit}
+                            />
                             </div>
-                        ))
-                    }
+                        ))}
                 </div>
             ) : (
                 <div className="border-2 border-dashed rounded-xl p-12 flex flex-col items-center text-center text-muted-foreground">
                     <div className="p-3 bg-muted rounded-full mb-4">
                         <Plus className="size-6" />
                     </div>
-                    <p className="font-semibold text-foreground">No quotas found</p>
-                    <p className="text-sm max-w-xs mt-1">Submit your first placement request to get started.</p>
+
+                    <p className="font-semibold text-foreground">
+                        No quotas found
+                    </p>
+
+                    <p className="text-sm max-w-xs mt-1">
+                        Submit your first placement request to get started.
+                    </p>
                 </div>
             )}
         </div>
     );
 }
 
-Quotas.layout = (page: React.ReactNode) => <AuthenticatedLayout children={page} />;
+Quotas.layout = (page: React.ReactNode) => (
+    <AuthenticatedLayout children={page} />
+);
