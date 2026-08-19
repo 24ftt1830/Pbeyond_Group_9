@@ -132,6 +132,8 @@ Route::middleware('auth')->group(function () {
     Route::middleware(['role:Student'])->prefix('student')->name('student.')->group(function () {
         Route::get('/profile', [StudentProfileController::class, 'index'])->name('profile');
         Route::post('/profile', [StudentProfileController::class, 'update'])->name('profile.update');
+        Route::get('/cv-generator', [StudentProfileController::class, 'cvGenerator'])
+        ->name('cv-generator');
 
         Route::get('/dashboard', [StudentDashboardController::class, 'index'])->name('dashboard');
 

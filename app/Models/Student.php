@@ -3,6 +3,16 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Education;
+use App\Models\ProfessionalProfile;
+use App\Models\Project;
+use App\Models\Activity;
+use App\Models\Achievement;
+use App\Models\Referee;
+use App\Models\SoftSkill;
+use App\Models\WorkExperience;
+use App\Models\StudentSkill;
+use App\Models\StudentLanguage;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Student extends Model
@@ -73,5 +83,77 @@ class Student extends Model
     public function documents()
     {
         return $this->hasManyThrough(Document::class, User::class, 'user_id', 'user_id', 'user_id', 'user_id');
+    }
+
+    public function education()
+    {
+        return $this->hasMany(
+            Education::class,
+            'student_id',
+            'student_id'
+        );
+    }
+
+    public function professionalProfile()
+    {
+        return $this->hasOne(
+            ProfessionalProfile::class,
+            'student_id',
+            'student_id'
+        );
+    }
+
+    public function projects()
+    {
+        return $this->hasMany(
+            Project::class,
+            'student_id',
+            'student_id'
+        );
+    }
+
+    public function activities()
+    {
+        return $this->hasMany(
+            Activity::class,
+            'student_id',
+            'student_id'
+        );
+    }
+
+    public function achievements()
+    {
+        return $this->hasMany(
+            Achievement::class,
+            'student_id',
+            'student_id'
+        );
+    }
+
+    public function referees()
+    {
+        return $this->hasMany(
+            Referee::class,
+            'student_id',
+            'student_id'
+        );
+    }
+
+    public function softSkills()
+    {
+        return $this->hasMany(
+            SoftSkill::class,
+            'student_id',
+            'student_id'
+        );
+    }
+
+    public function workExperiences()
+    {
+        return $this->hasMany(
+            WorkExperience::class,
+            'student_id',
+            'student_id'
+        );
     }
 }
