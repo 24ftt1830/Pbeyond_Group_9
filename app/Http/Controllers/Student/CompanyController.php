@@ -90,14 +90,18 @@ class CompanyController extends Controller
             ->with('programmes')
             ->get();
 
-        $appliedQuotaIds = $student->applications()
-            ->pluck('quota_id')
-            ->toArray();
+        // Query primary key 'id' and 'quota_id' explicitly
+        $applications = $student->applications()
+            ->get(['id', 'quota_id'])
+            ->map(fn ($app) => [
+                'application_id' => (int) $app->id,
+                'quota_id'       => (int) $app->quota_id,
+            ]);
 
         return Inertia::render('Student/ViewCompany', [
-            'company'           => $company,
-            'quotas'            => $quotas,
-            'applied_quota_ids' => $appliedQuotaIds,
+            'company'      => $company,
+            'quotas'       => $quotas,
+            'applications' => $applications,
         ]);
     }
 
@@ -117,24 +121,12 @@ class CompanyController extends Controller
             ],
         ]);
 
-        /**
-         * Enforce the maximum of 3 application choices
-         * across all companies and quotas.
-         */
         if ($student->applications()->count() >= 3) {
             return back()->withErrors([
                 'message' => 'You have reached the maximum limit of 3 application choices.',
             ]);
         }
 
-        /**
-         * Find the quota only if:
-         *
-         * 1. It is available/released.
-         * 2. It belongs to the selected company.
-         * 3. The student's exact programme is one of
-         *    the programmes selected by the company.
-         */
         $quota = PlacementQuota::available()
             ->where('quota_id', $request->quota_id)
             ->where('company_id', $companyId)
@@ -152,9 +144,6 @@ class CompanyController extends Controller
             ]);
         }
 
-        /**
-         * Prevent duplicate application.
-         */
         if (
             $student->applications()
                 ->where('quota_id', $quota->quota_id)
@@ -165,21 +154,12 @@ class CompanyController extends Controller
             ]);
         }
 
-        /**
-         * Check whether the quota still has available slots.
-         */
         if ($quota->remaining_slots <= 0) {
             return back()->withErrors([
                 'message' => 'This quota is already full.',
             ]);
         }
 
-        /**
-         * CGPA is intentionally NOT checked.
-         *
-         * Eligibility is based on the student's
-         * programme selection only.
-         */
         Application::create([
             'student_id' => $student->student_id,
             'quota_id'   => $quota->quota_id,
@@ -189,6 +169,39 @@ class CompanyController extends Controller
         return back()->with(
             'success',
             'Application submitted!'
+        );
+    }
+
+    /**
+     * Cancel/delete a pending application submitted by the student.
+     */
+    public function cancel($application)
+    {
+        $student = Auth::user()->student;
+
+        $applicationId = $application instanceof Application ? $application->id : $application;
+
+        $appRecord = $student->applications()
+            ->where('id', $applicationId)
+            ->first();
+
+        if (!$appRecord) {
+            return back()->withErrors([
+                'message' => 'Application not found or unauthorized action.',
+            ]);
+        }
+
+        if ($appRecord->app_status !== 'Pending') {
+            return back()->withErrors([
+                'message' => 'You can only cancel applications that are pending review.',
+            ]);
+        }
+
+        $appRecord->delete();
+
+        return back()->with(
+            'success',
+            'Application cancelled successfully!'
         );
     }
 }

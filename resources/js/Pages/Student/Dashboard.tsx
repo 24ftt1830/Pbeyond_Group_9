@@ -16,6 +16,7 @@ interface Quota {
     available: number;
     is_full: boolean;
     company: {
+        company_id: number;
         company_name: string;
         office_address: string;
     };
@@ -28,7 +29,6 @@ interface Props {
 export default function Dashboard({ availableQuotas }: Props) {
     console.log(availableQuotas)
     const { auth } = usePage<PageProps>().props;
-
 
     const columns = useMemo<ColumnDef<Quota>[]>(() => [
         {
@@ -62,7 +62,7 @@ export default function Dashboard({ availableQuotas }: Props) {
             id: 'actions',
             header: 'Action',
             cell: ({ row }) => (
-                <Link href={route('student.companies.view', row.original.quota_id)}>
+                <Link href={route('student.companies.view', row.original.company.company_id)}>
                     <Button variant="outline" size="sm" className="shadow-none">View</Button>
                 </Link>
             ),
@@ -83,10 +83,6 @@ export default function Dashboard({ availableQuotas }: Props) {
 
             <div>
                 <ScrollAreaHorizontalDemo />
-            </div>
-
-            <div>
-                
             </div>
 
             <div className="mt-4">

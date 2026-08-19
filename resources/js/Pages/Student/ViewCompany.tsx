@@ -31,13 +31,21 @@ type Company = {
     description: string | null;
 };
 
+type StudentApplication = {
+    application_id: number;
+    quota_id: number;
+};
+
 interface Props {
     company: Company;
     quotas: Quota[];
-    applied_quota_ids: number[];
+    applications?: StudentApplication[];
 }
 
-export default function ViewCompany({ company, quotas, applied_quota_ids }: Props) {
+export default function ViewCompany({ company, quotas, applications = [] }: Props) {
+
+    const MAX_APPLICATIONS = 3;
+    const remainingChoices = MAX_APPLICATIONS - applications.length;
 
     const handleApply = (quota_id: number) => {
         router.post(route('student.companies.apply', { company: company.company_id }), {
@@ -66,8 +74,28 @@ export default function ViewCompany({ company, quotas, applied_quota_ids }: Prop
         });
     };
 
-    const MAX_APPLICATIONS = 3;
-    const remainingChoices = MAX_APPLICATIONS - applied_quota_ids.length;
+    const handleCancel = (application_id?: number) => {
+        if (!application_id) {
+            toast.error('Unable to locate application ID.');
+            return;
+        }
+
+        router.delete(route('student.applications.cancel', { application: application_id }), {
+            preserveScroll: true,
+            onSuccess: () => {
+                toast.success('Application cancelled successfully!');
+            },
+            onError: (errors: any) => {
+                const errorMessage = typeof errors === 'string'
+                    ? errors
+                    : Object.values(errors)[0] || 'Failed to cancel application';
+
+                toast.error('Cancellation Failed', {
+                    description: errorMessage as string,
+                });
+            }
+        });
+    };
 
     return (
         <div className="p-6">
@@ -79,7 +107,6 @@ export default function ViewCompany({ company, quotas, applied_quota_ids }: Prop
                     <h1 className="text-2xl font-bold">Company Overview</h1>
                 </div>
                 
-                {/* Visual badge showing remaining application slots */}
                 <div className="rounded-full bg-blue-50 px-4 py-1.5 text-xs font-semibold text-blue-700 ring-1 ring-inset ring-blue-700/10">
                     Choices Remaining: {remainingChoices} / {MAX_APPLICATIONS}
                 </div>
@@ -94,10 +121,12 @@ export default function ViewCompany({ company, quotas, applied_quota_ids }: Prop
                 <section className="space-y-4">
                     <h2 className="text-lg font-bold font-sato text-black">Available Positions</h2>
                     {quotas.map((quota) => {
-                        const isApplied = applied_quota_ids.includes(quota.quota_id);
-
-                        // Disable if student already applied to this quota OR hit the limit of 3 choices
-                        const isDisabled = isApplied || applied_quota_ids.length >= MAX_APPLICATIONS;
+                        const matchedApplication = applications.find(
+                            (app) => Number(app.quota_id) === Number(quota.quota_id)
+                        );
+                        
+                        const isApplied = !!matchedApplication;
+                        const isLimitReached = applications.length >= MAX_APPLICATIONS;
 
                         return (
                             <Card key={quota.quota_id} className="shadow-none">
@@ -117,29 +146,59 @@ export default function ViewCompany({ company, quotas, applied_quota_ids }: Prop
                                     </div>
 
                                     <div className="ml-4 flex flex-col gap-2">
-                                        <AlertDialog>
-                                            <AlertDialogTrigger asChild>
-                                                <Button className="w-24" size="sm" disabled={isDisabled}>
-                                                    {isApplied ? 'Applied' : 'Apply'}
-                                                </Button>
-                                            </AlertDialogTrigger>
-                                            <AlertDialogContent>
-                                                <AlertDialogHeader>
-                                                    <AlertDialogTitle>Confirm Application</AlertDialogTitle>
-                                                    <AlertDialogDescription>
-                                                        You are about to apply for {quota.job_title}. You have {remainingChoices} application choice(s) remaining out of {MAX_APPLICATIONS}.
-                                                    </AlertDialogDescription>
-                                                </AlertDialogHeader>
-                                                <AlertDialogFooter>
-                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                    <AlertDialogAction onClick={() => handleApply(quota.quota_id)}>
-                                                        Confirm & Apply
-                                                    </AlertDialogAction>
-                                                </AlertDialogFooter>
-                                            </AlertDialogContent>
-                                        </AlertDialog>
+                                        {isApplied ? (
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <Button className="w-36" variant="destructive" size="sm">
+                                                        Cancel Application
+                                                    </Button>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent>
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle>Cancel Application?</AlertDialogTitle>
+                                                        <AlertDialogDescription>
+                                                            Are you sure you want to cancel your application for <strong>{quota.job_title}</strong>? This action will free up one of your application choices.
+                                                        </AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel>Keep Application</AlertDialogCancel>
+                                                        <AlertDialogAction asChild>
+                                                            <Button 
+                                                                type="button"
+                                                                className="bg-red-600 hover:bg-red-700"
+                                                                onClick={() => handleCancel(matchedApplication?.application_id)}
+                                                            >
+                                                                Yes, Cancel
+                                                            </Button>
+                                                        </AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
+                                        ) : (
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <Button className="w-36" size="sm" disabled={isLimitReached}>
+                                                        Apply
+                                                    </Button>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent>
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle>Confirm Application</AlertDialogTitle>
+                                                        <AlertDialogDescription>
+                                                            You are about to apply for <strong>{quota.job_title}</strong>. You have {remainingChoices} application choice(s) remaining out of {MAX_APPLICATIONS}.
+                                                        </AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                        <AlertDialogAction onClick={() => handleApply(quota.quota_id)}>
+                                                            Confirm & Apply
+                                                        </AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
+                                        )}
 
-                                        <Button variant="outline" className="w-24 gap-2" size="sm">
+                                        <Button variant="outline" className="w-36 gap-2" size="sm">
                                             <Heart className="h-4 w-4" /> Save
                                         </Button>
                                     </div>

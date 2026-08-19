@@ -13,13 +13,14 @@ class DashboardController extends Controller
     {
         $student = Auth::user()->student;
 
-        // Fetch all programme IDs under the student's school (e.g., SICT / School of ICT)
-        $schoolProgrammeIds = \App\Models\Programme::where('school_id', $student->programme->school_id)
-            ->pluck('programme_id');
+        // Get the student's exact programme (course) ID
+        $programmeId = $student->programme_id;
 
-        // Retrieve approved & released quotas for any programme inside the student's school
+        // Retrieve approved & released quotas strictly linked to the student's exact course
         $quotas = PlacementQuota::available()
-            ->whereIn('programme_id', $schoolProgrammeIds)
+            ->whereHas('programmes', function ($query) use ($programmeId) {
+                $query->where('programmes.programme_id', $programmeId);
+            })
             ->with([
                 'company:company_id,company_name,office_address',
                 'applications' => function ($query) {
@@ -39,7 +40,11 @@ class DashboardController extends Controller
                 'filled'          => $filled,
                 'available'       => max(0, $available), 
                 'is_full'         => $available <= 0,
-                'company'         => $quota->company,
+                'company'         => [
+                    'company_id'     => $quota->company->company_id,
+                    'company_name'   => $quota->company->company_name,
+                    'office_address' => $quota->company->office_address ?? 'Brunei Muara',
+                ],
             ];
         });
 

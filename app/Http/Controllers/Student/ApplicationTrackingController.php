@@ -24,7 +24,7 @@ class ApplicationTrackingController extends Controller
 
         $formattedApplications = $applications->map(function ($app) {
             return [
-                'id' => $app->id,
+                'id' => $app->application_id ?? $app->id,
                 'status_label' => $app->app_status, 
                 'applied_at' => $app->created_at,
                 'reviewed_at' => in_array($app->app_status, ['Recruited', 'Declined']) ? $app->updated_at : null,
@@ -44,12 +44,12 @@ class ApplicationTrackingController extends Controller
     }
 
     private function calculateStep($status)
-{
-    return match ($status) {
-        'Pending' => 0,
-        'Waitlisted', 'Interview' => 1, 
-        'Recruited', 'Declined' => 2,
-        default => 0,
-    };
-}
+    {
+        return match ($status) {
+            'Pending' => 0,
+            'Waitlisted', 'Interview' => 1, 
+            'Recruited', 'Declined' => 2,
+            default => 0,
+        };
+    }
 }

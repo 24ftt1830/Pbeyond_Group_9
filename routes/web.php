@@ -44,8 +44,7 @@ Route::middleware('auth')->group(function () {
     // --- Admin Routes ---
     Route::middleware(['role:Admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
-        Route::delete('/events/{event}', [EventController::class, 'destroy'])
-    ->name('events.destroy');
+        Route::delete('/events/{event}', [EventController::class, 'destroy'])->name('events.destroy');
 
         // Company Management
         Route::prefix('companies')->group(function () {
@@ -85,51 +84,31 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/support', fn () => Inertia::render('Admin/Support'))->name('support');
 
-    Route::get('/calendar', function () {
-        return Inertia::render('Admin/Calendar', [
-            'events' => Event::all()->map(function ($event) {
-                return [
-                    'id' => $event->id,
-                    'title' => $event->title,
-                    'description' => $event->description,
-                    'startDate' => $event->start_date,
-                    'endDate' => $event->end_date,
-                    'variant' => $event->variant ?? 'primary',
-                ];
-            }),
-        ]);
-    })->name('calendar');
+        Route::get('/calendar', function () {
+            return Inertia::render('Admin/Calendar', [
+                'events' => Event::all()->map(function ($event) {
+                    return [
+                        'id' => $event->id,
+                        'title' => $event->title,
+                        'description' => $event->description,
+                        'startDate' => $event->start_date,
+                        'endDate' => $event->end_date,
+                        'variant' => $event->variant ?? 'primary',
+                    ];
+                }),
+            ]);
+        })->name('calendar');
 
-    Route::post('/events', [EventController::class, 'store'])->name('events.store');
+        Route::post('/events', [EventController::class, 'store'])->name('events.store');
     });
 
     // --- Company Routes ---
-    
-        Route::middleware(['role:Company'])->prefix('company')->name('company.')->group(function () {
-            Route::get('/dashboard', [App\Http\Controllers\Company\DashboardController::class, 'index'])->name('dashboard');
+    Route::middleware(['role:Company'])->prefix('company')->name('company.')->group(function () {
+        Route::get('/dashboard', [App\Http\Controllers\Company\DashboardController::class, 'index'])->name('dashboard');
 
-            Route::get('/quotas', [App\Http\Controllers\Company\QuotaController::class, 'index'])->name('quotas');
-            Route::post('/quotas', [App\Http\Controllers\Company\QuotaController::class, 'store'])->name('quotas.store');
-            Route::put('/quotas/{quota}', [App\Http\Controllers\Company\QuotaController::class, 'update'])->name('quotas.update');
-            Route::delete('/quotas/{quota}', [App\Http\Controllers\Company\QuotaController::class, 'destroy'])->name('quotas.destroy');
-            Route::post('/quotas/{quota}/close', [App\Http\Controllers\Company\QuotaController::class, 'close'])->name('quotas.close');
-
-            Route::get('/applications', [App\Http\Controllers\Company\ApplicationController::class, 'index'])->name('applications');
-            Route::get('/applications/{quota}', [App\Http\Controllers\Company\ApplicationController::class, 'show'])->name('applications.show');
-            Route::get('/application/{application}', [App\Http\Controllers\Company\ApplicationController::class, 'viewSingle'])->name('applications.view');
-            Route::put('/applications/{quota:quota_id}/update-status/{application}', [App\Http\Controllers\Company\ApplicationController::class, 'updateStatus'])->name('applications.update-status');
-
-            Route::get('/representatives', [App\Http\Controllers\Company\RepresentativeController::class, 'index'])->name('representatives');
-
-            Route::get('/profile', [App\Http\Controllers\Company\ProfileController::class, 'show'])->name('profile');
-            Route::put('/profile', [App\Http\Controllers\Company\ProfileController::class, 'update'])->name('profile.update');
-
-            Route::get('/interns', fn () => Inertia::render('Company/Interns'))->name('interns');
-            Route::get('/contact-support', fn () => Inertia::render('Company/ContactSupport'))->name('contact-support');
-            Route::get('/faqs', fn () => Inertia::render('Company/Faqs'))->name('faqs');
-            Route::get('/calendar', fn () => Inertia::render('Company/Calendar'))->name('calendar');
-        });
-
+        Route::get('/quotas', [App\Http\Controllers\Company\QuotaController::class, 'index'])->name('quotas');
+        Route::post('/quotas', [App\Http\Controllers\Company\QuotaController::class, 'store'])->name('quotas.store');
+        Route::put('/quotas/{quota}', [App\Http\Controllers\Company\QuotaController::class, 'update'])->name('quotas.update');
         Route::delete('/quotas/{quota}', [App\Http\Controllers\Company\QuotaController::class, 'destroy'])->name('quotas.destroy');
         Route::post('/quotas/{quota}/close', [App\Http\Controllers\Company\QuotaController::class, 'close'])->name('quotas.close');
 
@@ -140,7 +119,6 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/representatives', [App\Http\Controllers\Company\RepresentativeController::class, 'index'])->name('representatives');
 
-        // Company Profile
         Route::get('/profile', [App\Http\Controllers\Company\ProfileController::class, 'show'])->name('profile');
         Route::put('/profile', [App\Http\Controllers\Company\ProfileController::class, 'update'])->name('profile.update');
 
@@ -162,6 +140,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/companies/{company}/apply', [StudentCompanyController::class, 'apply'])->name('companies.apply');
 
         Route::get('/application-tracking', [App\Http\Controllers\Student\ApplicationTrackingController::class, 'index'])->name('application-tracking');
+        Route::delete('/applications/{application}/cancel', [StudentCompanyController::class, 'cancel'])->name('applications.cancel');
 
         Route::get('/logbook', [LogbookController::class, 'index'])->name('logbook');
 
@@ -176,5 +155,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/report-issue', [StudentReportController::class, 'create'])->name('report-issue');
         Route::post('/report-issue', [StudentReportController::class, 'store'])->name('report-issue.store');
     });
+});
 
 require __DIR__.'/auth.php';
