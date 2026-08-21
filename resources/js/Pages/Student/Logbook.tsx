@@ -4,6 +4,13 @@ import {
     ChevronLeft,
     ChevronRight,
     CalendarDays,
+    BriefcaseBusiness,
+    Home,
+    CalendarOff,
+    UserX,
+    CalendarCheck,
+    CheckCircle2,
+    CircleHelp,
 } from 'lucide-react';
 
 interface LogbookDay {
@@ -15,6 +22,19 @@ interface LogbookDay {
 interface LogbookWeek {
     weekNumber: number;
     days: LogbookDay[];
+}
+
+type DayStatus =
+    | 'not_set'
+    | 'working'
+    | 'off'
+    | 'holiday'
+    | 'absent'
+    | 'leave'
+    | 'completed';
+
+interface DayEntry {
+    status: DayStatus;
 }
 
 const MONTHS = [
@@ -32,6 +52,32 @@ const MONTHS = [
     'December',
 ];
 
+const STATUS_LABELS: Record<DayStatus, string> = {
+    not_set: 'Not set',
+    working: 'Working Day',
+    off: 'Off Day',
+    holiday: 'Company Holiday',
+    absent: 'Absent',
+    leave: 'On Leave',
+    completed: 'Completed',
+};
+
+const STATUS_ICONS = {
+    working: BriefcaseBusiness,
+    off: Home,
+    holiday: CalendarOff,
+    absent: UserX,
+    leave: CalendarCheck,
+};
+
+const STATUS_DESCRIPTIONS = {
+    working: 'Continue to your daily log submission.',
+    off: 'No log is required for this day.',
+    holiday: 'The company was closed for this day.',
+    absent: 'You were absent from work.',
+    leave: 'You were on leave for this day.',
+};
+
 export default function Logbook() {
     const today = new Date();
 
@@ -45,17 +91,30 @@ export default function Logbook() {
 
     const [selectedWeek, setSelectedWeek] = useState(0);
 
-    // Controls the main month/year popup
     const [showMonthPicker, setShowMonthPicker] =
         useState(false);
 
-    // Controls whether we are choosing a year
     const [showYearPicker, setShowYearPicker] =
         useState(false);
 
-    // The year currently displayed in the year selector
-    const [yearPickerCenter, setYearPickerCenter] =
-        useState(today.getFullYear());
+    /*
+    |--------------------------------------------------------------------------
+    | FRONTEND-ONLY DAY STATUS
+    |--------------------------------------------------------------------------
+    */
+
+    const [dayEntries, setDayEntries] = useState<
+        Record<string, DayEntry>
+    >({});
+
+    const [selectedDateKey, setSelectedDateKey] =
+        useState<string | null>(null);
+
+    const [showDayPanel, setShowDayPanel] =
+        useState(false);
+
+    const [selectedStatus, setSelectedStatus] =
+        useState<DayStatus>('not_set');
 
     const currentYear =
         currentMonth.getFullYear();
@@ -65,13 +124,48 @@ export default function Logbook() {
 
     /*
     |--------------------------------------------------------------------------
-    | Generate weeks
+    | Generate calendar weeks
     |--------------------------------------------------------------------------
+    |
+    | IMPORTANT:
+    |
+    | Every week is a COMPLETE Monday -> Sunday week.
+    |
+    | The first week starts on the Monday of the
+    | week containing the 1st of the selected month.
+    |
+    | The last week ends on the Sunday of the
+    | week containing the last day of the month.
+    |
+    | This means weeks can contain days from the
+    | previous or next month.
+    |
+    | Example:
+    |
+    | September 2026
+    |
+    | Week 1:
+    | Monday 31 August  ← Previous month
+    | Tuesday 1 September
+    | ...
+    | Sunday 6 September
+    |
+    | Week 5:
+    | Monday 28 September
+    | ...
+    | Wednesday 30 September
+    | Thursday 1 October ← Next month
+    | ...
+    | Sunday 4 October
+    |
     */
 
     const weeks = useMemo<LogbookWeek[]>(() => {
-        const year = currentMonth.getFullYear();
-        const month = currentMonth.getMonth();
+        const year =
+            currentMonth.getFullYear();
+
+        const month =
+            currentMonth.getMonth();
 
         const firstDay =
             new Date(year, month, 1);
@@ -79,9 +173,28 @@ export default function Logbook() {
         const lastDay =
             new Date(year, month + 1, 0);
 
-        // Monday = first day of week
+        /*
+         * Convert JavaScript's:
+         *
+         * Sunday = 0
+         * Monday = 1
+         * ...
+         *
+         * into:
+         *
+         * Monday = 0
+         * Tuesday = 1
+         * ...
+         * Sunday = 6
+         */
+
         const firstDayOffset =
             (firstDay.getDay() + 6) % 7;
+
+        /*
+         * Find Monday of the week containing
+         * the first day of the month.
+         */
 
         const firstMonday =
             new Date(firstDay);
@@ -91,14 +204,35 @@ export default function Logbook() {
                 firstDayOffset
         );
 
-        const generatedWeeks: LogbookWeek[] = [];
+        /*
+         * Find Sunday of the week containing
+         * the last day of the month.
+         */
+
+        const lastDayOffset =
+            (lastDay.getDay() + 6) % 7;
+
+        const lastSunday =
+            new Date(lastDay);
+
+        lastSunday.setDate(
+            lastDay.getDate() +
+                (6 - lastDayOffset)
+        );
+
+        const generatedWeeks: LogbookWeek[] =
+            [];
 
         let weekStart =
             new Date(firstMonday);
 
         let weekNumber = 1;
 
-        while (weekStart <= lastDay) {
+        /*
+         * Generate complete Monday-Sunday weeks.
+         */
+
+        while (weekStart <= lastSunday) {
             const days: LogbookDay[] = [];
 
             for (let i = 0; i < 7; i++) {
@@ -109,42 +243,33 @@ export default function Logbook() {
                     weekStart.getDate() + i
                 );
 
-                // Only show dates belonging
-                // to the selected month.
-                if (
-                    date.getMonth() === month
-                ) {
-                    days.push({
-                        date,
+                days.push({
+                    date,
 
-                        dayName:
-                            date.toLocaleDateString(
-                                'en-GB',
-                                {
-                                    weekday:
-                                        'long',
-                                }
-                            ),
+                    dayName:
+                        date.toLocaleDateString(
+                            'en-GB',
+                            {
+                                weekday: 'long',
+                            }
+                        ),
 
-                        formattedDate:
-                            date.toLocaleDateString(
-                                'en-GB',
-                                {
-                                    day: 'numeric',
-                                    month: 'long',
-                                    year: 'numeric',
-                                }
-                            ),
-                    });
-                }
-            }
-
-            if (days.length > 0) {
-                generatedWeeks.push({
-                    weekNumber,
-                    days,
+                    formattedDate:
+                        date.toLocaleDateString(
+                            'en-GB',
+                            {
+                                day: 'numeric',
+                                month: 'long',
+                                year: 'numeric',
+                            }
+                        ),
                 });
             }
+
+            generatedWeeks.push({
+                weekNumber,
+                days,
+            });
 
             weekStart =
                 new Date(weekStart);
@@ -175,6 +300,115 @@ export default function Logbook() {
 
     /*
     |--------------------------------------------------------------------------
+    | Date key
+    |--------------------------------------------------------------------------
+    */
+
+    const getDateKey = (date: Date) => {
+        const year =
+            date.getFullYear();
+
+        const month = String(
+            date.getMonth() + 1
+        ).padStart(2, '0');
+
+        const day = String(
+            date.getDate()
+        ).padStart(2, '0');
+
+        return `${year}-${month}-${day}`;
+    };
+
+    /*
+    |--------------------------------------------------------------------------
+    | Open day
+    |--------------------------------------------------------------------------
+    */
+
+    const openDay = (day: LogbookDay) => {
+        const key =
+            getDateKey(day.date);
+
+        const existing =
+            dayEntries[key];
+
+        setSelectedDateKey(key);
+
+        setSelectedStatus(
+            existing?.status ??
+                'not_set'
+        );
+
+        setShowDayPanel(true);
+    };
+
+    /*
+    |--------------------------------------------------------------------------
+    | Save non-working day
+    |--------------------------------------------------------------------------
+    */
+
+    const saveDayStatus = () => {
+        if (!selectedDateKey) {
+            return;
+        }
+
+        if (
+            selectedStatus ===
+                'not_set' ||
+            selectedStatus ===
+                'working'
+        ) {
+            return;
+        }
+
+        setDayEntries(
+            (previous) => ({
+                ...previous,
+
+                [selectedDateKey]: {
+                    status: selectedStatus,
+                },
+            })
+        );
+
+        closeDayPanel();
+    };
+
+    /*
+    |--------------------------------------------------------------------------
+    | Continue to daily log
+    |--------------------------------------------------------------------------
+    |
+    | TEMPORARY:
+    | Your friend can replace this with the actual
+    | daily log submission route later.
+    |
+    */
+
+    const continueToDailyLog = () => {
+        if (!selectedDateKey) {
+            return;
+        }
+
+        window.location.href =
+            `/student/logbook/create?date=${selectedDateKey}`;
+    };
+
+    /*
+    |--------------------------------------------------------------------------
+    | Close day panel
+    |--------------------------------------------------------------------------
+    */
+
+    const closeDayPanel = () => {
+        setShowDayPanel(false);
+        setSelectedDateKey(null);
+        setSelectedStatus('not_set');
+    };
+
+    /*
+    |--------------------------------------------------------------------------
     | Month navigation
     |--------------------------------------------------------------------------
     */
@@ -189,6 +423,8 @@ export default function Logbook() {
         );
 
         setSelectedWeek(0);
+        setShowMonthPicker(false);
+        setShowYearPicker(false);
     };
 
     const goToNextMonth = () => {
@@ -201,11 +437,13 @@ export default function Logbook() {
         );
 
         setSelectedWeek(0);
+        setShowMonthPicker(false);
+        setShowYearPicker(false);
     };
 
     /*
     |--------------------------------------------------------------------------
-    | Change month
+    | Month / year picker
     |--------------------------------------------------------------------------
     */
 
@@ -218,16 +456,9 @@ export default function Logbook() {
         );
 
         setSelectedWeek(0);
-
         setShowMonthPicker(false);
         setShowYearPicker(false);
     };
-
-    /*
-    |--------------------------------------------------------------------------
-    | Change year
-    |--------------------------------------------------------------------------
-    */
 
     const changeYear = (year: number) => {
         setCurrentMonth(
@@ -239,76 +470,51 @@ export default function Logbook() {
         );
 
         setSelectedWeek(0);
-
-        // After selecting a year,
-        // return to the month selection.
         setShowYearPicker(false);
     };
 
     /*
     |--------------------------------------------------------------------------
-    | Year picker range
+    | Year options
     |--------------------------------------------------------------------------
-    |
-    | Shows 21 years:
-    |
-    | 2011 - 2031
-    |
-    | when the center year is 2021.
-    |
     */
 
     const yearOptions = Array.from(
-        { length: 21 },
+        { length: 31 },
         (_, index) =>
-            yearPickerCenter - 10 + index
+            currentYear - 15 + index
     );
 
     /*
     |--------------------------------------------------------------------------
-    | Open year picker
+    | Get day status
     |--------------------------------------------------------------------------
     */
 
-    const openYearPicker = () => {
-        setYearPickerCenter(currentYear);
-        setShowYearPicker(true);
-    };
+    const getDayStatus = (
+        day: LogbookDay
+    ) => {
+        const key =
+            getDateKey(day.date);
 
-    /*
-    |--------------------------------------------------------------------------
-    | Year picker previous range
-    |--------------------------------------------------------------------------
-    */
-
-    const previousYearRange = () => {
-        setYearPickerCenter(
-            yearPickerCenter - 21
-        );
-    };
-
-    /*
-    |--------------------------------------------------------------------------
-    | Year picker next range
-    |--------------------------------------------------------------------------
-    */
-
-    const nextYearRange = () => {
-        setYearPickerCenter(
-            yearPickerCenter + 21
+        return (
+            dayEntries[key]?.status ??
+            'not_set'
         );
     };
 
     return (
         <div
             className="
+                relative
                 w-full
                 min-w-0
-                overflow-visible
+                overflow-x-hidden
                 p-6
             "
             style={{
-                scrollbarGutter: 'stable',
+                scrollbarGutter:
+                    'stable',
             }}
         >
 
@@ -341,11 +547,13 @@ export default function Logbook() {
                 "
             >
 
-                {/* LEFT MONTH ARROW */}
+                {/* LEFT ARROW */}
 
                 <button
                     type="button"
-                    onClick={goToPreviousMonth}
+                    onClick={
+                        goToPreviousMonth
+                    }
                     aria-label="Previous month"
                     className="
                         absolute
@@ -371,13 +579,11 @@ export default function Logbook() {
 
                 <button
                     type="button"
-                    onClick={() => {
+                    onClick={() =>
                         setShowMonthPicker(
                             !showMonthPicker
-                        );
-
-                        setShowYearPicker(false);
-                    }}
+                        )
+                    }
                     className="
                         absolute
                         left-1/2
@@ -399,17 +605,23 @@ export default function Logbook() {
                     <CalendarDays className="size-4 shrink-0" />
 
                     <span>
-                        {MONTHS[currentMonthIndex]}{' '}
+                        {
+                            MONTHS[
+                                currentMonthIndex
+                            ]
+                        }{' '}
                         {currentYear}
                     </span>
                 </button>
 
 
-                {/* RIGHT MONTH ARROW */}
+                {/* RIGHT ARROW */}
 
                 <button
                     type="button"
-                    onClick={goToNextMonth}
+                    onClick={
+                        goToNextMonth
+                    }
                     aria-label="Next month"
                     className="
                         absolute
@@ -446,340 +658,341 @@ export default function Logbook() {
                             -translate-x-1/2
                             rounded-xl
                             border
-                            border-gray-200
                             bg-white
                             p-5
                             shadow-lg
-                            overflow-visible
                         "
                     >
 
-                    {showYearPicker ? (
-                        /* =================================================
-                        YEAR SELECTION VIEW
-                        ================================================== */
-                        <div className="w-full">
-
-                            {/* YEAR HEADER */}
-                            <div
-                                className="
-                                    mb-5
-                                    flex
-                                    w-full
-                                    items-center
-                                    justify-between
-                                    gap-6
-                                "
-                            >
-                                <button
-                                    type="button"
-                                    onClick={previousYearRange}
-                                    className="
-                                        flex
-                                        h-9
-                                        w-9
-                                        shrink-0
-                                        items-center
-                                        justify-center
-                                        rounded-md
-                                        border
-                                        border-gray-200
-                                        bg-white
-                                        text-gray-600
-                                        hover:bg-gray-50
-                                    "
-                                >
-                                    <ChevronLeft className="size-4" />
-                                </button>
-
+                        {showYearPicker ? (
+                            <>
+                                {/* YEAR PICKER */}
 
                                 <div
                                     className="
-                                        flex-1
-                                        whitespace-nowrap
-                                        text-lg
-                                        font-semibold
-                                        text-gray-900
+                                        mb-6
+                                        flex
+                                        items-center
+                                        justify-between
+                                        gap-8
                                     "
                                 >
-                                    Select Year
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            changeYear(
+                                                currentYear -
+                                                    1
+                                            )
+                                        }
+                                        className="
+                                            flex
+                                            h-10
+                                            w-10
+                                            shrink-0
+                                            items-center
+                                            justify-center
+                                            rounded-md
+                                            border
+                                            border-gray-200
+                                            bg-white
+                                            text-gray-600
+                                            hover:bg-gray-50
+                                        "
+                                    >
+                                        <ChevronLeft className="size-4" />
+                                    </button>
+
+                                    <div
+                                        className="
+                                            flex-1
+                                            text-center
+                                            text-lg
+                                            font-semibold
+                                            text-gray-900
+                                            whitespace-nowrap
+                                        "
+                                    >
+                                        Select Year
+                                    </div>
+
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            changeYear(
+                                                currentYear +
+                                                    1
+                                            )
+                                        }
+                                        className="
+                                            flex
+                                            h-10
+                                            w-10
+                                            shrink-0
+                                            items-center
+                                            justify-center
+                                            rounded-md
+                                            border
+                                            border-gray-200
+                                            bg-white
+                                            text-gray-600
+                                            hover:bg-gray-50
+                                        "
+                                    >
+                                        <ChevronRight className="size-4" />
+                                    </button>
                                 </div>
 
 
-                                <button
-                                    type="button"
-                                    onClick={nextYearRange}
+                                {/* YEAR GRID */}
+
+                                <div
                                     className="
-                                        flex
-                                        h-9
-                                        w-9
-                                        shrink-0
-                                        items-center
-                                        justify-center
-                                        rounded-md
-                                        border
-                                        border-gray-200
-                                        bg-white
-                                        text-gray-600
-                                        hover:bg-gray-50
+                                        grid
+                                        grid-cols-3
+                                        gap-3
                                     "
                                 >
-                                    <ChevronRight className="size-4" />
-                                </button>
-                            </div>
+                                    {yearOptions.map(
+                                        (year) => {
+                                            const isSelected =
+                                                year ===
+                                                currentYear;
 
-
-                            {/* DIVIDER */}
-                            <div
-                                className="
-                                    mb-5
-                                    border-t
-                                    border-gray-200
-                                "
-                            />
-
-
-                            {/* YEAR GRID */}
-                            <div
-                                className="
-                                    grid
-                                    grid-cols-3
-                                    gap-1
-                                "
-                            >
-                                {yearOptions.map((year) => {
-                                    const isSelected =
-                                        year === currentYear;
-
-                                    return (
-                                        <button
-                                            type="button"
-                                            key={year}
-                                            onClick={() =>
-                                                changeYear(year)
-                                            }
-                                            className={`
-                                                flex
-                                                h-11
-                                                w-full
-                                                items-center
-                                                justify-center
-                                                rounded-md
-                                                text-sm
-                                                font-medium
-                                                transition
-                                                ${
-                                                    isSelected
-                                                        ? 'bg-blue-600 text-white'
-                                                        : 'text-gray-700 hover:bg-gray-100'
-                                                }
-                                            `}
-                                        >
-                                            {year}
-                                        </button>
-                                    );
-                                })}
-                            </div>
-
-
-                            {/* DIVIDER */}
-                            <div
-                                className="
-                                    my-5
-                                    border-t
-                                    border-gray-200
-                                "
-                            />
-
-
-                            {/* BACK TO MONTHS */}
-                            <button
-                                type="button"
-                                onClick={() =>
-                                    setShowYearPicker(false)
-                                }
-                                className="
-                                    flex
-                                    h-11
-                                    w-full
-                                    items-center
-                                    justify-center
-                                    rounded-md
-                                    border
-                                    border-gray-200
-                                    bg-white
-                                    text-sm
-                                    font-medium
-                                    text-gray-600
-                                    transition
-                                    hover:bg-gray-50
-                                "
-                            >
-                                Back to Months
-                            </button>
-
-                        </div>
-
-                    ) : (
-                        /* =================================================
-                        MONTH SELECTION VIEW
-                        ================================================== */
-                        <div className="w-full">
-
-                            {/* YEAR HEADER */}
-                            <div
-                                className="
-                                    mb-5
-                                    flex
-                                    w-full
-                                    items-center
-                                    justify-center
-                                    gap-4
-                                "
-                            >
-
-                                {/* PREVIOUS YEAR */}
-                                <button
-                                    type="button"
-                                    onClick={() =>
-                                        changeYear(currentYear - 1)
-                                    }
-                                    className="
-                                        flex
-                                        h-9
-                                        w-9
-                                        shrink-0
-                                        items-center
-                                        justify-center
-                                        rounded-md
-                                        border
-                                        border-gray-200
-                                        bg-white
-                                        text-gray-600
-                                        hover:bg-gray-50
-                                    "
-                                >
-                                    <ChevronLeft className="size-4" />
-                                </button>
-
-
-                                {/* YEAR BUTTON */}
-                                <button
-                                    type="button"
-                                    onClick={openYearPicker}
-                                    className="
-                                        flex
-                                        h-12
-                                        w-[104px]
-                                        shrink-0
-                                        items-center
-                                        justify-center
-                                        rounded-md
-                                        border
-                                        border-gray-300
-                                        bg-white
-                                        px-4
-                                        text-base
-                                        font-semibold
-                                        text-gray-900
-                                        transition
-                                        hover:border-gray-400
-                                        hover:bg-gray-50
-                                    "
-                                >
-                                    {currentYear}
-                                </button>
-
-
-                                {/* NEXT YEAR */}
-                                <button
-                                    type="button"
-                                    onClick={() =>
-                                        changeYear(currentYear + 1)
-                                    }
-                                    className="
-                                        flex
-                                        h-9
-                                        w-9
-                                        shrink-0
-                                        items-center
-                                        justify-center
-                                        rounded-md
-                                        border
-                                        border-gray-200
-                                        bg-white
-                                        text-gray-600
-                                        hover:bg-gray-50
-                                    "
-                                >
-                                    <ChevronRight className="size-4" />
-                                </button>
-
-                            </div>
-
-
-                            {/* DIVIDER */}
-                            <div
-                                className="
-                                    mb-5
-                                    border-t
-                                    border-gray-200
-                                "
-                            />
-
-
-                            {/* MONTH GRID */}
-                            <div
-                                className="
-                                    grid
-                                    grid-cols-3
-                                    gap-1
-                                "
-                            >
-                                {MONTHS.map(
-                                    (month, index) => {
-                                        const isSelected =
-                                            index ===
-                                            currentMonthIndex;
-
-                                        return (
-                                            <button
-                                                type="button"
-                                                key={month}
-                                                onClick={() =>
-                                                    changeMonth(
-                                                        index,
-                                                        currentYear
-                                                    )
-                                                }
-                                                className={`
-                                                    flex
-                                                    h-11
-                                                    items-center
-                                                    justify-center
-                                                    rounded-md
-                                                    text-sm
-                                                    font-medium
-                                                    transition
-                                                    ${
-                                                        isSelected
-                                                            ? 'bg-blue-600 text-white'
-                                                            : 'text-gray-700 hover:bg-gray-100'
+                                            return (
+                                                <button
+                                                    type="button"
+                                                    key={year}
+                                                    onClick={() =>
+                                                        changeYear(
+                                                            year
+                                                        )
                                                     }
-                                                `}
-                                            >
-                                                {month.slice(
-                                                    0,
-                                                    3
-                                                )}
-                                            </button>
-                                        );
-                                    }
-                                )}
-                            </div>
+                                                    className={`
+                                                        flex
+                                                        h-12
+                                                        items-center
+                                                        justify-center
+                                                        rounded-md
+                                                        border
+                                                        text-sm
+                                                        font-medium
+                                                        transition
+                                                        ${
+                                                            isSelected
+                                                                ? 'border-blue-600 bg-blue-600 text-white'
+                                                                : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
+                                                        }
+                                                    `}
+                                                >
+                                                    {year}
+                                                </button>
+                                            );
+                                        }
+                                    )}
+                                </div>
 
-                        </div>
-                    )}    
+
+                                {/* DIVIDER */}
+
+                                <div
+                                    className="
+                                        my-6
+                                        border-t
+                                        border-gray-200
+                                    "
+                                />
+
+
+                                {/* BACK */}
+
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setShowYearPicker(
+                                            false
+                                        )
+                                    }
+                                    className="
+                                        flex
+                                        h-11
+                                        w-full
+                                        items-center
+                                        justify-center
+                                        rounded-md
+                                        border
+                                        border-gray-200
+                                        bg-white
+                                        text-sm
+                                        font-medium
+                                        text-gray-600
+                                        hover:bg-gray-50
+                                    "
+                                >
+                                    Back to Months
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                {/* MONTH PICKER */}
+
+                                <div
+                                    className="
+                                        mb-5
+                                        flex
+                                        items-center
+                                        justify-between
+                                        gap-8
+                                    "
+                                >
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            changeYear(
+                                                currentYear -
+                                                    1
+                                            )
+                                        }
+                                        className="
+                                            flex
+                                            h-10
+                                            w-10
+                                            shrink-0
+                                            items-center
+                                            justify-center
+                                            rounded-md
+                                            border
+                                            border-gray-200
+                                            bg-white
+                                            text-gray-600
+                                            hover:bg-gray-50
+                                        "
+                                    >
+                                        <ChevronLeft className="size-4" />
+                                    </button>
+
+
+                                    {/* YEAR BUTTON */}
+
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            setShowYearPicker(
+                                                true
+                                            )
+                                        }
+                                        className="
+                                            min-w-[88px]
+                                            rounded-md
+                                            border
+                                            border-gray-300
+                                            bg-white
+                                            px-4
+                                            py-2
+                                            text-base
+                                            font-semibold
+                                            text-gray-900
+                                            hover:bg-gray-50
+                                        "
+                                    >
+                                        {currentYear}
+                                    </button>
+
+
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            changeYear(
+                                                currentYear +
+                                                    1
+                                            )
+                                        }
+                                        className="
+                                            flex
+                                            h-10
+                                            w-10
+                                            shrink-0
+                                            items-center
+                                            justify-center
+                                            rounded-md
+                                            border
+                                            border-gray-200
+                                            bg-white
+                                            text-gray-600
+                                            hover:bg-gray-50
+                                        "
+                                    >
+                                        <ChevronRight className="size-4" />
+                                    </button>
+                                </div>
+
+
+                                {/* DIVIDER */}
+
+                                <div
+                                    className="
+                                        mb-5
+                                        border-t
+                                        border-gray-200
+                                    "
+                                />
+
+
+                                {/* MONTH GRID */}
+
+                                <div
+                                    className="
+                                        grid
+                                        grid-cols-3
+                                        gap-3
+                                    "
+                                >
+                                    {MONTHS.map(
+                                        (
+                                            month,
+                                            index
+                                        ) => {
+                                            const isSelected =
+                                                index ===
+                                                currentMonthIndex;
+
+                                            return (
+                                                <button
+                                                    type="button"
+                                                    key={month}
+                                                    onClick={() =>
+                                                        changeMonth(
+                                                            index,
+                                                            currentYear
+                                                        )
+                                                    }
+                                                    className={`
+                                                        flex
+                                                        h-11
+                                                        items-center
+                                                        justify-center
+                                                        rounded-md
+                                                        text-sm
+                                                        font-medium
+                                                        transition
+                                                        ${
+                                                            isSelected
+                                                                ? 'bg-blue-600 text-white'
+                                                                : 'text-gray-700 hover:bg-gray-100'
+                                                        }
+                                                    `}
+                                                >
+                                                    {month.slice(
+                                                        0,
+                                                        3
+                                                    )}
+                                                </button>
+                                            );
+                                        }
+                                    )}
+                                </div>
+                            </>
+                        )}
 
                     </div>
                 )}
@@ -792,10 +1005,12 @@ export default function Logbook() {
             ========================================================== */}
 
             <div
-                className="mt-6 w-full border-b"
-                style={{
-                    borderColor: '#E5E7EB',
-                }}
+                className="
+                    mt-6
+                    w-full
+                    border-b
+                    border-gray-200
+                "
             >
                 <div
                     className="
@@ -803,53 +1018,70 @@ export default function Logbook() {
                         flex
                         h-[47px]
                         w-full
-                        max-w-[700px]
+                        max-w-[900px]
                         items-stretch
                         justify-center
                     "
                 >
-                    {weeks.map((week, index) => {
-                        const isSelected =
-                            activeWeekIndex === index;
+                    {weeks.map(
+                        (week, index) => {
+                            const isSelected =
+                                activeWeekIndex ===
+                                index;
 
-                        return (
-                            <button
-                                type="button"
-                                key={week.weekNumber}
-                                onClick={() =>
-                                    setSelectedWeek(index)
-                                }
-                                className={`
-                                    flex
-                                    h-[47px]
-                                    flex-1
-                                    basis-0
-                                    items-center
-                                    justify-center
-                                    text-sm
-                                    font-medium
-                                    whitespace-nowrap
-                                    bg-transparent
-                                    transition-colors
-                                    ${
-                                        isSelected
-                                            ? 'text-blue-600'
-                                            : 'text-gray-500 hover:text-gray-900'
+                            return (
+                                <button
+                                    type="button"
+                                    key={
+                                        week.weekNumber
                                     }
-                                `}
-                                style={{
-                                    border: 'none',
-                                    borderBottom: isSelected
-                                        ? '2px solid #2563EB'
-                                        : '2px solid transparent',
-                                    marginBottom: '-1px',
-                                    boxSizing: 'border-box',
-                                }}
-                            >
-                                Week {week.weekNumber}
-                            </button>
-                        );
-                    })}
+                                    onClick={() =>
+                                        setSelectedWeek(
+                                            index
+                                        )
+                                    }
+                                    className={`
+                                        relative
+                                        flex
+                                        h-[47px]
+                                        min-w-0
+                                        flex-1
+                                        basis-0
+                                        items-center
+                                        justify-center
+                                        px-4
+                                        text-sm
+                                        font-medium
+                                        whitespace-nowrap
+                                        bg-transparent
+                                        ${
+                                            isSelected
+                                                ? 'text-blue-600'
+                                                : 'text-gray-500 hover:text-gray-900'
+                                        }
+                                    `}
+                                >
+                                    Week{' '}
+                                    {
+                                        week.weekNumber
+                                    }
+
+                                    {isSelected && (
+                                        <span
+                                            className="
+                                                absolute
+                                                bottom-0
+                                                left-0
+                                                right-0
+                                                h-[2px]
+                                                bg-blue-600
+                                            "
+                                        />
+                                    )}
+                                </button>
+                            );
+                        }
+                    )}
                 </div>
             </div>
 
@@ -861,89 +1093,498 @@ export default function Logbook() {
             <div
                 className="
                     mt-4
-                    overflow-visible
+                    overflow-hidden
                     rounded-xl
                     border
                     bg-white
                 "
             >
-
                 {selectedWeekData?.days.map(
-                    (day) => (
+                    (day) => {
+                        const status =
+                            getDayStatus(day);
 
-                        <button
-                            type="button"
-                            key={day.date.toISOString()}
-                            className="
-                                flex
-                                w-full
-                                items-center
-                                justify-between
-                                border-b
-                                px-4
-                                py-4
-                                text-left
-                                last:border-b-0
-                                hover:bg-gray-50
-                            "
-                        >
+                        /*
+                         * Determine whether this day
+                         * belongs to the previous or
+                         * next month relative to the
+                         * currently selected month.
+                         */
 
-                            <div>
+                        const isPreviousMonth =
+                            day.date.getFullYear() <
+                                currentYear ||
+                            (
+                                day.date.getFullYear() ===
+                                    currentYear &&
+                                day.date.getMonth() <
+                                    currentMonthIndex
+                            );
 
-                                <p className="font-semibold">
-                                    {day.dayName}
-                                </p>
+                        const isNextMonth =
+                            day.date.getFullYear() >
+                                currentYear ||
+                            (
+                                day.date.getFullYear() ===
+                                    currentYear &&
+                                day.date.getMonth() >
+                                    currentMonthIndex
+                            );
 
-                                <p className="text-sm text-muted-foreground">
-                                    {day.formattedDate}
-                                </p>
+                        const isOutsideCurrentMonth =
+                            isPreviousMonth ||
+                            isNextMonth;
 
-                            </div>
-
-                            <ChevronRight
+                        return (
+                            <button
+                                type="button"
+                                key={day.date.toISOString()}
+                                onClick={() =>
+                                    openDay(day)
+                                }
                                 className="
-                                    size-4
-                                    shrink-0
-                                    text-gray-400
+                                    flex
+                                    w-full
+                                    items-center
+                                    justify-between
+                                    border-b
+                                    px-4
+                                    py-4
+                                    text-left
+                                    last:border-b-0
+                                    hover:bg-gray-50
                                 "
-                            />
+                            >
+                                <div className="min-w-0">
 
-                        </button>
+                                    <div className="flex items-center gap-2">
 
-                    )
+                                        <p
+                                            className={`
+                                                font-semibold
+                                                ${
+                                                    isOutsideCurrentMonth
+                                                        ? 'text-gray-500'
+                                                        : 'text-gray-900'
+                                                }
+                                            `}
+                                        >
+                                            {
+                                                day.dayName
+                                            }
+                                        </p>
+
+
+                                        {isPreviousMonth && (
+                                            <span
+                                                className="
+                                                    rounded-full
+                                                    bg-gray-100
+                                                    px-2
+                                                    py-0.5
+                                                    text-[10px]
+                                                    font-medium
+                                                    text-gray-500
+                                                "
+                                            >
+                                                Previous month
+                                            </span>
+                                        )}
+
+
+                                        {isNextMonth && (
+                                            <span
+                                                className="
+                                                    rounded-full
+                                                    bg-gray-100
+                                                    px-2
+                                                    py-0.5
+                                                    text-[10px]
+                                                    font-medium
+                                                    text-gray-500
+                                                "
+                                            >
+                                                Next month
+                                            </span>
+                                        )}
+
+                                    </div>
+
+
+                                    <p className="text-sm text-muted-foreground">
+                                        {
+                                            day.formattedDate
+                                        }
+                                    </p>
+
+                                </div>
+
+
+                                <div
+                                    className="
+                                        ml-4
+                                        flex
+                                        shrink-0
+                                        items-center
+                                        gap-3
+                                    "
+                                >
+                                    {status ===
+                                    'completed' ? (
+                                        <span
+                                            className="
+                                                flex
+                                                items-center
+                                                gap-1.5
+                                                text-sm
+                                                font-medium
+                                                text-green-600
+                                            "
+                                        >
+                                            <CheckCircle2 className="size-4" />
+                                            Completed
+                                        </span>
+                                    ) : status ===
+                                      'not_set' ? (
+                                        <span
+                                            className="
+                                                flex
+                                                items-center
+                                                gap-1.5
+                                                text-sm
+                                                text-gray-400
+                                            "
+                                        >
+                                            <CircleHelp className="size-4" />
+                                            Not set
+                                        </span>
+                                    ) : (
+                                        <span
+                                            className="
+                                                text-sm
+                                                font-medium
+                                                text-gray-600
+                                            "
+                                        >
+                                            {
+                                                STATUS_LABELS[
+                                                    status
+                                                ]
+                                            }
+                                        </span>
+                                    )}
+
+                                    <ChevronRight
+                                        className="
+                                            size-4
+                                            text-gray-400
+                                        "
+                                    />
+                                </div>
+
+                            </button>
+                        );
+                    }
                 )}
-
             </div>
 
 
             {/* =========================================================
-                SUBMIT
+                DAY STATUS MODAL
             ========================================================== */}
 
-            <div className="mt-6 flex justify-end">
+            {showDayPanel &&
+                selectedDateKey && (
+                    <div
+                        className="
+                            fixed
+                            inset-0
+                            z-[100]
+                            flex
+                            items-center
+                            justify-center
+                            bg-black/20
+                            p-4
+                        "
+                        onMouseDown={(
+                            event
+                        ) => {
+                            if (
+                                event.target ===
+                                event.currentTarget
+                            ) {
+                                closeDayPanel();
+                            }
+                        }}
+                    >
+                        <div
+                            className="
+                                w-full
+                                max-w-md
+                                rounded-xl
+                                border
+                                bg-white
+                                p-6
+                                shadow-2xl
+                            "
+                        >
 
-                <button
-                    type="button"
-                    className="
-                        rounded-md
-                        bg-blue-600
-                        px-4
-                        py-2
-                        text-sm
-                        font-medium
-                        text-white
-                        hover:bg-blue-700
-                    "
-                >
-                    Submit
-                </button>
+                            {/* HEADER */}
 
-            </div>
+                            <div className="mb-6">
+
+                                <div className="flex items-start justify-between gap-4">
+
+                                    <div>
+                                        <h2 className="text-lg font-semibold">
+                                            What type of day is this?
+                                        </h2>
+
+                                        <p className="mt-1 text-sm text-muted-foreground">
+                                            {selectedWeekData?.days.find(
+                                                (
+                                                    day
+                                                ) =>
+                                                    getDateKey(
+                                                        day.date
+                                                    ) ===
+                                                    selectedDateKey
+                                            )?.formattedDate}
+                                        </p>
+                                    </div>
+
+
+                                    <button
+                                        type="button"
+                                        onClick={
+                                            closeDayPanel
+                                        }
+                                        className="
+                                            rounded-md
+                                            px-2
+                                            text-xl
+                                            leading-none
+                                            text-gray-400
+                                            hover:bg-gray-100
+                                            hover:text-gray-700
+                                        "
+                                    >
+                                        ×
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+
+                            {/* DAY TYPES */}
+
+                            <div className="space-y-2">
+
+                                {(
+                                    [
+                                        'working',
+                                        'off',
+                                        'holiday',
+                                        'absent',
+                                        'leave',
+                                    ] as DayStatus[]
+                                ).map(
+                                    (
+                                        status
+                                    ) => {
+                                        const Icon =
+                                            STATUS_ICONS[
+                                                status as keyof typeof STATUS_ICONS
+                                            ];
+
+                                        const isSelected =
+                                            selectedStatus ===
+                                            status;
+
+                                        return (
+                                            <button
+                                                type="button"
+                                                key={status}
+                                                onClick={() =>
+                                                    setSelectedStatus(
+                                                        status
+                                                    )
+                                                }
+                                                className={`
+                                                    flex
+                                                    w-full
+                                                    items-center
+                                                    gap-3
+                                                    rounded-lg
+                                                    border
+                                                    p-3
+                                                    text-left
+                                                    transition
+                                                    ${
+                                                        isSelected
+                                                            ? 'border-blue-500 bg-blue-50'
+                                                            : 'border-gray-200 hover:bg-gray-50'
+                                                    }
+                                                `}
+                                            >
+
+                                                <div
+                                                    className={`
+                                                        flex
+                                                        size-9
+                                                        shrink-0
+                                                        items-center
+                                                        justify-center
+                                                        rounded-md
+                                                        ${
+                                                            isSelected
+                                                                ? 'bg-white'
+                                                                : 'bg-gray-50'
+                                                        }
+                                                    `}
+                                                >
+                                                    <Icon className="size-4" />
+                                                </div>
+
+
+                                                <div className="min-w-0 flex-1">
+
+                                                    <p className="text-sm font-semibold">
+                                                        {
+                                                            STATUS_LABELS[
+                                                                status
+                                                            ]
+                                                        }
+                                                    </p>
+
+                                                    <p className="text-xs text-muted-foreground">
+                                                        {
+                                                            STATUS_DESCRIPTIONS[
+                                                                status as keyof typeof STATUS_DESCRIPTIONS
+                                                            ]
+                                                        }
+                                                    </p>
+
+                                                </div>
+
+
+                                                <div
+                                                    className={`
+                                                        flex
+                                                        size-4
+                                                        shrink-0
+                                                        items-center
+                                                        justify-center
+                                                        rounded-full
+                                                        border
+                                                        ${
+                                                            isSelected
+                                                                ? 'border-blue-600'
+                                                                : 'border-gray-300'
+                                                        }
+                                                    `}
+                                                >
+                                                    {isSelected && (
+                                                        <div className="size-2 rounded-full bg-blue-600" />
+                                                    )}
+                                                </div>
+
+                                            </button>
+                                        );
+                                    }
+                                )}
+
+                            </div>
+
+
+                            {/* ACTIONS */}
+
+                            <div className="mt-6 flex justify-end gap-2">
+
+                                <button
+                                    type="button"
+                                    onClick={
+                                        closeDayPanel
+                                    }
+                                    className="
+                                        rounded-md
+                                        border
+                                        border-gray-200
+                                        bg-white
+                                        px-4
+                                        py-2
+                                        text-sm
+                                        font-medium
+                                        text-gray-600
+                                        hover:bg-gray-50
+                                    "
+                                >
+                                    Cancel
+                                </button>
+
+
+                                {selectedStatus ===
+                                'working' ? (
+                                    <button
+                                        type="button"
+                                        onClick={
+                                            continueToDailyLog
+                                        }
+                                        className="
+                                            rounded-md
+                                            bg-blue-600
+                                            px-4
+                                            py-2
+                                            text-sm
+                                            font-medium
+                                            text-white
+                                            hover:bg-blue-700
+                                        "
+                                    >
+                                        Continue to Daily Log
+                                    </button>
+                                ) : (
+                                    <button
+                                        type="button"
+                                        onClick={
+                                            saveDayStatus
+                                        }
+                                        disabled={
+                                            selectedStatus ===
+                                            'not_set'
+                                        }
+                                        className="
+                                            rounded-md
+                                            bg-blue-600
+                                            px-4
+                                            py-2
+                                            text-sm
+                                            font-medium
+                                            text-white
+                                            hover:bg-blue-700
+                                            disabled:cursor-not-allowed
+                                            disabled:opacity-50
+                                        "
+                                    >
+                                        Save Day
+                                    </button>
+                                )}
+
+                            </div>
+
+                        </div>
+                    </div>
+                )}
 
         </div>
     );
 }
 
-Logbook.layout = (page: React.ReactNode) => (
-    <AuthenticatedLayout children={page} />
+Logbook.layout = (
+    page: React.ReactNode
+) => (
+    <AuthenticatedLayout
+        children={page}
+    />
 );
