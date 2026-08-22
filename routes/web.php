@@ -25,7 +25,7 @@ Route::get('/', function () {
 });
 
 Route::middleware('auth')->group(function () {
-    // --- Shared / Dev Routes ---
+    // --- Shared / Dev Routes ---  
     if (app()->environment('local', 'staging')) {
         Route::post('/dev/switch-role/{role}', function ($role) {
             if (! in_array($role, ['Admin', 'Student', 'Company'])) {
@@ -145,6 +145,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('/applications/{application}/cancel', [StudentCompanyController::class, 'cancel'])->name('applications.cancel');
 
         Route::get('/logbook', [LogbookController::class, 'index'])->name('logbook');
+        Route::get('/logbook/create', [LogbookController::class, 'create'])->name('logbook.create');    
 
         Route::get('/calendar', [StudentCalendarController::class, 'index'])->name('calendar');
         Route::get('/faqs', [StudentFaqController::class, 'index'])->name('faqs');
