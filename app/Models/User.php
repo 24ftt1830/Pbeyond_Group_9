@@ -37,6 +37,11 @@ class User extends Authenticatable
         return $this->role === 'student';
     }
 
+    public function isAcademicSupervisor(): bool
+    {
+        return $this->role === 'Academic Supervisor';
+    }
+
     public function getAuthPassword()
     {
         return $this->password;

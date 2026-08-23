@@ -31,10 +31,15 @@ class AuthenticatedSessionController extends Controller
             $request->session()->regenerate();
 
             return match (auth()->user()->role) {
-                'Admin'   => redirect()->route('admin.dashboard'),
+                'Admin' => redirect()->route('admin.dashboard'),
+
                 'Company' => redirect()->route('company.dashboard'),
+
                 'Student' => redirect()->route('student.dashboard'),
-                // default   => redirect()->intended(route('dashboard', absolute: false)),
+
+                'Academic Supervisor' => redirect()->route(
+                    'academic-supervisor.logbook'
+                ),
             };
         }
 
@@ -46,8 +51,11 @@ class AuthenticatedSessionController extends Controller
     public function destroy(Request $request): RedirectResponse
     {
         Auth::guard('web')->logout();
+
         $request->session()->invalidate();
+
         $request->session()->regenerateToken();
+
         return redirect('/');
     }
 }
