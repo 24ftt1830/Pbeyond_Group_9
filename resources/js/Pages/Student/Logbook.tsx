@@ -1,4 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { router } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
 import {
     ChevronLeft,
@@ -6,12 +7,30 @@ import {
     CalendarDays,
     BriefcaseBusiness,
     Home,
-    CalendarOff,
-    UserX,
-    CalendarCheck,
     CheckCircle2,
     CircleHelp,
+    LockKeyhole,
 } from 'lucide-react';
+
+interface LogbookEntryProp {
+    status: string;
+    description: string | null;
+    learning_outcomes: string | null;
+    issues: string | null;
+}
+
+interface WeeklySubmission {
+    week_start: string;
+    week_end: string;
+    status: 'submitted' | 'pending' | 'reviewed';
+    submitted_at: string | null;
+    reviewed_at: string | null;
+}
+
+interface Props {
+    entries?: Record<string, LogbookEntryProp>;
+    weeklySubmissions?: Record<string, WeeklySubmission>;
+}
 
 interface LogbookDay {
     date: Date;
@@ -27,15 +46,7 @@ interface LogbookWeek {
 type DayStatus =
     | 'not_set'
     | 'working'
-    | 'off'
-    | 'holiday'
-    | 'absent'
-    | 'leave'
-    | 'completed';
-
-interface DayEntry {
-    status: DayStatus;
-}
+    | 'off';
 
 const MONTHS = [
     'January',
@@ -56,29 +67,22 @@ const STATUS_LABELS: Record<DayStatus, string> = {
     not_set: 'Not set',
     working: 'Working Day',
     off: 'Off Day',
-    holiday: 'Company Holiday',
-    absent: 'Absent',
-    leave: 'On Leave',
-    completed: 'Completed',
 };
 
 const STATUS_ICONS = {
     working: BriefcaseBusiness,
     off: Home,
-    holiday: CalendarOff,
-    absent: UserX,
-    leave: CalendarCheck,
 };
 
 const STATUS_DESCRIPTIONS = {
     working: 'Continue to your daily log submission.',
     off: 'No log is required for this day.',
-    holiday: 'The company was closed for this day.',
-    absent: 'You were absent from work.',
-    leave: 'You were on leave for this day.',
 };
 
-export default function Logbook() {
+export default function Logbook({
+    entries = {},
+    weeklySubmissions = {},
+}: Props) {
     const today = new Date();
 
     const [currentMonth, setCurrentMonth] = useState(
@@ -96,16 +100,6 @@ export default function Logbook() {
 
     const [showYearPicker, setShowYearPicker] =
         useState(false);
-
-    /*
-    |--------------------------------------------------------------------------
-    | FRONTEND-ONLY DAY STATUS
-    |--------------------------------------------------------------------------
-    */
-
-    const [dayEntries, setDayEntries] = useState<
-        Record<string, DayEntry>
-    >({});
 
     const [selectedDateKey, setSelectedDateKey] =
         useState<string | null>(null);
@@ -126,38 +120,6 @@ export default function Logbook() {
     |--------------------------------------------------------------------------
     | Generate calendar weeks
     |--------------------------------------------------------------------------
-    |
-    | IMPORTANT:
-    |
-    | Every week is a COMPLETE Monday -> Sunday week.
-    |
-    | The first week starts on the Monday of the
-    | week containing the 1st of the selected month.
-    |
-    | The last week ends on the Sunday of the
-    | week containing the last day of the month.
-    |
-    | This means weeks can contain days from the
-    | previous or next month.
-    |
-    | Example:
-    |
-    | September 2026
-    |
-    | Week 1:
-    | Monday 31 August  ← Previous month
-    | Tuesday 1 September
-    | ...
-    | Sunday 6 September
-    |
-    | Week 5:
-    | Monday 28 September
-    | ...
-    | Wednesday 30 September
-    | Thursday 1 October ← Next month
-    | ...
-    | Sunday 4 October
-    |
     */
 
     const weeks = useMemo<LogbookWeek[]>(() => {
@@ -173,28 +135,8 @@ export default function Logbook() {
         const lastDay =
             new Date(year, month + 1, 0);
 
-        /*
-         * Convert JavaScript's:
-         *
-         * Sunday = 0
-         * Monday = 1
-         * ...
-         *
-         * into:
-         *
-         * Monday = 0
-         * Tuesday = 1
-         * ...
-         * Sunday = 6
-         */
-
         const firstDayOffset =
             (firstDay.getDay() + 6) % 7;
-
-        /*
-         * Find Monday of the week containing
-         * the first day of the month.
-         */
 
         const firstMonday =
             new Date(firstDay);
@@ -203,11 +145,6 @@ export default function Logbook() {
             firstDay.getDate() -
                 firstDayOffset
         );
-
-        /*
-         * Find Sunday of the week containing
-         * the last day of the month.
-         */
 
         const lastDayOffset =
             (lastDay.getDay() + 6) % 7;
@@ -227,10 +164,6 @@ export default function Logbook() {
             new Date(firstMonday);
 
         let weekNumber = 1;
-
-        /*
-         * Generate complete Monday-Sunday weeks.
-         */
 
         while (weekStart <= lastSunday) {
             const days: LogbookDay[] = [];
@@ -321,30 +254,59 @@ export default function Logbook() {
 
     /*
     |--------------------------------------------------------------------------
+    | Selected week submission
+    |--------------------------------------------------------------------------
+    */
+
+    const selectedWeekStart = selectedWeekData
+        ? getDateKey(selectedWeekData.days[0].date)
+        : null;
+
+    const selectedWeekSubmission =
+        selectedWeekStart
+            ? weeklySubmissions[selectedWeekStart]
+            : undefined;
+
+    const isWeekSubmitted =
+        selectedWeekSubmission?.status === 'submitted';
+
+    const isWeekPending =
+        selectedWeekSubmission?.status === 'pending';
+
+    const isWeekReviewed =
+        selectedWeekSubmission?.status === 'reviewed';
+
+    /*
+    |--------------------------------------------------------------------------
     | Open day
     |--------------------------------------------------------------------------
     */
 
     const openDay = (day: LogbookDay) => {
-        const key =
-            getDateKey(day.date);
+        const key = getDateKey(day.date);
 
-        const existing =
-            dayEntries[key];
+        // Reviewed weeks are locked.
+        if (isWeekReviewed) {
+            return;
+        }
+
+        const existing = entries[key];
+
+        if (existing) {
+            window.location.href =
+                `/student/logbook/create?date=${key}`;
+
+            return;
+        }
 
         setSelectedDateKey(key);
-
-        setSelectedStatus(
-            existing?.status ??
-                'not_set'
-        );
-
+        setSelectedStatus('not_set');
         setShowDayPanel(true);
     };
 
     /*
     |--------------------------------------------------------------------------
-    | Save non-working day
+    | Save Off Day
     |--------------------------------------------------------------------------
     */
 
@@ -353,41 +315,45 @@ export default function Logbook() {
             return;
         }
 
-        if (
-            selectedStatus ===
-                'not_set' ||
-            selectedStatus ===
-                'working'
-        ) {
+        if (selectedStatus !== 'off') {
             return;
         }
 
-        setDayEntries(
-            (previous) => ({
-                ...previous,
+        // Reviewed weeks cannot be edited.
+        if (isWeekReviewed) {
+            return;
+        }
 
-                [selectedDateKey]: {
-                    status: selectedStatus,
+        router.post(
+            route('student.logbook.store'),
+            {
+                date: selectedDateKey,
+                status: 'off',
+                description: null,
+                learning_outcomes: null,
+                issues: null,
+            },
+            {
+                onSuccess: () => {
+                    closeDayPanel();
                 },
-            })
+            }
         );
-
-        closeDayPanel();
     };
 
     /*
     |--------------------------------------------------------------------------
     | Continue to daily log
     |--------------------------------------------------------------------------
-    |
-    | TEMPORARY:
-    | Your friend can replace this with the actual
-    | daily log submission route later.
-    |
     */
 
     const continueToDailyLog = () => {
         if (!selectedDateKey) {
+            return;
+        }
+
+        // Reviewed weeks cannot be edited.
+        if (isWeekReviewed) {
             return;
         }
 
@@ -491,17 +457,35 @@ export default function Logbook() {
     |--------------------------------------------------------------------------
     */
 
-    const getDayStatus = (
-        day: LogbookDay
-    ) => {
-        const key =
-            getDateKey(day.date);
+    const getDayStatus = (day: LogbookDay): DayStatus => {
+        const key = getDateKey(day.date);
 
-        return (
-            dayEntries[key]?.status ??
-            'not_set'
-        );
+        const savedEntry = entries[key];
+
+        if (savedEntry?.status === 'working') {
+            return 'working';
+        }
+
+        if (savedEntry?.status === 'off') {
+            return 'off';
+        }
+
+        return 'not_set';
     };
+
+    const completedDays = selectedWeekData
+        ? selectedWeekData.days.filter((day) => {
+              const status = getDayStatus(day);
+
+              return (
+                  status === 'working' ||
+                  status === 'off'
+              );
+          }).length
+        : 0;
+
+    const isWeekComplete =
+        completedDays === 7;
 
     return (
         <div
@@ -547,8 +531,6 @@ export default function Logbook() {
                 "
             >
 
-                {/* LEFT ARROW */}
-
                 <button
                     type="button"
                     onClick={
@@ -574,8 +556,6 @@ export default function Logbook() {
                     <ChevronLeft className="size-4" />
                 </button>
 
-
-                {/* MONTH BUTTON */}
 
                 <button
                     type="button"
@@ -614,8 +594,6 @@ export default function Logbook() {
                     </span>
                 </button>
 
-
-                {/* RIGHT ARROW */}
 
                 <button
                     type="button"
@@ -666,8 +644,6 @@ export default function Logbook() {
 
                         {showYearPicker ? (
                             <>
-                                {/* YEAR PICKER */}
-
                                 <div
                                     className="
                                         mb-6
@@ -744,8 +720,6 @@ export default function Logbook() {
                                 </div>
 
 
-                                {/* YEAR GRID */}
-
                                 <div
                                     className="
                                         grid
@@ -793,8 +767,6 @@ export default function Logbook() {
                                 </div>
 
 
-                                {/* DIVIDER */}
-
                                 <div
                                     className="
                                         my-6
@@ -803,8 +775,6 @@ export default function Logbook() {
                                     "
                                 />
 
-
-                                {/* BACK */}
 
                                 <button
                                     type="button"
@@ -834,8 +804,6 @@ export default function Logbook() {
                             </>
                         ) : (
                             <>
-                                {/* MONTH PICKER */}
-
                                 <div
                                     className="
                                         mb-5
@@ -871,8 +839,6 @@ export default function Logbook() {
                                         <ChevronLeft className="size-4" />
                                     </button>
 
-
-                                    {/* YEAR BUTTON */}
 
                                     <button
                                         type="button"
@@ -927,8 +893,6 @@ export default function Logbook() {
                                 </div>
 
 
-                                {/* DIVIDER */}
-
                                 <div
                                     className="
                                         mb-5
@@ -937,8 +901,6 @@ export default function Logbook() {
                                     "
                                 />
 
-
-                                {/* MONTH GRID */}
 
                                 <div
                                     className="
@@ -1087,6 +1049,40 @@ export default function Logbook() {
 
 
             {/* =========================================================
+                REVIEWED LOCK MESSAGE
+            ========================================================== */}
+
+            {isWeekReviewed && (
+                <div
+                    className="
+                        mt-4
+                        flex
+                        items-center
+                        gap-3
+                        rounded-lg
+                        border
+                        border-green-200
+                        bg-green-50
+                        px-4
+                        py-3
+                    "
+                >
+                    <LockKeyhole className="size-5 text-green-700" />
+
+                    <div>
+                        <p className="text-sm font-semibold text-green-800">
+                            Week Reviewed
+                        </p>
+
+                        <p className="text-xs text-green-700">
+                            This week has been reviewed by your Academic Supervisor and can no longer be edited.
+                        </p>
+                    </div>
+                </div>
+            )}
+
+
+            {/* =========================================================
                 DAYS
             ========================================================== */}
 
@@ -1103,13 +1099,6 @@ export default function Logbook() {
                     (day) => {
                         const status =
                             getDayStatus(day);
-
-                        /*
-                         * Determine whether this day
-                         * belongs to the previous or
-                         * next month relative to the
-                         * currently selected month.
-                         */
 
                         const isPreviousMonth =
                             day.date.getFullYear() <
@@ -1142,7 +1131,8 @@ export default function Logbook() {
                                 onClick={() =>
                                     openDay(day)
                                 }
-                                className="
+                                disabled={isWeekReviewed}
+                                className={`
                                     flex
                                     w-full
                                     items-center
@@ -1152,8 +1142,12 @@ export default function Logbook() {
                                     py-4
                                     text-left
                                     last:border-b-0
-                                    hover:bg-gray-50
-                                "
+                                    ${
+                                        isWeekReviewed
+                                            ? 'cursor-not-allowed bg-gray-50'
+                                            : 'hover:bg-gray-50'
+                                    }
+                                `}
                             >
                                 <div className="min-w-0">
 
@@ -1229,8 +1223,24 @@ export default function Logbook() {
                                         gap-3
                                     "
                                 >
-                                    {status ===
-                                    'completed' ? (
+                                    {isWeekReviewed ? (
+
+                                        <span
+                                            className="
+                                                flex
+                                                items-center
+                                                gap-1.5
+                                                text-sm
+                                                font-medium
+                                                text-green-700
+                                            "
+                                        >
+                                            <LockKeyhole className="size-4" />
+                                            Locked
+                                        </span>
+
+                                    ) : status === 'working' ? (
+
                                         <span
                                             className="
                                                 flex
@@ -1244,8 +1254,9 @@ export default function Logbook() {
                                             <CheckCircle2 className="size-4" />
                                             Completed
                                         </span>
-                                    ) : status ===
-                                      'not_set' ? (
+
+                                    ) : status === 'not_set' ? (
+
                                         <span
                                             className="
                                                 flex
@@ -1258,7 +1269,9 @@ export default function Logbook() {
                                             <CircleHelp className="size-4" />
                                             Not set
                                         </span>
+
                                     ) : (
+
                                         <span
                                             className="
                                                 text-sm
@@ -1272,20 +1285,146 @@ export default function Logbook() {
                                                 ]
                                             }
                                         </span>
+
                                     )}
 
-                                    <ChevronRight
-                                        className="
-                                            size-4
-                                            text-gray-400
-                                        "
-                                    />
+                                    {!isWeekReviewed && (
+                                        <ChevronRight
+                                            className="
+                                                size-4
+                                                text-gray-400
+                                            "
+                                        />
+                                    )}
+
                                 </div>
 
                             </button>
                         );
                     }
                 )}
+            </div>
+
+
+            {/* =========================================================
+                WEEKLY SUBMISSION
+            ========================================================== */}
+
+            <div className="mt-6 flex justify-end">
+
+                {isWeekReviewed ? (
+
+                    <button
+                        type="button"
+                        disabled
+                        className="
+                            flex
+                            items-center
+                            gap-2
+                            cursor-not-allowed
+                            rounded-lg
+                            border
+                            border-green-200
+                            bg-green-50
+                            px-5
+                            py-2.5
+                            text-sm
+                            font-semibold
+                            text-green-700
+                            opacity-90
+                        "
+                    >
+                        <LockKeyhole className="size-4" />
+                        Reviewed & Locked
+                    </button>
+
+                ) : isWeekPending ? (
+
+                    <button
+                        type="button"
+                        disabled
+                        className="
+                            cursor-not-allowed
+                            rounded-lg
+                            border
+                            border-yellow-200
+                            bg-yellow-50
+                            px-5
+                            py-2.5
+                            text-sm
+                            font-semibold
+                            text-yellow-700
+                            opacity-80
+                        "
+                    >
+                        Pending Review
+                    </button>
+
+                ) : isWeekSubmitted ? (
+
+                    <button
+                        type="button"
+                        disabled
+                        className="
+                            cursor-not-allowed
+                            rounded-lg
+                            border
+                            border-blue-200
+                            bg-blue-50
+                            px-5
+                            py-2.5
+                            text-sm
+                            font-semibold
+                            text-blue-700
+                            opacity-80
+                        "
+                    >
+                        Submitted
+                    </button>
+
+                ) : (
+
+                    <button
+                        type="button"
+                        disabled={!isWeekComplete}
+                        onClick={() => {
+
+                            if (
+                                !isWeekComplete ||
+                                !selectedWeekStart
+                            ) {
+                                return;
+                            }
+
+                            router.post(
+                                route(
+                                    'student.logbook.submit-week'
+                                ),
+                                {
+                                    week_start:
+                                        selectedWeekStart,
+                                }
+                            );
+                        }}
+                        className={`
+                            rounded-lg
+                            px-5
+                            py-2.5
+                            text-sm
+                            font-semibold
+                            transition
+                            ${
+                                isWeekComplete
+                                    ? 'bg-blue-600 text-white hover:bg-blue-700'
+                                    : 'cursor-not-allowed bg-gray-200 text-gray-400'
+                            }
+                        `}
+                    >
+                        Submit Week
+                    </button>
+
+                )}
+
             </div>
 
 
@@ -1306,9 +1445,7 @@ export default function Logbook() {
                             bg-black/20
                             p-4
                         "
-                        onMouseDown={(
-                            event
-                        ) => {
+                        onMouseDown={(event) => {
                             if (
                                 event.target ===
                                 event.currentTarget
@@ -1329,36 +1466,29 @@ export default function Logbook() {
                             "
                         >
 
-                            {/* HEADER */}
-
                             <div className="mb-6">
 
                                 <div className="flex items-start justify-between gap-4">
 
                                     <div>
+
                                         <h2 className="text-lg font-semibold">
                                             What type of day is this?
                                         </h2>
 
                                         <p className="mt-1 text-sm text-muted-foreground">
                                             {selectedWeekData?.days.find(
-                                                (
-                                                    day
-                                                ) =>
-                                                    getDateKey(
-                                                        day.date
-                                                    ) ===
+                                                (day) =>
+                                                    getDateKey(day.date) ===
                                                     selectedDateKey
                                             )?.formattedDate}
                                         </p>
-                                    </div>
 
+                                    </div>
 
                                     <button
                                         type="button"
-                                        onClick={
-                                            closeDayPanel
-                                        }
+                                        onClick={closeDayPanel}
                                         className="
                                             rounded-md
                                             px-2
@@ -1377,136 +1507,121 @@ export default function Logbook() {
                             </div>
 
 
-                            {/* DAY TYPES */}
-
                             <div className="space-y-2">
 
                                 {(
                                     [
                                         'working',
                                         'off',
-                                        'holiday',
-                                        'absent',
-                                        'leave',
                                     ] as DayStatus[]
-                                ).map(
-                                    (
-                                        status
-                                    ) => {
-                                        const Icon =
-                                            STATUS_ICONS[
-                                                status as keyof typeof STATUS_ICONS
-                                            ];
+                                ).map((status) => {
 
-                                        const isSelected =
-                                            selectedStatus ===
-                                            status;
+                                    const Icon =
+                                        STATUS_ICONS[
+                                            status as keyof typeof STATUS_ICONS
+                                        ];
 
-                                        return (
-                                            <button
-                                                type="button"
-                                                key={status}
-                                                onClick={() =>
-                                                    setSelectedStatus(
-                                                        status
-                                                    )
+                                    const isSelected =
+                                        selectedStatus === status;
+
+                                    return (
+                                        <button
+                                            type="button"
+                                            key={status}
+                                            onClick={() =>
+                                                setSelectedStatus(status)
+                                            }
+                                            className={`
+                                                flex
+                                                w-full
+                                                items-center
+                                                gap-3
+                                                rounded-lg
+                                                border
+                                                p-3
+                                                text-left
+                                                transition
+                                                ${
+                                                    isSelected
+                                                        ? 'border-blue-500 bg-blue-50'
+                                                        : 'border-gray-200 hover:bg-gray-50'
                                                 }
+                                            `}
+                                        >
+
+                                            <div
                                                 className={`
                                                     flex
-                                                    w-full
+                                                    size-9
+                                                    shrink-0
                                                     items-center
-                                                    gap-3
-                                                    rounded-lg
-                                                    border
-                                                    p-3
-                                                    text-left
-                                                    transition
+                                                    justify-center
+                                                    rounded-md
                                                     ${
                                                         isSelected
-                                                            ? 'border-blue-500 bg-blue-50'
-                                                            : 'border-gray-200 hover:bg-gray-50'
+                                                            ? 'bg-white'
+                                                            : 'bg-gray-50'
                                                     }
                                                 `}
                                             >
-
-                                                <div
-                                                    className={`
-                                                        flex
-                                                        size-9
-                                                        shrink-0
-                                                        items-center
-                                                        justify-center
-                                                        rounded-md
-                                                        ${
-                                                            isSelected
-                                                                ? 'bg-white'
-                                                                : 'bg-gray-50'
-                                                        }
-                                                    `}
-                                                >
-                                                    <Icon className="size-4" />
-                                                </div>
+                                                <Icon className="size-4" />
+                                            </div>
 
 
-                                                <div className="min-w-0 flex-1">
+                                            <div className="min-w-0 flex-1">
 
-                                                    <p className="text-sm font-semibold">
-                                                        {
-                                                            STATUS_LABELS[
-                                                                status
-                                                            ]
-                                                        }
-                                                    </p>
+                                                <p className="text-sm font-semibold">
+                                                    {
+                                                        STATUS_LABELS[
+                                                            status
+                                                        ]
+                                                    }
+                                                </p>
 
-                                                    <p className="text-xs text-muted-foreground">
-                                                        {
-                                                            STATUS_DESCRIPTIONS[
-                                                                status as keyof typeof STATUS_DESCRIPTIONS
-                                                            ]
-                                                        }
-                                                    </p>
+                                                <p className="text-xs text-muted-foreground">
+                                                    {
+                                                        STATUS_DESCRIPTIONS[
+                                                            status as keyof typeof STATUS_DESCRIPTIONS
+                                                        ]
+                                                    }
+                                                </p>
 
-                                                </div>
+                                            </div>
 
 
-                                                <div
-                                                    className={`
-                                                        flex
-                                                        size-4
-                                                        shrink-0
-                                                        items-center
-                                                        justify-center
-                                                        rounded-full
-                                                        border
-                                                        ${
-                                                            isSelected
-                                                                ? 'border-blue-600'
-                                                                : 'border-gray-300'
-                                                        }
-                                                    `}
-                                                >
-                                                    {isSelected && (
-                                                        <div className="size-2 rounded-full bg-blue-600" />
-                                                    )}
-                                                </div>
+                                            <div
+                                                className={`
+                                                    flex
+                                                    size-4
+                                                    shrink-0
+                                                    items-center
+                                                    justify-center
+                                                    rounded-full
+                                                    border
+                                                    ${
+                                                        isSelected
+                                                            ? 'border-blue-600'
+                                                            : 'border-gray-300'
+                                                    }
+                                                `}
+                                            >
+                                                {isSelected && (
+                                                    <div className="size-2 rounded-full bg-blue-600" />
+                                                )}
+                                            </div>
 
-                                            </button>
-                                        );
-                                    }
-                                )}
+                                        </button>
+                                    );
+                                })}
 
                             </div>
 
-
-                            {/* ACTIONS */}
 
                             <div className="mt-6 flex justify-end gap-2">
 
                                 <button
                                     type="button"
-                                    onClick={
-                                        closeDayPanel
-                                    }
+                                    onClick={closeDayPanel}
                                     className="
                                         rounded-md
                                         border
@@ -1524,13 +1639,11 @@ export default function Logbook() {
                                 </button>
 
 
-                                {selectedStatus ===
-                                'working' ? (
+                                {selectedStatus === 'working' ? (
+
                                     <button
                                         type="button"
-                                        onClick={
-                                            continueToDailyLog
-                                        }
+                                        onClick={continueToDailyLog}
                                         className="
                                             rounded-md
                                             bg-blue-600
@@ -1544,12 +1657,12 @@ export default function Logbook() {
                                     >
                                         Continue to Daily Log
                                     </button>
+
                                 ) : (
+
                                     <button
                                         type="button"
-                                        onClick={
-                                            saveDayStatus
-                                        }
+                                        onClick={saveDayStatus}
                                         disabled={
                                             selectedStatus ===
                                             'not_set'
@@ -1569,6 +1682,7 @@ export default function Logbook() {
                                     >
                                         Save Day
                                     </button>
+
                                 )}
 
                             </div>

@@ -5,116 +5,84 @@ import {
     ChevronLeft,
     ChevronRight,
     CheckCircle2,
+    BriefcaseBusiness,
+    House,
+    CircleOff,
 } from 'lucide-react';
+import { useState } from 'react';
 
 interface Props {
     date?: string;
+    entry?: {
+        status: string;
+        description: string | null;
+        learning_outcomes: string | null;
+        issues: string | null;
+    } | null;
 }
 
 export default function LogbookSubmission({
     date,
+    entry,
 }: Props) {
-    /*
-    |--------------------------------------------------------------------------
-    | Date
-    |--------------------------------------------------------------------------
-    */
-
     const selectedDate = date
         ? new Date(`${date}T00:00:00`)
         : new Date();
 
-    const formattedDate =
-        selectedDate.toLocaleDateString(
-            'en-GB',
-            {
-                weekday: 'long',
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric',
-            }
-        );
+    const formattedDate = selectedDate.toLocaleDateString(
+        'en-GB',
+        {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+        }
+    );
 
-    const shortDate =
-        selectedDate.toLocaleDateString(
-            'en-GB',
-            {
-                day: 'numeric',
-                month: 'long',
-            }
-        );
+    const shortDate = selectedDate.toLocaleDateString(
+        'en-GB',
+        {
+            day: 'numeric',
+            month: 'long',
+        }
+    );
 
-    /*
-    |--------------------------------------------------------------------------
-    | Form
-    |--------------------------------------------------------------------------
-    |
-    | These fields are frontend-only for now.
-    | Your friend can connect them to the backend later.
-    |
-    */
+    const [showDayTypePicker, setShowDayTypePicker] =
+        useState(false);
 
-    const { data, setData, post, processing } =
-        useForm({
-            date: date ?? '',
-            title: '',
-            description: '',
-            hours_worked: '8',
-            remarks: '',
-        });
+    const { data, setData, post, processing } = useForm({
+        date: date ?? '',
+        status: entry?.status ?? 'working',
+        description: entry?.description ?? '',
+        learning_outcomes: entry?.learning_outcomes ?? '',
+        issues: entry?.issues ?? '',
+    });
 
-    /*
-    |--------------------------------------------------------------------------
-    | Submit
-    |--------------------------------------------------------------------------
-    */
+    const savedDescription = entry?.description ?? '';
+    const savedLearningOutcomes =
+        entry?.learning_outcomes ?? '';
+    const savedIssues = entry?.issues ?? '';
 
     const handleSubmit = (
         event: React.FormEvent
     ) => {
         event.preventDefault();
 
-        /*
-         * Backend route can be connected later.
-         *
-         * Example:
-         *
-         * post(route('student.logbook.store'));
-         */
-
-        console.log(
-            'Daily log:',
-            data
-        );
+        post(route('student.logbook.store'));
     };
 
-    /*
-    |--------------------------------------------------------------------------
-    | Previous / next day
-    |--------------------------------------------------------------------------
-    */
-
-    const previousDate = new Date(
-        selectedDate
-    );
-
+    const previousDate = new Date(selectedDate);
     previousDate.setDate(
         previousDate.getDate() - 1
     );
 
-    const nextDate = new Date(
-        selectedDate
-    );
-
+    const nextDate = new Date(selectedDate);
     nextDate.setDate(
         nextDate.getDate() + 1
     );
 
-    const formatRouteDate = (
-        value: Date
-    ) => {
-        const year =
-            value.getFullYear();
+    const formatRouteDate = (value: Date) => {
+        const year = value.getFullYear();
 
         const month = String(
             value.getMonth() + 1
@@ -128,25 +96,14 @@ export default function LogbookSubmission({
     };
 
     return (
-        <div
-            className="
-                w-full
-                min-w-0
-                overflow-x-hidden
-                p-6
-            "
-        >
+        <div className="w-full min-w-0 overflow-x-hidden p-6">
 
-            {/* =========================================================
-                TOP NAVIGATION
-            ========================================================== */}
+            {/* HEADER */}
 
             <div className="mb-8">
 
                 <Link
-                    href={route(
-                        'student.logbook'
-                    )}
+                    href={route('student.logbook')}
                     className="
                         inline-flex
                         items-center
@@ -159,16 +116,11 @@ export default function LogbookSubmission({
                     "
                 >
                     <ArrowLeft className="size-4" />
-
                     Back to Logbook
                 </Link>
 
             </div>
 
-
-            {/* =========================================================
-                HEADER
-            ========================================================== */}
 
             <div className="mb-8">
 
@@ -208,21 +160,11 @@ export default function LogbookSubmission({
                             {formattedDate}
                         </h1>
 
-                        <p
-                            className="
-                                mt-1
-                                text-sm
-                                text-muted-foreground
-                            "
-                        >
-                            Record what you worked on
-                            during this day.
+                        <p className="mt-1 text-sm text-muted-foreground">
+                            Record what you worked on during this day.
                         </p>
 
                     </div>
-
-
-                    {/* STATUS */}
 
                     <div
                         className="
@@ -241,14 +183,20 @@ export default function LogbookSubmission({
                         "
                     >
                         <span
-                            className="
+                            className={`
                                 size-2
                                 rounded-full
-                                bg-gray-300
-                            "
+                                ${
+                                    entry
+                                        ? 'bg-green-500'
+                                        : 'bg-gray-300'
+                                }
+                            `}
                         />
 
-                        Not submitted
+                        {entry
+                            ? 'Submitted'
+                            : 'Not submitted'}
                     </div>
 
                 </div>
@@ -256,9 +204,7 @@ export default function LogbookSubmission({
             </div>
 
 
-            {/* =========================================================
-                DAY NAVIGATION
-            ========================================================== */}
+            {/* DAY NAVIGATION */}
 
             <div
                 className="
@@ -298,18 +244,12 @@ export default function LogbookSubmission({
                     "
                 >
                     <ChevronLeft className="size-4" />
-
                     Previous Day
                 </Link>
 
 
-                <div
-                    className="
-                        hidden
-                        text-center
-                        sm:block
-                    "
-                >
+                <div className="hidden text-center sm:block">
+
                     <p className="text-xs text-gray-400">
                         Selected Day
                     </p>
@@ -317,6 +257,7 @@ export default function LogbookSubmission({
                     <p className="text-sm font-semibold">
                         {shortDate}
                     </p>
+
                 </div>
 
 
@@ -344,16 +285,13 @@ export default function LogbookSubmission({
                     "
                 >
                     Next Day
-
                     <ChevronRight className="size-4" />
                 </Link>
 
             </div>
 
 
-            {/* =========================================================
-                FORM
-            ========================================================== */}
+            {/* FORM */}
 
             <form
                 onSubmit={handleSubmit}
@@ -365,193 +303,278 @@ export default function LogbookSubmission({
                 "
             >
 
-                {/* =====================================================
-                    FORM HEADER
-                ====================================================== */}
+                {/* FORM HEADER */}
 
-                <div
-                    className="
-                        border-b
-                        px-6
-                        py-5
-                    "
-                >
+                <div className="border-b px-6 py-5">
 
-                    <h2
-                        className="
-                            text-lg
-                            font-semibold
-                            text-gray-900
-                        "
-                    >
-                        What did you work on?
+                    <h2 className="text-lg font-semibold text-gray-900">
+                        Daily Log
                     </h2>
 
-                    <p
-                        className="
-                            mt-1
-                            text-sm
-                            text-muted-foreground
-                        "
-                    >
-                        Describe your work and activities
-                        for this day.
+                    <p className="mt-1 text-sm text-muted-foreground">
+                        Record your activities, learning outcomes,
+                        and any issues for this day.
                     </p>
 
                 </div>
 
 
-                {/* =====================================================
-                    FORM BODY
-                ====================================================== */}
+                {/* FORM BODY */}
 
-                <div
-                    className="
-                        space-y-6
-                        p-6
-                    "
-                >
+                <div className="space-y-6 p-6">
 
-                    {/* TITLE */}
+                    {/* DAY TYPE */}
 
                     <div>
 
-                        <label
-                            htmlFor="title"
+                        <label className="mb-2 block text-sm font-medium text-gray-900">
+                            Day Type
+                        </label>
+
+                        <button
+                            type="button"
+                            onClick={() =>
+                                setShowDayTypePicker(true)
+                            }
                             className="
-                                mb-2
-                                block
-                                text-sm
-                                font-medium
-                                text-gray-900
+                                flex
+                                w-full
+                                items-center
+                                justify-between
+                                rounded-lg
+                                border
+                                border-gray-200
+                                bg-white
+                                px-4
+                                py-3
+                                text-left
+                                hover:bg-gray-50
                             "
                         >
-                            Give your day a title
-                            <span
-                                className="
-                                    ml-1
-                                    font-normal
-                                    text-gray-400
-                                "
-                            >
-                                (optional)
+
+                            <span className="text-sm font-medium text-gray-700">
+
+                                {data.status === 'working'
+                                    ? 'Working Day'
+                                    : data.status === 'off'
+                                        ? 'Off Day'
+                                        : 'None'}
+
                             </span>
-                        </label>
 
-                        <input
-                            id="title"
-                            type="text"
-                            value={data.title}
-                            onChange={(event) =>
-                                setData(
-                                    'title',
-                                    event.target.value
-                                )
-                            }
-                            placeholder="e.g. Getting settled in"
-                            className="
-                                w-full
-                                rounded-md
-                                border
-                                border-gray-200
-                                bg-white
-                                px-4
-                                py-3
-                                text-sm
-                                outline-none
-                                transition
-                                placeholder:text-gray-400
-                                focus:border-blue-500
-                                focus:ring-2
-                                focus:ring-blue-100
-                            "
-                        />
+                            <span className="text-xs text-gray-400">
+                                Change
+                            </span>
+
+                        </button>
 
                     </div>
 
 
-                    {/* DESCRIPTION */}
+                    {/* WORKING DAY FIELDS */}
 
-                    <div>
+                    {data.status === 'working' && (
+                        <>
 
-                        <label
-                            htmlFor="description"
-                            className="
-                                mb-2
-                                block
-                                text-sm
-                                font-medium
-                                text-gray-900
-                            "
-                        >
-                            What did you work on?
-                        </label>
+                            {/* ACTIVITIES */}
 
-                        <textarea
-                            id="description"
-                            value={
-                                data.description
-                            }
-                            onChange={(event) =>
-                                setData(
-                                    'description',
-                                    event.target.value
-                                )
-                            }
-                            rows={7}
-                            placeholder="
-Describe your tasks, activities, and what you accomplished...
-                            "
-                            className="
-                                w-full
-                                resize-none
-                                rounded-md
-                                border
-                                border-gray-200
-                                bg-white
-                                px-4
-                                py-3
-                                text-sm
-                                leading-6
-                                outline-none
-                                transition
-                                placeholder:text-gray-400
-                                focus:border-blue-500
-                                focus:ring-2
-                                focus:ring-blue-100
-                            "
-                        />
+                            <div>
 
-                        <div
-                            className="
-                                mt-2
-                                text-right
-                                text-xs
-                                text-gray-400
-                            "
-                        >
-                            {data.description.length}{' '}
-                            characters
-                        </div>
+                                <label
+                                    htmlFor="description"
+                                    className="
+                                        mb-2
+                                        block
+                                        text-sm
+                                        font-medium
+                                        text-gray-900
+                                    "
+                                >
+                                    Activities
+                                    <span className="ml-1 text-red-500">
+                                        *
+                                    </span>
+                                </label>
 
-                    </div>
+                                <textarea
+                                    id="description"
+                                    value={data.description}
+                                    onChange={(event) =>
+                                        setData(
+                                            'description',
+                                            event.target.value
+                                        )
+                                    }
+                                    rows={7}
+                                    placeholder="Describe your tasks, activities, and what you accomplished..."
+                                    className="
+                                        w-full
+                                        resize-none
+                                        rounded-md
+                                        border
+                                        border-gray-200
+                                        bg-white
+                                        px-4
+                                        py-3
+                                        text-sm
+                                        leading-6
+                                        outline-none
+                                        transition
+                                        placeholder:text-gray-400
+                                        focus:border-blue-500
+                                        focus:ring-2
+                                        focus:ring-blue-100
+                                    "
+                                />
 
+                                <div
+                                    className="
+                                        mt-2
+                                        text-right
+                                        text-xs
+                                        text-gray-400
+                                    "
+                                >
+                                    {data.description.length}{' '}
+                                    characters
+                                </div>
 
-                    {/* HOURS */}
-
-                    
+                            </div>
 
 
-                    {/* REMARKS */}
+                            {/* LEARNING OUTCOMES */}
 
-                    
+                            <div>
+
+                                <label
+                                    htmlFor="learning_outcomes"
+                                    className="
+                                        mb-2
+                                        block
+                                        text-sm
+                                        font-medium
+                                        text-gray-900
+                                    "
+                                >
+                                    Learning Outcomes
+                                    <span className="ml-1 text-red-500">
+                                        *
+                                    </span>
+                                </label>
+
+                                <textarea
+                                    id="learning_outcomes"
+                                    value={
+                                        data.learning_outcomes
+                                    }
+                                    onChange={(event) =>
+                                        setData(
+                                            'learning_outcomes',
+                                            event.target.value
+                                        )
+                                    }
+                                    rows={5}
+                                    placeholder="What did you learn or accomplish today?"
+                                    className="
+                                        w-full
+                                        resize-none
+                                        rounded-md
+                                        border
+                                        border-gray-200
+                                        bg-white
+                                        px-4
+                                        py-3
+                                        text-sm
+                                        leading-6
+                                        outline-none
+                                        transition
+                                        placeholder:text-gray-400
+                                        focus:border-blue-500
+                                        focus:ring-2
+                                        focus:ring-blue-100
+                                    "
+                                />
+
+                                <div
+                                    className="
+                                        mt-2
+                                        text-right
+                                        text-xs
+                                        text-gray-400
+                                    "
+                                >
+                                    {data.learning_outcomes.length}{' '}
+                                    characters
+                                </div>
+
+                            </div>
+
+
+                            {/* ISSUES */}
+
+                            <div>
+
+                                <label
+                                    htmlFor="issues"
+                                    className="
+                                        mb-2
+                                        block
+                                        text-sm
+                                        font-medium
+                                        text-gray-900
+                                    "
+                                >
+                                    Issues
+                                    <span className="ml-1 font-normal text-gray-400">
+                                        (optional)
+                                    </span>
+                                </label>
+
+                                <textarea
+                                    id="issues"
+                                    value={data.issues}
+                                    onChange={(event) =>
+                                        setData(
+                                            'issues',
+                                            event.target.value
+                                        )
+                                    }
+                                    rows={5}
+                                    placeholder="Any problems, challenges, or issues?"
+                                    className="
+                                        w-full
+                                        resize-none
+                                        rounded-md
+                                        border
+                                        border-gray-200
+                                        bg-white
+                                        px-4
+                                        py-3
+                                        text-sm
+                                        leading-6
+                                        outline-none
+                                        transition
+                                        placeholder:text-gray-400
+                                        focus:border-blue-500
+                                        focus:ring-2
+                                        focus:ring-blue-100
+                                    "
+                                />
+
+                                <p className="mt-2 text-xs text-gray-400">
+                                    Leave this blank if you did not encounter
+                                    any issues.
+                                </p>
+
+                            </div>
+
+                        </>
+                    )}
 
                 </div>
 
 
-                {/* =====================================================
-                    FOOTER
-                ====================================================== */}
+                {/* FOOTER */}
 
                 <div
                     className="
@@ -569,9 +592,7 @@ Describe your tasks, activities, and what you accomplished...
                 >
 
                     <Link
-                        href={route(
-                            'student.logbook'
-                        )}
+                        href={route('student.logbook')}
                         className="
                             rounded-md
                             border
@@ -588,7 +609,6 @@ Describe your tasks, activities, and what you accomplished...
                     >
                         Cancel
                     </Link>
-
 
                     <button
                         type="submit"
@@ -612,13 +632,397 @@ Describe your tasks, activities, and what you accomplished...
                         "
                     >
                         <CheckCircle2 className="size-4" />
-
                         Save This Day
                     </button>
 
                 </div>
 
             </form>
+
+
+            {/* DAY TYPE POPUP */}
+
+            {showDayTypePicker && (
+                <div
+                    className="
+                        fixed
+                        inset-0
+                        z-[100]
+                        flex
+                        items-center
+                        justify-center
+                        bg-black/20
+                        p-4
+                    "
+                    onMouseDown={(event) => {
+                        if (
+                            event.target ===
+                            event.currentTarget
+                        ) {
+                            setShowDayTypePicker(false);
+                        }
+                    }}
+                >
+
+                    <div
+                        className="
+                            w-full
+                            max-w-md
+                            rounded-xl
+                            border
+                            bg-white
+                            p-6
+                            shadow-2xl
+                        "
+                    >
+
+                        <div
+                            className="
+                                mb-6
+                                flex
+                                items-start
+                                justify-between
+                                gap-4
+                            "
+                        >
+
+                            <div>
+
+                                <h2 className="text-lg font-semibold text-gray-900">
+                                    Change day type
+                                </h2>
+
+                                <p className="mt-1 text-sm text-muted-foreground">
+                                    Choose the type of day for this date.
+                                </p>
+
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    setShowDayTypePicker(false)
+                                }
+                                className="
+                                    rounded-md
+                                    px-2
+                                    text-xl
+                                    leading-none
+                                    text-gray-400
+                                    hover:bg-gray-100
+                                    hover:text-gray-700
+                                "
+                                aria-label="Close"
+                            >
+                                ×
+                            </button>
+
+                        </div>
+
+
+                        <div className="space-y-2">
+
+                            {/* WORKING DAY */}
+
+                            <button
+                                type="button"
+                                onClick={() => {
+
+                                    setData(
+                                        'status',
+                                        'working'
+                                    );
+
+                                    setData(
+                                        'description',
+                                        savedDescription
+                                    );
+
+                                    setData(
+                                        'learning_outcomes',
+                                        savedLearningOutcomes
+                                    );
+
+                                    setData(
+                                        'issues',
+                                        savedIssues
+                                    );
+
+                                    setShowDayTypePicker(false);
+                                }}
+                                className={`
+                                    flex
+                                    w-full
+                                    items-center
+                                    justify-between
+                                    rounded-lg
+                                    border
+                                    p-4
+                                    text-left
+                                    transition
+                                    ${
+                                        data.status === 'working'
+                                            ? 'border-blue-500 bg-blue-50'
+                                            : 'border-gray-200 hover:bg-gray-50'
+                                    }
+                                `}
+                            >
+
+                                <div className="flex items-center gap-3">
+
+                                    <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-gray-50">
+                                        <BriefcaseBusiness className="size-5 text-gray-700" />
+                                    </div>
+
+                                    <div>
+
+                                        <p className="text-sm font-semibold text-gray-900">
+                                            Working Day
+                                        </p>
+
+                                        <p className="mt-1 text-xs text-muted-foreground">
+                                            Continue with your daily log submission.
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+
+                                <div
+                                    className={`
+                                        flex
+                                        size-4
+                                        items-center
+                                        justify-center
+                                        rounded-full
+                                        border
+                                        ${
+                                            data.status === 'working'
+                                                ? 'border-blue-600'
+                                                : 'border-gray-300'
+                                        }
+                                    `}
+                                >
+                                    {data.status === 'working' && (
+                                        <div className="size-2 rounded-full bg-blue-600" />
+                                    )}
+                                </div>
+
+                            </button>
+
+
+                            {/* OFF DAY */}
+
+                            <button
+                                type="button"
+                                onClick={() => {
+
+                                    setData(
+                                        'status',
+                                        'off'
+                                    );
+
+                                    setData(
+                                        'description',
+                                        ''
+                                    );
+
+                                    setData(
+                                        'learning_outcomes',
+                                        ''
+                                    );
+
+                                    setData(
+                                        'issues',
+                                        ''
+                                    );
+
+                                    setShowDayTypePicker(false);
+                                }}
+                                className={`
+                                    flex
+                                    w-full
+                                    items-center
+                                    justify-between
+                                    rounded-lg
+                                    border
+                                    p-4
+                                    text-left
+                                    transition
+                                    ${
+                                        data.status === 'off'
+                                            ? 'border-blue-500 bg-blue-50'
+                                            : 'border-gray-200 hover:bg-gray-50'
+                                    }
+                                `}
+                            >
+
+                                <div className="flex items-center gap-3">
+
+                                    <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-gray-50">
+                                        <House className="size-5 text-gray-700" />
+                                    </div>
+
+                                    <div>
+
+                                        <p className="text-sm font-semibold text-gray-900">
+                                            Off Day
+                                        </p>
+
+                                        <p className="mt-1 text-xs text-muted-foreground">
+                                            No daily work log is required.
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+
+                                <div
+                                    className={`
+                                        flex
+                                        size-4
+                                        items-center
+                                        justify-center
+                                        rounded-full
+                                        border
+                                        ${
+                                            data.status === 'off'
+                                                ? 'border-blue-600'
+                                                : 'border-gray-300'
+                                        }
+                                    `}
+                                >
+                                    {data.status === 'off' && (
+                                        <div className="size-2 rounded-full bg-blue-600" />
+                                    )}
+                                </div>
+
+                            </button>
+
+
+                            {/* NONE */}
+
+                            <button
+                                type="button"
+                                onClick={() => {
+
+                                    setData(
+                                        'status',
+                                        'none'
+                                    );
+
+                                    setData(
+                                        'description',
+                                        ''
+                                    );
+
+                                    setData(
+                                        'learning_outcomes',
+                                        ''
+                                    );
+
+                                    setData(
+                                        'issues',
+                                        ''
+                                    );
+
+                                    setShowDayTypePicker(false);
+                                }}
+                                className={`
+                                    flex
+                                    w-full
+                                    items-center
+                                    justify-between
+                                    rounded-lg
+                                    border
+                                    p-4
+                                    text-left
+                                    transition
+                                    ${
+                                        data.status === 'none'
+                                            ? 'border-blue-500 bg-blue-50'
+                                            : 'border-gray-200 hover:bg-gray-50'
+                                    }
+                                `}
+                            >
+
+                                <div className="flex items-center gap-3">
+
+                                    <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-gray-50">
+                                        <CircleOff className="size-5 text-gray-700" />
+                                    </div>
+
+                                    <div>
+
+                                        <p className="text-sm font-semibold text-gray-900">
+                                            None
+                                        </p>
+
+                                        <p className="mt-1 text-xs text-muted-foreground">
+                                            Leave this day without a selected status.
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+
+                                <div
+                                    className={`
+                                        flex
+                                        size-4
+                                        items-center
+                                        justify-center
+                                        rounded-full
+                                        border
+                                        ${
+                                            data.status === 'none'
+                                                ? 'border-blue-600'
+                                                : 'border-gray-300'
+                                        }
+                                    `}
+                                >
+                                    {data.status === 'none' && (
+                                        <div className="size-2 rounded-full bg-blue-600" />
+                                    )}
+                                </div>
+
+                            </button>
+
+                        </div>
+
+
+                        <div className="mt-6 flex justify-end">
+
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    setShowDayTypePicker(false)
+                                }
+                                className="
+                                    rounded-md
+                                    border
+                                    border-gray-200
+                                    bg-white
+                                    px-4
+                                    py-2
+                                    text-sm
+                                    font-medium
+                                    text-gray-600
+                                    hover:bg-gray-50
+                                "
+                            >
+                                Cancel
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            )}
 
         </div>
     );
@@ -627,7 +1031,5 @@ Describe your tasks, activities, and what you accomplished...
 LogbookSubmission.layout = (
     page: React.ReactNode
 ) => (
-    <AuthenticatedLayout
-        children={page}
-    />
+    <AuthenticatedLayout children={page} />
 );
