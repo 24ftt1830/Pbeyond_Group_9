@@ -72,6 +72,16 @@ class QuotaController extends Controller
                 'max:150',
             ],
 
+            'skills' => [
+                'nullable',
+                'array',
+            ],
+
+            'skills.*' => [
+                'string',
+                'max:50',
+            ],
+
             'total_slots' => [
                 'required',
                 'integer',
@@ -95,6 +105,7 @@ class QuotaController extends Controller
             'programme_id' => $validated['programme_ids'][0],
 
             'job_title' => $validated['job_title'],
+            'skills' => $validated['skills'] ?? [],
             'total_slots' => $validated['total_slots'],
             'interview_required' => $validated['interview_required'],
             'quota_status' => 'Pending',
@@ -177,6 +188,16 @@ class QuotaController extends Controller
                 'max:150',
             ],
 
+            'skills' => [
+                'nullable',
+                'array',
+            ],
+
+            'skills.*' => [
+                'string',
+                'max:50',
+            ],
+
             'total_slots' => [
                 'required',
                 'integer',
@@ -199,6 +220,7 @@ class QuotaController extends Controller
             'programme_id' => $validated['programme_ids'][0],
 
             'job_title' => $validated['job_title'],
+            'skills' => $validated['skills'] ?? [],
             'total_slots' => $validated['total_slots'],
             'interview_required' => $validated['interview_required'],
         ]);

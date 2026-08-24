@@ -18,6 +18,7 @@ class PlacementQuota extends Model
         'programme_id',
         'job_title',
         'job_description',
+        'skills',
         'total_slots',
         'min_cgpa',
         'quota_status',
@@ -26,6 +27,7 @@ class PlacementQuota extends Model
     ];
 
     protected $casts = [
+        'skills' => 'array',
         'is_released' => 'boolean',
         'min_cgpa' => 'decimal:2',
         'interview_required' => 'boolean',

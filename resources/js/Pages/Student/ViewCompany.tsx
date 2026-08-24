@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 import { ChevronLeft, Heart } from 'lucide-react';
 import { Button } from '@/Components/ui/button';
 import { Card, CardContent } from '@/Components/ui/card';
+import { Badge } from '@/Components/ui/badge';
 import { toast } from 'sonner';
 import {
     AlertDialog,
@@ -20,6 +21,7 @@ import {
 type Quota = {
     quota_id: number;
     job_title: string;
+    skills?: string[] | string;
     min_cgpa: number;
     total_slots: number;
     interview_required: boolean;
@@ -128,11 +130,34 @@ export default function ViewCompany({ company, quotas, applications = [] }: Prop
                         const isApplied = !!matchedApplication;
                         const isLimitReached = applications.length >= MAX_APPLICATIONS;
 
+                        // Safely parse skills string or array
+                        const skillsList: string[] = Array.isArray(quota.skills)
+                            ? quota.skills
+                            : typeof quota.skills === 'string'
+                            ? JSON.parse(quota.skills || '[]')
+                            : [];
+
                         return (
                             <Card key={quota.quota_id} className="shadow-none">
                                 <CardContent className="flex items-start justify-between p-6">
                                     <div className="flex-1">
-                                        <h3 className="mb-4 text-lg font-bold font-sato text-black">{quota.job_title}</h3>
+                                        <h3 className="mb-2 text-lg font-bold font-sato text-black">{quota.job_title}</h3>
+                                        
+                                        {/* Required Skills Badges */}
+                                        {skillsList.length > 0 && (
+                                            <div className="mb-4 flex flex-wrap gap-1.5">
+                                                {skillsList.map((skill, index) => (
+                                                    <Badge
+                                                        key={index}
+                                                        variant="secondary"
+                                                        className="bg-slate-100 text-slate-700 hover:bg-slate-200 text-[11px] font-medium px-2.5 py-0.5 rounded-md"
+                                                    >
+                                                        {skill}
+                                                    </Badge>
+                                                ))}
+                                            </div>
+                                        )}
+
                                         <div className="flex gap-8">
                                             <div>
                                                 <p className="text-[12px] font-semibold text-black/40">Slots</p>

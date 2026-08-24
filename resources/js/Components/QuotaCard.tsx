@@ -1,12 +1,14 @@
 import { Trash2, Edit2, Clock, Globe, CircleX } from 'lucide-react';
 import { Button } from "@/Components/ui/button";
 import { Card, CardContent, CardHeader } from "@/Components/ui/card";
+import { Badge } from "@/Components/ui/badge";
 import { cn } from "@/lib/utils";
 
 interface QuotaCardProps {
     quota: {
         quota_id: number;
         job_title: string;
+        skills?: string[] | string;
         total_slots: number;
         quota_status: string;
         is_released?: boolean;
@@ -41,6 +43,13 @@ export default function QuotaCard({
         quota.programmes?.[0]?.programme_name ||
         'General Programme';
 
+    // Parse skills if passed as JSON string, otherwise array
+    const skillsList: string[] = Array.isArray(quota.skills)
+        ? quota.skills
+        : typeof quota.skills === 'string'
+        ? JSON.parse(quota.skills || '[]')
+        : [];
+
     return (
         <Card
             className={cn(
@@ -62,6 +71,21 @@ export default function QuotaCard({
                         <p className="mt-1 text-xs font-medium text-muted-foreground">
                             {programmeName}
                         </p>
+
+                        {/* Render Skills Badges */}
+                        {skillsList.length > 0 && (
+                            <div className="mt-3 flex flex-wrap gap-1.5">
+                                {skillsList.map((skill, index) => (
+                                    <Badge
+                                        key={index}
+                                        variant="secondary"
+                                        className="text-[11px] font-normal px-2 py-0.5"
+                                    >
+                                        {skill}
+                                    </Badge>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     {/* Status + Edit */}

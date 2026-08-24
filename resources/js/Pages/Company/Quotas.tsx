@@ -3,19 +3,17 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router, useForm, usePage } from '@inertiajs/react';
 import {
     Plus,
-    Edit2,
     Search,
     AlertCircle,
-    Clock,
-    Globe,
-    CircleX,
     Check,
+    X,
 } from 'lucide-react';
 
 import { Input } from '@/Components/ui/input';
 import { Button } from '@/Components/ui/button';
 import { Label } from '@/Components/ui/label';
 import { Switch } from '@/Components/ui/switch';
+import { Badge } from '@/Components/ui/badge';
 
 import {
     Dialog,
@@ -31,7 +29,7 @@ import {
 import QuotaCard from '@/Components/QuotaCard';
 import QuotaNumberInput from '@/Components/QuotaNumberInput';
 
-export default function Quotas({ quotas = [], programmes = [] }) {
+export default function Quotas({ quotas = [], programmes = [] }: any) {
     const { auth } = usePage().props as any;
     const company = auth.user.company;
 
@@ -39,6 +37,9 @@ export default function Quotas({ quotas = [], programmes = [] }) {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [editingQuota, setEditingQuota] = useState<any | null>(null);
     const [programmeDropdownOpen, setProgrammeDropdownOpen] = useState(false);
+    
+    // Skill Input State
+    const [skillInput, setSkillInput] = useState('');
 
     const {
         data,
@@ -52,8 +53,28 @@ export default function Quotas({ quotas = [], programmes = [] }) {
         programme_ids: [] as number[],
         total_slots: 1,
         job_title: '',
+        skills: [] as string[],
         interview_required: false,
     });
+
+    const handleAddSkill = () => {
+        const trimmed = skillInput.trim();
+        if (trimmed && !data.skills.includes(trimmed)) {
+            setData('skills', [...data.skills, trimmed]);
+            setSkillInput('');
+        }
+    };
+
+    const handleRemoveSkill = (skillToRemove: string) => {
+        setData('skills', data.skills.filter((skill) => skill !== skillToRemove));
+    };
+
+    const handleKeyDownSkill = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            handleAddSkill();
+        }
+    };
 
     const handleEdit = (quota: any) => {
         setEditingQuota(quota);
@@ -68,6 +89,7 @@ export default function Quotas({ quotas = [], programmes = [] }) {
             programme_ids: existingProgrammeIds,
             total_slots: quota.total_slots,
             job_title: quota.job_title,
+            skills: Array.isArray(quota.skills) ? quota.skills : [],
             interview_required: quota.interview_required,
         });
 
@@ -77,6 +99,7 @@ export default function Quotas({ quotas = [], programmes = [] }) {
 
     const resetForm = () => {
         reset();
+        setSkillInput('');
         setEditingQuota(null);
         setProgrammeDropdownOpen(false);
     };
@@ -248,6 +271,52 @@ export default function Quotas({ quotas = [], programmes = [] }) {
                                             <p className="text-sm text-red-500">
                                                 {errors.job_title}
                                             </p>
+                                        )}
+                                    </div>
+
+                                    {/* Required Skills Input */}
+                                    <div className="space-y-2">
+                                        <Label>
+                                            Required Skills
+                                        </Label>
+
+                                        <div className="flex gap-2">
+                                            <Input
+                                                value={skillInput}
+                                                onChange={(e) =>
+                                                    setSkillInput(e.target.value)
+                                                }
+                                                onKeyDown={handleKeyDownSkill}
+                                                className="shadow-none"
+                                                placeholder="e.g. React, PHP, Figma"
+                                            />
+                                            <Button
+                                                type="button"
+                                                variant="secondary"
+                                                onClick={handleAddSkill}
+                                                className="shrink-0 px-3"
+                                            >
+                                                <Plus className="size-4" />
+                                            </Button>
+                                        </div>
+
+                                        {/* Rendered Skill Tags */}
+                                        {data.skills.length > 0 && (
+                                            <div className="flex flex-wrap gap-1.5 mt-2">
+                                                {data.skills.map((skill, index) => (
+                                                    <Badge
+                                                        key={index}
+                                                        variant="outline"
+                                                        className="flex items-center gap-1 py-1 px-2.5 text-xs font-medium"
+                                                    >
+                                                        {skill}
+                                                        <X
+                                                            className="size-3 cursor-pointer text-muted-foreground hover:text-foreground"
+                                                            onClick={() => handleRemoveSkill(skill)}
+                                                        />
+                                                    </Badge>
+                                                ))}
+                                            </div>
                                         )}
                                     </div>
 
@@ -539,7 +608,7 @@ export default function Quotas({ quotas = [], programmes = [] }) {
             )}
 
             {/* Search */}
-            <div className="relative max-w-sm">
+            <div className="relative max-w-sm mb-6">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
 
                 <Input
@@ -569,11 +638,11 @@ export default function Quotas({ quotas = [], programmes = [] }) {
                                 className="relative group py-4"
                             >
                                 <QuotaCard
-                                quota={quota}
-                                isEditMode={false}
-                                onDelete={handleDelete}
-                                onEdit={handleEdit}
-                            />
+                                    quota={quota}
+                                    isEditMode={false}
+                                    onDelete={handleDelete}
+                                    onEdit={handleEdit}
+                                />
                             </div>
                         ))}
                 </div>
