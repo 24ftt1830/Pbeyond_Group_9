@@ -61,17 +61,24 @@ class ApplicationController extends Controller
             'applications.student.user',
         ]);
 
+        // Safely check all possible database field names for interview status
+        $requiresInterview = (bool) (
+            $quota->has_interview ??
+            $quota->requires_interview ??
+            $quota->interview_required ??
+            $quota->is_interview_required ??
+            false
+        );
+
         return Inertia::render('Company/Applications/Show', [
             'quota' => $quota,
             'applications' => $quota->applications,
+            'requiresInterview' => $requiresInterview,
         ]);
     }
 
     /**
      * Display one individual student application.
-     *
-     * This is used by:
-     * /company/application/{application}
      */
     public function viewSingle(Application $application)
     {
@@ -96,10 +103,19 @@ class ApplicationController extends Controller
             abort(403, 'You do not have permission to view this application.');
         }
 
+        $requiresInterview = (bool) (
+            $application->quota->has_interview ??
+            $application->quota->requires_interview ??
+            $application->quota->interview_required ??
+            $application->quota->is_interview_required ??
+            false
+        );
+
         return Inertia::render('Company/Applications/ViewSingle', [
             'application' => $application,
             'student' => $application->student,
             'quota' => $application->quota,
+            'requiresInterview' => $requiresInterview,
         ]);
     }
 
@@ -127,13 +143,25 @@ class ApplicationController extends Controller
             abort(403, 'This application does not belong to the selected quota.');
         }
 
-        $request->validate([
-            'status' => 'required|in:Waitlisted,Recruited,Declined',
+        $validated = $request->validate([
+            'status' => 'required|in:Waitlisted,Recruited,Declined,Interviewing',
+            'interview_date' => 'nullable|date',
         ]);
 
-        $application->update([
-            'app_status' => $request->status,
-        ]);
+        $updateData = [
+            'app_status' => $validated['status'],
+        ];
+
+        // Explicitly handle clearing vs setting interview_date
+        if ($validated['status'] === 'Interviewing') {
+            if ($request->filled('interview_date')) {
+                $updateData['interview_date'] = $validated['interview_date'];
+            }
+        } else {
+            $updateData['interview_date'] = null;
+        }
+
+        $application->update($updateData);
 
         return redirect()->back()->with(
             'success',

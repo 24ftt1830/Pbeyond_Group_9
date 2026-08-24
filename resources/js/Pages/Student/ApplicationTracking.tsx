@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CheckCircle, Circle, Clock } from 'lucide-react';
+import { CheckCircle, Circle, Clock, Calendar } from 'lucide-react';
 import type { ReactNode } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 
@@ -12,6 +12,8 @@ type ApplicationItem = {
     status_label: string;
     step: number;
     applied_at: string | null;
+    interview_date: string | null;
+    requires_interview: boolean;
     reviewed_at: string | null;  
     company: {
         id: number;
@@ -22,31 +24,77 @@ type ApplicationItem = {
     } | null; 
 };
 
+type ProcessStep = {
+    key: string;
+    label: string;
+    date: string | null;
+    extra: ReactNode;
+};
+
 export default function ApplicationTracking({ applications = [] }: { applications?: ApplicationItem[] }) {
     
     const formatDate = (value: string | null) => {
-    if (!value) return null;
-    
-    return new Date(value).toLocaleString('en-GB', {
-        day: '2-digit', 
-        month: 'short', 
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true // Set to false if you prefer 24-hour time
-    });
-};
+        if (!value) return null;
+        
+        return new Date(value).toLocaleString('en-GB', {
+            day: '2-digit', 
+            month: 'short', 
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+        });
+    };
 
     const [selectedApplicationId, setSelectedApplicationId] = useState<number | null>(applications[0]?.id ?? null);
     
     const selectedApp = applications.find((app) => app.id === selectedApplicationId) ?? applications[0] ?? null;
     const currentStep = selectedApp?.step ?? -1;
 
-    const processSteps = [
-        { key: 'submitted', label: 'Application Submitted', date: selectedApp ? formatDate(selectedApp.applied_at) : null },
-        { key: 'review', label: 'Company Review', date: selectedApp ? formatDate(selectedApp.reviewed_at) : null },
-        { key: 'finalized', label: 'Finalized', date: null },
-    ];
+    // Build steps dynamically based on whether interview is required or scheduled
+    const getProcessSteps = (): ProcessStep[] => {
+        if (!selectedApp) return [];
+
+        const baseSteps: ProcessStep[] = [
+            { key: 'submitted', label: 'Application Submitted', date: formatDate(selectedApp.applied_at), extra: null }
+        ];
+
+        if (selectedApp.requires_interview || selectedApp.interview_date) {
+            baseSteps.push({
+                key: 'interview',
+                label: 'Interview Stage',
+                date: null,
+                extra: selectedApp.interview_date ? (
+                    <div className="mt-1.5 p-2.5 bg-blue-50 border border-blue-200 rounded-lg inline-flex items-center gap-2 text-xs text-blue-900 font-medium">
+                        <Calendar className="h-3.5 w-3.5 text-blue-600" />
+                        <span>Scheduled: <strong>{formatDate(selectedApp.interview_date)}</strong></span>
+                    </div>
+                ) : (
+                    <span className="block text-xs text-muted-foreground font-normal mt-0.5">
+                        Awaiting interview schedule
+                    </span>
+                )
+            });
+        } else {
+            baseSteps.push({
+                key: 'review',
+                label: 'Company Review',
+                date: formatDate(selectedApp.reviewed_at),
+                extra: null
+            });
+        }
+
+        baseSteps.push({
+            key: 'finalized',
+            label: 'Finalized',
+            date: selectedApp.step === 2 ? formatDate(selectedApp.reviewed_at) : null,
+            extra: null
+        });
+
+        return baseSteps;
+    };
+
+    const processSteps = getProcessSteps();
 
     return (
         <div className="p-6">
@@ -101,6 +149,7 @@ export default function ApplicationTracking({ applications = [] }: { application
                                                                     {step.date}
                                                                 </span>
                                                             )}
+                                                            {step.extra}
                                                         </div>
                                                     </div>
                                                 </div>

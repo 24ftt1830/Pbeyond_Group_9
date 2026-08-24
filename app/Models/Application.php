@@ -10,12 +10,18 @@ class Application extends Model
     // public $timestamps = false;
 
     protected $fillable = [
-        'student_id', 'quota_id', 'apply_date',
-        'app_status', 'admin_remark', 'company_feedback'
+        'student_id', 
+        'quota_id', 
+        'apply_date',
+        'app_status', 
+        'interview_date', // ADDED HERE
+        'admin_remark', 
+        'company_feedback'
     ];
 
     protected $casts = [
-        'apply_date' => 'datetime'
+        'apply_date' => 'datetime',
+        'interview_date' => 'datetime', // ADDED HERE
     ];
 
     public function student()

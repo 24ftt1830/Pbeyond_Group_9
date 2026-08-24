@@ -23,17 +23,31 @@ class ApplicationTrackingController extends Controller
             ->get();
 
         $formattedApplications = $applications->map(function ($app) {
+            $quota = $app->quota;
+
+            // Check database field names for interview requirement
+            $requiresInterview = (bool) (
+                $quota->has_interview ??
+                $quota->requires_interview ??
+                $quota->interview_required ??
+                $quota->is_interview_required ??
+                false
+            );
+
             return [
                 'id' => $app->application_id ?? $app->id,
-                'status_label' => $app->app_status, 
+                'status_label' => $app->app_status ?? 'Pending', 
                 'applied_at' => $app->created_at,
+                'interview_date' => $app->interview_date,
+                'requires_interview' => $requiresInterview,
                 'reviewed_at' => in_array($app->app_status, ['Recruited', 'Declined']) ? $app->updated_at : null,
-                'step' => $this->calculateStep($app->app_status), 
+                'step' => $this->calculateStep($app->app_status, $requiresInterview), 
                 'company' => [
-                    'name' => $app->quota->company->company_name ?? 'Unknown Company',
+                    'id' => $quota->company->company_id ?? $quota->company->id ?? 0,
+                    'name' => $quota->company->company_name ?? 'Unknown Company',
                 ],
                 'quota' => [
-                    'job_title' => $app->quota->job_title ?? 'N/A',
+                    'job_title' => $quota->job_title ?? 'N/A',
                 ]
             ];
         });
@@ -43,11 +57,21 @@ class ApplicationTrackingController extends Controller
         ]);
     }
 
-    private function calculateStep($status)
+    private function calculateStep($status, $requiresInterview)
     {
+        if ($requiresInterview) {
+            return match ($status) {
+                'Pending' => 0,
+                'Interviewing' => 1,
+                'Waitlisted' => 1,
+                'Recruited', 'Declined' => 2,
+                default => 0,
+            };
+        }
+
         return match ($status) {
             'Pending' => 0,
-            'Waitlisted', 'Interview' => 1, 
+            'Waitlisted' => 1,
             'Recruited', 'Declined' => 2,
             default => 0,
         };
