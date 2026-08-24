@@ -5,27 +5,25 @@ import { Input } from '@/Components/ui/input';
 import { Label } from '@/Components/ui/label';
 import InputError from '@/Components/InputError';
 import DitherShaderDemoDuotone from "@/Components/dither-shader-demo-duotone";
-import { LoaderCircleIcon, Building2 } from 'lucide-react';
+import { LoaderCircleIcon, Lock, ChevronLeft } from 'lucide-react';
 
-export default function Login({ status, canResetPassword }: { status?: string; canResetPassword: boolean }) {
-    const { data, setData, post, processing, errors, reset } = useForm({
+export default function CompanyLogin({ companyName }: { companyName: string }) {
+    const { data, setData, post, processing, errors } = useForm({
         email: '',
         password: '',
-        remember: false,
     });
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        post(route('login'), { onFinish: () => reset('password') });
+        post(route('company.login'));
     };
 
     return (
         <div className="grid min-h-svh lg:grid-cols-2">
-            <Head title="Log in" />
+            <Head title="Company Login" />
 
-            {/* Left Column: Form */}
             <div className="flex flex-col gap-4 p-6 md:p-10">
-                <div className="flex justify-center gap-2 md:justify-start">
+                <div className="flex items-center justify-between">
                     <Link href="/" className="flex items-center gap-2 font-medium">
                         <img
                             src="/images/pb-secondary-logo.png"
@@ -34,26 +32,38 @@ export default function Login({ status, canResetPassword }: { status?: string; c
                         />
                         <span className="font-sato">PBeyond</span>
                     </Link>
+
+                    <Button variant="ghost" size="sm" asChild className="gap-1 text-xs">
+                        <Link href={route('company.key-access')}>
+                            <ChevronLeft className="size-4" />
+                            Change Access Key
+                        </Link>
+                    </Button>
                 </div>
 
                 <div className="flex flex-1 items-center justify-center">
                     <div className="w-full max-w-xs">
                         <form onSubmit={submit} className="flex flex-col gap-6">
                             <div className="flex flex-col items-center gap-2 text-center">
-                                <h1 className="text-2xl font-bold font-sato">Student & Supervisor Portal</h1>
+                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-50 text-blue-600">
+                                    <Lock className="size-6" />
+                                </div>
+                                <h1 className="text-2xl font-bold font-sato">Company Login</h1>
+                                <span className="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-600/20">
+                                    {companyName}
+                                </span>
                                 <p className="text-balance text-sm text-muted-foreground">
-                                    Enter your credentials below to log in
+                                    Enter your work email and password to access your dashboard.
                                 </p>
                             </div>
 
-                            {status && <div className="text-sm font-medium text-green-600">{status}</div>}
-
                             <div className="grid gap-6">
                                 <div className="grid gap-2">
-                                    <Label htmlFor="email">Email</Label>
+                                    <Label htmlFor="email">Work Email</Label>
                                     <Input
                                         id="email"
                                         type="email"
+                                        placeholder="representative@company.com"
                                         value={data.email}
                                         onChange={(e) => setData('email', e.target.value)}
                                         required
@@ -63,14 +73,7 @@ export default function Login({ status, canResetPassword }: { status?: string; c
                                 </div>
 
                                 <div className="grid gap-2">
-                                    <div className="flex items-center justify-between">
-                                        <Label htmlFor="password">Password</Label>
-                                        {canResetPassword && (
-                                            <Link href={route('password.request')} className="text-sm hover:underline hover:underline-offset-4 hover:text-primary">
-                                                Forgot your password?
-                                            </Link>
-                                        )}
-                                    </div>
+                                    <Label htmlFor="password">Password</Label>
                                     <Input
                                         id="password"
                                         type="password"
@@ -86,26 +89,8 @@ export default function Login({ status, canResetPassword }: { status?: string; c
                                     {processing ? (
                                         <LoaderCircleIcon className="size-4 animate-spin" />
                                     ) : (
-                                        'Log in'
+                                        'Login to Dashboard'
                                     )}
-                                </Button>
-
-                                <div className="relative text-center text-xs after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
-                                    <span className="relative z-10 bg-background px-2 text-muted-foreground">
-                                        Company Partner?
-                                    </span>
-                                </div>
-
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    asChild
-                                    className="w-full shadow-none gap-2"
-                                >
-                                    <Link href={route('company.key-access')}>
-                                        <Building2 className="size-4" />
-                                        Log in as Company
-                                    </Link>
                                 </Button>
                             </div>
                         </form>
@@ -113,7 +98,6 @@ export default function Login({ status, canResetPassword }: { status?: string; c
                 </div>
             </div>
 
-            {/* Image */}
             <div className="relative hidden bg-muted lg:block">
                 <DitherShaderDemoDuotone />
             </div>

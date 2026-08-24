@@ -11,19 +11,23 @@ class Company extends Model
     public $timestamps = true;
 
     protected $fillable = [
-
         'company_name',
         'location_type',
         'industry_sector',
         'office_address',
         'description',
         'additional_information',
-        'is_approved'
+        'is_approved',
+        'access_key',
+        'access_key_expires_at',
+    ];
+
+    protected $casts = [
+        'access_key_expires_at' => 'datetime',
     ];
 
     public function users()
     {
-        // One company can have many users (Staff/HR)
         return $this->hasMany(User::class, 'company_id', 'company_id');
     }
 
@@ -39,6 +43,6 @@ class Company extends Model
 
     public function favourites()
     {
-    return $this->hasMany(Favourite::class, 'company_id', 'company_id');
+        return $this->hasMany(Favourite::class, 'company_id', 'company_id');
     }
 }
