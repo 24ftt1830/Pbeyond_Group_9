@@ -9,11 +9,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('logbook_entries', function (Blueprint $table) {
-            $table->dropColumn([
-                'title',
-                'hours_worked',
-                'remarks',
-            ]);
+            if (Schema::hasColumn('logbook_entries', 'title')) {
+                $table->dropColumn('title');
+            }
+            if (Schema::hasColumn('logbook_entries', 'hours_worked')) {
+                $table->dropColumn('hours_worked');
+            }
+            if (Schema::hasColumn('logbook_entries', 'remarks')) {
+                $table->dropColumn('remarks');
+            }
         });
     }
 
@@ -21,7 +25,7 @@ return new class extends Migration
     {
         Schema::table('logbook_entries', function (Blueprint $table) {
             $table->string('title')->nullable();
-            $table->decimal('hours_worked', 5, 2)->nullable();
+            $table->integer('hours_worked')->nullable();
             $table->text('remarks')->nullable();
         });
     }
