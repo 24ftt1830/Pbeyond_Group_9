@@ -7,6 +7,7 @@ import { Toaster } from "@/Components/ui/sonner";
 import { AdminSidebar } from "@/Components/Sidebars/AdminSidebar"
 import { CompanySidebar } from "@/Components/Sidebars/CompanySidebar"
 import { UserSidebar } from "@/Components/Sidebars/UserSidebar"
+import { AcademicSupervisorSidebar } from "@/Components/Sidebars/AcademicSupervisorSidebar"
 
 import { SidebarInset, SidebarProvider } from "@/Components/ui/sidebar"
 
@@ -14,7 +15,7 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
     const { auth } = usePage<PageProps>().props
 
     const isValidRole = (role: any): role is UserRole => {
-        return ['Admin', 'Company', 'Student'].includes(role);
+        return ['Admin', 'Company', 'Student', 'Academic Supervisor'].includes(role);
     };
 
     const [activeRole, setActiveRole] = React.useState<UserRole>(
@@ -28,7 +29,8 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
     const Sidebars: Record<UserRole, React.ComponentType> = {
         Admin: AdminSidebar,
         Company: CompanySidebar,
-        Student: UserSidebar, 
+        Student: UserSidebar,
+        'Academic Supervisor': AcademicSupervisorSidebar,
     }
 
     const SelectedSidebar = Sidebars[activeRole] || UserSidebar

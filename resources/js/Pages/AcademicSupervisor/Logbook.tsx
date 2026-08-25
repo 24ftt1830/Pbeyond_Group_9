@@ -1,4 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 
 interface Student {
     student_id: number;
@@ -275,3 +276,9 @@ export default function Logbook({
         </>
     );
 }
+
+Logbook.layout = (page: React.ReactNode) => (
+    <AuthenticatedLayout>
+        {page}
+    </AuthenticatedLayout>
+);
