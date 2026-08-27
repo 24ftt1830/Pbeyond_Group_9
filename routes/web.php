@@ -11,6 +11,7 @@ use App\Http\Controllers\Student\LogbookController;
 use App\Http\Controllers\Student\ProfileController as StudentProfileController;
 use App\Http\Controllers\Student\ReportController as StudentReportController;
 use App\Http\Controllers\AcademicSupervisor\LogbookController as AcademicSupervisorLogbookController;
+use App\Http\Controllers\AcademicSupervisor\StudentController as AcademicSupervisorStudentController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -356,20 +357,36 @@ Route::middleware('auth')->group(function () {
         ->name('academic-supervisor.')
         ->group(function () {
 
-            Route::get(
-                '/logbook',
-                [AcademicSupervisorLogbookController::class, 'index']
-            )->name('logbook');
+        // Logbook
 
-            Route::get(
-                '/logbook/{submission}/review',
-                [AcademicSupervisorLogbookController::class, 'review']
-            )->name('logbook.review');
-            Route::post(
-                '/logbook/{submission}/mark-reviewed',
-                [AcademicSupervisorLogbookController::class, 'markReviewed']
-            )->name('logbook.mark-reviewed');
-        });
+        Route::get(
+            '/logbook',
+            [AcademicSupervisorLogbookController::class, 'index']
+        )->name('logbook');
+
+        Route::get(
+            '/logbook/{submission}/review',
+            [AcademicSupervisorLogbookController::class, 'review']
+        )->name('logbook.review');
+
+        Route::post(
+            '/logbook/{submission}/mark-reviewed',
+            [AcademicSupervisorLogbookController::class, 'markReviewed']
+        )->name('logbook.mark-reviewed');
+
+
+        // Students
+
+        Route::get(
+            '/students',
+            [AcademicSupervisorStudentController::class, 'index']
+        )->name('students');
+
+        Route::get(
+            '/students/{student}',
+            [AcademicSupervisorStudentController::class, 'show']
+        )->name('student.show');
+    });
 
 
     // =========================================================

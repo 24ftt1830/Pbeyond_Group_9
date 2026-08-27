@@ -68,6 +68,15 @@ class Student extends Model
         return $this->hasMany(SupervisorAssignment::class, 'student_id', 'student_id');
     }
 
+    public function academicSupervisorAssignments()
+    {
+        return $this->hasMany(
+            AcademicSupervisorAssignment::class,
+            'student_id',
+            'student_id'
+        );
+    }
+
     // Scope for vetted students
     public function scopeVetted($query)
     {
