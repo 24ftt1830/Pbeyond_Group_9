@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\AcademicSupervisor;
 
 use App\Http\Controllers\Controller;
+use App\Models\AcademicSupervisor;
 use App\Models\LogbookEntry;
 use App\Models\LogbookWeeklySubmission;
 use Illuminate\Http\Request;
@@ -12,12 +13,22 @@ class LogbookController extends Controller
 {
     public function index(Request $request)
     {
+        $academicSupervisor = AcademicSupervisor::where(
+            'user_id',
+            auth()->user()->user_id
+        )->firstOrFail();
+
+        $assignedStudentIds = $academicSupervisor->assignments()
+            ->pluck('student_id');
+
         $pendingSubmissions = LogbookWeeklySubmission::with('student')
+            ->whereIn('student_id', $assignedStudentIds)
             ->whereIn('status', ['submitted', 'pending'])
             ->orderBy('submitted_at', 'desc')
             ->get();
 
         $reviewedSubmissions = LogbookWeeklySubmission::with('student')
+            ->whereIn('student_id', $assignedStudentIds)
             ->where('status', 'reviewed')
             ->orderBy('reviewed_at', 'desc')
             ->get();
@@ -32,6 +43,16 @@ class LogbookController extends Controller
         Request $request,
         LogbookWeeklySubmission $submission
     ) {
+        $academicSupervisor = AcademicSupervisor::where(
+            'user_id',
+            auth()->user()->user_id
+        )->firstOrFail();
+
+        $isAssigned = $academicSupervisor->assignments()
+            ->where('student_id', $submission->student_id)
+            ->exists();
+
+        abort_unless($isAssigned, 403);
         // When the supervisor opens a newly submitted week,
         // change its status from submitted to pending.
         if ($submission->status === 'submitted') {
