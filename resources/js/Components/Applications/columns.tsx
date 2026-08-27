@@ -8,7 +8,7 @@ import {
     DropdownMenuTrigger,
     DropdownMenuSeparator
 } from "@/Components/ui/dropdown-menu";
-import { MoreHorizontal, Eye, MessageCircle, Calendar } from "lucide-react";
+import { MoreHorizontal, Eye, Calendar } from "lucide-react";
 
 const getBadgeVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
     switch (status) {
@@ -147,9 +147,6 @@ export const getColumns = (
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => alert('Remark feature coming soon')}>
-                            <MessageCircle className="w-4 h-4 mr-2" /> Remark
-                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => onViewDetails(app)}>
                             <Eye className="w-4 h-4 mr-2" /> View Details
                         </DropdownMenuItem>

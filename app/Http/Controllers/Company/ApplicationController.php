@@ -88,14 +88,23 @@ class ApplicationController extends Controller
             abort(403, 'Your account is not linked to a company.');
         }
 
-        // Load the quota first so we can verify ownership.
         $application->load([
             'quota',
-            'student.programme',
             'student.user',
+            'student.programme',
+            'student.professionalProfile',
+            'student.education',
+            'student.workExperiences',
+            'student.projects',
+            'student.activities',
+            'student.achievements',
+            'student.referees',
+            'student.softSkills',
+            'student.skills',
+            'student.languages',
         ]);
 
-        // Make sure the application belongs to one of this company's quotas.
+        // Make sure this application belongs to this company.
         if (
             !$application->quota ||
             (int) $application->quota->company_id !== (int) $company->company_id
@@ -103,19 +112,8 @@ class ApplicationController extends Controller
             abort(403, 'You do not have permission to view this application.');
         }
 
-        $requiresInterview = (bool) (
-            $application->quota->has_interview ??
-            $application->quota->requires_interview ??
-            $application->quota->interview_required ??
-            $application->quota->is_interview_required ??
-            false
-        );
-
-        return Inertia::render('Company/Applications/ViewSingle', [
-            'application' => $application,
+        return Inertia::render('Student/generator_cv', [
             'student' => $application->student,
-            'quota' => $application->quota,
-            'requiresInterview' => $requiresInterview,
         ]);
     }
 

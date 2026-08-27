@@ -285,13 +285,10 @@ export default function GeneratorCV({ student }: Props) {
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 
                         <div>
-                            <h1 className="text-3xl font-bold text-slate-900">
-                                CV Generator
-                            </h1>
+                           <h1>Student CV</h1>
 
-                            <p className="mt-1 text-slate-600">
-                                Generate your CV using the information saved
-                                in your student profile.
+                            <p>
+                                Applicant CV and profile information.
                             </p>
                         </div>
 

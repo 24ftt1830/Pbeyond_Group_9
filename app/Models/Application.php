@@ -15,7 +15,6 @@ class Application extends Model
         'apply_date',
         'app_status', 
         'interview_date', // ADDED HERE
-        'admin_remark', 
         'company_feedback'
     ];
 

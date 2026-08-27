@@ -495,17 +495,21 @@ export default function Show({
 
                                 {selectedApplication.student?.cv_file_path && (
                                     <Button
-                                        variant="outline"
-                                        className="w-full"
-                                        onClick={() =>
-                                            window.open(
-                                                selectedApplication.student.cv_file_path,
-                                                '_blank'
-                                            )
-                                        }
-                                    >
-                                        View CV Attachment
-                                    </Button>
+                                            variant="outline"
+                                            className="w-full"
+                                            onClick={() =>
+                                                window.open(
+                                                    route('company.applications.view', {
+                                                        application:
+                                                            selectedApplication.id ||
+                                                            selectedApplication.application_id,
+                                                    }),
+                                                    '_blank'
+                                                )
+                                            }
+                                        >
+                                            View CV
+                                        </Button>
                                 )}
                             </div>
 
