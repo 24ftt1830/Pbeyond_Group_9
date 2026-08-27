@@ -3,6 +3,7 @@ import {
     BookOpen,
     Bot,
     Command,
+    FileText,
     Frame,
     LifeBuoy,
     Map,
@@ -13,7 +14,7 @@ import {
 } from "lucide-react"
 
 import { usePage, Link } from '@inertiajs/react';
-import { PageProps, UserRole } from '@/types'; 
+import { PageProps, UserRole } from '@/types';
 
 import { NavMain } from "@/Components/nav-main"
 import { NavProjects } from "@/Components/nav-projects"
@@ -43,21 +44,50 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const { auth } = usePage<PageProps>().props;
 
-    /**
-     * Fix for the 'any' type error: 
-     * We explicitly type the keys of this object as UserRole 
-     * so TypeScript knows auth.user.role is a valid index.
-     */
-    const roleNavigation: Record<UserRole, { title: string; url: string; icon: any; items?: any[] }[]> = {
+    const roleNavigation: Record<
+        UserRole,
+        { title: string; url: string; icon: any; items?: any[] }[]
+    > = {
         Student: [
-            { title: "My Profile", url: route('profile.edit'), icon: Settings2 },
+            {
+                title: "My Profile",
+                url: route('profile.edit'),
+                icon: Settings2
+            },
         ],
+
         Admin: [
-            { title: "Application Status", url: route('admin.stats'), icon: SquareTerminal },
-            { title: "Users", url: route('admin.users'), icon: Bot },
+            {
+                title: "Application Status",
+                url: route('admin.stats'),
+                icon: SquareTerminal
+            },
+            {
+                title: "Users",
+                url: route('admin.users'),
+                icon: Bot
+            },
         ],
+
         Company: [
-            { title: "Organization", url: route('company.organization'), icon: BookOpen },
+            {
+                title: "Organization",
+                url: route('company.organization'),
+                icon: BookOpen
+            },
+        ],
+
+        'Academic Supervisor': [
+            {
+                title: "My Students",
+                url: route('academic-supervisor.students'),
+                icon: BookOpen
+            },
+            {
+                title: "Logbook Review",
+                url: route('academic-supervisor.logbook'),
+                icon: FileText
+            },
         ],
     };
 
@@ -76,9 +106,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                                     <Command className="size-4" />
                                 </div>
+
                                 <div className="grid flex-1 text-left text-sm leading-tight">
-                                    <span className="truncate font-semibold">Acme Inc</span>
-                                    <span className="truncate text-xs capitalize">{auth.user.role}</span>
+                                    <span className="truncate font-semibold">
+                                        Acme Inc
+                                    </span>
+
+                                    <span className="truncate text-xs capitalize">
+                                        {auth.user.role}
+                                    </span>
                                 </div>
                             </Link>
                         </SidebarMenuButton>
@@ -88,7 +124,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
             <SidebarContent>
                 <NavMain items={navMainItems} />
-                
+
                 <NavProjects projects={data.projects} />
             </SidebarContent>
 

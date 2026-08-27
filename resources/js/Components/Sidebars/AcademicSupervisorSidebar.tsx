@@ -38,8 +38,12 @@ export function AcademicSupervisorSidebar({
         "/academic-supervisor/logbook"
     )
 
-    const isDashboardPage = url ===
-        "/academic-supervisor/dashboard"
+    const isStudentsPage = url.startsWith(
+        "/academic-supervisor/students"
+    )
+
+    const isDashboardPage =
+        url === "/academic-supervisor/dashboard"
 
     return (
         <Sidebar collapsible="icon" {...props}>
@@ -102,6 +106,18 @@ export function AcademicSupervisorSidebar({
                             </SidebarMenuButton>
                         </SidebarMenuItem>
 
+                        {/* Students */}
+                        <SidebarMenuItem>
+                            <SidebarMenuButton
+                                asChild
+                                isActive={isStudentsPage}
+                            >
+                                <Link href="/academic-supervisor/students">
+                                    <LayoutDashboard />
+                                    <span>Students</span>
+                                </Link>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
 
                         {/* Logbook Review */}
                         <SidebarMenuItem>
