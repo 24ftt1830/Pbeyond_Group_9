@@ -4,20 +4,17 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 
 class AcademicSupervisorSeeder extends Seeder
 {
     public function run(): void
     {
-        DB::table('users')->insert([
-            // Academic Supervisor
+        DB::table('academic_supervisors')->insert([
             [
-                'username' => 'academic_supervisor',
+                'user_id' => 9,
+                'full_name' => 'Academic Supervisor',
                 'email' => 'academic.supervisor@pb.edu.bn',
-                'password' => Hash::make('password123'),
-                'role' => 'Academic Supervisor',
-                'company_id' => null,
+                'phone' => '81234567',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],

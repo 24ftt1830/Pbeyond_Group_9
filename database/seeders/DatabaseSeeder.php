@@ -16,13 +16,14 @@ class DatabaseSeeder extends Seeder
             IldAdminSeeder::class,
             StudentSeeder::class,
             AcademicSupervisorSeeder::class,
+            AcademicSupervisorAssignmentSeeder::class,
 
             //StudentSkillSeeder::class,
             //StudentLanguageSeeder::class,
             //PlacementQuotaSeeder::class,
             //ApplicationSeeder::class,
             //IndustrySupervisorSeeder::class,
-            //SupervisorAssignmentSeeder::class,
+            //IndustrySupervisorAssignmentSeeder::class,
         ]);
     }
 }

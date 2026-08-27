@@ -93,6 +93,17 @@ class UserSeeder extends Seeder
                 'updated_at' => now(),
             ],
 
+            // Academic Supervisor
+            [
+                'username' => 'academic_supervisor',
+                'email' => 'academic.supervisor@pb.edu.bn',
+                'password' => Hash::make('password123'),
+                'role' => 'Academic Supervisor',
+                'company_id' => null,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+
             // Companies
             [
                 'username' => 'techcorp_hr',
@@ -130,6 +141,8 @@ class UserSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
+
+            
         ]);
     }
 }
