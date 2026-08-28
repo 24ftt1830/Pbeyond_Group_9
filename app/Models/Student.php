@@ -25,7 +25,7 @@ class Student extends Model
 
     protected $fillable = [
         'pb_student_code', 'user_id', 'full_name', 'ic_number', 'ic_colour',
-        'programme_id', 'intake_session', 'postal_address', 'date_of_birth',
+        'programme_id', 'intake_session', 'current_semester', 'postal_address', 'date_of_birth',
         'place_of_birth', 'gender', 'religion', 'nationality', 'race',
         'mobile_phone', 'cgpa', 'work_experience', 'emergency_no',
         'cv_file_path', 'vetting_status',

@@ -12,9 +12,10 @@ class Programme extends Model
 
     public $timestamps = false;
 
-    protected $fillable = [
-        'programme_name',
-        'school_id',
+   protected $fillable = [
+    'programme_name',
+    'school_id',
+    'total_semesters',
     ];
 
     public function school()
