@@ -49,6 +49,15 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        // Block company users from logging in through the main portal
+        if (Auth::user()->role === 'Company') {
+            Auth::logout();
+
+            throw ValidationException::withMessages([
+                'email' => 'Company users must log in using the "Log in as Company" portal.',
+            ]);
+        }
+
         RateLimiter::clear($this->throttleKey());
     }
 
