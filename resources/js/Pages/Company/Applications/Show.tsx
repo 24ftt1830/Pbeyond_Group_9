@@ -119,7 +119,6 @@ export default function Show({
         status: string,
         date?: string
     ) => {
-        // Enforce interview date requirement when moving to Interviewing status
         if (status === 'Interviewing' && !date) {
             const targetApp = applications.find(a => (a.id || a.application_id) === applicationId);
             if (targetApp) {
@@ -167,7 +166,7 @@ export default function Show({
 
     const closeQuota = () => {
         router.post(
-            route('company.quotas.close', quota.quota_id),
+            route('company.quotas.close', quota.quota_id || quota.id),
             {},
             {
                 onSuccess: () => {
@@ -177,7 +176,6 @@ export default function Show({
         );
     };
 
-    // Pass activeTab to column renderer
     const columns = getColumns(
         updateStatus,
         setSelectedApplication,
@@ -493,24 +491,21 @@ export default function Show({
                                     />
                                 </div>
 
-                                {selectedApplication.student?.cv_file_path && (
-                                    <Button
-                                            variant="outline"
-                                            className="w-full"
-                                            onClick={() =>
-                                                window.open(
-                                                    route('company.applications.view', {
-                                                        application:
-                                                            selectedApplication.id ||
-                                                            selectedApplication.application_id,
-                                                    }),
-                                                    '_blank'
-                                                )
-                                            }
-                                        >
-                                            View CV
-                                        </Button>
-                                )}
+                                <Button
+                                    variant="outline"
+                                    className="w-full"
+                                    onClick={() =>
+                                        router.visit(
+                                            route('company.applications.view', {
+                                                application:
+                                                    selectedApplication.id ||
+                                                    selectedApplication.application_id,
+                                            })
+                                        )
+                                    }
+                                >
+                                    View CV
+                                </Button>
                             </div>
 
                             <div className="space-y-4 pt-4 border-t">

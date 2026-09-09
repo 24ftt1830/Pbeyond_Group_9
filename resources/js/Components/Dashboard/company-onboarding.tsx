@@ -1,5 +1,6 @@
 import * as React from "react";
 import { createPortal } from "react-dom";
+import { router } from "@inertiajs/react";
 import { ScrollArea, ScrollBar } from "@/Components/ui/scroll-area";
 import { Card, CardContent } from "@/Components/ui/card";
 import { Button } from "@/Components/ui/button";
@@ -39,7 +40,7 @@ export interface Step {
   info?: StepInfo;
 }
 
-const steps: Step[] = [
+const initialSteps: Step[] = [
   {
     title: "Set up your profile",
     image: profile,
@@ -68,7 +69,6 @@ const steps: Step[] = [
   },
 ];
 
-// Cursor-following tooltip rendered into document.body via portal
 function CursorTooltip({ text, x, y }: { text: string; x: number; y: number }) {
   return createPortal(
     <div
@@ -85,20 +85,29 @@ function StepCard({ step }: { step: Step }) {
   const [sheetOpen, setSheetOpen] = React.useState(false);
   const [hovered, setHovered] = React.useState(false);
   const [cursor, setCursor] = React.useState({ x: 0, y: 0 });
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const handleMouseMove = (e: React.MouseEvent) => {
     setCursor({ x: e.clientX, y: e.clientY });
   };
 
   const handleMarkAsDone = () => {
-    // logic
+    if (isLoading) return;
+    setIsLoading(true);
+
+    router.post(
+      route("company.onboarding.complete"),
+      { task: step.title },
+      {
+        preserveScroll: true,
+        onFinish: () => setIsLoading(false),
+      }
+    );
   };
 
   return (
     <>
       <Card className="relative h-[200px] w-[500px] shrink-0 flex flex-row overflow-hidden shadow-none">
-
-        {/* Image section — no CardContent padding needed */}
         <div className="w-[150px] shrink-0 bg-muted overflow-hidden">
           <DitherShader
             {...SHADER_PROPS}
@@ -107,10 +116,7 @@ function StepCard({ step }: { step: Step }) {
           />
         </div>
 
-        {/* Content section */}
         <CardContent className="flex flex-col justify-between flex-grow min-w-0 p-4">
-
-          {/* Info icon in top-right, inside CardContent */}
           {step.info && (
             <div className="absolute top-0 right-0 p-3">
               <button
@@ -151,20 +157,18 @@ function StepCard({ step }: { step: Step }) {
               variant="outline"
               className="shrink-0 text-primary border-none shadow-none hover:bg-primary/10 hover:text-primary"
               onClick={handleMarkAsDone}
+              disabled={isLoading}
             >
-              Mark as done
+              {isLoading ? "Saving..." : "Mark as done"}
             </Button>
           </div>
-
         </CardContent>
       </Card>
 
-      {/* Cursor-following tooltip */}
       {step.info && hovered && (
         <CursorTooltip text="More info" x={cursor.x} y={cursor.y} />
       )}
 
-      {/* Sheet */}
       {step.info && (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
           <SheetContent>
@@ -181,15 +185,37 @@ function StepCard({ step }: { step: Step }) {
   );
 }
 
-export function ScrollAreaHorizontalDemo() {
+interface ScrollAreaHorizontalDemoProps {
+  completedOnboardingTasks?: string[];
+}
+
+export function ScrollAreaHorizontalDemo({ completedOnboardingTasks = [] }: ScrollAreaHorizontalDemoProps) {
+  const activeSteps = initialSteps.filter((step) => !completedOnboardingTasks.includes(step.title));
+
+  if (activeSteps.length === 0) {
+    return null;
+  }
+
+  const totalSteps = initialSteps.length;
+  const completedCount = totalSteps - activeSteps.length;
+
   return (
-    <ScrollArea className="w-full rounded-md">
-      <div className="flex w-max space-x-4 py-4 px-1">
-        {steps.map((step) => (
-          <StepCard key={step.title} step={step} />
-        ))}
-      </div>
-      <ScrollBar orientation="horizontal" />
-    </ScrollArea>
+    <div className="space-y-3">
+      <h3 className="font-semibold">
+        Let's get you ready to bridge the gap. <span className="text-foreground text-sm">({completedCount} of {totalSteps})</span>
+      </h3>
+      <p className="text-sm text-muted-foreground">
+        There are a few more steps required before you can start connecting with students.
+      </p>
+
+      <ScrollArea className="w-full rounded-md">
+        <div className="flex w-max space-x-4 py-4 px-1">
+          {activeSteps.map((step) => (
+            <StepCard key={step.title} step={step} />
+          ))}
+        </div>
+        <ScrollBar orientation="horizontal" />
+      </ScrollArea>
+    </div>
   );
 }

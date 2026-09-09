@@ -136,6 +136,8 @@ type Language = {
 
 type Props = {
     student: Student;
+    isCompanyView?: boolean;
+    quotaId?: number;
 };
 
 
@@ -195,7 +197,7 @@ function splitDescription(description?: string) {
    COMPONENT
 ============================================================ */
 
-export default function GeneratorCV({ student }: Props) {
+export default function GeneratorCV({ student, isCompanyView = false }: Props) {
 
     const professionalProfile =
         student.professionalProfile?.profile ??
@@ -261,7 +263,7 @@ export default function GeneratorCV({ student }: Props) {
         missingFields.push('At least one Language');
     }
 
-    const canGenerate = missingFields.length === 0;
+    const canGenerate = isCompanyView ? true : missingFields.length === 0;
 
     const handleDownload = () => {
         window.print();
@@ -285,24 +287,35 @@ export default function GeneratorCV({ student }: Props) {
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 
                         <div>
-                           <h1>Student CV</h1>
+                            <h1 className="text-2xl font-bold text-slate-800">Student CV</h1>
 
-                            <p>
+                            <p className="text-sm text-slate-600">
                                 Applicant CV and profile information.
                             </p>
                         </div>
 
                         <div className="flex gap-3">
 
-                            <Link
-                                href={route('student.profile')}
-                                className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
-                            >
-                                <ArrowLeft className="size-4" />
-                                Back to Profile
-                            </Link>
+                            {isCompanyView ? (
+                                <button
+                                    type="button"
+                                    onClick={() => window.history.back()}
+                                    className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                                >
+                                    <ArrowLeft className="size-4" />
+                                    Back to Application
+                                </button>
+                            ) : (
+                                <Link
+                                    href={route('student.profile')}
+                                    className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                                >
+                                    <ArrowLeft className="size-4" />
+                                    Back to Profile
+                                </Link>
+                            )}
 
-                            {canGenerate && (
+                            {(canGenerate || isCompanyView) && (
                                 <button
                                     type="button"
                                     onClick={handleDownload}
@@ -320,7 +333,7 @@ export default function GeneratorCV({ student }: Props) {
 
                     {/* INCOMPLETE */}
 
-                    {!canGenerate && (
+                    {!canGenerate && !isCompanyView && (
 
                         <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-5">
 
@@ -365,7 +378,7 @@ export default function GeneratorCV({ student }: Props) {
 
                     {/* COMPLETE */}
 
-                    {canGenerate && (
+                    {canGenerate && !isCompanyView && (
 
                         <div className="mt-6 rounded-xl border border-green-200 bg-green-50 p-4">
 
@@ -398,7 +411,7 @@ export default function GeneratorCV({ student }: Props) {
                     CV
                 ========================================================= */}
 
-                {canGenerate && (
+                {(canGenerate || isCompanyView) && (
 
                     <div
                         id="cv-document"
@@ -688,13 +701,6 @@ export default function GeneratorCV({ student }: Props) {
 
                                 {/* ==================================================
                                     BOTTOM-RIGHT CORNER DECORATION
-
-                                    This is intentionally anchored to:
-                                    right: 0
-                                    bottom: 0
-
-                                    It therefore sits on the actual bottom-right
-                                    corner of the blue sidebar.
                                 ================================================== */}
 
                                 <div className="cv-corner-decoration">
@@ -1754,49 +1760,36 @@ export default function GeneratorCV({ student }: Props) {
                 BOTTOM-RIGHT SIDEBAR DECORATION
                 ========================================= */
 
-                .cv-sidebar {
-                    position: relative;
-                    overflow: hidden;
-                }
-
-                /* Gold filled corner */
-                .cv-sidebar::after {
-                    content: "";
+                .cv-corner-decoration {
                     position: absolute;
-
+                    right: 0;
+                    bottom: 0;
                     width: 125px;
                     height: 125px;
-
-                    right: -1px;
-                    bottom: -1px;
-
-                    background: #f4c542;
-
-                    clip-path: polygon(
-                        100% 0,
-                        100% 100%,
-                        0 100%
-                    );
-
+                    pointer-events: none;
                     z-index: 1;
                 }
 
-                /* Single thin gold diagonal line above the corner */
-                .cv-sidebar .corner-line {
+                .cv-corner-gold {
                     position: absolute;
+                    width: 125px;
+                    height: 125px;
+                    right: -1px;
+                    bottom: -1px;
+                    background: #f4c542;
+                    clip-path: polygon(100% 0, 100% 100%, 0 100%);
+                }
 
+                .cv-corner-navy-line,
+                .cv-corner-gold-line {
+                    position: absolute;
                     width: 145px;
                     height: 2px;
-
                     right: -8px;
                     bottom: 82px;
-
                     background: #f4c542;
-
                     transform: rotate(-35deg);
                     transform-origin: right center;
-
-                    z-index: 2;
                 }
 
 

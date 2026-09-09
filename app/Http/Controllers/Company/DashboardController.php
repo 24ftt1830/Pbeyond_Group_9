@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Company;
 
 use App\Http\Controllers\Controller;
 use App\Models\Application;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
@@ -21,13 +22,17 @@ class DashboardController extends Controller
         $totalSlots = $quotas->sum('total_slots');
 
         $applications = Application::whereIn('quota_id', $quotaIds)
-        ->with(['student', 'quota.company']) 
-        ->orderBy('created_at', 'desc')
-        ->get();
+            ->with(['student', 'quota.company']) 
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $sessionKey = "company_{$company->id}_completed_tasks";
+        $completedTasks = session($sessionKey, []);
 
         return Inertia::render('Company/Dashboard', [
             'availableQuotas' => $quotas,
             'applications' => $applications,
+            'completedOnboardingTasks' => $completedTasks,
             'stats' => [
                 'total_applications' => $totalApplications,
                 'new_applications' => 0,
@@ -38,5 +43,23 @@ class DashboardController extends Controller
                 ],
             ],
         ]);
+    }
+
+    public function completeOnboarding(Request $request)
+    {
+        $request->validate([
+            'task' => ['required', 'string'],
+        ]);
+
+        $company = Auth::user()->company;
+        $sessionKey = "company_{$company->id}_completed_tasks";
+        $completed = session($sessionKey, []);
+
+        if (!in_array($request->task, $completed)) {
+            $completed[] = $request->task;
+            session([$sessionKey => $completed]);
+        }
+
+        return back()->with('success', 'Onboarding task marked as completed.');
     }
 }

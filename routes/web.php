@@ -259,8 +259,13 @@ Route::middleware('auth')->group(function () {
 
             Route::get(
                 '/dashboard',
-                [App\Http\Controllers\Company\DashboardController::class, 'index']
+                [\App\Http\Controllers\Company\DashboardController::class, 'index']
             )->name('dashboard');
+
+            Route::post(
+                '/onboarding/complete',
+                [\App\Http\Controllers\Company\DashboardController::class, 'completeOnboarding']
+            )->name('onboarding.complete');
 
             Route::get(
                 '/quotas',
@@ -304,7 +309,7 @@ Route::middleware('auth')->group(function () {
             )->name('applications.view');
 
             Route::put(
-                '/applications/{quota:quota_id}/update-status/{application}',
+                '/applications/{quota}/update-status/{application}',
                 [App\Http\Controllers\Company\ApplicationController::class, 'updateStatus']
             )->name('applications.update-status');
 

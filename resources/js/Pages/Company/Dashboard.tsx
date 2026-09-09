@@ -45,9 +45,10 @@ interface Props {
   availableQuotas: Quota[];
   applications: Application[];
   stats: Stats;
+  completedOnboardingTasks?: string[];
 }
 
-export default function Dashboard({ availableQuotas, applications, stats }: Props) {
+export default function Dashboard({ availableQuotas, applications, stats, completedOnboardingTasks = [] }: Props) {
   const safeStats = stats ?? {
     total_applications: 0,
     new_applications: 0,
@@ -129,18 +130,12 @@ export default function Dashboard({ availableQuotas, applications, stats }: Prop
 
   return (
     <div className="p-6">
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-6">
         <h1 className="font-sato text-3xl font-bold">Overview</h1>
       </div>
-      <h3 className="font-semibold">
-        Let's get you ready to bridge the gap. <span className="text-foreground text-sm">(1 of 6)</span>
-      </h3>
-      <p className="text-sm">
-        There are a few more steps required before you can start connecting with students.
-      </p>
 
-      <div>
-        <ScrollAreaHorizontalDemo />
+      <div className="mb-6">
+        <ScrollAreaHorizontalDemo completedOnboardingTasks={completedOnboardingTasks} />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 my-6">

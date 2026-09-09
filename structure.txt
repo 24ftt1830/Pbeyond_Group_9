@@ -1,6 +1,8 @@
 ﻿.editorconfig
 .env
 .env.example
+.gitattributes
+.gitignore
 artisan
 boost.json
 components.json
@@ -29,6 +31,7 @@ app\Http\Controllers\EventController.php
 app\Http\Controllers\ProfileController.php
 app\Http\Controllers\UserController.php
 app\Http\Controllers\AcademicSupervisor\LogbookController.php
+app\Http\Controllers\AcademicSupervisor\StudentController.php
 app\Http\Controllers\Admin\ApplicationController.php
 app\Http\Controllers\Admin\CompanyController.php
 app\Http\Controllers\Admin\DashboardController.php
@@ -68,6 +71,8 @@ app\Http\Middleware\HandleInertiaRequests.php
 app\Http\Requests\ProfileUpdateRequest.php
 app\Http\Requests\Auth\LoginRequest.php
 app\Imports\StudentsImport.php
+app\Models\AcademicSupervisor.php
+app\Models\AcademicSupervisorAssignment.php
 app\Models\Achievement.php
 app\Models\Activity.php
 app\Models\Application.php
@@ -95,10 +100,6 @@ app\Models\WorkExperience.php
 app\Providers\AppServiceProvider.php
 bootstrap\app.php
 bootstrap\providers.php
-bootstrap\cache\pac36BE.tmp
-bootstrap\cache\pacFCFC.tmp
-bootstrap\cache\packages.php
-bootstrap\cache\services.php
 config\app.php
 config\auth.php
 config\cache.php
@@ -109,6 +110,7 @@ config\mail.php
 config\queue.php
 config\services.php
 config\session.php
+database\.gitignore
 database\factories\UserFactory.php
 database\migrations\0001_01_01_000001_create_cache_table.php
 database\migrations\0001_01_01_000002_create_jobs_table.php
@@ -158,11 +160,17 @@ database\migrations\2026_08_23_165512_add_academic_supervisor_role_to_users_tabl
 database\migrations\2026_08_23_171723_add_submitted_status_to_logbook_weekly_submissions.php
 database\migrations\2026_08_24_124141_add_skills_to_placement_quotas_table.php
 database\migrations\2026_08_24_130854_add_access_key_to_companies_table.php
-database\migrations\2026_08_24_132443_fix_company_access_key_length.php
+database\migrations\2026_08_27_140250_create_academic_supervisors_table.php
+database\migrations\2026_08_27_141040_create_academic_supervisor_assignments_table.php
+database\migrations\2026_08_28_153003_add_semester_information_to_programmes_and_students.php
+database\migrations\2026_08_28_153658_remove_internship_semester_from_programmes.php
+database\seeders\AcademicSupervisorAssignmentSeeder.php
+database\seeders\AcademicSupervisorSeeder.php
 database\seeders\ApplicationSeeder.php
 database\seeders\CompanySeeder.php
 database\seeders\DatabaseSeeder.php
 database\seeders\IldAdminSeeder.php
+database\seeders\IndustrySupervisorAssignmentSeeder.php
 database\seeders\IndustrySupervisorSeeder.php
 database\seeders\PlacementQuotaSeeder.php
 database\seeders\ProgrammeSeeder.php
@@ -170,7 +178,6 @@ database\seeders\SchoolSeeder.php
 database\seeders\StudentLanguageSeeder.php
 database\seeders\StudentSeeder.php
 database\seeders\StudentSkillSeeder.php
-database\seeders\SupervisorAssignmentSeeder.php
 database\seeders\UserSeeder.php
 docker\nginx\default.conf
 public\.htaccess
@@ -249,6 +256,7 @@ resources\js\Components\Dashboard\company-onboarding.tsx
 resources\js\Components\Dashboard\student-onboarding.tsx
 resources\js\Components\icons\CsvFileIcon.tsx
 resources\js\Components\providers\lenis-provider.tsx
+resources\js\Components\Sidebars\AcademicSupervisorSidebar.tsx
 resources\js\Components\Sidebars\AdminSidebar.tsx
 resources\js\Components\Sidebars\CompanySidebar.tsx
 resources\js\Components\Sidebars\UserSidebar.tsx
@@ -308,6 +316,8 @@ resources\js\Pages\Dashboard.tsx
 resources\js\Pages\Welcome.tsx
 resources\js\Pages\AcademicSupervisor\Logbook.tsx
 resources\js\Pages\AcademicSupervisor\LogbookReview.tsx
+resources\js\Pages\AcademicSupervisor\StudentDetails.tsx
+resources\js\Pages\AcademicSupervisor\Students.tsx
 resources\js\Pages\Admin\ApplicationList.tsx
 resources\js\Pages\Admin\Calendar.tsx
 resources\js\Pages\Admin\Companies.tsx
@@ -317,7 +327,7 @@ resources\js\Pages\Admin\Placements.tsx
 resources\js\Pages\Admin\Profile.tsx
 resources\js\Pages\Admin\Reports.tsx
 resources\js\Pages\Auth\CompanyKeyAccess.tsx
-resources\js\Pages\Auth\CompanyRegister.tsx
+resources\js\Pages\Auth\CompanyLogin.tsx
 resources\js\Pages\Auth\ConfirmPassword.tsx
 resources\js\Pages\Auth\ForgotPassword.tsx
 resources\js\Pages\Auth\Login.tsx

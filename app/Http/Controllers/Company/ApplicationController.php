@@ -50,8 +50,8 @@ class ApplicationController extends Controller
             abort(403, 'You do not have permission to view this quota.');
         }
 
-        // Only approved quotas can be viewed.
-        if ($quota->quota_status !== 'Approved') {
+        // Only approved quotas can be viewed (case-insensitive check).
+        if (strtolower($quota->quota_status) !== 'approved') {
             abort(404, 'Quota not found or not yet approved.');
         }
 
@@ -112,8 +112,16 @@ class ApplicationController extends Controller
             abort(403, 'You do not have permission to view this application.');
         }
 
+        $student = $application->student;
+
+        // Check if student has filled out a professional profile or CV elements
+        $hasCv = $student && ($student->professionalProfile !== null || $student->education()->exists());
+
         return Inertia::render('Student/generator_cv', [
-            'student' => $application->student,
+            'student' => $student,
+            'hasCv' => $hasCv,
+            'isCompanyView' => true,
+            'quotaId' => $application->quota_id,
         ]);
     }
 
