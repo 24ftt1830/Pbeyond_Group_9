@@ -185,7 +185,7 @@ const UserTabs = () => {
         <div className="flex items-center gap-2">
           <ImportStudentsDialog programmes={programmes} />
 
-          <DropdownMenu>
+          <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
               <Button size="sm" className="flex items-center gap-1.5 shadow-sm">
                 <Plus className="size-3.5" />
