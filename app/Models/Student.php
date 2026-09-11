@@ -28,15 +28,16 @@ class Student extends Model
         'programme_id', 'intake_session', 'current_semester', 'postal_address', 'date_of_birth',
         'place_of_birth', 'gender', 'religion', 'nationality', 'race',
         'mobile_phone', 'cgpa', 'work_experience', 'emergency_no',
-        'cv_file_path', 'vetting_status',
-        'passport_photo_path',
-        'completed_onboarding_tasks',
+        'cv_file_path', 'vetting_status', 'cv_generated_at', 'cv_snapshot',
+        'passport_photo_path', 'completed_onboarding_tasks',
     ];
 
     protected $casts = [
         'date_of_birth' => 'date',
-        // tbr 'cgpa' => 'decimal:2',
+        'cv_generated_at' => 'datetime',
+        'cv_snapshot' => 'array',
         'completed_onboarding_tasks' => 'array',
+        // tbr 'cgpa' => 'decimal:2',
     ];
 
     public function user()

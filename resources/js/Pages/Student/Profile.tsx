@@ -1,5 +1,5 @@
 import { useState, FormEvent, ChangeEvent } from 'react';
-import { useForm, usePage } from '@inertiajs/react';
+import { useForm, usePage, Link, router } from '@inertiajs/react';
 
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 
@@ -147,6 +147,9 @@ interface Student {
 
 interface ProfileProps {
     student: Student;
+    canGenerateCv: boolean;
+    hasGeneratedCv: boolean;
+    cvGeneratedAt?: string | null;
 }
 interface ProfileFormData {
     full_name: string;
@@ -262,9 +265,15 @@ const emptyLanguage = (): Language => ({
 // COMPONENT
 // ============================================================
 
-export default function Profile({ student }: ProfileProps) {
+export default function Profile({
+    student,
+    canGenerateCv,
+    hasGeneratedCv,
+    cvGeneratedAt,
+}: ProfileProps) {
 
     const [saveSuccess, setSaveSuccess] = useState(false);
+    const [generatingCv, setGeneratingCv] = useState(false);
 
     const { flash } = usePage().props as {
     flash?: {
@@ -417,6 +426,22 @@ export default function Profile({ student }: ProfileProps) {
         },
     });
 };
+
+
+    // ========================================================
+    // CV GENERATION
+    // ========================================================
+
+    const generateCv = () => {
+        setGeneratingCv(true);
+
+        router.post(route('student.cv-generator.generate'), {}, {
+            preserveScroll: true,
+            onFinish: () => {
+                setGeneratingCv(false);
+            },
+        });
+    };
 
 
     // ========================================================
@@ -2898,122 +2923,241 @@ export default function Profile({ student }: ProfileProps) {
                         EXISTING REQUIRED DOCUMENTS
                     ================================================== */}
 
-                    <Card className="shadow-none">
+                    {/* ==================================================
+    REQUIRED DOCUMENTS
+================================================== */}
 
-                        <CardHeader>
+            <Card className="shadow-none">
 
-                            <CardTitle>
-                                Required Documents
-                            </CardTitle>
+                <CardHeader>
 
-                            <p className="text-sm text-gray-500">
-                                Your CV is now generated from your profile.
-                                You no longer need to upload a CV manually.
-                            </p>
+                    <CardTitle>
+                        Required Documents
+                    </CardTitle>
 
-                        </CardHeader>
+                    <p className="text-sm text-gray-500">
+                        Manage your CV and required supporting documents.
+                    </p>
 
-
-                        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                </CardHeader>
 
 
-                            <div className="rounded-lg border p-5 bg-gray-50">
+                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+
+                    {/* ==================================================
+                        CURRICULUM VITAE
+                    ================================================== */}
+
+                    <div className="rounded-lg border p-5 bg-gray-50">
+
+                        <div className="flex items-start justify-between gap-4">
+
+                            <div>
 
                                 <p className="font-medium">
                                     Curriculum Vitae
                                 </p>
 
-                                <p className="text-sm text-gray-500 mt-1">
-                                    Your CV will be generated automatically
-                                    from the information in this profile.
-                                </p>
-
-                                <p className="text-sm text-blue-600 mt-3 font-medium">
-                                    CV Generator will be available after
-                                    your profile is complete.
-                                </p>
-
-                            </div>
-
-
-                            <div className="space-y-2">
-
-                                <Label>
-                                    Identity Card (IC)
-                                </Label>
-
-                                <Input
-                                    type="file"
-                                    className="shadow-none pt-1.5"
-                                />
-
-                                <p className="text-xs text-gray-500">
-                                    Existing document upload.
-                                </p>
+                                {hasGeneratedCv ? (
+                                    <p className="text-sm text-gray-500 mt-1">
+                                        Your generated CV is saved as a snapshot.
+                                        Changes to your profile will not update it
+                                        until you generate the CV again.
+                                    </p>
+                                ) : canGenerateCv ? (
+                                    <p className="text-sm text-gray-500 mt-1">
+                                        Your profile is complete. Generate your CV
+                                        when you are ready.
+                                    </p>
+                                ) : (
+                                    <p className="text-sm text-gray-500 mt-1">
+                                        Complete and save your profile before
+                                        generating your CV.
+                                    </p>
+                                )}
 
                             </div>
 
+                        </div>
 
-                            <div className="space-y-2">
+                        {hasGeneratedCv ? (
+                            <div className="mt-4 flex flex-wrap items-center gap-3">
 
-                                <Label>
-                                    Driver's License
-                                </Label>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    asChild
+                                >
+                                    <Link href={route('student.cv-generator')}>
+                                        View CV
+                                    </Link>
+                                </Button>
 
-                                <Input
-                                    type="file"
-                                    className="shadow-none pt-1.5"
-                                />
+                                {canGenerateCv && (
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={generateCv}
+                                        disabled={generatingCv}
+                                    >
+                                        {generatingCv
+                                            ? 'Generating...'
+                                            : 'Regenerate CV'}
+                                    </Button>
+                                )}
 
-                                <p className="text-xs text-gray-500">
-                                    Existing document upload.
-                                </p>
+                                {cvGeneratedAt && (
+                                    <p className="w-full text-xs text-gray-500">
+                                        Last generated:{' '}
+                                        {new Date(cvGeneratedAt).toLocaleString()}
+                                    </p>
+                                )}
 
                             </div>
-
-
-                            <div className="space-y-2">
-
-                                <Label>
-                                    Academic Results
-                                </Label>
-
-                                <Input
-                                    type="file"
-                                    className="shadow-none pt-1.5"
-                                />
-
-                                <p className="text-xs text-gray-500">
-                                    Existing document upload.
-                                </p>
-
+                        ) : canGenerateCv ? (
+                            <div className="mt-4 flex flex-wrap gap-3">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={generateCv}
+                                    disabled={generatingCv}
+                                >
+                                    {generatingCv
+                                        ? 'Generating...'
+                                        : 'Generate CV'}
+                                </Button>
                             </div>
+                        ) : (
+                            <p className="text-sm text-blue-600 mt-3 font-medium">
+                                CV Generator will be available after your profile
+                                is complete and saved.
+                            </p>
+                        )}
 
-                        </CardContent>
+                    </div>
 
-                    </Card>
+
+                    {/* ==================================================
+                        IDENTITY CARD
+                    ================================================== */}
+
+                    <div className="space-y-2">
+
+                        <Label>
+                            Identity Card (IC)
+                        </Label>
+
+                        <Input
+                            type="file"
+                            className="shadow-none pt-1.5"
+                        />
+
+                        <p className="text-xs text-gray-500">
+                            Existing document upload.
+                        </p>
+
+                    </div>
+
+
+                    {/* ==================================================
+                        DRIVER'S LICENSE
+                    ================================================== */}
+
+                    <div className="space-y-2">
+
+                        <Label>
+                            Driver's License
+                        </Label>
+
+                        <Input
+                            type="file"
+                            className="shadow-none pt-1.5"
+                        />
+
+                        <p className="text-xs text-gray-500">
+                            Existing document upload.
+                        </p>
+
+                    </div>
+
+
+                    {/* ==================================================
+                        ACADEMIC RESULTS
+                    ================================================== */}
+
+                    <div className="space-y-2">
+
+                        <Label>
+                            Academic Results
+                        </Label>
+
+                        <Input
+                            type="file"
+                            className="shadow-none pt-1.5"
+                        />
+
+                        <p className="text-xs text-gray-500">
+                            Existing document upload.
+                        </p>
+
+                    </div>
+
+
+                </CardContent>
+
+            </Card>
 
 
                     {/* ==================================================
                         SAVE
                     ================================================== */}
 
-                    <div className="flex justify-end pb-8">
-
+                    <div className="flex flex-col sm:flex-row gap-3">
                         <Button
                             type="submit"
-                            size="lg"
                             disabled={processing}
-                            className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-8"
                         >
-
-                            {processing
-                                ? 'Saving...'
-                                : 'Save Profile'
-                            }
-
+                            {processing ? 'Saving...' : 'Save Profile'}
                         </Button>
 
+                        {hasGeneratedCv ? (
+                            <>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    asChild
+                                >
+                                    <Link href={route('student.cv-generator')}>
+                                        View CV
+                                    </Link>
+                                </Button>
+
+                                {canGenerateCv && (
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={generateCv}
+                                        disabled={generatingCv}
+                                    >
+                                        {generatingCv
+                                            ? 'Generating...'
+                                            : 'Regenerate CV'}
+                                    </Button>
+                                )}
+                            </>
+                        ) : canGenerateCv ? (
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={generateCv}
+                                disabled={generatingCv}
+                            >
+                                {generatingCv
+                                    ? 'Generating...'
+                                    : 'Generate CV'}
+                            </Button>
+                        ) : null}
                     </div>
 
                 </form>

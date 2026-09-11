@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Models\PlacementQuota;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -35,13 +36,13 @@ class DashboardController extends Controller
             $available = $quota->total_slots - $filled;
 
             return [
-                'quota_id'        => $quota->quota_id,
-                'position_title'  => $quota->job_title,
-                'total_slots'     => $quota->total_slots,
-                'filled'          => $filled,
-                'available'       => max(0, $available), 
-                'is_full'         => $available <= 0,
-                'company'         => [
+                'quota_id'       => $quota->quota_id,
+                'position_title' => $quota->job_title,
+                'total_slots'    => $quota->total_slots,
+                'filled'         => $filled,
+                'available'      => max(0, $available),
+                'is_full'        => $available <= 0,
+                'company'        => [
                     'company_id'     => $quota->company->company_id,
                     'company_name'   => $quota->company->company_name,
                     'office_address' => $quota->company->office_address ?? 'Brunei Muara',
@@ -54,7 +55,7 @@ class DashboardController extends Controller
         return Inertia::render('Student/Dashboard', [
             'availableQuotas'          => $quotasWithStats,
             'studentProgramme'         => $student->programme->programme_name,
-            'completedOnboardingTasks' => $completedOnboardingTasks,
+            'completedOnboardingTasks' => $student->completed_onboarding_tasks ?? [],
         ]);
     }
 
@@ -64,18 +65,21 @@ class DashboardController extends Controller
             'task' => ['required', 'string'],
         ]);
 
-        $student = $request->user()->student;
+            $student = Auth::user()->student;
 
-        if ($student) {
-            $tasks = $student->completed_onboarding_tasks ?? [];
+            $completedTasks = $student->completed_onboarding_tasks ?? [];
 
-            if (!in_array($request->task, $tasks)) {
-                $tasks[] = $request->task;
-                $student->completed_onboarding_tasks = $tasks;
+            // Prevent duplicate entries
+            if (!in_array($request->task, $completedTasks, true)) {
+                $completedTasks[] = $request->task;
+
+                $student->completed_onboarding_tasks = $completedTasks;
                 $student->save();
             }
-        }
 
-        return back();
+            return back()->with(
+                'success',
+                'Onboarding task marked as completed.'
+            );
     }
 }

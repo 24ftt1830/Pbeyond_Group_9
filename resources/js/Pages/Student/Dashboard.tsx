@@ -11,8 +11,8 @@ import { useMemo } from 'react';
 interface Quota {
     quota_id: number;
     position_title: string;
-    remaining_spots: number;
-    min_cgpa: number;
+    total_slots: number;
+    filled: number;
     available: number;
     is_full: boolean;
     company: {
@@ -38,7 +38,9 @@ export default function Dashboard({ availableQuotas, studentProgramme, completed
         {
             accessorKey: 'position_title',
             header: 'Position',
-            cell: ({ row }) => <span>{row.original.position_title}</span>
+            cell: ({ row }) => (
+                <span>{row.original.position_title}</span>
+            ),
         },
         {
             accessorKey: 'company.company_name',
@@ -56,27 +58,47 @@ export default function Dashboard({ availableQuotas, studentProgramme, completed
                 const available = row.original.available;
 
                 return (
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${isFull ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
-                        {isFull ? 'Full' : `${available} Available`}
+                    <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            isFull
+                                ? 'bg-red-100 text-red-700'
+                                : 'bg-green-100 text-green-700'
+                        }`}
+                    >
+                        {isFull
+                            ? 'Full'
+                            : `${available} Available`}
                     </span>
                 );
-            }
+            },
         },
         {
             id: 'actions',
             header: 'Action',
             cell: ({ row }) => (
-                <Link href={route('student.companies.view', row.original.company.company_id)}>
-                    <Button variant="outline" size="sm" className="shadow-none">View</Button>
+                <Link
+                    href={route(
+                        'student.companies.view',
+                        row.original.company.company_id
+                    )}
+                >
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="shadow-none"
+                    >
+                        View
+                    </Button>
                 </Link>
             ),
         },
     ], []);
-
     return (
         <div className="p-6">
             <div className="flex items-center justify-between mb-3">
-                <h1 className="font-sato text-3xl font-bold">Overview</h1>
+                <h1 className="font-sato text-3xl font-bold">
+                    Overview
+                </h1>
             </div>
 
             {completedCount < totalSteps && (
@@ -96,7 +118,9 @@ export default function Dashboard({ availableQuotas, studentProgramme, completed
             )}
 
             <div className="mt-4">
-                <h1 className="text-xl font-bold font-sato mb-6">All quotas</h1>
+                <h1 className="text-xl font-bold font-sato mb-6">
+                    All quotas
+                </h1>
 
                 <div className="rounded-xl bg-white overflow-hidden">
                     <DataTable
@@ -109,4 +133,6 @@ export default function Dashboard({ availableQuotas, studentProgramme, completed
     );
 }
 
-Dashboard.layout = (page: React.ReactNode) => <AuthenticatedLayout children={page} />;
+Dashboard.layout = (page: React.ReactNode) => (
+    <AuthenticatedLayout children={page} />
+);

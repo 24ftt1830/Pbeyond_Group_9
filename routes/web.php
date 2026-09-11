@@ -413,6 +413,13 @@ Route::middleware('auth')->group(function () {
                 [StudentProfileController::class, 'update']
             )->name('profile.update');
 
+            // CV Generation / Checkpoint
+
+            Route::post(
+                '/cv-generator/generate',
+                [StudentProfileController::class, 'generateCv']
+            )->name('cv-generator.generate');
+
             Route::get(
                 '/cv-generator',
                 [StudentProfileController::class, 'cvGenerator']
@@ -428,6 +435,11 @@ Route::middleware('auth')->group(function () {
                 '/dashboard/onboarding',
                 [StudentDashboardController::class, 'completeOnboarding']
             )->name('dashboard.onboarding');
+
+            Route::post(
+                '/onboarding/complete',
+                [StudentDashboardController::class, 'completeOnboarding']
+            )->name('onboarding.complete');
 
 
             Route::get(
