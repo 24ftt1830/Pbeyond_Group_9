@@ -309,8 +309,8 @@ Route::middleware('auth')->group(function () {
             )->name('applications.view');
 
             Route::put(
-                '/applications/{quota}/update-status/{application}',
-                [App\Http\Controllers\Company\ApplicationController::class, 'updateStatus']
+            '/applications/{quota:quota_id}/update-status/{application}',
+            [App\Http\Controllers\Company\ApplicationController::class, 'updateStatus']
             )->name('applications.update-status');
 
 
