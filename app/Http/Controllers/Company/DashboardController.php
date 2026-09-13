@@ -17,6 +17,7 @@ class DashboardController extends Controller
         $quotaIds = $quotas->pluck('quota_id');
 
         $totalApplications = Application::whereIn('quota_id', $quotaIds)->count();
+        $newApplications = Application::whereIn('quota_id', $quotaIds)->where('created_at', '>=', now()->subDays(7))->count();
         $pendingReviews = Application::whereIn('quota_id', $quotaIds)->where('app_status', 'Pending')->count();
         $recruitedCount = Application::whereIn('quota_id', $quotaIds)->where('app_status', 'Recruited')->count();
         $totalSlots = $quotas->sum('total_slots');
@@ -26,8 +27,7 @@ class DashboardController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        $sessionKey = "company_{$company->id}_completed_tasks";
-        $completedTasks = session($sessionKey, []);
+        $completedTasks = $company->completed_onboarding_tasks ?? [];
 
         return Inertia::render('Company/Dashboard', [
             'availableQuotas' => $quotas,
@@ -35,7 +35,7 @@ class DashboardController extends Controller
             'completedOnboardingTasks' => $completedTasks,
             'stats' => [
                 'total_applications' => $totalApplications,
-                'new_applications' => 0,
+                'new_applications' => $newApplications,
                 'pending_reviews' => $pendingReviews,
                 'recruitment_status' => [
                     'recruited' => $recruitedCount,
@@ -52,12 +52,11 @@ class DashboardController extends Controller
         ]);
 
         $company = Auth::user()->company;
-        $sessionKey = "company_{$company->id}_completed_tasks";
-        $completed = session($sessionKey, []);
+        $completed = $company->completed_onboarding_tasks ?? [];
 
         if (!in_array($request->task, $completed)) {
             $completed[] = $request->task;
-            session([$sessionKey => $completed]);
+            $company->update(['completed_onboarding_tasks' => $completed]);
         }
 
         return back()->with('success', 'Onboarding task marked as completed.');

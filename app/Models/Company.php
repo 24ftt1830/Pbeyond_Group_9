@@ -20,10 +20,12 @@ class Company extends Model
         'is_approved',
         'access_key',
         'access_key_expires_at',
+        'completed_onboarding_tasks',
     ];
 
     protected $casts = [
         'access_key_expires_at' => 'datetime',
+        'completed_onboarding_tasks' => 'array',
     ];
 
     public function users()
@@ -44,5 +46,22 @@ class Company extends Model
     public function favourites()
     {
         return $this->hasMany(Favourite::class, 'company_id', 'company_id');
+    }
+
+    public function hasCompletedProfile(): bool
+    {
+        return !empty($this->company_name) && 
+               !empty($this->office_address) && 
+               !empty($this->industry_sector);
+    }
+
+    public function hasCreatedQuotas(): bool
+    {
+        return $this->placementQuotas()->exists();
+    }
+
+    public function hasAddedSupervisors(): bool
+    {
+        return $this->industrySupervisors()->exists();
     }
 }
