@@ -30,12 +30,13 @@ class Student extends Model
         'mobile_phone', 'cgpa', 'work_experience', 'emergency_no',
         'cv_file_path', 'vetting_status',
         'passport_photo_path',
-
+        'completed_onboarding_tasks',
     ];
 
     protected $casts = [
         'date_of_birth' => 'date',
         // tbr 'cgpa' => 'decimal:2',
+        'completed_onboarding_tasks' => 'array',
     ];
 
     public function user()

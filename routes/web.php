@@ -424,6 +424,11 @@ Route::middleware('auth')->group(function () {
                 [StudentDashboardController::class, 'index']
             )->name('dashboard');
 
+            Route::post(
+                '/dashboard/onboarding',
+                [StudentDashboardController::class, 'completeOnboarding']
+            )->name('dashboard.onboarding');
+
 
             Route::get(
                 '/companies',

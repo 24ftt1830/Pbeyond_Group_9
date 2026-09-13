@@ -1,7 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { usePage } from '@inertiajs/react'
-import { PageProps } from '@/types'
-import { ScrollAreaHorizontalDemo } from '@/Components/Dashboard/student-onboarding';
+import { usePage } from '@inertiajs/react';
+import { PageProps } from '@/types';
+import { ScrollAreaHorizontalDemo, steps } from '@/Components/Dashboard/student-onboarding';
 import { DataTable } from '@/Components/ui/data-table';
 import { Button } from '@/Components/ui/button';
 import { Link } from '@inertiajs/react';
@@ -24,11 +24,15 @@ interface Quota {
 
 interface Props {
     availableQuotas: Quota[];
+    studentProgramme?: any;
+    completedOnboardingTasks?: string[];
 }
 
-export default function Dashboard({ availableQuotas }: Props) {
-    console.log(availableQuotas)
+export default function Dashboard({ availableQuotas, studentProgramme, completedOnboardingTasks = [] }: Props) {
     const { auth } = usePage<PageProps>().props;
+
+    const totalSteps = steps.length;
+    const completedCount = completedOnboardingTasks.length;
 
     const columns = useMemo<ColumnDef<Quota>[]>(() => [
         {
@@ -74,16 +78,22 @@ export default function Dashboard({ availableQuotas }: Props) {
             <div className="flex items-center justify-between mb-3">
                 <h1 className="font-sato text-3xl font-bold">Overview</h1>
             </div>
-            <h3 className="font-semibold">
-                Let's get you ready to bridge the gap. <span className="text-foreground text-sm">(1 of 6)</span>
-            </h3>
-            <p className="text-sm">
-                There are a few more steps required before you can start collaborating with industry partners.
-            </p>
 
-            <div>
-                <ScrollAreaHorizontalDemo />
-            </div>
+            {completedCount < totalSteps && (
+                <>
+                    <h3 className="font-semibold">
+                        Let's get you ready to bridge the gap.{' '}
+                        <span className="text-foreground text-sm">({completedCount} of {totalSteps})</span>
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                        There are a few more steps required before you can start collaborating with industry partners.
+                    </p>
+
+                    <div>
+                        <ScrollAreaHorizontalDemo completedOnboardingTasks={completedOnboardingTasks} />
+                    </div>
+                </>
+            )}
 
             <div className="mt-4">
                 <h1 className="text-xl font-bold font-sato mb-6">All quotas</h1>

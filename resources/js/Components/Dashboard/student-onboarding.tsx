@@ -1,5 +1,6 @@
 import * as React from "react";
 import { createPortal } from "react-dom";
+import { router } from '@inertiajs/react';
 import { ScrollArea, ScrollBar } from "@/Components/ui/scroll-area";
 import { Card, CardContent } from "@/Components/ui/card";
 import { Button } from "@/Components/ui/button";
@@ -7,7 +8,6 @@ import { DitherShader } from "@/Components/ui/dither-shader";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/Components/ui/sheet";
 import { Info } from "lucide-react";
 import profile from "../../../images/profile-two.png";
-import fileStack from "../../../images/file-stack-2.png";
 import magnify from "../../../images/magnify.png";
 import pointer from "../../../images/pointer.png";
 import pin from "../../../images/pin.png";
@@ -41,7 +41,7 @@ export interface Step {
   info?: StepInfo;
 }
 
-const steps: Step[] = [
+export const steps: Step[] = [
   {
     title: "Set up your profile",
     image: profile,
@@ -76,7 +76,6 @@ const steps: Step[] = [
   },
 ];
 
-// Cursor-following tooltip rendered into document.body via portal
 function CursorTooltip({ text, x, y }: { text: string; x: number; y: number }) {
   return createPortal(
     <div
@@ -89,7 +88,11 @@ function CursorTooltip({ text, x, y }: { text: string; x: number; y: number }) {
   );
 }
 
-function StepCard({ step }: { step: Step }) {
+interface StepCardProps {
+  step: Step;
+}
+
+function StepCard({ step }: StepCardProps) {
   const [sheetOpen, setSheetOpen] = React.useState(false);
   const [hovered, setHovered] = React.useState(false);
   const [cursor, setCursor] = React.useState({ x: 0, y: 0 });
@@ -98,15 +101,17 @@ function StepCard({ step }: { step: Step }) {
     setCursor({ x: e.clientX, y: e.clientY });
   };
 
-  const handleMarkAsDone = () => {
-    // logic
+  const handleMarkAsDone = (taskName: string) => {
+    router.post(route('student.dashboard.onboarding'), {
+      task: taskName,
+    }, {
+      preserveScroll: true,
+    });
   };
 
   return (
     <>
       <Card className="relative h-[200px] w-[500px] shrink-0 flex flex-row overflow-hidden shadow-none">
-
-        {/* Image section — no CardContent padding needed */}
         <div className="w-[150px] shrink-0 bg-muted overflow-hidden">
           <DitherShader
             {...SHADER_PROPS}
@@ -115,10 +120,7 @@ function StepCard({ step }: { step: Step }) {
           />
         </div>
 
-        {/* Content section */}
         <CardContent className="flex flex-col justify-between flex-grow min-w-0 p-4">
-
-          {/* Info icon in top-right, inside CardContent */}
           {step.info && (
             <div className="absolute top-0 right-0 p-3">
               <button
@@ -158,21 +160,18 @@ function StepCard({ step }: { step: Step }) {
               size="sm"
               variant="outline"
               className="shrink-0 text-primary border-none shadow-none hover:bg-primary/10 hover:text-primary"
-              onClick={handleMarkAsDone}
+              onClick={() => handleMarkAsDone(step.title)}
             >
               Mark as done
             </Button>
           </div>
-
         </CardContent>
       </Card>
 
-      {/* Cursor-following tooltip */}
       {step.info && hovered && (
         <CursorTooltip text="More info" x={cursor.x} y={cursor.y} />
       )}
 
-      {/* Sheet */}
       {step.info && (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
           <SheetContent>
@@ -189,11 +188,21 @@ function StepCard({ step }: { step: Step }) {
   );
 }
 
-export function ScrollAreaHorizontalDemo() {
+interface ScrollAreaHorizontalDemoProps {
+  completedOnboardingTasks?: string[];
+}
+
+export function ScrollAreaHorizontalDemo({ completedOnboardingTasks = [] }: ScrollAreaHorizontalDemoProps) {
+  const activeSteps = steps.filter((step) => !completedOnboardingTasks.includes(step.title));
+
+  if (activeSteps.length === 0) {
+    return null;
+  }
+
   return (
     <ScrollArea className="w-full rounded-md">
       <div className="flex w-max space-x-4 py-4 px-1">
-        {steps.map((step) => (
+        {activeSteps.map((step) => (
           <StepCard key={step.title} step={step} />
         ))}
       </div>
