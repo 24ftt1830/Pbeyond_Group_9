@@ -128,14 +128,14 @@ export default function Welcome({
                                     </p>
                                     <FollowCursor label={item.cursorLabel}>
                                         <div
-                                            className="mt-4 w-full aspect-video rounded-2xl bg-white/10 border border-white/10 overflow-hidden"
+                                            className="mt-4 w-full rounded-2xl bg-white/10 border border-white/10 overflow-hidden"
                                             onMouseEnter={() => decryptRefs.current[i]?.start()}
                                             onMouseLeave={() => decryptRefs.current[i]?.stop()}
                                         >
                                             <img
                                                 src={`/images/screenshot-${item.number}.png`}
                                                 alt={item.label}
-                                                className="w-full h-full object-cover object-top"
+                                                className="w-full h-auto object-contain"
                                             />
                                         </div>
                                     </FollowCursor>
