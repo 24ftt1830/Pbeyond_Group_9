@@ -1,5 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Link, router } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import type { ReactNode } from 'react';
 import { ChevronLeft, Heart } from 'lucide-react';
 import { Button } from '@/Components/ui/button';
@@ -45,11 +45,28 @@ interface Props {
 }
 
 export default function ViewCompany({ company, quotas, applications = [] }: Props) {
+    const { auth } = usePage<any>().props;
+    const isProfileComplete = auth?.user?.student?.is_profile_complete;
 
     const MAX_APPLICATIONS = 3;
     const remainingChoices = MAX_APPLICATIONS - applications.length;
 
     const handleApply = (quota_id: number) => {
+        if (!isProfileComplete) {
+            toast.error('Profile Incomplete', {
+                description: (
+                    <span>
+                        Please complete your profile at{' '}
+                        <Link href="/student/profile" className="underline font-bold text-blue-600 hover:text-blue-800">
+                            /student/profile
+                        </Link>{' '}
+                        before submitting an application.
+                    </span>
+                ),
+            });
+            return;
+        }
+
         router.post(route('student.companies.apply', { company: company.company_id }), {
             quota_id
         }, {
@@ -199,6 +216,14 @@ export default function ViewCompany({ company, quotas, applications = [] }: Prop
                                                     </AlertDialogFooter>
                                                 </AlertDialogContent>
                                             </AlertDialog>
+                                        ) : !isProfileComplete ? (
+                                            <Button 
+                                                className="w-36" 
+                                                size="sm" 
+                                                onClick={() => handleApply(quota.quota_id)}
+                                            >
+                                                Apply
+                                            </Button>
                                         ) : (
                                             <AlertDialog>
                                                 <AlertDialogTrigger asChild>

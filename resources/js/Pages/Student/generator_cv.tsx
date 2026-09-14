@@ -1,5 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
+import { useEffect } from 'react';
+import { toast } from 'sonner';
 import {
     ArrowLeft,
     Download,
@@ -264,6 +266,15 @@ export default function GeneratorCV({ student, isCompanyView = false }: Props) {
     }
 
     const canGenerate = isCompanyView ? true : missingFields.length === 0;
+
+    // Toast notification for direct navigation with missing fields
+    useEffect(() => {
+        if (!canGenerate && !isCompanyView) {
+            toast.error("Must complete all required info to generate CV", {
+                description: `Please fill in: ${missingFields.join(", ")}`,
+            });
+        }
+    }, [canGenerate, isCompanyView, missingFields]);
 
     const handleDownload = () => {
         window.print();

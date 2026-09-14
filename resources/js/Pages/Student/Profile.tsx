@@ -1,5 +1,6 @@
 import { useState, FormEvent, ChangeEvent } from 'react';
 import { useForm, usePage, Link, router } from '@inertiajs/react';
+import { toast } from "sonner";
 
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 
@@ -151,6 +152,7 @@ interface ProfileProps {
     hasGeneratedCv: boolean;
     cvGeneratedAt?: string | null;
 }
+
 interface ProfileFormData {
     full_name: string;
     ic_number: string;
@@ -276,11 +278,11 @@ export default function Profile({
     const [generatingCv, setGeneratingCv] = useState(false);
 
     const { flash } = usePage().props as {
-    flash?: {
-        success?: string;
-        error?: string;
+        flash?: {
+            success?: string;
+            error?: string;
+        };
     };
-};
 
     const [passportPreview, setPassportPreview] = useState<string | null>(
         student.passport_photo_path
@@ -397,17 +399,17 @@ export default function Profile({
                 description: item.description || '',
             })) || [],
 
-                skills:
-        student.skills?.map(item => ({
-            skill_id: item.skill_id,
-            skill_name: item.skill_name || '',
-        })) || [],
+        skills:
+            student.skills?.map(item => ({
+                skill_id: item.skill_id,
+                skill_name: item.skill_name || '',
+            })) || [],
 
-    languages:
-        student.languages?.map(item => ({
-            language_id: item.language_id,
-            language_name: item.language_name || '',
-        })) || [],
+        languages:
+            student.languages?.map(item => ({
+                language_id: item.language_id,
+                language_name: item.language_name || '',
+            })) || [],
     });
 
 
@@ -416,16 +418,16 @@ export default function Profile({
     // ========================================================
 
     const submit = (e: React.FormEvent) => {
-    e.preventDefault();
+        e.preventDefault();
 
-    setSaveSuccess(false);
+        setSaveSuccess(false);
 
-    post(route('student.profile.update'), {
-        onSuccess: () => {
-            setSaveSuccess(true);
-        },
-    });
-};
+        post(route('student.profile.update'), {
+            onSuccess: () => {
+                setSaveSuccess(true);
+            },
+        });
+    };
 
 
     // ========================================================
@@ -433,14 +435,37 @@ export default function Profile({
     // ========================================================
 
     const generateCv = () => {
+        const missing: string[] = [];
+
+        // Validation checks matching required CV criteria
+        if (!data.mobile_phone) missing.push("Mobile Phone");
+        if (!data.postal_address) missing.push("Postal Address");
+        if (!data.professional_profile) missing.push("Professional Profile");
+        if (data.education.length === 0) missing.push("Education");
+        if (data.skills.length === 0) missing.push("Technical Skills");
+        if (data.languages.length === 0) missing.push("Languages");
+
+        // If any required field is missing, display Sonner toast alert and stop
+        if (missing.length > 0) {
+            toast.error("Must complete all required info to generate CV", {
+                description: `Please fill in: ${missing.join(", ")}`,
+            });
+            return;
+        }
+
+        // Proceed if complete
         setGeneratingCv(true);
 
-        router.post(route('student.cv-generator.generate'), {}, {
-            preserveScroll: true,
-            onFinish: () => {
-                setGeneratingCv(false);
-            },
-        });
+        router.post(
+            route('student.cv-generator.generate'),
+            {},
+            {
+                preserveScroll: true,
+                onFinish: () => {
+                    setGeneratingCv(false);
+                },
+            }
+        );
     };
 
 
@@ -625,7 +650,7 @@ export default function Profile({
         );
     };
 
-        // ========================================================
+    // ========================================================
     // TECHNICAL SKILLS
     // ========================================================
 
@@ -688,31 +713,30 @@ export default function Profile({
                     </p>
                 </div>
 
-{flash?.success && (
-    <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
-        <div className="font-semibold">
-            Success
-        </div>
+                {flash?.success && (
+                    <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+                        <div className="font-semibold">
+                            Success
+                        </div>
 
-        <div>
-            {flash.success}
-        </div>
-    </div>
-)}
+                        <div>
+                            {flash.success}
+                        </div>
+                    </div>
+                )}
 
-    {flash?.error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-            <div className="font-semibold">
-                Error
-            </div>
+                {flash?.error && (
+                    <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                        <div className="font-semibold">
+                            Error
+                        </div>
 
-            <div>
-                {flash.error}
-            </div>
-        </div>
-    )}
+                        <div>
+                            {flash.error}
+                        </div>
+                    </div>
+                )}
 
-    
                 <form
                     onSubmit={submit}
                     className="space-y-6"
@@ -2344,211 +2368,211 @@ export default function Profile({
 
                     </Card>
 
-{/* ==================================================
-    TECHNICAL SKILLS
-================================================== */}
+                    {/* ==================================================
+                        TECHNICAL SKILLS
+                    ================================================== */}
 
-<Card className="shadow-none">
+                    <Card className="shadow-none">
 
-    <CardHeader>
+                        <CardHeader>
 
-        <div className="flex items-center justify-between gap-4">
+                            <div className="flex items-center justify-between gap-4">
 
-            <div>
+                                <div>
 
-                <CardTitle>
-                    Technical Skills
-                </CardTitle>
+                                    <CardTitle>
+                                        Technical Skills
+                                    </CardTitle>
 
-                <p className="text-sm text-gray-500 mt-1">
-                    Add your technical and software-related skills.
-                </p>
+                                    <p className="text-sm text-gray-500 mt-1">
+                                        Add your technical and software-related skills.
+                                    </p>
 
-            </div>
+                                </div>
 
-            <Button
-                type="button"
-                variant="outline"
-                onClick={addTechnicalSkill}
-            >
-                + Add Skill
-            </Button>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={addTechnicalSkill}
+                                >
+                                    + Add Skill
+                                </Button>
 
-        </div>
+                            </div>
 
-    </CardHeader>
+                        </CardHeader>
 
-    <CardContent className="space-y-6">
+                        <CardContent className="space-y-6">
 
-        {data.skills.length === 0 ? (
+                            {data.skills.length === 0 ? (
 
-            <div className="border border-dashed rounded-lg p-8 text-center text-gray-500">
-                No technical skills added yet.
-            </div>
+                                <div className="border border-dashed rounded-lg p-8 text-center text-gray-500">
+                                    No technical skills added yet.
+                                </div>
 
-        ) : (
+                            ) : (
 
-            data.skills.map((skill, index) => (
+                                data.skills.map((skill, index) => (
 
-                <div
-                    key={skill.skill_id ?? index}
-                    className="border rounded-xl p-5"
-                >
+                                    <div
+                                        key={skill.skill_id ?? index}
+                                        className="border rounded-xl p-5"
+                                    >
 
-                    <div className="flex items-center justify-between gap-4">
+                                        <div className="flex items-center justify-between gap-4">
 
-                        <div className="flex-1 space-y-2">
+                                            <div className="flex-1 space-y-2">
 
-                            <Label>
-                                Technical Skill {index + 1}
-                            </Label>
+                                                <Label>
+                                                    Technical Skill {index + 1}
+                                                </Label>
 
-                            <Input
-                                value={skill.skill_name}
-                                onChange={e => {
+                                                <Input
+                                                    value={skill.skill_name}
+                                                    onChange={e => {
 
-                                    const updated = [
-                                        ...data.skills
-                                    ];
+                                                        const updated = [
+                                                            ...data.skills
+                                                        ];
 
-                                    updated[index].skill_name =
-                                        e.target.value;
+                                                        updated[index].skill_name =
+                                                            e.target.value;
 
-                                    setData(
-                                        'skills',
-                                        updated
-                                    );
+                                                        setData(
+                                                            'skills',
+                                                            updated
+                                                        );
 
-                                }}
-                                placeholder="e.g. Laravel, React, MySQL"
-                            />
+                                                    }}
+                                                    placeholder="e.g. Laravel, React, MySQL"
+                                                />
 
-                        </div>
+                                            </div>
 
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() =>
-                                removeTechnicalSkill(index)
-                            }
-                        >
-                            Remove
-                        </Button>
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                onClick={() =>
+                                                    removeTechnicalSkill(index)
+                                                }
+                                            >
+                                                Remove
+                                            </Button>
 
-                    </div>
+                                        </div>
 
-                </div>
+                                    </div>
 
-            ))
+                                ))
 
-        )}
+                            )}
 
-    </CardContent>
+                        </CardContent>
 
-</Card>
+                    </Card>
 
-{/* ==================================================
-    LANGUAGES
-================================================== */}
+                    {/* ==================================================
+                        LANGUAGES
+                    ================================================== */}
 
-<Card className="shadow-none">
+                    <Card className="shadow-none">
 
-    <CardHeader>
+                        <CardHeader>
 
-        <div className="flex items-center justify-between gap-4">
+                            <div className="flex items-center justify-between gap-4">
 
-            <div>
+                                <div>
 
-                <CardTitle>
-                    Languages
-                </CardTitle>
+                                    <CardTitle>
+                                        Languages
+                                    </CardTitle>
 
-                <p className="text-sm text-gray-500 mt-1">
-                    Add the languages you can speak or use.
-                </p>
+                                    <p className="text-sm text-gray-500 mt-1">
+                                        Add the languages you can speak or use.
+                                    </p>
 
-            </div>
+                                </div>
 
-            <Button
-                type="button"
-                variant="outline"
-                onClick={addLanguage}
-            >
-                + Add Language
-            </Button>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={addLanguage}
+                                >
+                                    + Add Language
+                                </Button>
 
-        </div>
+                            </div>
 
-    </CardHeader>
+                        </CardHeader>
 
-    <CardContent className="space-y-6">
+                        <CardContent className="space-y-6">
 
-        {data.languages.length === 0 ? (
+                            {data.languages.length === 0 ? (
 
-            <div className="border border-dashed rounded-lg p-8 text-center text-gray-500">
-                No languages added yet.
-            </div>
+                                <div className="border border-dashed rounded-lg p-8 text-center text-gray-500">
+                                    No languages added yet.
+                                </div>
 
-        ) : (
+                            ) : (
 
-            data.languages.map((language, index) => (
+                                data.languages.map((language, index) => (
 
-                <div
-                    key={language.language_id ?? index}
-                    className="border rounded-xl p-5"
-                >
+                                    <div
+                                        key={language.language_id ?? index}
+                                        className="border rounded-xl p-5"
+                                    >
 
-                    <div className="flex items-center justify-between gap-4">
+                                        <div className="flex items-center justify-between gap-4">
 
-                        <div className="flex-1 space-y-2">
+                                            <div className="flex-1 space-y-2">
 
-                            <Label>
-                                Language {index + 1}
-                            </Label>
+                                                <Label>
+                                                    Language {index + 1}
+                                                </Label>
 
-                            <Input
-                                value={language.language_name}
-                                onChange={e => {
+                                                <Input
+                                                    value={language.language_name}
+                                                    onChange={e => {
 
-                                    const updated = [
-                                        ...data.languages
-                                    ];
+                                                        const updated = [
+                                                            ...data.languages
+                                                        ];
 
-                                    updated[index].language_name =
-                                        e.target.value;
+                                                        updated[index].language_name =
+                                                            e.target.value;
 
-                                    setData(
-                                        'languages',
-                                        updated
-                                    );
+                                                        setData(
+                                                            'languages',
+                                                            updated
+                                                        );
 
-                                }}
-                                placeholder="e.g. English"
-                            />
+                                                    }}
+                                                    placeholder="e.g. English"
+                                                />
 
-                        </div>
+                                            </div>
 
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() =>
-                                removeLanguage(index)
-                            }
-                        >
-                            Remove
-                        </Button>
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                onClick={() =>
+                                                    removeLanguage(index)
+                                                }
+                                            >
+                                                Remove
+                                            </Button>
 
-                    </div>
+                                        </div>
 
-                </div>
+                                    </div>
 
-            ))
+                                ))
 
-        )}
+                            )}
 
-    </CardContent>
+                        </CardContent>
 
-</Card>
+                    </Card>
                     {/* ==================================================
                         SOFT SKILLS
                     ================================================== */}
@@ -2920,193 +2944,189 @@ export default function Profile({
 
 
                     {/* ==================================================
-                        EXISTING REQUIRED DOCUMENTS
+                        REQUIRED DOCUMENTS
                     ================================================== */}
 
-                    {/* ==================================================
-    REQUIRED DOCUMENTS
-================================================== */}
+                    <Card className="shadow-none">
 
-            <Card className="shadow-none">
+                        <CardHeader>
 
-                <CardHeader>
+                            <CardTitle>
+                                Required Documents
+                            </CardTitle>
 
-                    <CardTitle>
-                        Required Documents
-                    </CardTitle>
+                            <p className="text-sm text-gray-500">
+                                Manage your CV and required supporting documents.
+                            </p>
 
-                    <p className="text-sm text-gray-500">
-                        Manage your CV and required supporting documents.
-                    </p>
-
-                </CardHeader>
+                        </CardHeader>
 
 
-                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
 
-                    {/* ==================================================
-                        CURRICULUM VITAE
-                    ================================================== */}
+                            {/* ==================================================
+                                CURRICULUM VITAE
+                            ================================================== */}
 
-                    <div className="rounded-lg border p-5 bg-gray-50">
+                            <div className="rounded-lg border p-5 bg-gray-50">
 
-                        <div className="flex items-start justify-between gap-4">
+                                <div className="flex items-start justify-between gap-4">
 
-                            <div>
+                                    <div>
 
-                                <p className="font-medium">
-                                    Curriculum Vitae
-                                </p>
+                                        <p className="font-medium">
+                                            Curriculum Vitae
+                                        </p>
+
+                                        {hasGeneratedCv ? (
+                                            <p className="text-sm text-gray-500 mt-1">
+                                                Your generated CV is saved as a snapshot.
+                                                Changes to your profile will not update it
+                                                until you generate the CV again.
+                                            </p>
+                                        ) : canGenerateCv ? (
+                                            <p className="text-sm text-gray-500 mt-1">
+                                                Your profile is complete. Generate your CV
+                                                when you are ready.
+                                            </p>
+                                        ) : (
+                                            <p className="text-sm text-gray-500 mt-1">
+                                                Complete and save your profile before
+                                                generating your CV.
+                                            </p>
+                                        )}
+
+                                    </div>
+
+                                </div>
 
                                 {hasGeneratedCv ? (
-                                    <p className="text-sm text-gray-500 mt-1">
-                                        Your generated CV is saved as a snapshot.
-                                        Changes to your profile will not update it
-                                        until you generate the CV again.
-                                    </p>
+                                    <div className="mt-4 flex flex-wrap items-center gap-3">
+
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            asChild
+                                        >
+                                            <Link href={route('student.cv-generator')}>
+                                                View CV
+                                            </Link>
+                                        </Button>
+
+                                        {canGenerateCv && (
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                onClick={generateCv}
+                                                disabled={generatingCv}
+                                            >
+                                                {generatingCv
+                                                    ? 'Generating...'
+                                                    : 'Regenerate CV'}
+                                            </Button>
+                                        )}
+
+                                        {cvGeneratedAt && (
+                                            <p className="w-full text-xs text-gray-500">
+                                                Last generated:{' '}
+                                                {new Date(cvGeneratedAt).toLocaleString()}
+                                            </p>
+                                        )}
+
+                                    </div>
                                 ) : canGenerateCv ? (
-                                    <p className="text-sm text-gray-500 mt-1">
-                                        Your profile is complete. Generate your CV
-                                        when you are ready.
-                                    </p>
+                                    <div className="mt-4 flex flex-wrap gap-3">
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            onClick={generateCv}
+                                            disabled={generatingCv}
+                                        >
+                                            {generatingCv
+                                                ? 'Generating...'
+                                                : 'Generate CV'}
+                                        </Button>
+                                    </div>
                                 ) : (
-                                    <p className="text-sm text-gray-500 mt-1">
-                                        Complete and save your profile before
-                                        generating your CV.
+                                    <p className="text-sm text-blue-600 mt-3 font-medium">
+                                        CV Generator will be available after your profile
+                                        is complete and saved.
                                     </p>
                                 )}
 
                             </div>
 
-                        </div>
 
-                        {hasGeneratedCv ? (
-                            <div className="mt-4 flex flex-wrap items-center gap-3">
+                            {/* ==================================================
+                                IDENTITY CARD
+                            ================================================== */}
 
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    asChild
-                                >
-                                    <Link href={route('student.cv-generator')}>
-                                        View CV
-                                    </Link>
-                                </Button>
+                            <div className="space-y-2">
 
-                                {canGenerateCv && (
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        onClick={generateCv}
-                                        disabled={generatingCv}
-                                    >
-                                        {generatingCv
-                                            ? 'Generating...'
-                                            : 'Regenerate CV'}
-                                    </Button>
-                                )}
+                                <Label>
+                                    Identity Card (IC)
+                                </Label>
 
-                                {cvGeneratedAt && (
-                                    <p className="w-full text-xs text-gray-500">
-                                        Last generated:{' '}
-                                        {new Date(cvGeneratedAt).toLocaleString()}
-                                    </p>
-                                )}
+                                <Input
+                                    type="file"
+                                    className="shadow-none pt-1.5"
+                                />
+
+                                <p className="text-xs text-gray-500">
+                                    Existing document upload.
+                                </p>
 
                             </div>
-                        ) : canGenerateCv ? (
-                            <div className="mt-4 flex flex-wrap gap-3">
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={generateCv}
-                                    disabled={generatingCv}
-                                >
-                                    {generatingCv
-                                        ? 'Generating...'
-                                        : 'Generate CV'}
-                                </Button>
+
+
+                            {/* ==================================================
+                                DRIVER'S LICENSE
+                            ================================================== */}
+
+                            <div className="space-y-2">
+
+                                <Label>
+                                    Driver's License
+                                </Label>
+
+                                <Input
+                                    type="file"
+                                    className="shadow-none pt-1.5"
+                                />
+
+                                <p className="text-xs text-gray-500">
+                                    Existing document upload.
+                                </p>
+
                             </div>
-                        ) : (
-                            <p className="text-sm text-blue-600 mt-3 font-medium">
-                                CV Generator will be available after your profile
-                                is complete and saved.
-                            </p>
-                        )}
-
-                    </div>
 
 
-                    {/* ==================================================
-                        IDENTITY CARD
-                    ================================================== */}
+                            {/* ==================================================
+                                ACADEMIC RESULTS
+                            ================================================== */}
 
-                    <div className="space-y-2">
+                            <div className="space-y-2">
 
-                        <Label>
-                            Identity Card (IC)
-                        </Label>
+                                <Label>
+                                    Academic Results
+                                </Label>
 
-                        <Input
-                            type="file"
-                            className="shadow-none pt-1.5"
-                        />
+                                <Input
+                                    type="file"
+                                    className="shadow-none pt-1.5"
+                                />
 
-                        <p className="text-xs text-gray-500">
-                            Existing document upload.
-                        </p>
+                                <p className="text-xs text-gray-500">
+                                    Existing document upload.
+                                </p>
 
-                    </div>
-
-
-                    {/* ==================================================
-                        DRIVER'S LICENSE
-                    ================================================== */}
-
-                    <div className="space-y-2">
-
-                        <Label>
-                            Driver's License
-                        </Label>
-
-                        <Input
-                            type="file"
-                            className="shadow-none pt-1.5"
-                        />
-
-                        <p className="text-xs text-gray-500">
-                            Existing document upload.
-                        </p>
-
-                    </div>
+                            </div>
 
 
-                    {/* ==================================================
-                        ACADEMIC RESULTS
-                    ================================================== */}
+                        </CardContent>
 
-                    <div className="space-y-2">
-
-                        <Label>
-                            Academic Results
-                        </Label>
-
-                        <Input
-                            type="file"
-                            className="shadow-none pt-1.5"
-                        />
-
-                        <p className="text-xs text-gray-500">
-                            Existing document upload.
-                        </p>
-
-                    </div>
-
-
-                </CardContent>
-
-            </Card>
+                    </Card>
 
 
                     {/* ==================================================

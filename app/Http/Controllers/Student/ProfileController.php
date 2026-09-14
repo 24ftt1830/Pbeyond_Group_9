@@ -112,10 +112,12 @@ class ProfileController extends Controller
             'languages',
         ]);
 
-        if (!$this->canGenerateCv($student)) {
+        $missingFields = $this->getMissingCvFields($student);
+
+        if (!empty($missingFields)) {
             return redirect()
-                ->route('student.profile')
-                ->with('error', 'Please complete and save your required profile information before generating your CV.');
+                ->back()
+                ->with('error', 'Must complete all required info before generating CV. Missing: ' . implode(', ', $missingFields));
         }
 
         $snapshot = [
@@ -216,44 +218,46 @@ class ProfileController extends Controller
             ->with('success', 'CV generated successfully.');
     }
 
+    private function getMissingCvFields($student): array
+    {
+        $missing = [];
+        if (!$student->mobile_phone) $missing[] = 'Phone Number';
+        if (!$student->postal_address) $missing[] = 'Address';
+        if (!$student->passport_photo_path) $missing[] = 'Passport Photo';
+        if (!$student->education()->exists()) $missing[] = 'Education History';
+        if (!$student->skills()->exists()) $missing[] = 'Skills';
+
+        return $missing;
+    }
+
     private function canGenerateCv($student): bool
     {
-        $professionalProfile = $student->professionalProfile?->profile ?? '';
-
-        return
-            !empty(trim($student->full_name ?? '')) &&
-            !empty(trim($student->mobile_phone ?? '')) &&
-            !empty(trim(auth()->user()->email ?? '')) &&
-            !empty(trim($student->programme?->programme_name ?? '')) &&
-            !empty(trim($professionalProfile)) &&
-            $student->education->count() > 0 &&
-            $student->skills->count() > 0 &&
-            $student->languages->count() > 0;
+        return empty($this->getMissingCvFields($student));
     }
 
     public function cvGenerator()
-            {
-                $student = auth()->user()->student;
+    {
+        $student = auth()->user()->student;
 
-                /*
-                |--------------------------------------------------------------------------
-                | CV Checkpoint
-                |--------------------------------------------------------------------------
-                |
-                | The CV is generated from a saved snapshot.
-                | Changes made to the student's profile will NOT affect the
-                | existing CV until the student clicks "Generate CV" again.
-                |
-                */
+        /*
+        |--------------------------------------------------------------------------
+        | CV Checkpoint
+        |--------------------------------------------------------------------------
+        |
+        | The CV is generated from a saved snapshot.
+        | Changes made to the student's profile will NOT affect the
+        | existing CV until the student clicks "Generate CV" again.
+        |
+        */
 
-                if (empty($student->cv_snapshot)) {
-                    return redirect()
-                        ->route('student.profile')
-                        ->with(
-                            'error',
-                            'Please generate your CV from your profile before viewing it.'
-                        );
-                }
+        if (empty($student->cv_snapshot)) {
+            return redirect()
+                ->route('student.profile')
+                ->with(
+                    'error',
+                    'Please generate your CV from your profile before viewing it.'
+                );
+        }
 
         return Inertia::render('Student/generator_cv', [
             // The generator receives the saved snapshot as the student payload.
@@ -262,7 +266,7 @@ class ProfileController extends Controller
             'cvSnapshot' => $student->cv_snapshot,
             'cvGeneratedAt' => $student->cv_generated_at,
         ]);
-            }
+    }
 
     public function update(Request $request)
     {

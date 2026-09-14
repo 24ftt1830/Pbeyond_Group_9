@@ -15,14 +15,16 @@ class ApplicationController extends Controller
             'quota_id' => 'required|exists:placement_quotas,quota_id',
         ]);
 
-        // Check if the student record exists before applying
-        if (! Auth::user()->student) {
-            return back()->withErrors(['error' => 'Student profile not found.']);
+        $student = Auth::user()->student;
+
+        // Check if student profile exists and is complete
+        if (! $student || ! $student->isProfileComplete()) {
+            return back()->withErrors(['error' => 'Please complete your profile before submitting an application.']);
         }
 
         try {
             StudentApplication::create([
-                'student_id' => Auth::user()->student->student_id,
+                'student_id' => $student->student_id,
                 'quota_id'   => $validated['quota_id'],
                 'app_status' => 'Pending', // Fixed column name & casing
             ]);

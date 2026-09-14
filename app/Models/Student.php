@@ -167,4 +167,19 @@ class Student extends Model
             'student_id'
         );
     }
+
+    /**
+     * Check if the student's profile requirements are fully completed.
+     */
+    public function isProfileComplete(): bool
+    {
+        $hasBio = !empty($this->passport_photo_path) 
+            && !empty($this->mobile_phone) 
+            && !empty($this->ic_number);
+
+        $hasEducation = $this->education()->exists();
+        $hasSkills = $this->skills()->exists();
+
+        return $hasBio && $hasEducation && $hasSkills;
+    }
 }
