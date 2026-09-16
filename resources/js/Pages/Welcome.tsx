@@ -133,7 +133,7 @@ export default function Welcome({
                                             onMouseLeave={() => decryptRefs.current[i]?.stop()}
                                         >
                                             <img
-                                                src={`/images/screenshot-${item.number}.png`}
+                                                src={`/images/screenshot-${item.number}.png?v=2`}
                                                 alt={item.label}
                                                 className="w-full h-auto object-contain"
                                             />
