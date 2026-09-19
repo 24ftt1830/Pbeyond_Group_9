@@ -27,6 +27,20 @@ import { Button } from '@/Components/ui/button';
 
 
 // ============================================================
+// HELPER FUNCTIONS
+// ============================================================
+
+const formatDateForInput = (dateStr?: string | null): string => {
+    if (!dateStr) return '';
+    try {
+        return new Date(dateStr).toISOString().split('T')[0];
+    } catch (e) {
+        return '';
+    }
+};
+
+
+// ============================================================
 // TYPES
 // ============================================================
 
@@ -307,7 +321,7 @@ export default function Profile({
         ic_colour: student.ic_colour || 'Yellow',
         intake_session: student.intake_session || '',
         postal_address: student.postal_address || '',
-        date_of_birth: student.date_of_birth || '',
+        date_of_birth: formatDateForInput(student.date_of_birth),
         place_of_birth: student.place_of_birth || '',
         gender: student.gender || 'Male',
         religion: student.religion || '',
@@ -337,8 +351,8 @@ export default function Profile({
                 institution: item.institution || '',
                 qualification: item.qualification || '',
                 field_of_study: item.field_of_study || '',
-                start_date: item.start_date || '',
-                end_date: item.end_date || '',
+                start_date: formatDateForInput(item.start_date),
+                end_date: formatDateForInput(item.end_date),
                 description: item.description || '',
             })) || [],
 
@@ -347,8 +361,8 @@ export default function Profile({
                 id: item.id,
                 company: item.company || '',
                 position: item.position || '',
-                start_date: item.start_date || '',
-                end_date: item.end_date || '',
+                start_date: formatDateForInput(item.start_date),
+                end_date: formatDateForInput(item.end_date),
                 description: item.description || '',
             })) || [],
 
@@ -359,8 +373,8 @@ export default function Profile({
                 description: item.description || '',
                 technologies: item.technologies || '',
                 project_url: item.project_url || '',
-                start_date: item.start_date || '',
-                end_date: item.end_date || '',
+                start_date: formatDateForInput(item.start_date),
+                end_date: formatDateForInput(item.end_date),
             })) || [],
 
         activities:
@@ -369,8 +383,8 @@ export default function Profile({
                 title: item.title || '',
                 description: item.description || '',
                 role: item.role || '',
-                start_date: item.start_date || '',
-                end_date: item.end_date || '',
+                start_date: formatDateForInput(item.start_date),
+                end_date: formatDateForInput(item.end_date),
             })) || [],
 
         achievements:
@@ -379,7 +393,7 @@ export default function Profile({
                 title: item.title || '',
                 description: item.description || '',
                 issuer: item.issuer || '',
-                achievement_date: item.achievement_date || '',
+                achievement_date: formatDateForInput(item.achievement_date),
             })) || [],
 
         referees:
@@ -753,6 +767,7 @@ export default function Profile({
                             <CardTitle>
                                 Personal Information
                             </CardTitle>
+
                         </CardHeader>
 
                         <CardContent className="space-y-6">

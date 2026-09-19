@@ -46,17 +46,20 @@ interface Props {
 
 export default function ViewCompany({ company, quotas, applications = [] }: Props) {
     const { auth } = usePage<any>().props;
-    const isProfileComplete = auth?.user?.student?.is_profile_complete;
+    const student = auth?.user?.student;
+    
+    // Check for CV generation snapshot and timestamp
+    const hasGeneratedCv = Boolean(student?.cv_generated_at && student?.cv_snapshot);
 
     const MAX_APPLICATIONS = 3;
     const remainingChoices = MAX_APPLICATIONS - applications.length;
 
     const handleApply = (quota_id: number) => {
-        if (!isProfileComplete) {
+        if (!hasGeneratedCv) {
             toast.error('Profile Incomplete', {
                 description: (
                     <span>
-                        Please complete your profile at{' '}
+                        Please complete your profile and generate your CV at{' '}
                         <Link href="/student/profile" className="underline font-bold text-blue-600 hover:text-blue-800">
                             /student/profile
                         </Link>{' '}
@@ -216,7 +219,7 @@ export default function ViewCompany({ company, quotas, applications = [] }: Prop
                                                     </AlertDialogFooter>
                                                 </AlertDialogContent>
                                             </AlertDialog>
-                                        ) : !isProfileComplete ? (
+                                        ) : !hasGeneratedCv ? (
                                             <Button 
                                                 className="w-36" 
                                                 size="sm" 

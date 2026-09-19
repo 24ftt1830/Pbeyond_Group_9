@@ -32,13 +32,18 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $request->user() ? array_merge($request->user()->toArray(), [
+                    'student' => $request->user()->student ? [
+                        'student_id'      => $request->user()->student->student_id,
+                        'cv_snapshot'     => $request->user()->student->cv_snapshot,
+                        'cv_generated_at' => $request->user()->student->cv_generated_at,
+                    ] : null,
+                ]) : null,
             ],
-
             'flash' => [
-            'success' => fn () => $request->session()->get('success'),
-            'error' => fn () => $request->session()->get('error'),
-        ],
+                'error' => fn () => $request->session()->get('error'),
+                'success' => fn () => $request->session()->get('success'),
+            ],
         ];
     }
 }

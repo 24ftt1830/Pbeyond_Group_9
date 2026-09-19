@@ -1,11 +1,12 @@
 import { useState, useMemo } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { Search, Filter, X, Eye, LoaderCircleIcon, RotateCcw } from 'lucide-react';
 import { Button } from "@/Components/ui/button";
 import { Input } from '@/Components/ui/input';
 import { ColumnDef } from '@tanstack/react-table';
 import { DataTable } from '@/Components/ui/data-table';
+import { Alert, AlertDescription, AlertTitle } from '@/Components/ui/alert';
 
 // --- Types ---
 interface Company {
@@ -24,6 +25,7 @@ const districtOptions = ['Brunei Muara', 'Tutong', 'Temburong', 'Belait'];
 const statusOptions = ['Available', 'Full'];
 
 export default function Companies({ companies = [] }: Props) {
+    const { flash } = usePage().props as any;
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedDistricts, setSelectedDistricts] = useState<string[]>([]);
     const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
@@ -117,6 +119,13 @@ export default function Companies({ companies = [] }: Props) {
 
     return (
         <div className="p-6">
+            {flash?.error && (
+                <Alert variant="destructive" className="mb-4">
+                    <AlertTitle>Action Required</AlertTitle>
+                    <AlertDescription>{flash.error}</AlertDescription>
+                </Alert>
+            )}
+
             <div className="flex items-center justify-between mb-6">
                 <header>
                     <h1 className="font-sato text-3xl font-bold">Companies List</h1>

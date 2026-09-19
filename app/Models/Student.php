@@ -175,7 +175,8 @@ class Student extends Model
     {
         $hasBio = !empty($this->passport_photo_path) 
             && !empty($this->mobile_phone) 
-            && !empty($this->ic_number);
+            && !empty($this->ic_number)
+            && !empty($this->date_of_birth);
 
         $hasEducation = $this->education()->exists();
         $hasSkills = $this->skills()->exists();
