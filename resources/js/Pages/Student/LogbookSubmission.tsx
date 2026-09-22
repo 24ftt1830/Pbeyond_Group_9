@@ -8,22 +8,31 @@ import {
     BriefcaseBusiness,
     House,
     CircleOff,
+    Flag,
+    MessageSquare,
 } from 'lucide-react';
 import { useState } from 'react';
 
 interface Props {
     date?: string;
     entry?: {
+        id?: number;
         status: string;
         description: string | null;
         learning_outcomes: string | null;
         issues: string | null;
+    } | null;
+    weekSubmission?: {
+        status: string;
+        supervisor_feedback?: string | null;
+        flagged_entries?: (number | string)[] | null;
     } | null;
 }
 
 export default function LogbookSubmission({
     date,
     entry,
+    weekSubmission,
 }: Props) {
     const selectedDate = date
         ? new Date(`${date}T00:00:00`)
@@ -95,6 +104,21 @@ export default function LogbookSubmission({
         return `${year}-${month}-${day}`;
     };
 
+    const logbookHref = route('student.logbook', {
+        week: date ?? formatRouteDate(selectedDate),
+    });
+
+    const flaggedEntries = weekSubmission?.flagged_entries ?? [];
+    const currentDateKey = date ?? formatRouteDate(selectedDate);
+    const isDayFlagged = flaggedEntries.some((flagged) => {
+        const flaggedValue = String(flagged);
+
+        return (
+            flaggedValue === currentDateKey ||
+            (entry?.id !== undefined && flaggedValue === String(entry.id))
+        );
+    });
+
     return (
         <div className="w-full min-w-0 overflow-x-hidden p-6">
 
@@ -103,7 +127,7 @@ export default function LogbookSubmission({
             <div className="mb-8">
 
                 <Link
-                    href={route('student.logbook')}
+                    href={logbookHref}
                     className="
                         inline-flex
                         items-center
@@ -289,6 +313,44 @@ export default function LogbookSubmission({
                 </Link>
 
             </div>
+
+
+            {(weekSubmission?.supervisor_feedback || isDayFlagged) && (
+                <div
+                    className={`mb-6 rounded-xl border p-5 ${
+                        isDayFlagged
+                            ? 'border-rose-200 bg-rose-50'
+                            : 'border-blue-200 bg-blue-50'
+                    }`}
+                >
+                    <div
+                        className={`flex items-center gap-2 font-semibold ${
+                            isDayFlagged ? 'text-rose-900' : 'text-blue-900'
+                        }`}
+                    >
+                        {isDayFlagged ? (
+                            <Flag className="size-4 text-rose-600" />
+                        ) : (
+                            <MessageSquare className="size-4 text-blue-600" />
+                        )}
+                        <span>
+                            {isDayFlagged
+                                ? 'Academic Supervisor requested changes for this day'
+                                : 'Academic Supervisor Review'}
+                        </span>
+                    </div>
+
+                    {weekSubmission?.supervisor_feedback && (
+                        <p
+                            className={`mt-2 text-sm leading-relaxed whitespace-pre-line ${
+                                isDayFlagged ? 'text-rose-950' : 'text-blue-950'
+                            }`}
+                        >
+                            {weekSubmission.supervisor_feedback}
+                        </p>
+                    )}
+                </div>
+            )}
 
 
             {/* FORM */}
@@ -592,7 +654,7 @@ export default function LogbookSubmission({
                 >
 
                     <Link
-                        href={route('student.logbook')}
+                        href={logbookHref}
                         className="
                             rounded-md
                             border

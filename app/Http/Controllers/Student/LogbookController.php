@@ -19,6 +19,7 @@ class LogbookController extends Controller
             $student->student_id
         )
             ->get([
+                'id',
                 'date',
                 'status',
                 'description',
@@ -28,6 +29,7 @@ class LogbookController extends Controller
             ->mapWithKeys(function ($entry) {
                 return [
                     $entry->date->format('Y-m-d') => [
+                        'id' => $entry->id,
                         'status' => $entry->status,
                         'description' => $entry->description,
                         'learning_outcomes' => $entry->learning_outcomes,
@@ -44,6 +46,8 @@ class LogbookController extends Controller
                 'week_start',
                 'week_end',
                 'status',
+                'supervisor_feedback',
+                'flagged_entries',
                 'submitted_at',
                 'reviewed_at',
             ])
@@ -53,6 +57,8 @@ class LogbookController extends Controller
                         'week_start' => $submission->week_start->format('Y-m-d'),
                         'week_end' => $submission->week_end->format('Y-m-d'),
                         'status' => $submission->status,
+                        'supervisor_feedback' => $submission->supervisor_feedback,
+                        'flagged_entries' => $submission->flagged_entries ?? [],
                         'submitted_at' => $submission->submitted_at,
                         'reviewed_at' => $submission->reviewed_at,
                     ],
@@ -77,19 +83,21 @@ class LogbookController extends Controller
             ->whereDate('date', $date)
             ->first();
 
-        // Check whether this date belongs to a reviewed weekly submission.
-        $isReviewed = LogbookWeeklySubmission::where(
+        $weekSubmission = LogbookWeeklySubmission::where(
             'student_id',
             $student->student_id
         )
-            ->where('status', 'reviewed')
             ->whereDate('week_start', '<=', $date)
             ->whereDate('week_end', '>=', $date)
-            ->exists();
+            ->first();
+
+        // Check whether this date belongs to a reviewed weekly submission.
+        $isReviewed = $weekSubmission
+            && in_array($weekSubmission->status, ['reviewed', 'approved'], true);
 
         if ($isReviewed) {
             return redirect()
-                ->route('student.logbook')
+                ->route('student.logbook', ['week' => $date])
                 ->withErrors([
                     'week' => 'This day has already been reviewed and can no longer be edited.',
                 ]);
@@ -99,10 +107,18 @@ class LogbookController extends Controller
             'date' => $date,
             'entry' => $entry
                 ? [
+                    'id' => $entry->id,
                     'status' => $entry->status,
                     'description' => $entry->description,
                     'learning_outcomes' => $entry->learning_outcomes,
                     'issues' => $entry->issues,
+                ]
+                : null,
+            'weekSubmission' => $weekSubmission
+                ? [
+                    'status' => $weekSubmission->status,
+                    'supervisor_feedback' => $weekSubmission->supervisor_feedback,
+                    'flagged_entries' => $weekSubmission->flagged_entries ?? [],
                 ]
                 : null,
         ]);
@@ -126,7 +142,7 @@ class LogbookController extends Controller
             'student_id',
             $student->student_id
         )
-            ->where('status', 'reviewed')
+            ->whereIn('status', ['reviewed', 'approved'])
             ->whereDate('week_start', '<=', $entryDate)
             ->whereDate('week_end', '>=', $entryDate)
             ->exists();
@@ -146,7 +162,7 @@ class LogbookController extends Controller
                 ->delete();
 
             return redirect()
-                ->route('student.logbook')
+                ->route('student.logbook', ['week' => $validated['date']])
                 ->with('success', 'Day cleared successfully.');
         }
 
@@ -165,7 +181,7 @@ class LogbookController extends Controller
             );
 
             return redirect()
-                ->route('student.logbook')
+                ->route('student.logbook', ['week' => $validated['date']])
                 ->with('success', 'Off Day saved successfully.');
         }
 
@@ -191,7 +207,7 @@ class LogbookController extends Controller
         );
 
         return redirect()
-            ->route('student.logbook')
+            ->route('student.logbook', ['week' => $validated['date']])
             ->with('success', 'Daily log saved successfully.');
     }
 
@@ -254,6 +270,18 @@ class LogbookController extends Controller
             ->first();
 
         if ($existingSubmission) {
+            if (in_array($existingSubmission->status, ['pending_fix', 'revision', 'needs_revision'], true)) {
+                $existingSubmission->update([
+                    'status' => 'submitted',
+                    'submitted_at' => now(),
+                ]);
+
+                return back()->with(
+                    'success',
+                    'Weekly logbook resubmitted successfully.'
+                );
+            }
+
             return back()->withErrors([
                 'week' => 'This week has already been submitted.',
             ]);
@@ -285,7 +313,7 @@ class LogbookController extends Controller
             ->delete();
 
         return redirect()
-            ->route('student.logbook')
+            ->route('student.logbook', ['week' => $date])
             ->with('success', 'Daily log deleted successfully.');
     }
 }

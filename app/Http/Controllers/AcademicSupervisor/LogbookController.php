@@ -23,13 +23,13 @@ class LogbookController extends Controller
 
         $pendingSubmissions = LogbookWeeklySubmission::with('student')
             ->whereIn('student_id', $assignedStudentIds)
-            ->whereIn('status', ['submitted', 'pending'])
+            ->whereIn('status', ['submitted', 'pending', 'pending_fix'])
             ->orderBy('submitted_at', 'desc')
             ->get();
 
         $reviewedSubmissions = LogbookWeeklySubmission::with('student')
             ->whereIn('student_id', $assignedStudentIds)
-            ->where('status', 'reviewed')
+            ->whereIn('status', ['reviewed', 'approved'])
             ->orderBy('reviewed_at', 'desc')
             ->get();
 
@@ -53,6 +53,7 @@ class LogbookController extends Controller
             ->exists();
 
         abort_unless($isAssigned, 403);
+
         // When the supervisor opens a newly submitted week,
         // change its status from submitted to pending.
         if ($submission->status === 'submitted') {
@@ -71,6 +72,7 @@ class LogbookController extends Controller
             ])
             ->orderBy('date')
             ->get([
+                'id', // Include ID so React key bindings and flagged entries track properly
                 'date',
                 'status',
                 'description',
@@ -85,6 +87,8 @@ class LogbookController extends Controller
                 'week_start' => $submission->week_start,
                 'week_end' => $submission->week_end,
                 'status' => $submission->status,
+                'supervisor_feedback' => $submission->supervisor_feedback,
+                'flagged_entries' => $submission->flagged_entries ?? [], // Pass flagged entries back to React
                 'submitted_at' => $submission->submitted_at,
                 'reviewed_at' => $submission->reviewed_at,
             ],
@@ -96,19 +100,32 @@ class LogbookController extends Controller
         Request $request,
         LogbookWeeklySubmission $submission
     ) {
-        if ($submission->status !== 'pending') {
-            return back()->withErrors([
-                'review' => 'This weekly logbook has already been reviewed.',
-            ]);
-        }
+        $academicSupervisor = AcademicSupervisor::where(
+            'user_id',
+            auth()->user()->user_id
+        )->firstOrFail();
 
-        $submission->update([
-            'status' => 'reviewed',
-            'reviewed_at' => now(),
+        $isAssigned = $academicSupervisor->assignments()
+            ->where('student_id', $submission->student_id)
+            ->exists();
+
+        abort_unless($isAssigned, 403);
+
+        $validated = $request->validate([
+            'status' => 'required|in:approved,pending_fix',
+            'supervisor_feedback' => 'nullable|string',
+            'flagged_entries' => 'nullable|array',
         ]);
 
-        return redirect()
-            ->route('academic-supervisor.logbook')
-            ->with('success', 'Weekly logbook marked as reviewed.');
+        $submission->update([
+            'status' => $validated['status'],
+            'supervisor_feedback' => $validated['supervisor_feedback'] ?? null,
+            'reviewed_at' => now(),
+            // Ensure 'flagged_entries' is in your $fillable array if using a JSON column on your table
+            'flagged_entries' => $validated['flagged_entries'] ?? [],
+        ]);
+
+        // Redirect back to the Logbook list page instead of back()
+        return redirect('/academic-supervisor/logbook')->with('success', 'Logbook review updated successfully.');
     }
 }

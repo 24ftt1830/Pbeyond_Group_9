@@ -12,11 +12,14 @@ class LogbookWeeklySubmission extends Model
         'week_start',
         'week_end',
         'status',
+        'supervisor_feedback',
+        'flagged_entries',
         'submitted_at',
         'reviewed_at',
     ];
 
     protected $casts = [
+        'flagged_entries' => 'array',
         'week_start' => 'date',
         'week_end' => 'date',
         'submitted_at' => 'datetime',

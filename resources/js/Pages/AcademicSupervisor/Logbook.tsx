@@ -2,7 +2,7 @@ import { Head, Link } from '@inertiajs/react';
 import { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import {
-    AlertCircle,
+    AlertTriangle,
     CalendarDays,
     CheckCircle2,
     ChevronRight,
@@ -22,7 +22,7 @@ interface WeeklySubmission {
     student_id: number;
     week_start: string;
     week_end: string;
-    status: 'pending' | 'reviewed';
+    status: string;
     submitted_at: string | null;
     reviewed_at: string | null;
     student?: Student;
@@ -47,6 +47,35 @@ const formatDateTime = (date: string | null) => {
     }
 
     return new Date(date).toLocaleString('en-GB');
+};
+
+const renderStatusBadge = (status: string) => {
+    switch (status?.toLowerCase()) {
+        case 'pending_fix':
+        case 'revision':
+        case 'needs_revision':
+            return (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700 ring-1 ring-rose-200">
+                    <AlertTriangle size={13} />
+                    Pending Revision
+                </span>
+            );
+        case 'approved':
+        case 'reviewed':
+            return (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200">
+                    <CheckCircle2 size={13} />
+                    Approved
+                </span>
+            );
+        default:
+            return (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700 ring-1 ring-amber-200">
+                    <Clock3 size={13} />
+                    Pending Review
+                </span>
+            );
+    }
 };
 
 export default function Logbook({
@@ -267,219 +296,157 @@ export default function Logbook({
                                     </div>
                                 ) : (
                                     <div className="divide-y divide-slate-100">
-                                        {pendingSubmissions.map(
-                                            (submission) => (
-                                                <div
-                                                    key={submission.id}
-                                                    className="group px-5 py-5 transition hover:bg-slate-50/70 sm:px-6"
-                                                >
-                                                    <div className="grid gap-4 md:grid-cols-[minmax(280px,1.5fr)_1fr_1fr_auto] md:items-center md:gap-6">
-                                                        {/* Student */}
-                                                        <div className="flex items-center gap-3">
-                                                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-blue-50 text-sm font-bold text-blue-600">
-                                                                {(
-                                                                    submission
-                                                                        .student
-                                                                        ?.full_name ??
-                                                                    `Student #${submission.student_id}`
-                                                                )
-                                                                    .trim()
-                                                                    .charAt(0)
-                                                                    .toUpperCase()}
-                                                            </div>
+                                        {pendingSubmissions.map((submission) => (
+                                            <div
+                                                key={submission.id}
+                                                className="group px-5 py-5 transition hover:bg-slate-50/70 sm:px-6"
+                                            >
+                                                <div className="grid gap-4 md:grid-cols-[minmax(280px,1.5fr)_1fr_1fr_auto] md:items-center md:gap-6">
+                                                    {/* Student */}
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-blue-50 text-sm font-bold text-blue-600">
+                                                            {(
+                                                                submission.student?.full_name ??
+                                                                `Student #${submission.student_id}`
+                                                            )
+                                                                .trim()
+                                                                .charAt(0)
+                                                                .toUpperCase()}
+                                                        </div>
 
-                                                            <div className="min-w-0">
-                                                                <p className="truncate text-sm font-bold text-slate-900">
-                                                                    {submission
-                                                                        .student
-                                                                        ?.full_name ??
-                                                                        `Student #${submission.student_id}`}
-                                                                </p>
+                                                        <div className="min-w-0">
+                                                            <p className="truncate text-sm font-bold text-slate-900">
+                                                                {submission.student?.full_name ??
+                                                                    `Student #${submission.student_id}`}
+                                                            </p>
 
-                                                                <div className="mt-1 flex flex-wrap items-center gap-2">
-                                                                    <span className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600">
-                                                                        ID #
-                                                                        {submission.student_id}
+                                                            <div className="mt-1 flex flex-wrap items-center gap-2">
+                                                                <span className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600">
+                                                                    ID #{submission.student_id}
+                                                                </span>
+
+                                                                {submission.student?.pb_student_code && (
+                                                                    <span className="text-xs text-slate-400">
+                                                                        {submission.student.pb_student_code}
                                                                     </span>
-
-                                                                    {submission
-                                                                        .student
-                                                                        ?.pb_student_code && (
-                                                                        <span className="text-xs text-slate-400">
-                                                                            {submission
-                                                                                .student
-                                                                                .pb_student_code}
-                                                                        </span>
-                                                                    )}
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        {/* Week */}
-                                                        <div>
-                                                            <p className="text-xs font-medium uppercase tracking-wide text-slate-400 md:hidden">
-                                                                Review Period
-                                                            </p>
-
-                                                            <div className="mt-1 flex items-center gap-2 text-sm font-medium text-slate-700 md:mt-0">
-                                                                <CalendarDays
-                                                                    size={15}
-                                                                    className="text-slate-400"
-                                                                />
-
-                                                                {formatDate(
-                                                                    submission.week_start
-                                                                )}{' '}
-                                                                –{' '}
-                                                                {formatDate(
-                                                                    submission.week_end
                                                                 )}
                                                             </div>
-
-                                                            <p className="mt-1 text-xs text-slate-400">
-                                                                Submitted{' '}
-                                                                {formatDateTime(
-                                                                    submission.submitted_at
-                                                                )}
-                                                            </p>
-                                                        </div>
-
-                                                        {/* Status */}
-                                                        <div>
-                                                            <p className="mb-1 text-xs font-medium uppercase tracking-wide text-slate-400 md:hidden">
-                                                                Status
-                                                            </p>
-
-                                                            <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-700 ring-1 ring-inset ring-amber-200">
-                                                                <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
-                                                                Pending Review
-                                                            </span>
-                                                        </div>
-
-                                                        {/* Action */}
-                                                        <div className="flex md:justify-end">
-                                                            <Link
-                                                                href={`/academic-supervisor/logbook/${submission.id}/review`}
-                                                                className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-blue-700 hover:shadow-md"
-                                                            >
-                                                                Review
-                                                                <ChevronRight
-                                                                    size={15}
-                                                                />
-                                                            </Link>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            )
-                                        )}
 
-                                        {reviewedSubmissions.map(
-                                            (submission) => (
-                                                <div
-                                                    key={submission.id}
-                                                    className="group px-5 py-5 transition hover:bg-slate-50/70 sm:px-6"
-                                                >
-                                                    <div className="grid gap-4 md:grid-cols-[minmax(280px,1.5fr)_1fr_1fr_auto] md:items-center md:gap-6">
-                                                        {/* Student */}
-                                                        <div className="flex items-center gap-3">
-                                                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-sm font-bold text-emerald-600">
-                                                                {(
-                                                                    submission
-                                                                        .student
-                                                                        ?.full_name ??
-                                                                    `Student #${submission.student_id}`
-                                                                )
-                                                                    .trim()
-                                                                    .charAt(0)
-                                                                    .toUpperCase()}
-                                                            </div>
+                                                    {/* Week */}
+                                                    <div>
+                                                        <p className="text-xs font-medium uppercase tracking-wide text-slate-400 md:hidden">
+                                                            Review Period
+                                                        </p>
 
-                                                            <div className="min-w-0">
-                                                                <p className="truncate text-sm font-bold text-slate-900">
-                                                                    {submission
-                                                                        .student
-                                                                        ?.full_name ??
-                                                                        `Student #${submission.student_id}`}
-                                                                </p>
-
-                                                                <div className="mt-1 flex flex-wrap items-center gap-2">
-                                                                    <span className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600">
-                                                                        ID #
-                                                                        {submission.student_id}
-                                                                    </span>
-
-                                                                    {submission
-                                                                        .student
-                                                                        ?.pb_student_code && (
-                                                                        <span className="text-xs text-slate-400">
-                                                                            {submission
-                                                                                .student
-                                                                                .pb_student_code}
-                                                                        </span>
-                                                                    )}
-                                                                </div>
-                                                            </div>
+                                                        <div className="mt-1 flex items-center gap-2 text-sm font-medium text-slate-700 md:mt-0">
+                                                            <CalendarDays size={15} className="text-slate-400" />
+                                                            {formatDate(submission.week_start)} – {formatDate(submission.week_end)}
                                                         </div>
 
-                                                        {/* Week */}
-                                                        <div>
-                                                            <p className="text-xs font-medium uppercase tracking-wide text-slate-400 md:hidden">
-                                                                Review Period
-                                                            </p>
+                                                        <p className="mt-1 text-xs text-slate-400">
+                                                            Submitted {formatDateTime(submission.submitted_at)}
+                                                        </p>
+                                                    </div>
 
-                                                            <div className="mt-1 flex items-center gap-2 text-sm font-medium text-slate-700 md:mt-0">
-                                                                <CalendarDays
-                                                                    size={15}
-                                                                    className="text-slate-400"
-                                                                />
+                                                    {/* Status */}
+                                                    <div>
+                                                        <p className="mb-1 text-xs font-medium uppercase tracking-wide text-slate-400 md:hidden">
+                                                            Status
+                                                        </p>
+                                                        {renderStatusBadge(submission.status)}
+                                                    </div>
 
-                                                                {formatDate(
-                                                                    submission.week_start
-                                                                )}{' '}
-                                                                –{' '}
-                                                                {formatDate(
-                                                                    submission.week_end
-                                                                )}
-                                                            </div>
-
-                                                            <p className="mt-1 text-xs text-slate-400">
-                                                                Reviewed{' '}
-                                                                {formatDateTime(
-                                                                    submission.reviewed_at
-                                                                )}
-                                                            </p>
-                                                        </div>
-
-                                                        {/* Status */}
-                                                        <div>
-                                                            <p className="mb-1 text-xs font-medium uppercase tracking-wide text-slate-400 md:hidden">
-                                                                Status
-                                                            </p>
-
-                                                            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700 ring-1 ring-inset ring-emerald-200">
-                                                                <CheckCircle2
-                                                                    size={13}
-                                                                />
-                                                                Reviewed
-                                                            </span>
-                                                        </div>
-
-                                                        {/* Action */}
-                                                        <div className="flex md:justify-end">
-                                                            <Link
-                                                                href={`/academic-supervisor/logbook/${submission.id}/review`}
-                                                                className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
-                                                            >
-                                                                View
-                                                                <ChevronRight
-                                                                    size={15}
-                                                                />
-                                                            </Link>
-                                                        </div>
+                                                    {/* Action */}
+                                                    <div className="flex md:justify-end">
+                                                        <Link
+                                                            href={`/academic-supervisor/logbook/${submission.id}/review`}
+                                                            className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-blue-700 hover:shadow-md"
+                                                        >
+                                                            Review
+                                                            <ChevronRight size={15} />
+                                                        </Link>
                                                     </div>
                                                 </div>
-                                            )
-                                        )}
+                                            </div>
+                                        ))}
+
+                                        {reviewedSubmissions.map((submission) => (
+                                            <div
+                                                key={submission.id}
+                                                className="group px-5 py-5 transition hover:bg-slate-50/70 sm:px-6"
+                                            >
+                                                <div className="grid gap-4 md:grid-cols-[minmax(280px,1.5fr)_1fr_1fr_auto] md:items-center md:gap-6">
+                                                    {/* Student */}
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-sm font-bold text-emerald-600">
+                                                            {(
+                                                                submission.student?.full_name ??
+                                                                `Student #${submission.student_id}`
+                                                            )
+                                                                .trim()
+                                                                .charAt(0)
+                                                                .toUpperCase()}
+                                                        </div>
+
+                                                        <div className="min-w-0">
+                                                            <p className="truncate text-sm font-bold text-slate-900">
+                                                                {submission.student?.full_name ??
+                                                                    `Student #${submission.student_id}`}
+                                                            </p>
+
+                                                            <div className="mt-1 flex flex-wrap items-center gap-2">
+                                                                <span className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600">
+                                                                    ID #{submission.student_id}
+                                                                </span>
+
+                                                                {submission.student?.pb_student_code && (
+                                                                    <span className="text-xs text-slate-400">
+                                                                        {submission.student.pb_student_code}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Week */}
+                                                    <div>
+                                                        <p className="text-xs font-medium uppercase tracking-wide text-slate-400 md:hidden">
+                                                            Review Period
+                                                        </p>
+
+                                                        <div className="mt-1 flex items-center gap-2 text-sm font-medium text-slate-700 md:mt-0">
+                                                            <CalendarDays size={15} className="text-slate-400" />
+                                                            {formatDate(submission.week_start)} – {formatDate(submission.week_end)}
+                                                        </div>
+
+                                                        <p className="mt-1 text-xs text-slate-400">
+                                                            Reviewed {formatDateTime(submission.reviewed_at)}
+                                                        </p>
+                                                    </div>
+
+                                                    {/* Status */}
+                                                    <div>
+                                                        <p className="mb-1 text-xs font-medium uppercase tracking-wide text-slate-400 md:hidden">
+                                                            Status
+                                                        </p>
+                                                        {renderStatusBadge(submission.status)}
+                                                    </div>
+
+                                                    {/* Action */}
+                                                    <div className="flex md:justify-end">
+                                                        <Link
+                                                            href={`/academic-supervisor/logbook/${submission.id}/review`}
+                                                            className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
+                                                        >
+                                                            View
+                                                            <ChevronRight size={15} />
+                                                        </Link>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
                                     </div>
                                 )}
                             </div>
@@ -499,93 +466,60 @@ export default function Logbook({
                                         </p>
 
                                         <p className="mt-1 text-sm text-slate-500">
-                                            There are no pending logbooks waiting
-                                            for review.
+                                            There are no pending logbooks waiting for review.
                                         </p>
                                     </div>
                                 ) : (
                                     <div className="divide-y divide-slate-100">
-                                        {pendingSubmissions.map(
-                                            (submission) => (
-                                                <div
-                                                    key={submission.id}
-                                                    className="group px-5 py-5 transition hover:bg-slate-50/70 sm:px-6"
-                                                >
-                                                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                                                        <div className="flex min-w-0 items-center gap-3">
-                                                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-blue-50 text-sm font-bold text-blue-600">
-                                                                {(
-                                                                    submission
-                                                                        .student
-                                                                        ?.full_name ??
-                                                                    `Student #${submission.student_id}`
-                                                                )
-                                                                    .trim()
-                                                                    .charAt(0)
-                                                                    .toUpperCase()}
-                                                            </div>
-
-                                                            <div className="min-w-0">
-                                                                <p className="truncate text-sm font-bold text-slate-900">
-                                                                    {submission
-                                                                        .student
-                                                                        ?.full_name ??
-                                                                        `Student #${submission.student_id}`}
-                                                                </p>
-
-                                                                <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-400">
-                                                                    <span>
-                                                                        ID #
-                                                                        {
-                                                                            submission.student_id
-                                                                        }
-                                                                    </span>
-
-                                                                    {submission
-                                                                        .student
-                                                                        ?.pb_student_code && (
-                                                                        <span>
-                                                                            {
-                                                                                submission
-                                                                                    .student
-                                                                                    .pb_student_code
-                                                                            }
-                                                                        </span>
-                                                                    )}
-
-                                                                    <span>
-                                                                        {formatDate(
-                                                                            submission.week_start
-                                                                        )}{' '}
-                                                                        –{' '}
-                                                                        {formatDate(
-                                                                            submission.week_end
-                                                                        )}
-                                                                    </span>
-                                                                </div>
-                                                            </div>
+                                        {pendingSubmissions.map((submission) => (
+                                            <div
+                                                key={submission.id}
+                                                className="group px-5 py-5 transition hover:bg-slate-50/70 sm:px-6"
+                                            >
+                                                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                                                    <div className="flex min-w-0 items-center gap-3">
+                                                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-blue-50 text-sm font-bold text-blue-600">
+                                                            {(
+                                                                submission.student?.full_name ??
+                                                                `Student #${submission.student_id}`
+                                                            )
+                                                                .trim()
+                                                                .charAt(0)
+                                                                .toUpperCase()}
                                                         </div>
 
-                                                        <div className="flex items-center gap-3 sm:shrink-0">
-                                                            <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-700 ring-1 ring-inset ring-amber-200">
-                                                                <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
-                                                                Pending Review
-                                                            </span>
+                                                        <div className="min-w-0">
+                                                            <p className="truncate text-sm font-bold text-slate-900">
+                                                                {submission.student?.full_name ??
+                                                                    `Student #${submission.student_id}`}
+                                                            </p>
 
-                                                            <Link
-                                                                href={`/academic-supervisor/logbook/${submission.id}/review`}
-                                                                className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-blue-700"
-                                                            >
-                                                                Review
-                                                                <ChevronRight
-                                                                    size={15}
-                                                                />
-                                                            </Link>
+                                                            <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-400">
+                                                                <span>ID #{submission.student_id}</span>
+                                                                {submission.student?.pb_student_code && (
+                                                                    <span>{submission.student.pb_student_code}</span>
+                                                                )}
+                                                                <span>
+                                                                    {formatDate(submission.week_start)} – {formatDate(submission.week_end)}
+                                                                </span>
+                                                            </div>
                                                         </div>
                                                     </div>
+
+                                                    <div className="flex items-center gap-3 sm:shrink-0">
+                                                        {renderStatusBadge(submission.status)}
+
+                                                        <Link
+                                                            href={`/academic-supervisor/logbook/${submission.id}/review`}
+                                                            className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-blue-700"
+                                                        >
+                                                            Review
+                                                            <ChevronRight size={15} />
+                                                        </Link>
+                                                    </div>
                                                 </div>
-                                            )
-                                        )}
+                                            </div>
+                                        ))}
                                     </div>
                                 )}
                             </div>
@@ -605,95 +539,60 @@ export default function Logbook({
                                         </p>
 
                                         <p className="mt-1 text-sm text-slate-500">
-                                            Reviewed weekly logbooks will appear
-                                            here.
+                                            Reviewed weekly logbooks will appear here.
                                         </p>
                                     </div>
                                 ) : (
                                     <div className="divide-y divide-slate-100">
-                                        {reviewedSubmissions.map(
-                                            (submission) => (
-                                                <div
-                                                    key={submission.id}
-                                                    className="group px-5 py-5 transition hover:bg-slate-50/70 sm:px-6"
-                                                >
-                                                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                                                        <div className="flex min-w-0 items-center gap-3">
-                                                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-sm font-bold text-emerald-600">
-                                                                {(
-                                                                    submission
-                                                                        .student
-                                                                        ?.full_name ??
-                                                                    `Student #${submission.student_id}`
-                                                                )
-                                                                    .trim()
-                                                                    .charAt(0)
-                                                                    .toUpperCase()}
-                                                            </div>
-
-                                                            <div className="min-w-0">
-                                                                <p className="truncate text-sm font-bold text-slate-900">
-                                                                    {submission
-                                                                        .student
-                                                                        ?.full_name ??
-                                                                        `Student #${submission.student_id}`}
-                                                                </p>
-
-                                                                <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-400">
-                                                                    <span>
-                                                                        ID #
-                                                                        {
-                                                                            submission.student_id
-                                                                        }
-                                                                    </span>
-
-                                                                    {submission
-                                                                        .student
-                                                                        ?.pb_student_code && (
-                                                                        <span>
-                                                                            {
-                                                                                submission
-                                                                                    .student
-                                                                                    .pb_student_code
-                                                                            }
-                                                                        </span>
-                                                                    )}
-
-                                                                    <span>
-                                                                        {formatDate(
-                                                                            submission.week_start
-                                                                        )}{' '}
-                                                                        –{' '}
-                                                                        {formatDate(
-                                                                            submission.week_end
-                                                                        )}
-                                                                    </span>
-                                                                </div>
-                                                            </div>
+                                        {reviewedSubmissions.map((submission) => (
+                                            <div
+                                                key={submission.id}
+                                                className="group px-5 py-5 transition hover:bg-slate-50/70 sm:px-6"
+                                            >
+                                                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                                                    <div className="flex min-w-0 items-center gap-3">
+                                                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-sm font-bold text-emerald-600">
+                                                            {(
+                                                                submission.student?.full_name ??
+                                                                `Student #${submission.student_id}`
+                                                            )
+                                                                .trim()
+                                                                .charAt(0)
+                                                                .toUpperCase()}
                                                         </div>
 
-                                                        <div className="flex items-center gap-3 sm:shrink-0">
-                                                            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700 ring-1 ring-inset ring-emerald-200">
-                                                                <CheckCircle2
-                                                                    size={13}
-                                                                />
-                                                                Reviewed
-                                                            </span>
+                                                        <div className="min-w-0">
+                                                            <p className="truncate text-sm font-bold text-slate-900">
+                                                                {submission.student?.full_name ??
+                                                                    `Student #${submission.student_id}`}
+                                                            </p>
 
-                                                            <Link
-                                                                href={`/academic-supervisor/logbook/${submission.id}/review`}
-                                                                className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
-                                                            >
-                                                                View
-                                                                <ChevronRight
-                                                                    size={15}
-                                                                />
-                                                            </Link>
+                                                            <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-400">
+                                                                <span>ID #{submission.student_id}</span>
+                                                                {submission.student?.pb_student_code && (
+                                                                    <span>{submission.student.pb_student_code}</span>
+                                                                )}
+                                                                <span>
+                                                                    {formatDate(submission.week_start)} – {formatDate(submission.week_end)}
+                                                                </span>
+                                                            </div>
                                                         </div>
                                                     </div>
+
+                                                    <div className="flex items-center gap-3 sm:shrink-0">
+                                                        {renderStatusBadge(submission.status)}
+
+                                                        <Link
+                                                            href={`/academic-supervisor/logbook/${submission.id}/review`}
+                                                            className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
+                                                        >
+                                                            View
+                                                            <ChevronRight size={15} />
+                                                        </Link>
+                                                    </div>
                                                 </div>
-                                            )
-                                        )}
+                                            </div>
+                                        ))}
                                     </div>
                                 )}
                             </div>

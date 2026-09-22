@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { router } from '@inertiajs/react';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import {
     ChevronLeft,
     ChevronRight,
@@ -10,9 +10,12 @@ import {
     CheckCircle2,
     CircleHelp,
     LockKeyhole,
+    MessageSquare,
+    Flag,
 } from 'lucide-react';
 
 interface LogbookEntryProp {
+    id?: number;
     status: string;
     description: string | null;
     learning_outcomes: string | null;
@@ -22,7 +25,9 @@ interface LogbookEntryProp {
 interface WeeklySubmission {
     week_start: string;
     week_end: string;
-    status: 'submitted' | 'pending' | 'reviewed';
+    status: 'submitted' | 'pending' | 'reviewed' | 'approved' | 'revision' | 'needs_revision' | 'pending_fix';
+    supervisor_feedback?: string | null;
+    flagged_entries?: (number | string)[] | null;
     submitted_at: string | null;
     reviewed_at: string | null;
 }
@@ -85,15 +90,31 @@ export default function Logbook({
 }: Props) {
     const today = new Date();
 
-    const [currentMonth, setCurrentMonth] = useState(
-        new Date(
-            today.getFullYear(),
-            today.getMonth(),
-            1
-        )
-    );
+    // Helper to read query parameters from the URL
+    const getQueryParam = (param: string) => {
+        if (typeof window === 'undefined') return null;
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+    };
 
-    const [selectedWeek, setSelectedWeek] = useState(0);
+    const urlWeekStart = getQueryParam('week');
+    const getDateKey = (date: Date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+
+    // Initialize month based on the week parameter if available
+    const [currentMonth, setCurrentMonth] = useState(() => {
+        if (urlWeekStart) {
+            const targetDate = new Date(`${urlWeekStart}T00:00:00`);
+            if (!isNaN(targetDate.getTime())) {
+                return new Date(targetDate.getFullYear(), targetDate.getMonth(), 1);
+            }
+        }
+        return new Date(today.getFullYear(), today.getMonth(), 1);
+    });
 
     const [showMonthPicker, setShowMonthPicker] =
         useState(false);
@@ -217,6 +238,20 @@ export default function Logbook({
         return generatedWeeks;
     }, [currentMonth]);
 
+    const initialWeekIndex = useMemo(() => {
+        if (!urlWeekStart) return 0;
+        const idx = weeks.findIndex((w) =>
+            w.days.some((d) => getDateKey(d.date) === urlWeekStart)
+        );
+        return idx !== -1 ? idx : 0;
+    }, [weeks, urlWeekStart]);
+
+    const [selectedWeek, setSelectedWeek] = useState(initialWeekIndex);
+
+    useEffect(() => {
+        setSelectedWeek(initialWeekIndex);
+    }, [initialWeekIndex]);
+
     /*
     |--------------------------------------------------------------------------
     | Active week
@@ -231,26 +266,7 @@ export default function Logbook({
     const selectedWeekData =
         weeks[activeWeekIndex];
 
-    /*
-    |--------------------------------------------------------------------------
-    | Date key
-    |--------------------------------------------------------------------------
-    */
-
-    const getDateKey = (date: Date) => {
-        const year =
-            date.getFullYear();
-
-        const month = String(
-            date.getMonth() + 1
-        ).padStart(2, '0');
-
-        const day = String(
-            date.getDate()
-        ).padStart(2, '0');
-
-        return `${year}-${month}-${day}`;
-    };
+    
 
     /*
     |--------------------------------------------------------------------------
@@ -262,10 +278,27 @@ export default function Logbook({
         ? getDateKey(selectedWeekData.days[0].date)
         : null;
 
-    const selectedWeekSubmission =
-        selectedWeekStart
-            ? weeklySubmissions[selectedWeekStart]
-            : undefined;
+    const selectedWeekSubmission = (() => {
+        if (!selectedWeekData) {
+            return undefined;
+        }
+
+        if (selectedWeekStart && weeklySubmissions[selectedWeekStart]) {
+            return weeklySubmissions[selectedWeekStart];
+        }
+
+        const dayKeys = selectedWeekData.days.map((day) =>
+            getDateKey(day.date)
+        );
+
+        return Object.values(weeklySubmissions).find((submission) =>
+            dayKeys.some(
+                (key) =>
+                    key >= submission.week_start &&
+                    key <= submission.week_end
+            )
+        );
+    })();
 
     const isWeekSubmitted =
         selectedWeekSubmission?.status === 'submitted';
@@ -274,7 +307,34 @@ export default function Logbook({
         selectedWeekSubmission?.status === 'pending';
 
     const isWeekReviewed =
-        selectedWeekSubmission?.status === 'reviewed';
+        selectedWeekSubmission?.status === 'reviewed' ||
+        selectedWeekSubmission?.status === 'approved';
+
+    const isWeekNeedsRevision =
+        selectedWeekSubmission?.status === 'pending_fix' ||
+        selectedWeekSubmission?.status === 'revision' ||
+        selectedWeekSubmission?.status === 'needs_revision';
+
+    const flaggedEntries =
+        selectedWeekSubmission?.flagged_entries ?? [];
+
+    const isDayFlagged = (day: LogbookDay) => {
+        if (flaggedEntries.length === 0) {
+            return false;
+        }
+
+        const key = getDateKey(day.date);
+        const entryId = entries[key]?.id;
+
+        return flaggedEntries.some((flagged) => {
+            const flaggedValue = String(flagged);
+
+            return (
+                flaggedValue === key ||
+                (entryId !== undefined && flaggedValue === String(entryId))
+            );
+        });
+    };
 
     /*
     |--------------------------------------------------------------------------
@@ -1052,6 +1112,35 @@ export default function Logbook({
                 REVIEWED LOCK MESSAGE
             ========================================================== */}
 
+            {isWeekNeedsRevision && (
+                <div
+                    className="
+                        mt-4
+                        flex
+                        items-center
+                        gap-3
+                        rounded-lg
+                        border
+                        border-red-200
+                        bg-red-50
+                        px-4
+                        py-3
+                    "
+                >
+                    <MessageSquare className="size-5 text-red-600" />
+
+                    <div>
+                        <p className="text-sm font-semibold text-red-800">
+                            Week Needs Revision
+                        </p>
+
+                        <p className="text-xs text-red-700">
+                            Your academic supervisor has requested changes for this week. Please check the remarks below, update your logs, and resubmit.
+                        </p>
+                    </div>
+                </div>
+            )}
+
             {isWeekReviewed && (
                 <div
                     className="
@@ -1124,6 +1213,8 @@ export default function Logbook({
                             isPreviousMonth ||
                             isNextMonth;
 
+                        const dayIsFlagged = isDayFlagged(day);
+
                         return (
                             <button
                                 type="button"
@@ -1145,7 +1236,9 @@ export default function Logbook({
                                     ${
                                         isWeekReviewed
                                             ? 'cursor-not-allowed bg-gray-50'
-                                            : 'hover:bg-gray-50'
+                                            : dayIsFlagged
+                                                ? 'bg-rose-50 hover:bg-rose-100'
+                                                : 'hover:bg-gray-50'
                                     }
                                 `}
                             >
@@ -1199,6 +1292,26 @@ export default function Logbook({
                                                 "
                                             >
                                                 Next month
+                                            </span>
+                                        )}
+
+                                        {dayIsFlagged && (
+                                            <span
+                                                className="
+                                                    inline-flex
+                                                    items-center
+                                                    gap-1
+                                                    rounded-full
+                                                    bg-rose-100
+                                                    px-2
+                                                    py-0.5
+                                                    text-[10px]
+                                                    font-medium
+                                                    text-rose-700
+                                                "
+                                            >
+                                                <Flag className="size-3" />
+                                                Needs revision
                                             </span>
                                         )}
 
@@ -1305,124 +1418,148 @@ export default function Logbook({
                 )}
             </div>
 
-
             {/* =========================================================
-                WEEKLY SUBMISSION
+                WEEKLY SUBMISSION & REMARKS
             ========================================================== */}
 
-            <div className="mt-6 flex justify-end">
+            <div className="mt-6 flex flex-col items-end gap-4">
+
+                {(selectedWeekSubmission?.supervisor_feedback ||
+                    flaggedEntries.length > 0) && (
+                    <div
+                        className={`w-full rounded-xl border p-5 shadow-sm ${
+                            isWeekNeedsRevision
+                                ? 'border-rose-200 bg-rose-50/70'
+                                : 'border-blue-200 bg-blue-50/70'
+                        }`}
+                    >
+                        <div
+                            className={`flex items-center gap-2 font-semibold ${
+                                isWeekNeedsRevision
+                                    ? 'text-rose-900'
+                                    : 'text-blue-900'
+                            }`}
+                        >
+                            <MessageSquare
+                                className={`size-4 ${
+                                    isWeekNeedsRevision
+                                        ? 'text-rose-600'
+                                        : 'text-blue-600'
+                                }`}
+                            />
+                            <span>Academic Supervisor Review</span>
+                        </div>
+
+                        {selectedWeekSubmission?.supervisor_feedback && (
+                            <p
+                                className={`mt-2 text-sm leading-relaxed whitespace-pre-line ${
+                                    isWeekNeedsRevision
+                                        ? 'text-rose-950'
+                                        : 'text-blue-950'
+                                }`}
+                            >
+                                {selectedWeekSubmission.supervisor_feedback}
+                            </p>
+                        )}
+
+                        {flaggedEntries.length > 0 && selectedWeekData && (
+                            <div className="mt-3">
+                                <p
+                                    className={`text-xs font-semibold uppercase tracking-wide ${
+                                        isWeekNeedsRevision
+                                            ? 'text-rose-700'
+                                            : 'text-blue-700'
+                                    }`}
+                                >
+                                    Days flagged for revision
+                                </p>
+                                <ul className="mt-2 space-y-1">
+                                    {selectedWeekData.days
+                                        .filter((day) => isDayFlagged(day))
+                                        .map((day) => (
+                                            <li
+                                                key={getDateKey(day.date)}
+                                                className={`flex items-center gap-2 text-sm ${
+                                                    isWeekNeedsRevision
+                                                        ? 'text-rose-800'
+                                                        : 'text-blue-800'
+                                                }`}
+                                            >
+                                                <Flag className="size-3.5 shrink-0" />
+                                                {day.dayName} — {day.formattedDate}
+                                            </li>
+                                        ))}
+                                </ul>
+                            </div>
+                        )}
+                    </div>
+                )}
 
                 {isWeekReviewed ? (
-
                     <button
                         type="button"
                         disabled
-                        className="
-                            flex
-                            items-center
-                            gap-2
-                            cursor-not-allowed
-                            rounded-lg
-                            border
-                            border-green-200
-                            bg-green-50
-                            px-5
-                            py-2.5
-                            text-sm
-                            font-semibold
-                            text-green-700
-                            opacity-90
-                        "
+                        className="flex items-center gap-2 cursor-not-allowed rounded-lg border border-green-200 bg-green-50 px-5 py-2.5 text-sm font-semibold text-green-700 opacity-90"
                     >
                         <LockKeyhole className="size-4" />
                         Reviewed & Locked
                     </button>
-
-                ) : isWeekPending ? (
-
-                    <button
-                        type="button"
-                        disabled
-                        className="
-                            cursor-not-allowed
-                            rounded-lg
-                            border
-                            border-yellow-200
-                            bg-yellow-50
-                            px-5
-                            py-2.5
-                            text-sm
-                            font-semibold
-                            text-yellow-700
-                            opacity-80
-                        "
-                    >
-                        Pending Review
-                    </button>
-
-                ) : isWeekSubmitted ? (
-
-                    <button
-                        type="button"
-                        disabled
-                        className="
-                            cursor-not-allowed
-                            rounded-lg
-                            border
-                            border-blue-200
-                            bg-blue-50
-                            px-5
-                            py-2.5
-                            text-sm
-                            font-semibold
-                            text-blue-700
-                            opacity-80
-                        "
-                    >
-                        Submitted
-                    </button>
-
-                ) : (
-
+                ) : isWeekNeedsRevision ? (
                     <button
                         type="button"
                         disabled={!isWeekComplete}
                         onClick={() => {
-
-                            if (
-                                !isWeekComplete ||
-                                !selectedWeekStart
-                            ) {
-                                return;
-                            }
+                            if (!isWeekComplete || !selectedWeekStart) return;
 
                             router.post(
-                                route(
-                                    'student.logbook.submit-week'
-                                ),
-                                {
-                                    week_start:
-                                        selectedWeekStart,
-                                }
+                                route('student.logbook.submit-week'),
+                                { week_start: selectedWeekStart }
                             );
                         }}
-                        className={`
-                            rounded-lg
-                            px-5
-                            py-2.5
-                            text-sm
-                            font-semibold
-                            transition
-                            ${
-                                isWeekComplete
-                                    ? 'bg-blue-600 text-white hover:bg-blue-700'
-                                    : 'cursor-not-allowed bg-gray-200 text-gray-400'
-                            }
-                        `}
+                        className={`rounded-lg px-5 py-2.5 text-sm font-semibold transition ${
+                            isWeekComplete
+                                ? 'bg-blue-600 text-white hover:bg-blue-700'
+                                : 'cursor-not-allowed bg-gray-200 text-gray-400'
+                        }`}
+                    >
+                        Resubmit Week
+                    </button>
+                ) : isWeekPending ? (
+                    <button
+                        type="button"
+                        disabled
+                        className="cursor-not-allowed rounded-lg border border-yellow-200 bg-yellow-50 px-5 py-2.5 text-sm font-semibold text-yellow-700 opacity-80"
+                    >
+                        Pending Review
+                    </button>
+                ) : isWeekSubmitted ? (
+                    <button
+                        type="button"
+                        disabled
+                        className="cursor-not-allowed rounded-lg border border-blue-200 bg-blue-50 px-5 py-2.5 text-sm font-semibold text-blue-700 opacity-80"
+                    >
+                        Submitted
+                    </button>
+                ) : (
+                    <button
+                        type="button"
+                        disabled={!isWeekComplete}
+                        onClick={() => {
+                            if (!isWeekComplete || !selectedWeekStart) return;
+
+                            router.post(
+                                route('student.logbook.submit-week'),
+                                { week_start: selectedWeekStart }
+                            );
+                        }}
+                        className={`rounded-lg px-5 py-2.5 text-sm font-semibold transition ${
+                            isWeekComplete
+                                ? 'bg-blue-600 text-white hover:bg-blue-700'
+                                : 'cursor-not-allowed bg-gray-200 text-gray-400'
+                        }`}
                     >
                         Submit Week
                     </button>
-
                 )}
 
             </div>
