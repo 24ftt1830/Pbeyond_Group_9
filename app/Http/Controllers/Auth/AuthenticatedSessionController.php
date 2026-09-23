@@ -51,6 +51,10 @@ class AuthenticatedSessionController extends Controller
                 'Academic Supervisor' => redirect()->route(
                     'academic-supervisor.logbook'
                 ),
+
+                'Industry Supervisor' => redirect()->route(
+                    'industry-supervisor.dashboard'
+                ),
             };
         }
 

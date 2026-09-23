@@ -89,6 +89,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 icon: FileText
             },
         ],
+
+        'Industry Supervisor': [
+            {
+                title: "My Students",
+                url: route('industry-supervisor.students'),
+                icon: BookOpen
+            },
+        ],
     };
 
     const navMainItems = roleNavigation[auth.user.role] || [];

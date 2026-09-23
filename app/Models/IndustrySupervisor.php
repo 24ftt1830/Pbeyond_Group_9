@@ -7,26 +7,54 @@ use Illuminate\Database\Eloquent\Model;
 class IndustrySupervisor extends Model
 {
     protected $table = 'industry_supervisors';
+
     protected $primaryKey = 'supervisor_id';
+
     public $timestamps = false;
 
     protected $fillable = [
-        'company_id', 'full_name', 'email', 'phone', 'position'
+        'user_id',
+        'company_id',
+        'full_name',
+        'email',
+        'phone',
+        'position',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(
+            User::class,
+            'user_id',
+            'user_id'
+        );
+    }
 
     public function company()
     {
-        return $this->belongsTo(Company::class, 'company_id', 'company_id');
+        return $this->belongsTo(
+            Company::class,
+            'company_id',
+            'company_id'
+        );
     }
 
     public function assignments()
     {
-        return $this->hasMany(SupervisorAssignment::class, 'supervisor_id', 'supervisor_id');
+        return $this->hasMany(
+            SupervisorAssignment::class,
+            'supervisor_id',
+            'supervisor_id'
+        );
     }
 
     public function students()
     {
-        return $this->belongsToMany(Student::class, 'supervisor_assignments',
-                                    'supervisor_id', 'student_id');
+        return $this->belongsToMany(
+            Student::class,
+            'supervisor_assignments',
+            'supervisor_id',
+            'student_id'
+        );
     }
 }

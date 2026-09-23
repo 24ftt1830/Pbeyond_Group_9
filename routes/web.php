@@ -12,6 +12,7 @@ use App\Http\Controllers\Student\ProfileController as StudentProfileController;
 use App\Http\Controllers\Student\ReportController as StudentReportController;
 use App\Http\Controllers\AcademicSupervisor\LogbookController as AcademicSupervisorLogbookController;
 use App\Http\Controllers\AcademicSupervisor\StudentController as AcademicSupervisorStudentController;
+use App\Http\Controllers\IndustrySupervisor\StudentController as IndustrySupervisorStudentController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -393,6 +394,32 @@ Route::middleware('auth')->group(function () {
         )->name('student.show');
     });
 
+    // =========================================================
+    // INDUSTRY SUPERVISOR ROUTES
+    // =========================================================
+
+    Route::middleware(['role:Industry Supervisor'])
+        ->prefix('industry-supervisor')
+        ->name('industry-supervisor.')
+        ->group(function () {
+
+            Route::get(
+                '/dashboard',
+                function () {
+                    return Inertia::render('IndustrySupervisor/Dashboard');
+                }
+            )->name('dashboard');
+
+            Route::get(
+                '/students',
+                [IndustrySupervisorStudentController::class, 'index']
+            )->name('students');
+
+            Route::get(
+                '/students/{student}',
+                [IndustrySupervisorStudentController::class, 'show']
+            )->name('student.show');
+        });
 
     // =========================================================
     // STUDENT ROUTES

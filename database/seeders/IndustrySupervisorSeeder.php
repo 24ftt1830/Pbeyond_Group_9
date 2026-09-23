@@ -11,6 +11,7 @@ class IndustrySupervisorSeeder extends Seeder
     {
         DB::table('industry_supervisors')->insert([
             [
+                'user_id' => 14,
                 'company_id' => 1,
                 'full_name' => 'Ali Tan Abdullah',
                 'email' => 'ali.tan@techcorp.com',
@@ -18,6 +19,7 @@ class IndustrySupervisorSeeder extends Seeder
                 'position' => 'Technical Lead'
             ],
             [
+                'user_id' => null,
                 'company_id' => 1,
                 'full_name' => 'Nurul Huda',
                 'email' => 'nurul.huda@techcorp.com',
@@ -25,6 +27,7 @@ class IndustrySupervisorSeeder extends Seeder
                 'position' => 'HR Manager'
             ],
             [
+                'user_id' => null,
                 'company_id' => 2,
                 'full_name' => 'Rina Wong',
                 'email' => 'rina.wong@globaltech.com',
@@ -32,6 +35,7 @@ class IndustrySupervisorSeeder extends Seeder
                 'position' => 'Regional Supervisor'
             ],
             [
+                'user_id' => null,
                 'company_id' => 3,
                 'full_name' => 'Haji Ahmad Bin Hassan',
                 'email' => 'ahmad.hassan@datatech.com',
@@ -39,6 +43,7 @@ class IndustrySupervisorSeeder extends Seeder
                 'position' => 'Data Science Manager'
             ],
             [
+                'user_id' => null,
                 'company_id' => 4,
                 'full_name' => 'Lim Siew Ling',
                 'email' => 'siewling.lim@shell.com',
@@ -48,4 +53,3 @@ class IndustrySupervisorSeeder extends Seeder
         ]);
     }
 }
-

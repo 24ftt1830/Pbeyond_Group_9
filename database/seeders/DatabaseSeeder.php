@@ -22,8 +22,8 @@ class DatabaseSeeder extends Seeder
             //StudentLanguageSeeder::class,
             //PlacementQuotaSeeder::class,
             //ApplicationSeeder::class,
-            //IndustrySupervisorSeeder::class,
-            //IndustrySupervisorAssignmentSeeder::class,
+            IndustrySupervisorSeeder::class,
+            IndustrySupervisorAssignmentSeeder::class,
         ]);
     }
 }

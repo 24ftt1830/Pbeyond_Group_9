@@ -11,17 +11,18 @@ class EnsureUserHasRole
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response) $next
      */
     public function handle(Request $request, Closure $next, string $role): Response
     {
-        
         if ($request->user() && $request->user()->role !== $role) {
             // Redirect based on their actual role if they try to access wrong route
             return redirect(match ($request->user()->role) {
                 'Admin' => '/admin/dashboard',
                 'Student' => '/student/dashboard',
                 'Company' => '/company/dashboard',
+                'Academic Supervisor' => '/academic-supervisor/dashboard',
+                'Industry Supervisor' => '/industry-supervisor/dashboard',
                 default => '/',
             })->with('error', 'Unauthorized access.');
         }

@@ -42,22 +42,76 @@ class User extends Authenticatable
         return $this->role === 'Academic Supervisor';
     }
 
+    public function isIndustrySupervisor(): bool
+    {
+        return $this->role === 'Industry Supervisor';
+    }
+
     public function getAuthPassword()
     {
         return $this->password;
     }
 
-    public function student() { return $this->hasOne(Student::class, 'user_id', 'user_id'); }
-    public function company() { return $this->belongsTo(Company::class, 'company_id', 'company_id'); }
-    public function ildAdmin() { return $this->hasOne(IldAdmin::class, 'user_id', 'user_id'); }
+    public function student()
+    {
+        return $this->hasOne(
+            Student::class,
+            'user_id',
+            'user_id'
+        );
+    }
+
+    public function company()
+    {
+        return $this->belongsTo(
+            Company::class,
+            'company_id',
+            'company_id'
+        );
+    }
+
+    public function industrySupervisor()
+    {
+        return $this->hasOne(
+            IndustrySupervisor::class,
+            'user_id',
+            'user_id'
+        );
+    }
+
+    public function ildAdmin()
+    {
+        return $this->hasOne(
+            IldAdmin::class,
+            'user_id',
+            'user_id'
+        );
+    }
+
     public function favourites()
     {
-    return $this->hasMany(Favourite::class, 'user_id', 'user_id');}
+        return $this->hasMany(
+            Favourite::class,
+            'user_id',
+            'user_id'
+        );
+    }
+
     public function documents()
     {
-    return $this->hasMany(Document::class, 'user_id', 'user_id');}
+        return $this->hasMany(
+            Document::class,
+            'user_id',
+            'user_id'
+        );
+    }
 
     public function reports()
     {
-    return $this->hasMany(Report::class, 'user_id', 'user_id');}
+        return $this->hasMany(
+            Report::class,
+            'user_id',
+            'user_id'
+        );
+    }
 }

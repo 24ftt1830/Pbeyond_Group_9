@@ -2,7 +2,8 @@ export type UserRole =
     | 'Admin'
     | 'Company'
     | 'Student'
-    | 'Academic Supervisor';
+    | 'Academic Supervisor'
+    | 'Industry Supervisor';
 
 export interface User {
     id: number;
