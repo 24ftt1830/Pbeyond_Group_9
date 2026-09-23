@@ -293,7 +293,6 @@ Route::middleware('auth')->group(function () {
                 [App\Http\Controllers\Company\QuotaController::class, 'close']
             )->name('quotas.close');
 
-
             Route::get(
                 '/applications',
                 [App\Http\Controllers\Company\ApplicationController::class, 'index']
@@ -310,16 +309,25 @@ Route::middleware('auth')->group(function () {
             )->name('applications.view');
 
             Route::put(
-            '/applications/{quota:quota_id}/update-status/{application}',
-            [App\Http\Controllers\Company\ApplicationController::class, 'updateStatus']
+                '/applications/{quota:quota_id}/update-status/{application}',
+                [App\Http\Controllers\Company\ApplicationController::class, 'updateStatus']
             )->name('applications.update-status');
-
 
             Route::get(
                 '/representatives',
                 [App\Http\Controllers\Company\RepresentativeController::class, 'index']
             )->name('representatives');
 
+            // COMPANY MANAGE USERS
+            Route::get(
+                '/manage-users',
+                [App\Http\Controllers\Company\UserManagementController::class, 'index']
+            )->name('manage-users');
+
+            Route::post(
+                '/manage-users',
+                [App\Http\Controllers\Company\UserManagementController::class, 'store']
+            )->name('manage-users.store');
 
             Route::get(
                 '/profile',
@@ -330,7 +338,6 @@ Route::middleware('auth')->group(function () {
                 '/profile',
                 [App\Http\Controllers\Company\ProfileController::class, 'update']
             )->name('profile.update');
-
 
             Route::get(
                 '/interns',
