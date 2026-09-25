@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class AcademicSupervisorAssignment extends Model
 {
@@ -31,6 +32,15 @@ class AcademicSupervisorAssignment extends Model
             Student::class,
             'student_id',
             'student_id'
+        );
+    }
+    
+    public function visits(): HasMany
+    {
+        return $this->hasMany(
+            AcademicSupervisorVisit::class,
+            'assignment_id',
+            'assignment_id'
         );
     }
 }

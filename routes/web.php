@@ -13,6 +13,7 @@ use App\Http\Controllers\Student\ReportController as StudentReportController;
 use App\Http\Controllers\AcademicSupervisor\LogbookController as AcademicSupervisorLogbookController;
 use App\Http\Controllers\AcademicSupervisor\StudentController as AcademicSupervisorStudentController;
 use App\Http\Controllers\IndustrySupervisor\StudentController as IndustrySupervisorStudentController;
+use App\Http\Controllers\AcademicSupervisor\VisitController as AcademicSupervisorVisitController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -370,36 +371,44 @@ Route::middleware('auth')->group(function () {
         ->name('academic-supervisor.')
         ->group(function () {
 
-        // Logbook
+            // Logbook
 
-        Route::get(
-            '/logbook',
-            [AcademicSupervisorLogbookController::class, 'index']
-        )->name('logbook');
+            Route::get(
+                '/logbook',
+                [AcademicSupervisorLogbookController::class, 'index']
+            )->name('logbook');
 
-        Route::get(
-            '/logbook/{submission}/review',
-            [AcademicSupervisorLogbookController::class, 'review']
-        )->name('logbook.review');
+            Route::get(
+                '/logbook/{submission}/review',
+                [AcademicSupervisorLogbookController::class, 'review']
+            )->name('logbook.review');
 
-        Route::post(
-            '/logbook/{submission}/mark-reviewed',
-            [AcademicSupervisorLogbookController::class, 'markReviewed']
-        )->name('logbook.mark-reviewed');
+            Route::post(
+                '/logbook/{submission}/mark-reviewed',
+                [AcademicSupervisorLogbookController::class, 'markReviewed']
+            )->name('logbook.mark-reviewed');
 
 
-        // Students
+            // Students
 
-        Route::get(
-            '/students',
-            [AcademicSupervisorStudentController::class, 'index']
-        )->name('students');
+            Route::get(
+                '/students',
+                [AcademicSupervisorStudentController::class, 'index']
+            )->name('students');
 
-        Route::get(
-            '/students/{student}',
-            [AcademicSupervisorStudentController::class, 'show']
-        )->name('student.show');
-    });
+            Route::get(
+                '/students/{student}',
+                [AcademicSupervisorStudentController::class, 'show']
+            )->name('student.show');
+
+            // Internship Visits
+
+            Route::post(
+                '/students/{student}/visits',
+                [AcademicSupervisorVisitController::class, 'store']
+            )->name('student.visits.store');
+        });
+
 
     // =========================================================
     // INDUSTRY SUPERVISOR ROUTES

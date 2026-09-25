@@ -1,4 +1,5 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, useForm } from '@inertiajs/react';
+import type { FormEvent } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import {
     ArrowLeft,
@@ -85,6 +86,12 @@ interface WorkExperience {
     end_date?: string;
 }
 
+interface InternshipVisit {
+    visit_id: number;
+    visit_date: string;
+    notes: string;
+}
+
 interface Student {
     student_id: number;
     pb_student_code: string;
@@ -126,6 +133,7 @@ interface Student {
 
 interface Props {
     student: Student;
+    visits: InternshipVisit[];
 }
 
 const display = (value?: string | number | null) => {
@@ -136,7 +144,33 @@ const display = (value?: string | number | null) => {
     return String(value);
 };
 
-export default function StudentDetails({ student }: Props) {
+export default function StudentDetails({ student, visits }: Props) {
+    const {
+        data,
+        setData,
+        post,
+        processing,
+        errors,
+        reset,
+    } = useForm({
+        visit_date: '',
+        notes: '',
+    });
+
+    const submitVisit = (event: FormEvent) => {
+        event.preventDefault();
+
+        post(
+            route(
+                'academic-supervisor.student.visits.store',
+                student.student_id
+            ),
+            {
+                onSuccess: () => reset(),
+            }
+        );
+    };
+
     const professionalProfile =
         student.professionalProfile ?? student.professional_profile;
 
@@ -177,9 +211,7 @@ export default function StudentDetails({ student }: Props) {
                                 </h1>
 
                                 <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-500">
-                                    <span>
-                                        {student.pb_student_code}
-                                    </span>
+                                    <span>{student.pb_student_code}</span>
 
                                     {student.programme?.programme_name && (
                                         <span>
@@ -188,9 +220,7 @@ export default function StudentDetails({ student }: Props) {
                                     )}
 
                                     {student.intake_session && (
-                                        <span>
-                                            {student.intake_session}
-                                        </span>
+                                        <span>{student.intake_session}</span>
                                     )}
                                 </div>
                             </div>
@@ -299,9 +329,7 @@ export default function StudentDetails({ student }: Props) {
                         <div className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:grid-cols-2 lg:grid-cols-3">
                             <InfoItem
                                 label="Programme"
-                                value={
-                                    student.programme?.programme_name
-                                }
+                                value={student.programme?.programme_name}
                             />
 
                             <InfoItem
@@ -320,6 +348,113 @@ export default function StudentDetails({ student }: Props) {
                             />
                         </div>
                     </section>
+
+                    {/* Internship Visits */}
+                    <SectionCard
+                        title="Internship Visits"
+                        icon={<CalendarDays size={20} />}
+                    >
+                        <form
+                            onSubmit={submitVisit}
+                            className="mb-8 space-y-4"
+                        >
+                            <div>
+                                <label
+                                    htmlFor="visit_date"
+                                    className="mb-1 block text-sm font-semibold text-slate-700"
+                                >
+                                    Visit Date
+                                </label>
+
+                                <input
+                                    id="visit_date"
+                                    type="date"
+                                    value={data.visit_date}
+                                    onChange={(event) =>
+                                        setData(
+                                            'visit_date',
+                                            event.target.value
+                                        )
+                                    }
+                                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    required
+                                />
+
+                                {errors.visit_date && (
+                                    <p className="mt-1 text-sm text-red-600">
+                                        {errors.visit_date}
+                                    </p>
+                                )}
+                            </div>
+
+                            <div>
+                                <label
+                                    htmlFor="notes"
+                                    className="mb-1 block text-sm font-semibold text-slate-700"
+                                >
+                                    Visit Notes
+                                </label>
+
+                                <textarea
+                                    id="notes"
+                                    value={data.notes}
+                                    onChange={(event) =>
+                                        setData('notes', event.target.value)
+                                    }
+                                    rows={4}
+                                    placeholder="Enter details about the internship visit..."
+                                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    required
+                                />
+
+                                {errors.notes && (
+                                    <p className="mt-1 text-sm text-red-600">
+                                        {errors.notes}
+                                    </p>
+                                )}
+                            </div>
+
+                            <button
+                                type="submit"
+                                disabled={processing}
+                                className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                                {processing ? 'Saving...' : 'Record Visit'}
+                            </button>
+                        </form>
+
+                        <div className="border-t border-slate-100 pt-6">
+                            <h3 className="mb-4 font-semibold text-slate-900">
+                                Visit History
+                            </h3>
+
+                            {visits.length > 0 ? (
+                                <div className="space-y-3">
+                                    {visits.map((visit) => (
+                                        <div
+                                            key={visit.visit_id}
+                                            className="rounded-xl border border-slate-100 bg-slate-50 p-4"
+                                        >
+                                            <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-800">
+                                                <CalendarDays
+                                                    size={16}
+                                                    className="text-blue-600"
+                                                />
+
+                                                {visit.visit_date}
+                                            </div>
+
+                                            <p className="whitespace-pre-wrap text-sm leading-6 text-slate-600">
+                                                {visit.notes}
+                                            </p>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <EmptyState text="No internship visits recorded yet." />
+                            )}
+                        </div>
+                    </SectionCard>
 
                     {/* Professional Profile */}
                     <SectionCard
@@ -341,9 +476,7 @@ export default function StudentDetails({ student }: Props) {
                                     </p>
 
                                     <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-600">
-                                        {display(
-                                            professionalProfile.summary
-                                        )}
+                                        {display(professionalProfile.summary)}
                                     </p>
                                 </div>
                             </div>
@@ -445,15 +578,11 @@ export default function StudentDetails({ student }: Props) {
                                         className="rounded-xl border border-slate-100 bg-slate-50 p-4"
                                     >
                                         <p className="font-semibold text-slate-900">
-                                            {display(
-                                                education.qualification
-                                            )}
+                                            {display(education.qualification)}
                                         </p>
 
                                         <p className="mt-1 text-sm text-slate-600">
-                                            {display(
-                                                education.institution
-                                            )}
+                                            {display(education.institution)}
                                         </p>
 
                                         {education.field_of_study && (
@@ -482,15 +611,11 @@ export default function StudentDetails({ student }: Props) {
                                         className="rounded-xl border border-slate-100 bg-slate-50 p-4"
                                     >
                                         <p className="font-semibold text-slate-900">
-                                            {display(
-                                                experience.position
-                                            )}
+                                            {display(experience.position)}
                                         </p>
 
                                         <p className="mt-1 text-sm text-slate-600">
-                                            {display(
-                                                experience.company_name
-                                            )}
+                                            {display(experience.company_name)}
                                         </p>
 
                                         {experience.description && (
@@ -593,9 +718,7 @@ export default function StudentDetails({ student }: Props) {
 
                                             {achievement.description && (
                                                 <p className="mt-2 text-sm leading-6 text-slate-600">
-                                                    {
-                                                        achievement.description
-                                                    }
+                                                    {achievement.description}
                                                 </p>
                                             )}
                                         </div>
@@ -690,9 +813,7 @@ function SectionCard({
     return (
         <section className="mb-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             <div className="mb-5 flex items-center gap-2">
-                <span className="text-blue-600">
-                    {icon}
-                </span>
+                <span className="text-blue-600">{icon}</span>
 
                 <h2 className="text-lg font-bold text-slate-900">
                     {title}

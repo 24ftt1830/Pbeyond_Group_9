@@ -41,14 +41,12 @@ class StudentController extends Controller
             auth()->user()->user_id
         )->firstOrFail();
 
-        $isAssigned = $student->academicSupervisorAssignments()
+        $assignment = $student->academicSupervisorAssignments()
             ->where(
                 'academic_supervisor_id',
                 $academicSupervisor->academic_supervisor_id
             )
-            ->exists();
-
-        abort_unless($isAssigned, 403);
+            ->firstOrFail();
 
         $student->load([
             'programme',
@@ -64,8 +62,13 @@ class StudentController extends Controller
             'workExperiences',
         ]);
 
+        $visits = $assignment->visits()
+            ->orderByDesc('visit_date')
+            ->get();
+
         return Inertia::render('AcademicSupervisor/StudentDetails', [
             'student' => $student,
+            'visits' => $visits,
         ]);
     }
 }
