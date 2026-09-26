@@ -1,4 +1,5 @@
 import { Head, Link, useForm } from '@inertiajs/react';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import {
     Flag,
     CheckCircle2,
@@ -115,7 +116,7 @@ export default function LogbookReview({ submission, entries }: Props) {
     };
 
     return (
-        <>
+        <AuthenticatedLayout>
             <Head title="Review Weekly Logbook" />
 
             <div className="min-h-screen bg-slate-50 text-slate-900">
@@ -385,6 +386,6 @@ export default function LogbookReview({ submission, entries }: Props) {
                     </form>
                 </main>
             </div>
-        </>
+        </AuthenticatedLayout>
     );
 }
