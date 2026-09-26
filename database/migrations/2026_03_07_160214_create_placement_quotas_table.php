@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -17,37 +17,49 @@ return new class extends Migration
             $table->text('job_description')->nullable();
             $table->integer('total_slots');
             $table->decimal('min_cgpa', 3, 2)->default(0.00);
-            
+
             $table->boolean('interview_required')->default(false);
 
-            $table->enum('quota_status', ['Pending', 'Approved', 'Rejected'])->default('Pending');
+            $table->enum('quota_status', [
+                'Pending',
+                'Approved',
+                'Rejected',
+            ])->default('Pending');
+
             $table->boolean('is_released')->default(false);
             $table->timestamps();
 
             $table->foreign('company_id')
-                  ->references('company_id')
-                  ->on('companies')
-                  ->onDelete('cascade');
+                ->references('company_id')
+                ->on('companies')
+                ->onDelete('cascade');
+
             $table->foreign('programme_id')
-                  ->references('programme_id')
-                  ->on('programmes')
-                  ->onDelete('restrict');
+                ->references('programme_id')
+                ->on('programmes')
+                ->onDelete('restrict');
 
             $table->index('company_id');
             $table->index('programme_id');
             $table->index(['quota_status', 'is_released']);
         });
 
-        DB::statement('ALTER TABLE placement_quotas ADD CONSTRAINT chk_total_slots_positive CHECK (total_slots > 0);');
+        /*
+         * MySQL supports adding this named CHECK constraint
+         * after table creation. SQLite does not support this
+         * ALTER TABLE syntax, so skip it for SQLite tests.
+         */
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement(
+                'ALTER TABLE placement_quotas
+                 ADD CONSTRAINT chk_total_slots_positive
+                 CHECK (total_slots > 0)'
+            );
+        }
     }
 
     public function down(): void
     {
-        try {
-            DB::statement('ALTER TABLE placement_quotas DROP CONSTRAINT chk_total_slots_positive;');
-        } catch (\Exception $e) {
-        }
-        
         Schema::dropIfExists('placement_quotas');
     }
 };

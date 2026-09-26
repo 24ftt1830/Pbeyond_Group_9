@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Application;
 use App\Models\Company;
+use App\Models\LogbookWeeklySubmission;
 use App\Models\PlacementQuota;
 use App\Models\Student;
 use Illuminate\Http\Request;
@@ -20,7 +21,7 @@ class DashboardController extends Controller
          * For now, students with a current semester greater than 1
          * are considered part of the current internship population.
          */
-       $selectedSemester = $request->integer('semester');
+        $selectedSemester = $request->integer('semester');
 
         $currentStudents = Student::query()
             ->where('current_semester', '>', 1)
@@ -32,9 +33,9 @@ class DashboardController extends Controller
          * Pending companies
          */
         $pendingCompanies = Company::where(
-    'is_approved',
-        false
-    )->count();
+            'is_approved',
+            false
+        )->count();
 
         /*
          * Pending quota requests
@@ -50,21 +51,42 @@ class DashboardController extends Controller
         $totalStudents = (clone $currentStudents)->count();
 
         /*
-         * Students with an approved internship application
+         * Students with a recruited internship application
          */
         $placedStudents = (clone $currentStudents)
-    ->whereHas('applications', function ($query) {
-        $query->where('app_status', 'Recruited');
-    })
-    ->count();
+            ->whereHas('applications', function ($query) {
+                $query->where('app_status', 'Recruited');
+            })
+            ->count();
 
         /*
-         * Current students without an approved placement
+         * Current students without a recruited placement
          */
         $unplacedStudents = max(
             $totalStudents - $placedStudents,
             0
         );
+
+        /*
+         * Weekly logbook status counts
+         *
+         * These counts are system-wide and are not filtered
+         * by the selected semester.
+         */
+        $weeklyLogbooksAwaitingReview = LogbookWeeklySubmission::whereIn(
+            'status',
+            ['submitted', 'pending']
+        )->count();
+
+        $weeklyLogbooksApproved = LogbookWeeklySubmission::where(
+            'status',
+            'approved'
+        )->count();
+
+        $weeklyLogbooksNeedingFixes = LogbookWeeklySubmission::where(
+            'status',
+            'pending_fix'
+        )->count();
 
         /*
          * Available internship quota slots
@@ -144,12 +166,12 @@ class DashboardController extends Controller
                 'accepted_students' => $placedStudents,
                 'available_quotas' => $availableQuotas,
                 'placement_rate' => $placementRate,
+                'weekly_logbooks_awaiting_review' => $weeklyLogbooksAwaitingReview,
+                'weekly_logbooks_approved' => $weeklyLogbooksApproved,
+                'weekly_logbooks_needing_fixes' => $weeklyLogbooksNeedingFixes,
             ],
-
             'availableSemesters' => $availableSemesters,
-
             'selectedSemester' => $selectedSemester,
-
             'activities' => $activities,
         ]);
     }

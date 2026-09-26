@@ -7,6 +7,8 @@ import {
     AlertCircle,
     TrendingUp,
     BriefcaseBusiness,
+    CheckCircle2,
+    AlertTriangle,
 } from 'lucide-react';
 import {
     BarChart,
@@ -34,6 +36,9 @@ type DashboardStats = {
     accepted_students: number;
     available_quotas: number;
     placement_rate: number;
+    weekly_logbooks_awaiting_review: number;
+    weekly_logbooks_approved: number;
+    weekly_logbooks_needing_fixes: number;
 };
 
 type Activity = {
@@ -133,44 +138,69 @@ export default function AdminDashboard() {
                 </div>
 
                 <div className="space-y-8">
-                    {/* Statistics */}
+                    {/* Main Statistics */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         <StatCard
                             label="Pending Companies"
                             value={stats.pending_companies}
-                            icon={
-                                <Building2 className="size-4" />
-                            }
+                            icon={<Building2 className="size-4" />}
                             link="/admin/companies"
                         />
 
                         <StatCard
                             label="Quota Requests"
                             value={stats.pending_quotas}
-                            icon={
-                                <ClipboardCheck className="size-4" />
-                            }
+                            icon={<ClipboardCheck className="size-4" />}
                             link="/admin/quotas"
                         />
 
                         <StatCard
                             label="Accepted Students"
                             value={stats.accepted_students}
-                            icon={
-                                <Users className="size-4" />
-                            }
+                            icon={<Users className="size-4" />}
                             link="/admin/applications"
                         />
 
                         <StatCard
                             label="Available Quotas"
                             value={stats.available_quotas}
-                            icon={
-                                <BriefcaseBusiness className="size-4" />
-                            }
+                            icon={<BriefcaseBusiness className="size-4" />}
                             link="/admin/quotas"
                         />
                     </div>
+
+                    {/* Weekly Logbook Tracking */}
+                    <section>
+                        <div className="mb-4">
+                            <h2 className="text-lg font-semibold text-zinc-900">
+                                Weekly Logbook Tracking
+                            </h2>
+
+                            <p className="text-sm text-zinc-500 mt-1">
+                                Overview of submitted weekly logbooks and their review status.
+                            </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <StatCard
+                                label="Awaiting Review"
+                                value={stats.weekly_logbooks_awaiting_review}
+                                icon={<ClipboardCheck className="size-4" />}
+                            />
+
+                            <StatCard
+                                label="Approved Logbooks"
+                                value={stats.weekly_logbooks_approved}
+                                icon={<CheckCircle2 className="size-4" />}
+                            />
+
+                            <StatCard
+                                label="Needs Fixes"
+                                value={stats.weekly_logbooks_needing_fixes}
+                                icon={<AlertTriangle className="size-4" />}
+                            />
+                        </div>
+                    </section>
 
                     {/* Placement + Activity */}
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -357,31 +387,31 @@ function StatCard({
     label: string;
     value: number;
     icon: React.ReactNode;
-    link: string;
+    link?: string;
 }) {
-    return (
-        <Link href={link}>
-            <Card className="shadow-none border-zinc-200 hover:border-zinc-300 transition-colors group">
-                <CardContent className="p-6">
-                    <div className="flex justify-between items-start">
-                        <div className="space-y-1">
-                            <p className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest">
-                                {label}
-                            </p>
+    const card = (
+        <Card className="shadow-none border-zinc-200 hover:border-zinc-300 transition-colors group">
+            <CardContent className="p-6">
+                <div className="flex justify-between items-start">
+                    <div className="space-y-1">
+                        <p className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest">
+                            {label}
+                        </p>
 
-                            <h4 className="text-3xl font-bold text-zinc-900">
-                                {value}
-                            </h4>
-                        </div>
-
-                        <div className="p-2.5 rounded-md border border-zinc-100 bg-zinc-50 group-hover:text-zinc-900 transition-colors">
-                            {icon}
-                        </div>
+                        <h4 className="text-3xl font-bold text-zinc-900">
+                            {value}
+                        </h4>
                     </div>
-                </CardContent>
-            </Card>
-        </Link>
+
+                    <div className="p-2.5 rounded-md border border-zinc-100 bg-zinc-50 group-hover:text-zinc-900 transition-colors">
+                        {icon}
+                    </div>
+                </div>
+            </CardContent>
+        </Card>
     );
+
+    return link ? <Link href={link}>{card}</Link> : card;
 }
 
 AdminDashboard.layout = (page: React.ReactNode) => (
