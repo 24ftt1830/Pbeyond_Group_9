@@ -239,11 +239,29 @@ export default function Logbook({
     }, [currentMonth]);
 
     const initialWeekIndex = useMemo(() => {
-        if (!urlWeekStart) return 0;
-        const idx = weeks.findIndex((w) =>
-            w.days.some((d) => getDateKey(d.date) === urlWeekStart)
+        // If a specific week is in the URL, use that week.
+        if (urlWeekStart) {
+            const urlWeekIndex = weeks.findIndex((week) =>
+                week.days.some(
+                    (day) => getDateKey(day.date) === urlWeekStart
+                )
+            );
+
+            if (urlWeekIndex !== -1) {
+                return urlWeekIndex;
+            }
+        }
+
+        // Otherwise, automatically select the week containing today.
+        const todayKey = getDateKey(new Date());
+
+        const currentWeekIndex = weeks.findIndex((week) =>
+            week.days.some(
+                (day) => getDateKey(day.date) === todayKey
+            )
         );
-        return idx !== -1 ? idx : 0;
+
+        return currentWeekIndex !== -1 ? currentWeekIndex : 0;
     }, [weeks, urlWeekStart]);
 
     const [selectedWeek, setSelectedWeek] = useState(initialWeekIndex);
