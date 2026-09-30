@@ -26,6 +26,8 @@ class Evaluation extends Model
         'comments',
         'recommendation',
         'evaluated_at',
+        'academic_review_status',
+        'academic_reviewed_at',
     ];
 
     protected $casts = [
@@ -37,6 +39,7 @@ class Evaluation extends Model
         'initiative' => 'integer',
         'professionalism' => 'integer',
         'evaluated_at' => 'datetime',
+        'academic_reviewed_at' => 'datetime',
     ];
 
     public function student()

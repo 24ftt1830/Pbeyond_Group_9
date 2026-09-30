@@ -1,4 +1,5 @@
 <?php
+use App\Http\Controllers\AcademicSupervisor\EvaluationController as AcademicEvaluationController;
 use App\Http\Controllers\IndustrySupervisor\EvaluationController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\ProfileController;
@@ -413,7 +414,13 @@ Route::middleware('auth')->group(function () {
                 '/students/{student}/visits',
                 [AcademicSupervisorVisitController::class, 'store']
             )->name('student.visits.store');
+
+            //Evaluation check
+            Route::post('/students/{student}/evaluation/complete', [AcademicEvaluationController::class, 'complete'])
+             ->name('student.evaluation.complete');
+
         });
+                
 
 
     // =========================================================

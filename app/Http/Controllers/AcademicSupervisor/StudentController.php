@@ -4,6 +4,7 @@ namespace App\Http\Controllers\AcademicSupervisor;
 
 use App\Http\Controllers\Controller;
 use App\Models\AcademicSupervisor;
+use App\Models\Evaluation;
 use App\Models\Student;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -66,9 +67,13 @@ class StudentController extends Controller
             ->orderByDesc('visit_date')
             ->get();
 
+        $evaluation = Evaluation::where('student_id', $student->student_id)
+            ->first();
+
         return Inertia::render('AcademicSupervisor/StudentDetails', [
             'student' => $student,
             'visits' => $visits,
+            'evaluation' => $evaluation,
         ]);
     }
 }

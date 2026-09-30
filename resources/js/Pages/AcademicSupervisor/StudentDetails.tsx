@@ -16,6 +16,10 @@ import {
     FolderKanban,
     Activity,
     UserRound,
+    ClipboardCheck,
+    CheckCircle2,
+    Loader2,
+    Star,
 } from 'lucide-react';
 
 interface Programme {
@@ -92,6 +96,22 @@ interface InternshipVisit {
     notes: string;
 }
 
+interface Evaluation {
+    attendance_punctuality: number;
+    work_quality: number;
+    technical_skills: number;
+    communication_skills: number;
+    teamwork: number;
+    initiative: number;
+    professionalism: number;
+    strengths?: string | null;
+    areas_for_improvement?: string | null;
+    comments?: string | null;
+    recommendation: string;
+    academic_review_status: 'Pending Review' | 'Completed';
+    academic_reviewed_at?: string | null;
+}
+
 interface Student {
     student_id: number;
     pb_student_code: string;
@@ -134,6 +154,7 @@ interface Student {
 interface Props {
     student: Student;
     visits: InternshipVisit[];
+    evaluation: Evaluation | null;
 }
 
 const display = (value?: string | number | null) => {
@@ -144,7 +165,7 @@ const display = (value?: string | number | null) => {
     return String(value);
 };
 
-export default function StudentDetails({ student, visits }: Props) {
+export default function StudentDetails({ student, visits, evaluation }: Props) {
     const {
         data,
         setData,
@@ -168,6 +189,18 @@ export default function StudentDetails({ student, visits }: Props) {
             {
                 onSuccess: () => reset(),
             }
+        );
+    };
+
+    const { post: postComplete, processing: completing } = useForm({});
+
+    const markEvaluationCompleted = () => {
+        postComplete(
+            route(
+                'academic-supervisor.student.evaluation.complete',
+                student.student_id
+            ),
+            { preserveScroll: true }
         );
     };
 
@@ -229,6 +262,108 @@ export default function StudentDetails({ student, visits }: Props) {
                 </header>
 
                 <main className="mx-auto max-w-6xl px-6 py-7 pb-16">
+                    {/* Industry Supervisor Evaluation */}
+                    <section className="mb-6">
+                        <div className="mb-4 flex items-center gap-2">
+                            <ClipboardCheck size={20} className="text-blue-600" />
+
+                            <h2 className="text-lg font-bold text-slate-900">
+                                Industry Supervisor Evaluation
+                            </h2>
+                        </div>
+
+                        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                            {!evaluation ? (
+                                <EmptyState text="The industry supervisor has not submitted an evaluation for this student yet." />
+                            ) : (
+                                <>
+                                    <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+                                        <span
+                                            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ring-1 ${
+                                                evaluation.academic_review_status === 'Completed'
+                                                    ? 'bg-emerald-50 text-emerald-700 ring-emerald-200'
+                                                    : 'bg-amber-50 text-amber-700 ring-amber-200'
+                                            }`}
+                                        >
+                                            <CheckCircle2 size={13} />
+                                            {evaluation.academic_review_status}
+                                        </span>
+
+                                        {evaluation.academic_review_status !== 'Completed' && (
+                                            <button
+                                                type="button"
+                                                onClick={markEvaluationCompleted}
+                                                disabled={completing}
+                                                className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50"
+                                            >
+                                                {completing ? (
+                                                    <Loader2 size={16} className="animate-spin" />
+                                                ) : (
+                                                    <CheckCircle2 size={16} />
+                                                )}
+                                                Mark as Completed
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    <div className="mb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                                        <RatingDisplay label="Attendance & Punctuality" value={evaluation.attendance_punctuality} />
+                                        <RatingDisplay label="Quality of Work" value={evaluation.work_quality} />
+                                        <RatingDisplay label="Technical Skills" value={evaluation.technical_skills} />
+                                        <RatingDisplay label="Communication Skills" value={evaluation.communication_skills} />
+                                        <RatingDisplay label="Teamwork" value={evaluation.teamwork} />
+                                        <RatingDisplay label="Initiative" value={evaluation.initiative} />
+                                        <RatingDisplay label="Professionalism" value={evaluation.professionalism} />
+                                    </div>
+
+                                    <div className="mb-5 rounded-xl bg-blue-50 px-4 py-3">
+                                        <p className="text-xs font-bold uppercase tracking-wide text-blue-600">
+                                            Overall Recommendation
+                                        </p>
+                                        <p className="mt-1 text-sm font-semibold text-blue-900">
+                                            {evaluation.recommendation}
+                                        </p>
+                                    </div>
+
+                                    <div className="grid gap-4 sm:grid-cols-2">
+                                        {evaluation.strengths && (
+                                            <div>
+                                                <p className="mb-1 text-xs font-bold uppercase tracking-wide text-slate-400">
+                                                    Strengths
+                                                </p>
+                                                <p className="text-sm leading-6 text-slate-600 whitespace-pre-wrap">
+                                                    {evaluation.strengths}
+                                                </p>
+                                            </div>
+                                        )}
+
+                                        {evaluation.areas_for_improvement && (
+                                            <div>
+                                                <p className="mb-1 text-xs font-bold uppercase tracking-wide text-slate-400">
+                                                    Areas for Improvement
+                                                </p>
+                                                <p className="text-sm leading-6 text-slate-600 whitespace-pre-wrap">
+                                                    {evaluation.areas_for_improvement}
+                                                </p>
+                                            </div>
+                                        )}
+
+                                        {evaluation.comments && (
+                                            <div className="sm:col-span-2">
+                                                <p className="mb-1 text-xs font-bold uppercase tracking-wide text-slate-400">
+                                                    Additional Comments
+                                                </p>
+                                                <p className="text-sm leading-6 text-slate-600 whitespace-pre-wrap">
+                                                    {evaluation.comments}
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    </section>
+
                     {/* Basic Information */}
                     <section className="mb-6">
                         <div className="mb-4 flex items-center gap-2">
@@ -830,5 +965,30 @@ function EmptyState({ text }: { text: string }) {
         <p className="rounded-xl bg-slate-50 px-4 py-5 text-sm text-slate-500">
             {text}
         </p>
+    );
+}
+
+function RatingDisplay({ label, value }: { label: string; value: number }) {
+    return (
+        <div className="rounded-xl border border-slate-100 bg-slate-50 p-3">
+            <p className="text-xs font-semibold text-slate-500">{label}</p>
+
+            <div className="mt-1.5 flex items-center gap-0.5">
+                {[1, 2, 3, 4, 5].map((score) => (
+                    <Star
+                        key={score}
+                        size={15}
+                        className={
+                            score <= value
+                                ? 'fill-amber-400 text-amber-400'
+                                : 'text-slate-200'
+                        }
+                    />
+                ))}
+                <span className="ml-1.5 text-xs font-bold text-slate-600">
+                    {value}/5
+                </span>
+            </div>
+        </div>
     );
 }
