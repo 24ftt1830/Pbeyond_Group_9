@@ -114,6 +114,15 @@ class UserSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
+            [
+                'username' => 'ali.tan',
+                'email' => 'ali.tan@techcorp.com',
+                'password' => Hash::make('password123'),
+                'role' => 'Industry Supervisor',
+                'company_id' => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
 
             // Companies
             [

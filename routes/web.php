@@ -1,5 +1,5 @@
 <?php
-
+use App\Http\Controllers\IndustrySupervisor\EvaluationController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Student\CalendarController as StudentCalendarController;
@@ -370,6 +370,12 @@ Route::middleware('auth')->group(function () {
         ->prefix('academic-supervisor')
         ->name('academic-supervisor.')
         ->group(function () {
+              Route::get(
+                '/dashboard',
+                function () {
+                    return Inertia::render('AcademicSupervisor/Dashboard');
+                }
+            )->name('dashboard');
 
             // Logbook
 
@@ -435,7 +441,16 @@ Route::middleware('auth')->group(function () {
                 '/students/{student}',
                 [IndustrySupervisorStudentController::class, 'show']
             )->name('student.show');
+
+            Route::get('/students/{student}/evaluate', [EvaluationController::class, 'create'])
+                ->name('student.evaluate');
+
+            Route::post('/students/{student}/evaluate', [EvaluationController::class, 'store'])
+                ->name('student.evaluate.store');
         });
+
+ 
+            
 
     // =========================================================
     // STUDENT ROUTES

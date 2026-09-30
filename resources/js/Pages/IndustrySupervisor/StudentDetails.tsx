@@ -15,6 +15,7 @@ import {
     FolderKanban,
     Activity,
     UserRound,
+   ClipboardCheck,
 } from 'lucide-react';
 
 interface Programme {
@@ -161,6 +162,16 @@ export default function StudentDetails({ student }: Props) {
                             <ArrowLeft size={16} />
                             Back to My Students
                         </Link>
+
+                        <Link
+                            href={route('industry-supervisor.student.evaluate', student.student_id)}
+                            className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
+                        >
+                            <ClipboardCheck size={10} />
+                            Evaluate Student
+                        </Link>
+                        
+                       
 
                         <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
                             <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">

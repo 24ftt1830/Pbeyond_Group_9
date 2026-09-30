@@ -11,7 +11,7 @@ class IndustrySupervisorSeeder extends Seeder
     {
         DB::table('industry_supervisors')->insert([
             [
-                'user_id' => 14,
+                'user_id' => 11,
                 'company_id' => 1,
                 'full_name' => 'Ali Tan Abdullah',
                 'email' => 'ali.tan@techcorp.com',
