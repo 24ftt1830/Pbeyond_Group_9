@@ -3,6 +3,7 @@ use App\Http\Controllers\AcademicSupervisor\EvaluationController as AcademicEval
 use App\Http\Controllers\IndustrySupervisor\EvaluationController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Admin\InterventionController;
 use App\Http\Controllers\Student\CalendarController as StudentCalendarController;
 use App\Http\Controllers\Student\CompanyController as StudentCompanyController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
@@ -86,6 +87,11 @@ Route::middleware('auth')->group(function () {
                 '/dashboard',
                 [App\Http\Controllers\Admin\DashboardController::class, 'index']
             )->name('dashboard');
+            
+            Route::get(
+                '/interventions',
+                [InterventionController::class, 'index']
+            )->name('interventions');
 
             Route::delete(
                 '/events/{event}',
@@ -407,6 +413,11 @@ Route::middleware('auth')->group(function () {
                 '/students/{student}',
                 [AcademicSupervisorStudentController::class, 'show']
             )->name('student.show');
+
+            Route::put(
+                '/students/{student}/monitoring-status',
+                [AcademicSupervisorStudentController::class, 'updateMonitoringStatus']
+            )->name('student.monitoring-status.update');
 
             // Internship Visits
 

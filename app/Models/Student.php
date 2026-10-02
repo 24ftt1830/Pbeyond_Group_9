@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Internship;
 use App\Models\Education;
 use App\Models\ProfessionalProfile;
 use App\Models\Project;
@@ -63,6 +64,15 @@ class Student extends Model
     public function applications(): HasMany
     {
         return $this->hasMany(Application::class, 'student_id', 'student_id');
+    }
+
+    public function internship()
+    {
+        return $this->hasOne(
+            Internship::class,
+            'student_id',
+            'student_id'
+        );
     }
 
     public function supervisorAssignments()

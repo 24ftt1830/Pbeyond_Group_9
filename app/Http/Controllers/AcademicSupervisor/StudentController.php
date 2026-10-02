@@ -74,6 +74,42 @@ class StudentController extends Controller
             'student' => $student,
             'visits' => $visits,
             'evaluation' => $evaluation,
+            'monitoringStatus' => $assignment->monitoring_status,
         ]);
+    }
+
+    public function updateMonitoringStatus(
+        Request $request,
+        Student $student
+    ) {
+        $academicSupervisor = AcademicSupervisor::where(
+            'user_id',
+            auth()->user()->user_id
+        )->firstOrFail();
+
+        $assignment = $student->academicSupervisorAssignments()
+            ->where(
+                'academic_supervisor_id',
+                $academicSupervisor->academic_supervisor_id
+            )
+            ->firstOrFail();
+
+        $validated = $request->validate([
+            'monitoring_status' => [
+                'required',
+                'in:On Track,Needs Attention,At Risk',
+            ],
+        ]);
+
+        $assignment->update([
+            'monitoring_status' => $validated['monitoring_status'],
+        ]);
+
+        return redirect()
+            ->route(
+                'academic-supervisor.student.show',
+                $student->student_id
+            )
+            ->with('success', 'Monitoring status updated successfully.');
     }
 }

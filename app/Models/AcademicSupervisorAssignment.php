@@ -15,6 +15,7 @@ class AcademicSupervisorAssignment extends Model
     protected $fillable = [
         'academic_supervisor_id',
         'student_id',
+        'monitoring_status',
     ];
 
     public function academicSupervisor(): BelongsTo

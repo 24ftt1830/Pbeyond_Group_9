@@ -155,6 +155,7 @@ interface Props {
     student: Student;
     visits: InternshipVisit[];
     evaluation: Evaluation | null;
+    monitoringStatus: 'On Track' | 'Needs Attention' | 'At Risk';
 }
 
 const display = (value?: string | number | null) => {
@@ -165,7 +166,7 @@ const display = (value?: string | number | null) => {
     return String(value);
 };
 
-export default function StudentDetails({ student, visits, evaluation }: Props) {
+export default function StudentDetails({ student, visits, evaluation, monitoringStatus, }: Props) {
     const {
         data,
         setData,
@@ -178,6 +179,15 @@ export default function StudentDetails({ student, visits, evaluation }: Props) {
         notes: '',
     });
 
+    const {
+        data: statusData,
+        setData: setStatusData,
+        put: updateStatus,
+        processing: updatingStatus,
+    } = useForm({
+        monitoring_status: monitoringStatus,
+    });
+
     const submitVisit = (event: FormEvent) => {
         event.preventDefault();
 
@@ -188,6 +198,20 @@ export default function StudentDetails({ student, visits, evaluation }: Props) {
             ),
             {
                 onSuccess: () => reset(),
+            }
+        );
+    };
+
+    const submitMonitoringStatus = (event: FormEvent) => {
+        event.preventDefault();
+
+        updateStatus(
+            route(
+                'academic-supervisor.student.monitoring-status.update',
+                student.student_id
+            ),
+            {
+                preserveScroll: true,
             }
         );
     };
@@ -489,6 +513,62 @@ export default function StudentDetails({ student, visits, evaluation }: Props) {
                         title="Internship Visits"
                         icon={<CalendarDays size={20} />}
                     >
+
+                        <div className="mb-8 rounded-xl border border-slate-200 bg-slate-50 p-5">
+                            <div className="mb-4">
+                                <h3 className="font-semibold text-slate-900">
+                                    Monitoring Status
+                                </h3>
+
+                                <p className="mt-1 text-sm text-slate-500">
+                                    Update the student's current internship monitoring status.
+                                </p>
+                            </div>
+
+                            <form
+                                onSubmit={submitMonitoringStatus}
+                                className="flex flex-col gap-3 sm:flex-row sm:items-end"
+                            >
+                                <div className="flex-1">
+                                    <label
+                                        htmlFor="monitoring_status"
+                                        className="mb-1 block text-sm font-semibold text-slate-700"
+                                    >
+                                        Status
+                                    </label>
+
+                                    <select
+                                        id="monitoring_status"
+                                        value={statusData.monitoring_status}
+                                        onChange={(event) =>
+                                            setStatusData(
+                                                'monitoring_status',
+                                                event.target.value as
+                                                    | 'On Track'
+                                                    | 'Needs Attention'
+                                                    | 'At Risk'
+                                            )
+                                        }
+                                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    >
+                                        <option value="On Track">On Track</option>
+                                        <option value="Needs Attention">
+                                            Needs Attention
+                                        </option>
+                                        <option value="At Risk">At Risk</option>
+                                    </select>
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    disabled={updatingStatus}
+                                    className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                                >
+                                    {updatingStatus ? 'Updating...' : 'Update Status'}
+                                </button>
+                            </form>
+                        </div>
+
                         <form
                             onSubmit={submitVisit}
                             className="mb-8 space-y-4"

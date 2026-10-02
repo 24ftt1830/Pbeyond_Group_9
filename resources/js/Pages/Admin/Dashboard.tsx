@@ -39,6 +39,9 @@ type DashboardStats = {
     weekly_logbooks_awaiting_review: number;
     weekly_logbooks_approved: number;
     weekly_logbooks_needing_fixes: number;
+    missing_logbooks: number;
+    approaching_completion: number;
+    requiring_intervention: number;
 };
 
 type Activity = {
@@ -167,6 +170,28 @@ export default function AdminDashboard() {
                             icon={<BriefcaseBusiness className="size-4" />}
                             link="/admin/quotas"
                         />
+
+                        <StatCard
+                            label="Approaching Completion"
+                            value={stats.approaching_completion}
+                            icon={<AlertCircle className="size-4" />}
+                        />
+
+                        <div className="relative">
+                            <StatCard
+                                label="Requiring Intervention"
+                                value={stats.requiring_intervention}
+                                icon={<AlertTriangle className="size-4" />}
+                            />
+
+                            <Link
+                                href={route('admin.interventions')}
+                                className="absolute bottom-4 right-4 text-xs font-semibold text-blue-600 hover:text-blue-800"
+                            >
+                                View Students →
+                            </Link>
+                        </div>
+                        
                     </div>
 
                     {/* Weekly Logbook Tracking */}
@@ -198,6 +223,12 @@ export default function AdminDashboard() {
                                 label="Needs Fixes"
                                 value={stats.weekly_logbooks_needing_fixes}
                                 icon={<AlertTriangle className="size-4" />}
+                            />
+
+                            <StatCard
+                                label="Missing Logbooks"
+                                value={stats.missing_logbooks}
+                                icon={<AlertCircle className="size-4" />}
                             />
                         </div>
                     </section>

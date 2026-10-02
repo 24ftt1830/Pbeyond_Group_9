@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Application;
 use App\Models\Company;
+use App\Models\Internship;
 use App\Models\LogbookWeeklySubmission;
 use App\Models\PlacementQuota;
 use App\Models\Student;
+use App\Models\AcademicSupervisorAssignment;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -16,15 +18,16 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         /*
-         * Students currently in an active internship semester.
-         *
-         * For now, students with a current semester greater than 1
-         * are considered part of the current internship population.
-         */
+        * Students currently on an active internship.
+        */
         $selectedSemester = $request->integer('semester');
 
         $currentStudents = Student::query()
-            ->where('current_semester', '>', 1)
+            ->whereHas('internship', function ($query) {
+                $query
+                    ->whereDate('start_date', '<=', now())
+                    ->whereDate('end_date', '>=', now());
+            })
             ->when($selectedSemester, function ($query) use ($selectedSemester) {
                 $query->where('current_semester', $selectedSemester);
             });
@@ -66,6 +69,49 @@ class DashboardController extends Controller
             $totalStudents - $placedStudents,
             0
         );
+        /*
+        * Missing weekly logbooks
+        *
+        * A logbook is expected for each Monday-starting week
+        * from the internship start date through the current week.
+        */
+        $missingLogbooks = 0;
+
+        $activeInternships = Internship::query()
+            ->whereDate('start_date', '<=', now())
+            ->whereDate('end_date', '>=', now())
+            ->get();
+
+        foreach ($activeInternships as $internship) {
+            $weekStart = $internship->start_date->copy()->startOfWeek();
+            $currentWeekStart = now()->startOfWeek();
+
+            while ($weekStart->lte($currentWeekStart)) {
+                $exists = LogbookWeeklySubmission::where(
+                    'student_id',
+                    $internship->student_id
+                )
+                    ->whereDate('week_start', $weekStart)
+                    ->exists();
+
+                if (!$exists) {
+                    $missingLogbooks++;
+                }
+
+                $weekStart->addWeek();
+            }
+        }
+
+        /*
+        * Students approaching internship completion.
+        *
+        * An internship is considered approaching completion
+        * when its end date is within the next 4 weeks.
+        */
+        $approachingCompletion = Internship::query()
+            ->whereDate('end_date', '>', now())
+            ->whereDate('end_date', '<=', now()->addWeeks(4))
+            ->count();
 
         /*
          * Weekly logbook status counts
@@ -157,6 +203,11 @@ class DashboardController extends Controller
                 ];
             });
 
+        $requiringIntervention = AcademicSupervisorAssignment::whereIn(
+            'monitoring_status',
+            ['Needs Attention', 'At Risk']
+        )->count();
+
         return Inertia::render('Admin/Dashboard', [
             'stats' => [
                 'pending_companies' => $pendingCompanies,
@@ -169,6 +220,9 @@ class DashboardController extends Controller
                 'weekly_logbooks_awaiting_review' => $weeklyLogbooksAwaitingReview,
                 'weekly_logbooks_approved' => $weeklyLogbooksApproved,
                 'weekly_logbooks_needing_fixes' => $weeklyLogbooksNeedingFixes,
+                'missing_logbooks' => $missingLogbooks,
+                'approaching_completion' => $approachingCompletion,
+                'requiring_intervention' => $requiringIntervention,
             ],
             'availableSemesters' => $availableSemesters,
             'selectedSemester' => $selectedSemester,
