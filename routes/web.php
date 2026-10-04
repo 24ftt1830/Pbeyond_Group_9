@@ -379,9 +379,7 @@ Route::middleware('auth')->group(function () {
         ->group(function () {
               Route::get(
                 '/dashboard',
-                function () {
-                    return Inertia::render('AcademicSupervisor/Dashboard');
-                }
+                [App\Http\Controllers\AcademicSupervisor\DashboardController::class, 'index']
             )->name('dashboard');
 
             // Logbook
@@ -445,9 +443,7 @@ Route::middleware('auth')->group(function () {
 
             Route::get(
                 '/dashboard',
-                function () {
-                    return Inertia::render('IndustrySupervisor/Dashboard');
-                }
+                [App\Http\Controllers\IndustrySupervisor\DashboardController::class, 'index']
             )->name('dashboard');
 
             Route::get(

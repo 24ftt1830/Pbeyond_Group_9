@@ -1,4 +1,5 @@
 import { Head, Link, useForm } from '@inertiajs/react';
+import { useState } from 'react';
 import type { FormEvent } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import {
@@ -166,7 +167,34 @@ const display = (value?: string | number | null) => {
     return String(value);
 };
 
+const formatDate = (value?: string | null) => {
+    if (!value) return 'Not provided';
+
+    const match = value.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (!match) return value;
+
+    const date = new Date(Date.UTC(
+        Number(match[1]),
+        Number(match[2]) - 1,
+        Number(match[3])
+    ));
+
+    return new Intl.DateTimeFormat('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        timeZone: 'UTC',
+    }).format(date);
+};
+
+const formatDateRange = (start?: string, end?: string) => {
+    if (!start && !end) return null;
+
+    return `${start ? formatDate(start) : 'Start date not provided'} – ${end ? formatDate(end) : 'Present'}`;
+};
+
 export default function StudentDetails({ student, visits, evaluation, monitoringStatus, }: Props) {
+    const [activeTab, setActiveTab] = useState<'overview' | 'profile'>('overview');
     const {
         data,
         setData,
@@ -237,57 +265,99 @@ export default function StudentDetails({ student, visits, evaluation, monitoring
     const workExperiences =
         student.workExperiences ?? student.work_experiences ?? [];
 
+    const monitoringTone = {
+        'On Track': 'border-emerald-200 bg-emerald-50 text-emerald-700',
+        'Needs Attention': 'border-amber-200 bg-amber-50 text-amber-700',
+        'At Risk': 'border-rose-200 bg-rose-50 text-rose-700',
+    }[monitoringStatus];
+
     return (
         <AuthenticatedLayout>
             <Head title={`${student.full_name} - Student Details`} />
 
             <div className="min-h-screen bg-slate-50">
                 {/* Header */}
-                <header className="border-b border-slate-200 bg-white">
-                    <div className="mx-auto max-w-6xl px-6 py-6">
+                <header className="bg-slate-50">
+                    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
                         <Link
                             href={route('academic-supervisor.students')}
-                            className="mb-5 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 transition hover:text-blue-600"
+                            className="mb-5 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 transition hover:text-blue-700"
                         >
                             <ArrowLeft size={16} />
                             Back to My Students
                         </Link>
 
-                        <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
-                            <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
-                                <UserRound size={38} />
-                            </div>
+                        <div className="relative isolate overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-blue-950 to-blue-800 px-6 py-7 shadow-lg shadow-blue-950/10 sm:px-8 sm:py-9">
+                            <div className="pointer-events-none absolute -right-12 -top-24 h-72 w-72 rounded-full border-[40px] border-white/[0.04]" />
+                            <div className="pointer-events-none absolute -bottom-32 right-1/4 h-64 w-64 rounded-full bg-blue-400/10 blur-3xl" />
 
-                            <div>
-                                <p className="text-sm font-medium text-blue-600">
-                                    Academic Supervisor Portal
-                                </p>
+                            <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center">
+                                <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border border-white/15 bg-white/10 text-white shadow-inner backdrop-blur-sm">
+                                    <UserRound size={36} strokeWidth={1.6} />
+                                </div>
 
-                                <h1 className="mt-1 text-2xl font-bold text-slate-900 sm:text-3xl">
-                                    {student.full_name}
-                                </h1>
+                                <div className="min-w-0 flex-1">
+                                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-200">
+                                        Academic Supervisor · Student Record
+                                    </p>
 
-                                <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-500">
-                                    <span>{student.pb_student_code}</span>
+                                    <h1 className="mt-2 text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                                        {student.full_name}
+                                    </h1>
 
-                                    {student.programme?.programme_name && (
-                                        <span>
-                                            {student.programme.programme_name}
+                                    <div className="mt-4 flex flex-wrap gap-2">
+                                        <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-medium text-white/90">
+                                            <User size={14} className="text-blue-200" />
+                                            {student.pb_student_code}
                                         </span>
-                                    )}
 
-                                    {student.intake_session && (
-                                        <span>{student.intake_session}</span>
-                                    )}
+                                        {student.programme?.programme_name && (
+                                            <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-medium text-white/90">
+                                                <GraduationCap size={14} className="text-blue-200" />
+                                                {student.programme.programme_name}
+                                            </span>
+                                        )}
+
+                                        {student.intake_session && (
+                                            <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-medium text-white/90">
+                                                <CalendarDays size={14} className="text-blue-200" />
+                                                {student.intake_session}
+                                            </span>
+                                        )}
+
+                                        <span className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold ${monitoringTone}`}>
+                                            <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                                            {monitoringStatus}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </header>
 
-                <main className="mx-auto max-w-6xl px-6 py-7 pb-16">
+                <main className="mx-auto max-w-7xl space-y-6 px-4 py-7 pb-16 sm:px-6 lg:px-8">
+                    <div className="inline-flex rounded-2xl border border-slate-200 bg-white p-1.5 shadow-sm">
+                        <button
+                            type="button"
+                            onClick={() => setActiveTab('overview')}
+                            className={`rounded-xl px-5 py-2.5 text-sm font-semibold transition ${activeTab === 'overview' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`}
+                        >
+                            Overview
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setActiveTab('profile')}
+                            className={`rounded-xl px-5 py-2.5 text-sm font-semibold transition ${activeTab === 'profile' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`}
+                        >
+                            Background &amp; Skills
+                        </button>
+                    </div>
+
+                    {activeTab === 'overview' ? (
+                    <div className="space-y-6">
                     {/* Industry Supervisor Evaluation */}
-                    <section className="mb-6">
+                    <section>
                         <div className="mb-4 flex items-center gap-2">
                             <ClipboardCheck size={20} className="text-blue-600" />
 
@@ -312,6 +382,12 @@ export default function StudentDetails({ student, visits, evaluation, monitoring
                                             <CheckCircle2 size={13} />
                                             {evaluation.academic_review_status}
                                         </span>
+
+                                        {evaluation.academic_reviewed_at && (
+                                            <span className="text-xs font-medium text-slate-500">
+                                                Reviewed {formatDate(evaluation.academic_reviewed_at)}
+                                            </span>
+                                        )}
 
                                         {evaluation.academic_review_status !== 'Completed' && (
                                             <button
@@ -389,7 +465,7 @@ export default function StudentDetails({ student, visits, evaluation, monitoring
                     </section>
 
                     {/* Basic Information */}
-                    <section className="mb-6">
+                    <section>
                         <div className="mb-4 flex items-center gap-2">
                             <User size={20} className="text-blue-600" />
 
@@ -421,7 +497,7 @@ export default function StudentDetails({ student, visits, evaluation, monitoring
 
                             <InfoItem
                                 label="Date of Birth"
-                                value={student.date_of_birth}
+                                value={formatDate(student.date_of_birth)}
                                 icon={<CalendarDays size={15} />}
                             />
 
@@ -473,7 +549,7 @@ export default function StudentDetails({ student, visits, evaluation, monitoring
                     </section>
 
                     {/* Academic Information */}
-                    <section className="mb-6">
+                    <section>
                         <div className="mb-4 flex items-center gap-2">
                             <GraduationCap
                                 size={20}
@@ -514,20 +590,21 @@ export default function StudentDetails({ student, visits, evaluation, monitoring
                         icon={<CalendarDays size={20} />}
                     >
 
-                        <div className="mb-8 rounded-xl border border-slate-200 bg-slate-50 p-5">
+                        <div className="grid gap-5 lg:grid-cols-2">
+                        <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-5">
                             <div className="mb-4">
                                 <h3 className="font-semibold text-slate-900">
                                     Monitoring Status
                                 </h3>
 
                                 <p className="mt-1 text-sm text-slate-500">
-                                    Update the student's current internship monitoring status.
+                                    Update the monitoring status for this student's assigned class.
                                 </p>
                             </div>
 
                             <form
                                 onSubmit={submitMonitoringStatus}
-                                className="flex flex-col gap-3 sm:flex-row sm:items-end"
+                            className="flex flex-col gap-3 sm:flex-row sm:items-end"
                             >
                                 <div className="flex-1">
                                     <label
@@ -571,8 +648,12 @@ export default function StudentDetails({ student, visits, evaluation, monitoring
 
                         <form
                             onSubmit={submitVisit}
-                            className="mb-8 space-y-4"
+                            className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5"
                         >
+                            <div className="mb-4">
+                                <h3 className="font-semibold text-slate-900">Record a visit</h3>
+                                <p className="mt-1 text-sm text-slate-500">This visit note is recorded for the assigned class.</p>
+                            </div>
                             <div>
                                 <label
                                     htmlFor="visit_date"
@@ -591,7 +672,7 @@ export default function StudentDetails({ student, visits, evaluation, monitoring
                                             event.target.value
                                         )
                                     }
-                                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm shadow-sm transition focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-600/10"
                                     required
                                 />
 
@@ -618,7 +699,7 @@ export default function StudentDetails({ student, visits, evaluation, monitoring
                                     }
                                     rows={4}
                                     placeholder="Enter details about the internship visit..."
-                                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm shadow-sm transition focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-600/10"
                                     required
                                 />
 
@@ -632,16 +713,20 @@ export default function StudentDetails({ student, visits, evaluation, monitoring
                             <button
                                 type="submit"
                                 disabled={processing}
-                                className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                                className="rounded-xl bg-blue-700 px-5 py-2.5 text-sm font-semibold text-white shadow-sm shadow-blue-900/10 transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
                             >
                                 {processing ? 'Saving...' : 'Record Visit'}
                             </button>
                         </form>
+                        </div>
 
                         <div className="border-t border-slate-100 pt-6">
                             <h3 className="mb-4 font-semibold text-slate-900">
                                 Visit History
                             </h3>
+                            <p className="-mt-2 mb-4 text-sm text-slate-500">
+                                Visit records are shared across students in this assigned class.
+                            </p>
 
                             {visits.length > 0 ? (
                                 <div className="space-y-3">
@@ -656,7 +741,7 @@ export default function StudentDetails({ student, visits, evaluation, monitoring
                                                     className="text-blue-600"
                                                 />
 
-                                                {visit.visit_date}
+                                                {formatDate(visit.visit_date)}
                                             </div>
 
                                             <p className="whitespace-pre-wrap text-sm leading-6 text-slate-600">
@@ -670,7 +755,9 @@ export default function StudentDetails({ student, visits, evaluation, monitoring
                             )}
                         </div>
                     </SectionCard>
-
+                    </div>
+                    ) : (
+                    <div className="grid items-start gap-6 xl:grid-cols-2">
                     {/* Professional Profile */}
                     <SectionCard
                         title="Professional Profile"
@@ -805,6 +892,13 @@ export default function StudentDetails({ student, visits, evaluation, monitoring
                                                 {education.field_of_study}
                                             </p>
                                         )}
+
+                                        {formatDateRange(education.start_date, education.end_date) && (
+                                            <p className="mt-3 flex items-center gap-2 border-t border-slate-200/70 pt-3 text-xs font-medium text-slate-500">
+                                                <CalendarDays size={14} className="text-blue-600" />
+                                                {formatDateRange(education.start_date, education.end_date)}
+                                            </p>
+                                        )}
                                     </div>
                                 ))}
                             </div>
@@ -832,6 +926,13 @@ export default function StudentDetails({ student, visits, evaluation, monitoring
                                         <p className="mt-1 text-sm text-slate-600">
                                             {display(experience.company_name)}
                                         </p>
+
+                                        {formatDateRange(experience.start_date, experience.end_date) && (
+                                            <p className="mt-3 flex items-center gap-2 text-xs font-medium text-slate-500">
+                                                <CalendarDays size={14} className="text-blue-600" />
+                                                {formatDateRange(experience.start_date, experience.end_date)}
+                                            </p>
+                                        )}
 
                                         {experience.description && (
                                             <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-slate-500">
@@ -987,6 +1088,8 @@ export default function StudentDetails({ student, visits, evaluation, monitoring
                             <EmptyState text="No referees recorded." />
                         )}
                     </SectionCard>
+                    </div>
+                    )}
                 </main>
             </div>
         </AuthenticatedLayout>
@@ -1003,13 +1106,13 @@ function InfoItem({
     icon?: React.ReactNode;
 }) {
     return (
-        <div>
-            <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-slate-400">
+        <div className="min-h-[72px] rounded-xl border border-slate-200/70 bg-slate-50/70 p-3.5">
+            <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500">
                 {icon}
                 {label}
             </p>
 
-            <p className="mt-1 text-sm font-medium text-slate-700">
+            <p className="mt-2 break-words text-sm font-semibold leading-5 text-slate-800">
                 {display(value)}
             </p>
         </div>
@@ -1026,11 +1129,13 @@ function SectionCard({
     children: React.ReactNode;
 }) {
     return (
-        <section className="mb-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <div className="mb-5 flex items-center gap-2">
-                <span className="text-blue-600">{icon}</span>
+        <section className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-900/[0.03] sm:p-6">
+            <div className="mb-5 flex items-center gap-3 border-b border-slate-100 pb-4">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-700 ring-1 ring-blue-100">
+                    {icon}
+                </span>
 
-                <h2 className="text-lg font-bold text-slate-900">
+                <h2 className="text-base font-bold tracking-tight text-slate-900 sm:text-lg">
                     {title}
                 </h2>
             </div>

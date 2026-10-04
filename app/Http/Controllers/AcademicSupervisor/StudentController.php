@@ -18,6 +18,11 @@ class StudentController extends Controller
             auth()->user()->user_id
         )->firstOrFail();
 
+        $assignedClass = $academicSupervisor->assignments()
+            ->with('programme')
+            ->first()
+            ?->programme;
+
         $students = Student::whereHas(
             'academicSupervisorAssignments',
             function ($query) use ($academicSupervisor) {
@@ -32,6 +37,9 @@ class StudentController extends Controller
 
         return Inertia::render('AcademicSupervisor/Students', [
             'students' => $students,
+            'assignedClass' => $assignedClass
+                ? $assignedClass->only(['class_id', 'programme_name'])
+                : null,
         ]);
     }
 
@@ -42,7 +50,7 @@ class StudentController extends Controller
             auth()->user()->user_id
         )->firstOrFail();
 
-        $assignment = $student->academicSupervisorAssignments()
+        $assignment = $student->programme->academicSupervisorAssignments()
             ->where(
                 'academic_supervisor_id',
                 $academicSupervisor->academic_supervisor_id
@@ -87,7 +95,7 @@ class StudentController extends Controller
             auth()->user()->user_id
         )->firstOrFail();
 
-        $assignment = $student->academicSupervisorAssignments()
+        $assignment = $student->programme->academicSupervisorAssignments()
             ->where(
                 'academic_supervisor_id',
                 $academicSupervisor->academic_supervisor_id

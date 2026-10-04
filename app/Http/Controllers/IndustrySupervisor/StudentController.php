@@ -15,14 +15,21 @@ class StudentController extends Controller
         $industrySupervisor = IndustrySupervisor::where(
             'user_id',
             auth()->user()->user_id
-        )->firstOrFail();
+        )->with('quota')->firstOrFail();
 
-        $students = $industrySupervisor->students()
-            ->with('programme')
-            ->get();
+        $students = $industrySupervisor->quota_id
+            ? Student::whereHas('applications', function ($query) use ($industrySupervisor) {
+                $query->where('quota_id', $industrySupervisor->quota_id)
+                    ->where('app_status', 'Recruited');
+            })
+                ->with('programme')
+                ->orderBy('full_name')
+                ->get()
+            : collect();
 
         return Inertia::render('IndustrySupervisor/Students', [
             'students' => $students,
+            'quota' => $industrySupervisor->quota,
         ]);
     }
 
@@ -33,11 +40,9 @@ class StudentController extends Controller
             auth()->user()->user_id
         )->firstOrFail();
 
-        $isAssigned = $industrySupervisor->students()
-            ->where(
-                'students.student_id',
-                $student->student_id
-            )
+        $isAssigned = $industrySupervisor->applications()
+            ->where('student_id', $student->student_id)
+            ->where('app_status', 'Recruited')
             ->exists();
 
         abort_unless($isAssigned, 403);
@@ -58,6 +63,7 @@ class StudentController extends Controller
 
         return Inertia::render('IndustrySupervisor/StudentDetails', [
             'student' => $student,
+            'quota' => $industrySupervisor->quota()->first(),
         ]);
     }
 }

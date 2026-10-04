@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AcademicSupervisor;
 use App\Models\LogbookEntry;
 use App\Models\LogbookWeeklySubmission;
+use App\Models\Student;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -18,8 +19,15 @@ class LogbookController extends Controller
             auth()->user()->user_id
         )->firstOrFail();
 
-        $assignedStudentIds = $academicSupervisor->assignments()
-            ->pluck('student_id');
+        $assignedStudentIds = Student::whereHas(
+            'programme.academicSupervisorAssignments',
+            function ($query) use ($academicSupervisor) {
+                $query->where(
+                    'academic_supervisor_id',
+                    $academicSupervisor->academic_supervisor_id
+                );
+            }
+        )->pluck('student_id');
 
         $pendingSubmissions = LogbookWeeklySubmission::with('student')
             ->whereIn('student_id', $assignedStudentIds)
@@ -48,8 +56,16 @@ class LogbookController extends Controller
             auth()->user()->user_id
         )->firstOrFail();
 
-        $isAssigned = $academicSupervisor->assignments()
-            ->where('student_id', $submission->student_id)
+        $isAssigned = Student::where('student_id', $submission->student_id)
+            ->whereHas(
+                'programme.academicSupervisorAssignments',
+                function ($query) use ($academicSupervisor) {
+                    $query->where(
+                        'academic_supervisor_id',
+                        $academicSupervisor->academic_supervisor_id
+                    );
+                }
+            )
             ->exists();
 
         abort_unless($isAssigned, 403);
@@ -105,8 +121,16 @@ class LogbookController extends Controller
             auth()->user()->user_id
         )->firstOrFail();
 
-        $isAssigned = $academicSupervisor->assignments()
-            ->where('student_id', $submission->student_id)
+        $isAssigned = Student::where('student_id', $submission->student_id)
+            ->whereHas(
+                'programme.academicSupervisorAssignments',
+                function ($query) use ($academicSupervisor) {
+                    $query->where(
+                        'academic_supervisor_id',
+                        $academicSupervisor->academic_supervisor_id
+                    );
+                }
+            )
             ->exists();
 
         abort_unless($isAssigned, 403);

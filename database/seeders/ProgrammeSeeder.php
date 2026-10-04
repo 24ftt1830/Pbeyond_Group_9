@@ -19,65 +19,80 @@ class ProgrammeSeeder extends Seeder
         DB::table('programmes')->insert([
             // SICT (school_id = 1)
             [
+                'class_id' => 1,
                 'programme_name' => 'Level 5 Diploma in Web Technology',
                 'school_id' => 1
             ],
             [
+                'class_id' => 2,
                 'programme_name' => 'Level 5 Diploma in Application Development',
                 'school_id' => 1
             ],
             [
+                'class_id' => 3,
                 'programme_name' => 'Level 5 Diploma in Data Analytics',
                 'school_id' => 1
             ],
             [
+                'class_id' => 4,
                 'programme_name' => 'Level 5 Diploma in Cybersecurity',
                 'school_id' => 1
             ],
             [
+                'class_id' => 5,
                 'programme_name' => 'Level 5 Diploma in Networking',
                 'school_id' => 1
             ],
             // SBA (school_id = 2)
             [
+                'class_id' => 6,
                 'programme_name' => 'Level 5 Diploma in Accounting',
                 'school_id' => 2
             ],
             [
+                'class_id' => 7,
                 'programme_name' => 'Level 5 Diploma in Human Resource Management',
                 'school_id' => 2
             ],
             [
+                'class_id' => 8,
                 'programme_name' => 'Level 5 Diploma in Marketing',
                 'school_id' => 2
             ],
             // SSE (school_id = 3)
             [
+                'class_id' => 9,
                 'programme_name' => 'Level 5 Diploma in Mechanical Engineering',
                 'school_id' => 3
             ],
             [
+                'class_id' => 10,
                 'programme_name' => 'Level 5 Diploma in Electrical Engineering',
                 'school_id' => 3
             ],
             [
+                'class_id' => 11,
                 'programme_name' => 'Level 5 Diploma in Petroleum Engineering',
                 'school_id' => 3
             ],
             [
+                'class_id' => 12,
                 'programme_name' => 'Level 5 Diploma in Architecture & Interior Design',
                 'school_id' => 3
             ],
             // SHS (school_id = 4)
             [
+                'class_id' => 13,
                 'programme_name' => 'Level 5 Diploma in Nursing',
                 'school_id' => 4
             ],
             [
+                'class_id' => 14,
                 'programme_name' => 'Level 5 Diploma in Midwifery',
                 'school_id' => 4
             ],
             [
+                'class_id' => 15,
                 'programme_name' => 'Level 5 Diploma in Paramedic Science',
                 'school_id' => 4
             ],

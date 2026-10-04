@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, router, useForm, usePage } from '@inertiajs/react';
+import { Head, router, useForm } from '@inertiajs/react';
 import {
     Plus,
     Search,
@@ -29,9 +29,7 @@ import {
 import QuotaCard from '@/Components/QuotaCard';
 import QuotaNumberInput from '@/Components/QuotaNumberInput';
 
-export default function Quotas({ quotas = [], programmes = [] }: any) {
-    const { auth } = usePage().props as any;
-    const company = auth.user.company;
+export default function Quotas({ quotas = [], programmes = [], company }: any) {
 
     const [searchTerm, setSearchTerm] = useState('');
     const [isDialogOpen, setIsDialogOpen] = useState(false);

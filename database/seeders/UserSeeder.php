@@ -10,7 +10,7 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        DB::table('users')->insert([
+        DB::table('users')->upsert([
             // Admin
             [
                 'username' => 'admin_sict',
@@ -93,10 +93,28 @@ class UserSeeder extends Seeder
                 'updated_at' => now(),
             ],
 
-            // Academic Supervisor
+            // Academic Supervisors
             [
                 'username' => 'academic_supervisor',
                 'email' => 'academic.supervisor@pb.edu.bn',
+                'password' => Hash::make('password123'),
+                'role' => 'Academic Supervisor',
+                'company_id' => null,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'username' => 'academic_supervisor2',
+                'email' => 'academic.supervisor2@pb.edu.bn',
+                'password' => Hash::make('password123'),
+                'role' => 'Academic Supervisor',
+                'company_id' => null,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'username' => 'academic_supervisor3',
+                'email' => 'academic.supervisor3@pb.edu.bn',
                 'password' => Hash::make('password123'),
                 'role' => 'Academic Supervisor',
                 'company_id' => null,
@@ -162,7 +180,6 @@ class UserSeeder extends Seeder
                 'updated_at' => now(),
             ],
 
-            
-        ]);
+        ], ['email'], ['username', 'password', 'role', 'company_id', 'updated_at']);
     }
 }

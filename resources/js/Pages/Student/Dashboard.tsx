@@ -1,12 +1,8 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { usePage } from '@inertiajs/react';
-import { PageProps } from '@/types';
-import { ScrollAreaHorizontalDemo, steps } from '@/Components/Dashboard/student-onboarding';
-import { DataTable } from '@/Components/ui/data-table';
-import { Button } from '@/Components/ui/button';
 import { Link } from '@inertiajs/react';
-import { ColumnDef } from '@tanstack/react-table';
-import { useMemo } from 'react';
+import { ArrowRight, Briefcase, CheckCircle2, FileText, Search } from 'lucide-react';
+import { ScrollAreaHorizontalDemo, steps } from '@/Components/Dashboard/student-onboarding';
+import { DashboardEmptyState, DashboardPanel, RoleDashboard } from '@/Components/Dashboard/RoleDashboard';
 
 interface Quota {
     quota_id: number;
@@ -22,117 +18,131 @@ interface Quota {
     };
 }
 
-interface Props {
-    availableQuotas: Quota[];
-    studentProgramme?: any;
-    completedOnboardingTasks?: string[];
+interface Application {
+    id: number;
+    app_status: string;
+    created_at: string;
+    job_title?: string;
+    company_name?: string;
 }
 
-export default function Dashboard({ availableQuotas, studentProgramme, completedOnboardingTasks = [] }: Props) {
-    const { auth } = usePage<PageProps>().props;
+interface Props {
+    availableQuotas: Quota[];
+    studentProgramme: string;
+    completedOnboardingTasks?: string[];
+    recentApplications: Application[];
+    stats: {
+        open_positions: number;
+        available_slots: number;
+        applications: number;
+        pending_applications: number;
+        recruited_applications: number;
+    };
+}
 
-    const totalSteps = steps.length;
-    const completedCount = completedOnboardingTasks.length;
+const statusClass = (status: string) => {
+    if (status === 'Recruited') return 'bg-emerald-50 text-emerald-700';
+    if (status === 'Declined') return 'bg-rose-50 text-rose-700';
+    if (status === 'Interviewing') return 'bg-violet-50 text-violet-700';
+    return 'bg-amber-50 text-amber-700';
+};
 
-    const columns = useMemo<ColumnDef<Quota>[]>(() => [
-        {
-            accessorKey: 'position_title',
-            header: 'Position',
-            cell: ({ row }) => (
-                <span>{row.original.position_title}</span>
-            ),
-        },
-        {
-            accessorKey: 'company.company_name',
-            header: 'Company',
-        },
-        {
-            accessorKey: 'company.office_address',
-            header: 'District',
-        },
-        {
-            accessorKey: 'available',
-            header: 'Available Slots',
-            cell: ({ row }) => {
-                const isFull = row.original.is_full;
-                const available = row.original.available;
+const formatDate = (value: string) => {
+    const date = new Date(value);
+    return Number.isNaN(date.getTime())
+        ? value
+        : new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).format(date);
+};
 
-                return (
-                    <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            isFull
-                                ? 'bg-red-100 text-red-700'
-                                : 'bg-green-100 text-green-700'
-                        }`}
-                    >
-                        {isFull
-                            ? 'Full'
-                            : `${available} Available`}
-                    </span>
-                );
-            },
-        },
-        {
-            id: 'actions',
-            header: 'Action',
-            cell: ({ row }) => (
-                <Link
-                    href={route(
-                        'student.companies.view',
-                        row.original.company.company_id
-                    )}
-                >
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        className="shadow-none"
-                    >
-                        View
-                    </Button>
-                </Link>
-            ),
-        },
-    ], []);
+export default function Dashboard({
+    availableQuotas = [],
+    studentProgramme,
+    completedOnboardingTasks = [],
+    recentApplications = [],
+    stats,
+}: Props) {
+    const safeStats = stats ?? {
+        open_positions: 0, available_slots: 0, applications: 0, pending_applications: 0, recruited_applications: 0,
+    };
+
     return (
-        <div className="p-6">
-            <div className="flex items-center justify-between mb-3">
-                <h1 className="font-sato text-3xl font-bold">
-                    Overview
-                </h1>
-            </div>
-
-            {completedCount < totalSteps && (
-                <>
-                    <h3 className="font-semibold">
-                        Let's get you ready to bridge the gap.{' '}
-                        <span className="text-foreground text-sm">({completedCount} of {totalSteps})</span>
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                        There are a few more steps required before you can start collaborating with industry partners.
-                    </p>
-
-                    <div>
+        <RoleDashboard
+            title="Student"
+            description={`Your internship opportunities and application progress${studentProgramme ? ` for ${studentProgramme}` : ''}.`}
+            stats={[
+                { label: 'Open positions', value: safeStats.open_positions, detail: 'Positions matching your programme', icon: Briefcase },
+                { label: 'Available slots', value: safeStats.available_slots, detail: 'Places remaining across matching positions', icon: Search },
+                { label: 'My applications', value: safeStats.applications, detail: `${safeStats.pending_applications} awaiting a response`, icon: FileText },
+                { label: 'Recruited', value: safeStats.recruited_applications, detail: 'Positions where you have been recruited', icon: CheckCircle2 },
+            ]}
+        >
+            {completedOnboardingTasks.length < steps.length && (
+                <DashboardPanel
+                    title="Get ready to apply"
+                    description={`${completedOnboardingTasks.length} of ${steps.length} preparation steps completed.`}
+                >
+                    <div className="p-4 sm:p-5">
                         <ScrollAreaHorizontalDemo completedOnboardingTasks={completedOnboardingTasks} />
                     </div>
-                </>
+                </DashboardPanel>
             )}
 
-            <div className="mt-4">
-                <h1 className="text-xl font-bold font-sato mb-6">
-                    All quotas
-                </h1>
+            <div className="grid gap-6 xl:grid-cols-2">
+                <DashboardPanel
+                    title="Positions for your programme"
+                    description="Approved openings that match your programme."
+                    action={<Link href={route('student.companies')} className="text-sm font-semibold text-blue-700 hover:text-blue-800">Browse all</Link>}
+                >
+                    {availableQuotas.length === 0 ? (
+                        <DashboardEmptyState message="There are no released positions matching your programme right now." />
+                    ) : (
+                        <div className="divide-y divide-slate-100">
+                            {availableQuotas.slice(0, 5).map((quota) => (
+                                <div key={quota.quota_id} className="flex items-center justify-between gap-4 px-5 py-4 sm:px-6">
+                                    <div className="min-w-0">
+                                        <p className="truncate font-semibold text-slate-900">{quota.position_title}</p>
+                                        <p className="mt-1 truncate text-sm text-slate-500">{quota.company.company_name} · {quota.company.office_address}</p>
+                                    </div>
+                                    <div className="flex shrink-0 items-center gap-3">
+                                        <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${quota.is_full ? 'bg-slate-100 text-slate-600' : 'bg-emerald-50 text-emerald-700'}`}>
+                                            {quota.is_full ? 'Full' : `${quota.available} slots`}
+                                        </span>
+                                        <Link href={route('student.companies.view', quota.company.company_id)} aria-label={`View ${quota.position_title}`} className="rounded-lg p-2 text-slate-500 transition hover:bg-slate-100 hover:text-blue-700">
+                                            <ArrowRight className="size-4" />
+                                        </Link>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </DashboardPanel>
 
-                <div className="rounded-xl bg-white overflow-hidden">
-                    <DataTable
-                        columns={columns}
-                        data={availableQuotas}
-                    />
-                </div>
+                <DashboardPanel
+                    title="Recent applications"
+                    description="Check the latest status of positions you applied for."
+                    action={<Link href={route('student.application-tracking')} className="text-sm font-semibold text-blue-700 hover:text-blue-800">Track all</Link>}
+                >
+                    {recentApplications.length === 0 ? (
+                        <DashboardEmptyState message="You have not applied to any positions yet." />
+                    ) : (
+                        <div className="divide-y divide-slate-100">
+                            {recentApplications.map((application) => (
+                                <div key={application.id} className="flex items-center justify-between gap-4 px-5 py-4 sm:px-6">
+                                    <div className="min-w-0">
+                                        <p className="truncate font-semibold text-slate-900">{application.job_title ?? 'Position'}</p>
+                                        <p className="mt-1 text-sm text-slate-500">{application.company_name ?? 'Company'} · Applied {formatDate(application.created_at)}</p>
+                                    </div>
+                                    <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${statusClass(application.app_status)}`}>
+                                        {application.app_status}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </DashboardPanel>
             </div>
-        </div>
+        </RoleDashboard>
     );
 }
 
-Dashboard.layout = (page: React.ReactNode) => (
-    <AuthenticatedLayout children={page} />
-);
+Dashboard.layout = (page: React.ReactNode) => <AuthenticatedLayout children={page} />;

@@ -13,7 +13,9 @@ class DashboardController extends Controller
     public function index()
     {
         $company = Auth::user()->company;
-        $quotas = $company->placementQuotas;
+        $quotas = $company
+            ? $company->placementQuotas()->latest()->get()
+            : collect();
         $quotaIds = $quotas->pluck('quota_id');
 
         $totalApplications = Application::whereIn('quota_id', $quotaIds)->count();
@@ -23,20 +25,32 @@ class DashboardController extends Controller
         $totalSlots = $quotas->sum('total_slots');
 
         $applications = Application::whereIn('quota_id', $quotaIds)
-            ->with(['student', 'quota.company']) 
+            ->with(['student', 'quota'])
             ->orderBy('created_at', 'desc')
+            ->limit(6)
             ->get();
 
-        $completedTasks = $company->completed_onboarding_tasks ?? [];
+        $completedTasks = $company?->completed_onboarding_tasks ?? [];
+
+        $quotaOverview = $quotas->map(fn ($quota) => [
+            'quota_id' => $quota->quota_id,
+            'job_title' => $quota->job_title,
+            'total_slots' => $quota->total_slots,
+            'quota_status' => $quota->quota_status,
+            'is_released' => $quota->is_released,
+            'application_count' => $quota->applications()->count(),
+        ]);
 
         return Inertia::render('Company/Dashboard', [
-            'availableQuotas' => $quotas,
+            'quotas' => $quotaOverview,
             'applications' => $applications,
             'completedOnboardingTasks' => $completedTasks,
             'stats' => [
                 'total_applications' => $totalApplications,
                 'new_applications' => $newApplications,
                 'pending_reviews' => $pendingReviews,
+                'total_quotas' => $quotas->count(),
+                'open_quotas' => $quotas->where('quota_status', 'Approved')->where('is_released', true)->count(),
                 'recruitment_status' => [
                     'recruited' => $recruitedCount,
                     'total' => $totalSlots,

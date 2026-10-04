@@ -14,7 +14,7 @@ class AcademicSupervisorAssignment extends Model
 
     protected $fillable = [
         'academic_supervisor_id',
-        'student_id',
+        'class_id',
         'monitoring_status',
     ];
 
@@ -27,12 +27,12 @@ class AcademicSupervisorAssignment extends Model
         );
     }
 
-    public function student(): BelongsTo
+    public function programme(): BelongsTo
     {
         return $this->belongsTo(
-            Student::class,
-            'student_id',
-            'student_id'
+            Programme::class,
+            'class_id',
+            'class_id'
         );
     }
     

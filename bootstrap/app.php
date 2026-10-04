@@ -20,6 +20,19 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => \App\Http\Middleware\EnsureUserHasRole::class,
         ]);
+
+        // If an authenticated user visits a guest page such as /login,
+        // send them to their role dashboard instead of the public Welcome page.
+        $middleware->redirectUsersTo(function (\Illuminate\Http\Request $request) {
+            return match ($request->user()?->role) {
+                'Admin' => route('admin.dashboard'),
+                'Company' => route('company.dashboard'),
+                'Student' => route('student.dashboard'),
+                'Academic Supervisor' => route('academic-supervisor.dashboard'),
+                'Industry Supervisor' => route('industry-supervisor.dashboard'),
+                default => '/',
+            };
+        });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

@@ -29,11 +29,18 @@ const links = [
 export default function IndexLayout({ auth, children }: PropsWithChildren<PageProps>) {
     const getDashboardRoute = () => {
         if (!auth.user) return route('login');
-        const role = auth.user.role as 'Admin' | 'Student' | 'Company';
+        const role = auth.user.role as
+            | 'Admin'
+            | 'Student'
+            | 'Company'
+            | 'Academic Supervisor'
+            | 'Industry Supervisor';
         switch (role) {
             case 'Admin': return route('admin.dashboard');
             case 'Student': return route('student.dashboard');
             case 'Company': return route('company.dashboard');
+            case 'Academic Supervisor': return route('academic-supervisor.dashboard');
+            case 'Industry Supervisor': return route('industry-supervisor.dashboard');
         }
     };
 

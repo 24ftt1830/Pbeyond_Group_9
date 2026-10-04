@@ -80,8 +80,9 @@ class EvaluationController extends Controller
 
     private function authorizeStudent(IndustrySupervisor $supervisor, Student $student): void
     {
-        $isAssigned = $supervisor->students()
-            ->where('students.student_id', $student->student_id)
+        $isAssigned = $supervisor->applications()
+            ->where('student_id', $student->student_id)
+            ->where('app_status', 'Recruited')
             ->exists();
 
         abort_unless($isAssigned, 403, 'This student is not assigned to you.');

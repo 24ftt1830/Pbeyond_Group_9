@@ -14,6 +14,7 @@ class Programme extends Model
 
    protected $fillable = [
     'programme_name',
+    'class_id',
     'school_id',
     'total_semesters',
     ];
@@ -33,6 +34,15 @@ class Programme extends Model
             Student::class,
             'programme_id',
             'programme_id'
+        );
+    }
+
+    public function academicSupervisorAssignments()
+    {
+        return $this->hasMany(
+            AcademicSupervisorAssignment::class,
+            'class_id',
+            'class_id'
         );
     }
 

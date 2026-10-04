@@ -15,6 +15,7 @@ class IndustrySupervisor extends Model
     protected $fillable = [
         'user_id',
         'company_id',
+        'quota_id',
         'full_name',
         'email',
         'phone',
@@ -36,6 +37,24 @@ class IndustrySupervisor extends Model
             Company::class,
             'company_id',
             'company_id'
+        );
+    }
+
+    public function quota()
+    {
+        return $this->belongsTo(
+            PlacementQuota::class,
+            'quota_id',
+            'quota_id'
+        );
+    }
+
+    public function applications()
+    {
+        return $this->hasMany(
+            Application::class,
+            'quota_id',
+            'quota_id'
         );
     }
 

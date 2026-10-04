@@ -49,7 +49,7 @@ class AuthenticatedSessionController extends Controller
                 'Student' => redirect()->route('student.dashboard'),
 
                 'Academic Supervisor' => redirect()->route(
-                    'academic-supervisor.logbook'
+                    'academic-supervisor.dashboard'
                 ),
 
                 'Industry Supervisor' => redirect()->route(

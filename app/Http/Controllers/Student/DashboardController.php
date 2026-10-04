@@ -50,12 +50,38 @@ class DashboardController extends Controller
             ];
         });
 
+        $applications = $student->applications()
+            ->with('quota.company')
+            ->latest()
+            ->limit(6)
+            ->get()
+            ->map(fn ($application) => [
+                'id' => $application->id,
+                'app_status' => $application->app_status,
+                'created_at' => $application->created_at,
+                'job_title' => $application->quota?->job_title,
+                'company_name' => $application->quota?->company?->company_name,
+            ]);
+
+        $studentApplications = $student->applications();
+        $recruitedApplications = (clone $studentApplications)
+            ->where('app_status', 'Recruited')
+            ->count();
+
         $completedOnboardingTasks = $student?->completed_onboarding_tasks ?? [];
 
         return Inertia::render('Student/Dashboard', [
             'availableQuotas'          => $quotasWithStats,
             'studentProgramme'         => $student->programme->programme_name,
             'completedOnboardingTasks' => $student->completed_onboarding_tasks ?? [],
+            'recentApplications' => $applications,
+            'stats' => [
+                'open_positions' => $quotasWithStats->where('is_full', false)->count(),
+                'available_slots' => $quotasWithStats->sum('available'),
+                'applications' => $student->applications()->count(),
+                'pending_applications' => (clone $studentApplications)->where('app_status', 'Pending')->count(),
+                'recruited_applications' => $recruitedApplications,
+            ],
         ]);
     }
 

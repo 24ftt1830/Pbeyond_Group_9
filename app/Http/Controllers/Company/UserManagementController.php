@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Company;
 
 use App\Http\Controllers\Controller;
 use App\Models\IndustrySupervisor;
+use App\Models\PlacementQuota;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -21,11 +23,17 @@ class UserManagementController extends Controller
             'company_id',
             $companyId
         )
-            ->with('user')
+            ->with(['user', 'quota'])
             ->get();
+
+        $quotas = PlacementQuota::available()
+            ->where('company_id', $companyId)
+            ->orderBy('job_title')
+            ->get(['quota_id', 'job_title', 'total_slots']);
 
         return Inertia::render('Company/ManageUsers', [
             'industrySupervisors' => $industrySupervisors,
+            'quotas' => $quotas,
         ]);
     }
 
@@ -39,7 +47,14 @@ class UserManagementController extends Controller
             'password' => 'required|string|min:8',
             'full_name' => 'required|string|max:255',
             'phone' => 'nullable|string|max:50',
-            'position' => 'nullable|string|max:255',
+            'quota_id' => [
+                'required',
+                'integer',
+                Rule::exists('placement_quotas', 'quota_id')
+                    ->where('company_id', $companyId)
+                    ->where('quota_status', 'Approved')
+                    ->where('is_released', true),
+            ],
         ]);
 
         DB::transaction(function () use ($validated, $companyId) {
@@ -58,7 +73,7 @@ class UserManagementController extends Controller
                 'full_name' => $validated['full_name'],
                 'email' => $validated['email'],
                 'phone' => $validated['phone'] ?? null,
-                'position' => $validated['position'] ?? null,
+                'quota_id' => $validated['quota_id'],
             ]);
         });
 

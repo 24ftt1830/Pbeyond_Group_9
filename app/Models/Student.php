@@ -82,10 +82,13 @@ class Student extends Model
 
     public function academicSupervisorAssignments()
     {
-        return $this->hasMany(
+        return $this->hasManyThrough(
             AcademicSupervisorAssignment::class,
-            'student_id',
-            'student_id'
+            Programme::class,
+            'programme_id',
+            'class_id',
+            'programme_id',
+            'class_id'
         );
     }
 

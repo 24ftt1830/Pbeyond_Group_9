@@ -22,6 +22,8 @@ interface IndustrySupervisor {
     email: string;
     phone?: string;
     position?: string;
+    quota_id?: number | null;
+    quota?: { job_title: string } | null;
     user?: {
         user_id: number;
         username: string;
@@ -29,12 +31,20 @@ interface IndustrySupervisor {
     };
 }
 
+interface Quota {
+    quota_id: number;
+    job_title: string;
+    total_slots: number;
+}
+
 interface Props {
     industrySupervisors: IndustrySupervisor[];
+    quotas: Quota[];
 }
 
 export default function ManageUsers({
     industrySupervisors = [],
+    quotas = [],
 }: Props) {
     const [open, setOpen] = useState(false);
 
@@ -44,7 +54,7 @@ export default function ManageUsers({
         password: '',
         full_name: '',
         phone: '',
-        position: '',
+        quota_id: '',
     });
 
     const submit = (e: React.FormEvent) => {
@@ -120,7 +130,7 @@ export default function ManageUsers({
                                         <span className="font-medium text-foreground">
                                             Position:
                                         </span>{' '}
-                                        {supervisor.position ?? 'Not provided'}
+                                        {supervisor.quota?.job_title ?? supervisor.position ?? 'Not assigned'}
                                     </p>
 
                                     <p>
@@ -262,17 +272,32 @@ export default function ManageUsers({
                                 </div>
 
                                 <div className="grid gap-2">
-                                    <Label>Position</Label>
-
-                                    <Input
-                                        value={form.data.position}
-                                        onChange={(e) =>
-                                            form.setData(
-                                                'position',
-                                                e.target.value
-                                            )
-                                        }
-                                    />
+                                    <Label htmlFor="quota_id">Position</Label>
+                                    <select
+                                        id="quota_id"
+                                        value={form.data.quota_id}
+                                        onChange={(e) => form.setData('quota_id', e.target.value)}
+                                        required
+                                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                    >
+                                        <option value="" disabled>
+                                            Select an approved job position
+                                        </option>
+                                        {quotas.map((quota) => (
+                                            <option key={quota.quota_id} value={quota.quota_id}>
+                                                {quota.job_title} ({quota.total_slots}{' '}
+                                                {quota.total_slots === 1 ? 'slot' : 'slots'})
+                                            </option>
+                                        ))}
+                                    </select>
+                                    {form.errors.quota_id && (
+                                        <p className="text-xs text-red-500">{form.errors.quota_id}</p>
+                                    )}
+                                    {quotas.length === 0 && (
+                                        <p className="text-xs text-muted-foreground">
+                                            There are no approved and released positions available to assign.
+                                        </p>
+                                    )}
                                 </div>
                             </div>
 
@@ -285,7 +310,9 @@ export default function ManageUsers({
                                         !form.data.full_name ||
                                         !form.data.username ||
                                         !form.data.email ||
-                                        !form.data.password
+                                        !form.data.password ||
+                                        !form.data.quota_id ||
+                                        quotas.length === 0
                                     }
                                 >
                                     {form.processing ? (
