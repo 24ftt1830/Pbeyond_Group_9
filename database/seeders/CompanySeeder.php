@@ -13,6 +13,7 @@ class CompanySeeder extends Seeder
         DB::table('companies')->insert([
             [
                 'company_name' => 'TechCorp Brunei',
+                'is_approved' => true,
                 'location_type' => 'Local',
                 'industry_sector' => 'IT Services',
                 'office_address' => 'Unit 12-15, Technology Park, Gadong, Bandar Seri Begawan',
@@ -22,6 +23,7 @@ class CompanySeeder extends Seeder
             ],
             [
                 'company_name' => 'GlobalTech Solutions',
+                'is_approved' => true,
                 'location_type' => 'International',
                 'industry_sector' => 'Software Development',
                 'office_address' => 'Level 20, Marina Bay Financial Centre, Singapore',
@@ -31,6 +33,7 @@ class CompanySeeder extends Seeder
             ],
             [
                 'company_name' => 'DataTech Analytics',
+                'is_approved' => true,
                 'location_type' => 'Local',
                 'industry_sector' => 'Data Analytics',
                 'office_address' => 'No. 45, Jalan Sultan, Bandar Seri Begawan',
@@ -40,6 +43,7 @@ class CompanySeeder extends Seeder
             ],
             [
                 'company_name' => 'Brunei Shell Petroleum',
+                'is_approved' => true,
                 'location_type' => 'Local',
                 'industry_sector' => 'Oil & Gas',
                 'office_address' => 'Panaga, Seria, Belait',

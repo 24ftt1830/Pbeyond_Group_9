@@ -13,17 +13,12 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             SchoolSeeder::class,
             ProgrammeSeeder::class,
+            PlacementQuotaSeeder::class,
             IldAdminSeeder::class,
             StudentSeeder::class,
             AcademicSupervisorSeeder::class,
             AcademicSupervisorAssignmentSeeder::class,
-
-            //StudentSkillSeeder::class,
-            //StudentLanguageSeeder::class,
-            //PlacementQuotaSeeder::class,
-            //ApplicationSeeder::class,
-            IndustrySupervisorSeeder::class,
-            IndustrySupervisorAssignmentSeeder::class,
+            EvaluationTemplateSeeder::class,
         ]);
     }
 }

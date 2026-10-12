@@ -4,11 +4,9 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <link 
-        rel="preload" 
-        href="{{ Vite::asset('resources/images/bridge-cropped-top-two.png') }}" 
-        as="image"
-    >
+        @if (in_array($page['component'] ?? null, ['Auth/Login', 'Auth/CompanyLogin', 'Auth/CompanyKeyAccess'], true))
+            <link rel="preload" href="{{ Vite::asset('resources/images/bridge-cropped-top-two.png') }}" as="image">
+        @endif
 
         <title inertia>{{ config('app.name', 'Pbeyond') }}</title>
 

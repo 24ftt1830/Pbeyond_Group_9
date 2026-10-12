@@ -12,39 +12,15 @@ use Inertia\Inertia;
 
 class CompanyController extends Controller
 {
-    /**
-     * Display companies with quotas available
-     * for the student's exact programme.
-     */
+    /** Display companies with approved, released quotas available to all students. */
     public function index()
     {
-        $student = Auth::user()->student;
-
-        $programmeId = $student->programme_id;
-
         $companies = Company::whereHas(
             'placementQuotas',
-            function ($query) use ($programmeId) {
-                $query->available()
-                    ->whereHas('programmes', function ($programmeQuery) use ($programmeId) {
-                        $programmeQuery->where(
-                            'programmes.programme_id',
-                            $programmeId
-                        );
-                    });
-            }
+            fn ($query) => $query->available()
         )
         ->with([
-            'placementQuotas' => function ($query) use ($programmeId) {
-                $query->available()
-                    ->whereHas('programmes', function ($programmeQuery) use ($programmeId) {
-                        $programmeQuery->where(
-                            'programmes.programme_id',
-                            $programmeId
-                        );
-                    })
-                    ->with('programmes');
-            }
+            'placementQuotas' => fn ($query) => $query->available(),
         ])
         ->get();
 
@@ -62,31 +38,18 @@ class CompanyController extends Controller
         });
 
         return Inertia::render('Student/Companies', [
-            'companies'        => $companiesData,
-            'studentProgramme' => $student->programme->programme_name,
+            'companies' => $companiesData,
         ]);
     }
 
-    /**
-     * Display a specific company and positions
-     * available for the student's exact programme.
-     */
+    /** Display all approved, released positions for a company. */
     public function show($id)
     {
         $student = Auth::user()->student;
-
-        $programmeId = $student->programme_id;
-
         $company = Company::findOrFail($id);
 
         $quotas = PlacementQuota::available()
             ->where('company_id', $id)
-            ->whereHas('programmes', function ($query) use ($programmeId) {
-                $query->where(
-                    'programmes.programme_id',
-                    $programmeId
-                );
-            })
             ->with('programmes')
             ->get();
 
@@ -112,7 +75,17 @@ class CompanyController extends Controller
     {
         $student = Auth::user()->student;
 
-        $programmeId = $student->programme_id;
+        if (!$student || !$student->isProfileComplete()) {
+            return back()->withErrors([
+                'message' => 'Complete and save all required profile information before applying for a position.',
+            ]);
+        }
+
+        if (empty($student->cv_generated_at) || empty($student->cv_snapshot)) {
+            return back()->withErrors([
+                'message' => 'Generate your CV from your profile before applying for a position.',
+            ]);
+        }
 
         $request->validate([
             'quota_id' => [
@@ -130,17 +103,11 @@ class CompanyController extends Controller
         $quota = PlacementQuota::available()
             ->where('quota_id', $request->quota_id)
             ->where('company_id', $companyId)
-            ->whereHas('programmes', function ($query) use ($programmeId) {
-                $query->where(
-                    'programmes.programme_id',
-                    $programmeId
-                );
-            })
             ->first();
 
         if (!$quota) {
             return back()->withErrors([
-                'message' => 'This position is not available for your programme.',
+                'message' => 'This position is no longer available.',
             ]);
         }
 

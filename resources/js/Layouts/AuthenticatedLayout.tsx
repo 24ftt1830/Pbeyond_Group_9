@@ -86,6 +86,7 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
                     <Toaster />
                 </div>
             </SidebarInset>
+
         </SidebarProvider>
     )
 }

@@ -1,13 +1,11 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { usePage } from '@inertiajs/react';
-import { PageProps } from '@/types';
+import { RecordFeedback } from '@/Components/Admin/RecordControls';
 import UserTable from '@/Components/user-tabs';
 
 export default function ManageUsers() {
-    const { auth } = usePage<PageProps>().props;
-
     return (
         <>
+            <RecordFeedback />
             <UserTable />
         </>
     );

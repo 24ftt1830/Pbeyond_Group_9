@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
+use App\Models\AdminRecordChange;
+use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -10,9 +12,13 @@ use Inertia\Inertia;
 
 class ProfileController extends Controller
 {
-    public function index()
+    public function index(?Student $student = null)
     {
-        $student = auth()->user()->student;
+        if ($student) {
+            abort_unless(auth()->user()->role === 'Admin', 403);
+        }
+        $adminContext = $student !== null;
+        $student ??= auth()->user()->student;
 
         if ($student) {
             $student->load([
@@ -68,11 +74,13 @@ class ProfileController extends Controller
             ]);
         }
 
-        $canGenerateCv = $this->canGenerateCv($student);
+        $missingProfileFields = $student->getProfileCompletionIssues();
 
         return Inertia::render('Student/Profile', [
+            'adminContext' => $adminContext,
             'student' => $student,
-            'canGenerateCv' => $canGenerateCv,
+            'canGenerateCv' => $missingProfileFields === [],
+            'missingProfileFields' => $missingProfileFields,
             'hasGeneratedCv' => !empty($student->cv_snapshot) && !empty($student->cv_generated_at),
             'cvGeneratedAt' => $student->cv_generated_at,
         ]);
@@ -210,19 +218,7 @@ class ProfileController extends Controller
 
     private function getMissingCvFields($student): array
     {
-        $missing = [];
-        if (!$student->mobile_phone) $missing[] = 'Phone Number';
-        if (!$student->postal_address) $missing[] = 'Address';
-        if (!$student->passport_photo_path) $missing[] = 'Passport Photo';
-        if (!$student->education()->exists()) $missing[] = 'Education History';
-        if (!$student->skills()->exists()) $missing[] = 'Skills';
-
-        return $missing;
-    }
-
-    private function canGenerateCv($student): bool
-    {
-        return empty($this->getMissingCvFields($student));
+        return $student->getProfileCompletionIssues();
     }
 
     public function cvGenerator()
@@ -245,9 +241,14 @@ class ProfileController extends Controller
         ]);
     }
 
-    public function update(Request $request)
+    public function update(Request $request, ?Student $student = null)
     {
-        $student = auth()->user()->student;
+        if ($student) {
+            abort_unless($request->user()->role === 'Admin', 403);
+        }
+        $adminContext = $student !== null;
+        $student ??= $request->user()->student;
+        $before = $student->toArray();
 
         $validated = $request->validate([
             // Existing student information
@@ -335,13 +336,16 @@ class ProfileController extends Controller
             'academic_results.mimes' => 'Academic Results must be a PDF file.',
         ]);
 
-        DB::transaction(function () use ($request, $student, $validated) {
+        DB::transaction(function () use ($request, $student, $validated, $before) {
 
             // Student core details
             $student->full_name       = $request->full_name;
             $student->ic_number       = $request->ic_number;
             $student->ic_colour       = $request->ic_colour;
             if ($request->filled('programme_id')) {
+                if ((int) $student->programme_id !== (int) $request->programme_id) {
+                    $student->internshipCompletion?->resetAcademicDecision();
+                }
                 $student->programme_id = $request->programme_id;
             }
             $student->intake_session  = $request->intake_session;
@@ -388,11 +392,6 @@ class ProfileController extends Controller
                     Storage::disk('public')->delete($student->academic_results);
                 }
                 $student->academic_results = $request->file('academic_results')->store('documents', 'public');
-            }
-
-            if (!empty($student->cv_generated_at)) {
-                $student->cv_snapshot = null;
-                $student->cv_generated_at = null;
             }
 
             $student->save();
@@ -501,10 +500,11 @@ class ProfileController extends Controller
                     }
                 }
             }
+            AdminRecordChange::record($request->user(), $student, 'Updated student profile', $before);
         });
 
         return redirect()
-            ->route('student.profile')
+            ->route($adminContext ? 'admin.students.profile' : 'student.profile', $adminContext ? [$student] : [])
             ->with('success', 'Profile updated successfully.');
     }
 }

@@ -1,13 +1,13 @@
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, useForm } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import BackButton from '@/Components/BackButton';
+import { RecordFeedback } from '@/Components/Admin/RecordControls';
 import {
     Flag,
     CheckCircle2,
     Clock3,
-    FileText,
     CalendarDays,
     UserRound,
-    ChevronRight,
     AlertTriangle,
     Loader2,
 } from 'lucide-react';
@@ -33,6 +33,7 @@ interface LogbookEntry {
 }
 
 interface Props {
+    adminContext?: boolean;
     submission: Submission;
     entries: LogbookEntry[];
 }
@@ -47,7 +48,7 @@ function parseLocalDate(dateStr: string) {
     return new Date(year, month - 1, day);
 }
 
-export default function LogbookReview({ submission, entries }: Props) {
+export default function LogbookReview({ submission, entries, adminContext = false }: Props) {
     const { data, setData, post, processing, errors } = useForm({
         status: (submission.status === 'pending_fix' ? 'pending_fix' : 'approved') as 'approved' | 'pending_fix',
         supervisor_feedback: submission.supervisor_feedback || '',
@@ -75,7 +76,7 @@ export default function LogbookReview({ submission, entries }: Props) {
     const handleSubmission = (e: React.FormEvent) => {
         e.preventDefault();
         
-        post(`/academic-supervisor/logbook/${submission.id}/mark-reviewed`, {
+        post(adminContext ? route('admin.logbooks.update', submission.id) : `/academic-supervisor/logbook/${submission.id}/mark-reviewed`, {
             preserveScroll: true,
             onError: (err) => {
                 console.error('Submission failed with errors:', err);
@@ -117,6 +118,7 @@ export default function LogbookReview({ submission, entries }: Props) {
 
     return (
         <AuthenticatedLayout>
+            <RecordFeedback />
             <Head title="Review Weekly Logbook" />
 
             <div className="min-h-screen bg-slate-50 text-slate-900">
@@ -157,14 +159,7 @@ export default function LogbookReview({ submission, entries }: Props) {
                                 </div>
                             </div>
 
-                            <Link
-                                href="/academic-supervisor/logbook"
-                                className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
-                            >
-                                <FileText size={17} />
-                                Back to Submissions
-                                <ChevronRight size={15} />
-                            </Link>
+                            <BackButton href={adminContext ? route('admin.students.show', submission.student_id) : '/academic-supervisor/logbook'}>{adminContext ? 'Back to Student Details' : 'Back to Submissions'}</BackButton>
                         </div>
                     </div>
                 </header>
@@ -172,7 +167,7 @@ export default function LogbookReview({ submission, entries }: Props) {
                 <main className="mx-auto max-w-7xl px-4 py-7 pb-32 sm:px-6 lg:px-8">
                     <div className="mb-6">
                         <p className="text-sm font-medium text-blue-600">
-                            Academic Supervisor Portal
+                            {adminContext ? 'Superadmin' : 'Academic Supervisor Portal'}
                         </p>
                         <h2 className="mt-1 text-2xl font-bold tracking-tight">
                             Weekly Logbook Review

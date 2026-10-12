@@ -7,6 +7,8 @@ use App\Models\Company;
 use App\Models\PlacementQuota; 
 use App\Models\Application;   
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 
 class CompanyController extends Controller
@@ -117,19 +119,48 @@ class CompanyController extends Controller
     }
 
     /**
-     * Store a newly created company.
+     * Register a company and its linked HR account together.
      */
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'company_name'    => 'required|string|max:255',
-            'industry_sector' => 'required|string',
+            'company_name'    => 'required|string|max:150',
+            'industry_sector' => 'required|string|max:100',
             'office_address'  => 'required|string',
+            'username' => 'required|string|max:100|unique:users,username',
+            'email' => 'required|string|email|max:150|unique:users,email',
+            'password' => 'required|string|min:8',
+            'access_key' => [
+                'bail', 'required', 'string', 'regex:/^[0-9]{6}$/',
+                function ($attribute, $value, $fail) {
+                    $alreadyUsed = Company::whereNotNull('access_key')->get(['access_key'])
+                        ->contains(fn ($company) => Hash::check($value, $company->access_key));
+                    if ($alreadyUsed) {
+                        $fail('This access key is already used by another company. Choose a different six-digit key.');
+                    }
+                },
+            ],
         ]);
 
-        Company::create($validated);
+        DB::transaction(function () use ($validated) {
+            $company = Company::create([
+                'company_name' => $validated['company_name'],
+                'industry_sector' => $validated['industry_sector'],
+                'office_address' => $validated['office_address'],
+                'location_type' => 'Local',
+                'is_approved' => true,
+                'access_key' => Hash::make($validated['access_key']),
+            ]);
 
-        return back()->with('success', 'Company registered successfully.');
+            $company->users()->create([
+                'username' => $validated['username'],
+                'email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
+                'role' => 'Company',
+            ]);
+        });
+
+        return back()->with('success', 'Company and linked HR login account created successfully.');
     }
 
     /**

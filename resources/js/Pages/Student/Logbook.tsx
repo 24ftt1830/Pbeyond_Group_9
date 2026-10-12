@@ -1,6 +1,14 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { router } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import { useMemo, useState, useEffect } from 'react';
+import { toast } from 'sonner';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from '@/Components/ui/dialog';
 import {
     ChevronLeft,
     ChevronRight,
@@ -32,9 +40,23 @@ interface WeeklySubmission {
     reviewed_at: string | null;
 }
 
+interface InternshipPeriod {
+    start_date: string;
+    end_date: string;
+}
+
+interface MissingLogbookWeek {
+    week_start: string;
+    week_end: string;
+}
+
 interface Props {
     entries?: Record<string, LogbookEntryProp>;
     weeklySubmissions?: Record<string, WeeklySubmission>;
+    missingLogbookWeeks?: MissingLogbookWeek[];
+    internshipPeriod?: InternshipPeriod | null;
+    isRecruited: boolean;
+    today: string;
 }
 
 interface LogbookDay {
@@ -45,6 +67,7 @@ interface LogbookDay {
 
 interface LogbookWeek {
     weekNumber: number;
+    weekStart: string;
     days: LogbookDay[];
 }
 
@@ -52,21 +75,6 @@ type DayStatus =
     | 'not_set'
     | 'working'
     | 'off';
-
-const MONTHS = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
-];
 
 const STATUS_LABELS: Record<DayStatus, string> = {
     not_set: 'Not set',
@@ -87,17 +95,49 @@ const STATUS_DESCRIPTIONS = {
 export default function Logbook({
     entries = {},
     weeklySubmissions = {},
+    missingLogbookWeeks = [],
+    internshipPeriod = null,
+    isRecruited = false,
+    today: serverToday,
 }: Props) {
-    const today = new Date();
+    const page = usePage<any>();
+    const { errors = {}, flash = {} } = page.props;
+    const restrictionMessage = errors.date || errors.week || flash.error;
 
-    // Helper to read query parameters from the URL
-    const getQueryParam = (param: string) => {
-        if (typeof window === 'undefined') return null;
-        const urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get(param);
-    };
+    useEffect(() => {
+        if (missingLogbookWeeks.length === 0) return;
 
-    const urlWeekStart = getQueryParam('week');
+        toast.warning(`${missingLogbookWeeks.length} missing weekly logbook${missingLogbookWeeks.length === 1 ? '' : 's'}`, {
+            id: 'student-missing-logbooks',
+            duration: 10000,
+            description: (
+                <span className="font-semibold text-slate-900">
+                    Submit your completed internship weeks: {' '}
+                    {missingLogbookWeeks.slice(0, 4).map((week, index) => (
+                        <span key={week.week_start}>
+                            {index > 0 && ', '}
+                            <Link href={route('student.logbook', { week: week.week_start })} className="font-bold text-blue-700 underline hover:text-blue-900">
+                                Week of {new Date(`${week.week_start}T00:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                            </Link>
+                        </span>
+                    ))}
+                    {missingLogbookWeeks.length > 4 && (
+                        <>
+                            {' '}and {missingLogbookWeeks.length - 4} more.{' '}
+                            <Link href={route('student.logbook')} className="font-bold text-blue-700 underline hover:text-blue-900">
+                                Open Logbook
+                            </Link>
+                        </>
+                    )}
+                </span>
+            ),
+            classNames: {
+                description: '!text-slate-900 font-semibold',
+            },
+        });
+    }, [missingLogbookWeeks]);
+
+    const urlWeekStart = new URLSearchParams(page.url.split('?')[1] ?? '').get('week');
     const getDateKey = (date: Date) => {
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -105,22 +145,14 @@ export default function Logbook({
         return `${year}-${month}-${day}`;
     };
 
-    // Initialize month based on the week parameter if available
-    const [currentMonth, setCurrentMonth] = useState(() => {
-        if (urlWeekStart) {
-            const targetDate = new Date(`${urlWeekStart}T00:00:00`);
-            if (!isNaN(targetDate.getTime())) {
-                return new Date(targetDate.getFullYear(), targetDate.getMonth(), 1);
-            }
-        }
-        return new Date(today.getFullYear(), today.getMonth(), 1);
-    });
-
-    const [showMonthPicker, setShowMonthPicker] =
-        useState(false);
-
-    const [showYearPicker, setShowYearPicker] =
-        useState(false);
+    const getDateRestriction = (dateKey: string): string | null => {
+        if (!isRecruited) return 'Not recruited';
+        if (!internshipPeriod) return 'Internship dates not set';
+        if (dateKey < internshipPeriod.start_date) return 'Before internship period';
+        if (dateKey > internshipPeriod.end_date) return 'After internship period';
+        if (dateKey > serverToday) return 'Future date';
+        return null;
+    };
 
     const [selectedDateKey, setSelectedDateKey] =
         useState<string | null>(null);
@@ -128,163 +160,90 @@ export default function Logbook({
     const [showDayPanel, setShowDayPanel] =
         useState(false);
 
+    const [showReviewedSubmission, setShowReviewedSubmission] = useState(false);
+
     const [selectedStatus, setSelectedStatus] =
         useState<DayStatus>('not_set');
 
-    const currentYear =
-        currentMonth.getFullYear();
-
-    const currentMonthIndex =
-        currentMonth.getMonth();
-
-    /*
-    |--------------------------------------------------------------------------
-    | Generate calendar weeks
-    |--------------------------------------------------------------------------
-    */
-
+    // Keep calendar Monday keys so existing submissions and reminder links still match.
     const weeks = useMemo<LogbookWeek[]>(() => {
-        const year =
-            currentMonth.getFullYear();
+        if (!isRecruited || !internshipPeriod) return [];
 
-        const month =
-            currentMonth.getMonth();
+        const startDate = new Date(`${internshipPeriod.start_date}T00:00:00`);
+        const endDate = new Date(`${internshipPeriod.end_date}T00:00:00`);
+        if (isNaN(startDate.getTime()) || isNaN(endDate.getTime()) || startDate > endDate) return [];
 
-        const firstDay =
-            new Date(year, month, 1);
+        const firstMonday = new Date(startDate);
+        firstMonday.setDate(firstMonday.getDate() - ((firstMonday.getDay() + 6) % 7));
+        const generatedWeeks: LogbookWeek[] = [];
 
-        const lastDay =
-            new Date(year, month + 1, 0);
-
-        const firstDayOffset =
-            (firstDay.getDay() + 6) % 7;
-
-        const firstMonday =
-            new Date(firstDay);
-
-        firstMonday.setDate(
-            firstDay.getDate() -
-                firstDayOffset
-        );
-
-        const lastDayOffset =
-            (lastDay.getDay() + 6) % 7;
-
-        const lastSunday =
-            new Date(lastDay);
-
-        lastSunday.setDate(
-            lastDay.getDate() +
-                (6 - lastDayOffset)
-        );
-
-        const generatedWeeks: LogbookWeek[] =
-            [];
-
-        let weekStart =
-            new Date(firstMonday);
-
-        let weekNumber = 1;
-
-        while (weekStart <= lastSunday) {
+        for (const weekStart = new Date(firstMonday); weekStart <= endDate; weekStart.setDate(weekStart.getDate() + 7)) {
             const days: LogbookDay[] = [];
 
-            for (let i = 0; i < 7; i++) {
-                const date =
-                    new Date(weekStart);
-
-                date.setDate(
-                    weekStart.getDate() + i
-                );
+            for (let offset = 0; offset < 7; offset++) {
+                const date = new Date(weekStart);
+                date.setDate(date.getDate() + offset);
+                if (date < startDate || date > endDate) continue;
 
                 days.push({
                     date,
-
-                    dayName:
-                        date.toLocaleDateString(
-                            'en-GB',
-                            {
-                                weekday: 'long',
-                            }
-                        ),
-
-                    formattedDate:
-                        date.toLocaleDateString(
-                            'en-GB',
-                            {
-                                day: 'numeric',
-                                month: 'long',
-                                year: 'numeric',
-                            }
-                        ),
+                    dayName: date.toLocaleDateString('en-GB', { weekday: 'long' }),
+                    formattedDate: date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }),
                 });
             }
 
             generatedWeeks.push({
-                weekNumber,
+                weekNumber: generatedWeeks.length + 1,
+                weekStart: getDateKey(weekStart),
                 days,
             });
-
-            weekStart =
-                new Date(weekStart);
-
-            weekStart.setDate(
-                weekStart.getDate() + 7
-            );
-
-            weekNumber++;
         }
 
         return generatedWeeks;
-    }, [currentMonth]);
+    }, [isRecruited, internshipPeriod?.start_date, internshipPeriod?.end_date]);
 
     const initialWeekIndex = useMemo(() => {
-        // If a specific week is in the URL, use that week.
-        if (urlWeekStart) {
-            const urlWeekIndex = weeks.findIndex((week) =>
-                week.days.some(
-                    (day) => getDateKey(day.date) === urlWeekStart
-                )
-            );
-
-            if (urlWeekIndex !== -1) {
-                return urlWeekIndex;
-            }
-        }
-
-        // Otherwise, automatically select the week containing today.
-        const todayKey = getDateKey(new Date());
+        const requestedWeekIndex = weeks.findIndex((week) =>
+            week.weekStart === urlWeekStart || week.days.some((day) => getDateKey(day.date) === urlWeekStart)
+        );
+        if (requestedWeekIndex >= 0) return requestedWeekIndex;
 
         const currentWeekIndex = weeks.findIndex((week) =>
-            week.days.some(
-                (day) => getDateKey(day.date) === todayKey
-            )
+            week.days.some((day) => getDateKey(day.date) === serverToday)
         );
+        if (currentWeekIndex >= 0) return currentWeekIndex;
 
-        return currentWeekIndex !== -1 ? currentWeekIndex : 0;
-    }, [weeks, urlWeekStart]);
+        // Before the internship use its first week; after it use its last week.
+        return internshipPeriod && serverToday > internshipPeriod.end_date ? Math.max(0, weeks.length - 1) : 0;
+    }, [weeks, urlWeekStart, serverToday, internshipPeriod?.end_date]);
 
-    const [selectedWeek, setSelectedWeek] = useState(initialWeekIndex);
+    const initialWeekStart = weeks[initialWeekIndex]?.weekStart ?? null;
+    const [selectedCalendarWeekStart, setSelectedCalendarWeekStart] = useState<string | null>(initialWeekStart);
 
     useEffect(() => {
-        setSelectedWeek(initialWeekIndex);
-    }, [initialWeekIndex]);
+        setSelectedCalendarWeekStart(initialWeekStart);
+        setShowDayPanel(false);
+        setShowReviewedSubmission(false);
+        setSelectedDateKey(null);
+    }, [initialWeekStart]);
 
-    /*
-    |--------------------------------------------------------------------------
-    | Active week
-    |--------------------------------------------------------------------------
-    */
-
-    const activeWeekIndex =
-        selectedWeek < weeks.length
-            ? selectedWeek
-            : 0;
-
-    const selectedWeekData =
-        weeks[activeWeekIndex];
-
-    
+    const matchingWeekIndex = weeks.findIndex((week) => week.weekStart === selectedCalendarWeekStart);
+    const activeWeekIndex = matchingWeekIndex >= 0 ? matchingWeekIndex : initialWeekIndex;
+    const selectedWeekData = weeks[activeWeekIndex];
+    const visibleWeekStartIndex = Math.floor(activeWeekIndex / 5) * 5;
+    const visibleWeeks = weeks.slice(visibleWeekStartIndex, visibleWeekStartIndex + 5);
+    const selectedWeekEndDay = selectedWeekData?.days[selectedWeekData.days.length - 1];
+    const selectedWeekRange = selectedWeekData
+        ? `${selectedWeekData.days[0].formattedDate} – ${selectedWeekEndDay?.formattedDate}`
+        : '';
+    const hasStarted = Boolean(isRecruited && internshipPeriod && serverToday >= internshipPeriod.start_date);
+    const waitingMessage = !isRecruited
+        ? 'Your logbook will become available after recruitment and internship dates are assigned.'
+        : !internshipPeriod
+            ? 'Waiting for Company HR to set your internship dates.'
+            : !hasStarted
+                ? `Your internship starts on ${new Date(`${internshipPeriod.start_date}T00:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}. Logbook entry will become available on that date.`
+                : null;
 
     /*
     |--------------------------------------------------------------------------
@@ -292,9 +251,7 @@ export default function Logbook({
     |--------------------------------------------------------------------------
     */
 
-    const selectedWeekStart = selectedWeekData
-        ? getDateKey(selectedWeekData.days[0].date)
-        : null;
+    const selectedWeekStart = selectedWeekData?.weekStart ?? null;
 
     const selectedWeekSubmission = (() => {
         if (!selectedWeekData) {
@@ -364,7 +321,7 @@ export default function Logbook({
         const key = getDateKey(day.date);
 
         // Reviewed weeks are locked.
-        if (isWeekReviewed) {
+        if (isWeekReviewed || getDateRestriction(key)) {
             return;
         }
 
@@ -398,7 +355,7 @@ export default function Logbook({
         }
 
         // Reviewed weeks cannot be edited.
-        if (isWeekReviewed) {
+        if (isWeekReviewed || getDateRestriction(selectedDateKey)) {
             return;
         }
 
@@ -431,7 +388,7 @@ export default function Logbook({
         }
 
         // Reviewed weeks cannot be edited.
-        if (isWeekReviewed) {
+        if (isWeekReviewed || getDateRestriction(selectedDateKey)) {
             return;
         }
 
@@ -451,83 +408,10 @@ export default function Logbook({
         setSelectedStatus('not_set');
     };
 
-    /*
-    |--------------------------------------------------------------------------
-    | Month navigation
-    |--------------------------------------------------------------------------
-    */
-
-    const goToPreviousMonth = () => {
-        setCurrentMonth(
-            new Date(
-                currentYear,
-                currentMonthIndex - 1,
-                1
-            )
-        );
-
-        setSelectedWeek(0);
-        setShowMonthPicker(false);
-        setShowYearPicker(false);
+    const moveSelectedWeek = (weekOffset: number) => {
+        const targetWeek = weeks[activeWeekIndex + weekOffset];
+        if (targetWeek) setSelectedCalendarWeekStart(targetWeek.weekStart);
     };
-
-    const goToNextMonth = () => {
-        setCurrentMonth(
-            new Date(
-                currentYear,
-                currentMonthIndex + 1,
-                1
-            )
-        );
-
-        setSelectedWeek(0);
-        setShowMonthPicker(false);
-        setShowYearPicker(false);
-    };
-
-    /*
-    |--------------------------------------------------------------------------
-    | Month / year picker
-    |--------------------------------------------------------------------------
-    */
-
-    const changeMonth = (
-        month: number,
-        year: number
-    ) => {
-        setCurrentMonth(
-            new Date(year, month, 1)
-        );
-
-        setSelectedWeek(0);
-        setShowMonthPicker(false);
-        setShowYearPicker(false);
-    };
-
-    const changeYear = (year: number) => {
-        setCurrentMonth(
-            new Date(
-                year,
-                currentMonthIndex,
-                1
-            )
-        );
-
-        setSelectedWeek(0);
-        setShowYearPicker(false);
-    };
-
-    /*
-    |--------------------------------------------------------------------------
-    | Year options
-    |--------------------------------------------------------------------------
-    */
-
-    const yearOptions = Array.from(
-        { length: 31 },
-        (_, index) =>
-            currentYear - 15 + index
-    );
 
     /*
     |--------------------------------------------------------------------------
@@ -551,19 +435,22 @@ export default function Logbook({
         return 'not_set';
     };
 
-    const completedDays = selectedWeekData
-        ? selectedWeekData.days.filter((day) => {
-              const status = getDayStatus(day);
+    const applicableWeekDateKeys = selectedWeekData
+        ? selectedWeekData.days
+            .map((day) => getDateKey(day.date))
+            .filter((dateKey) => internshipPeriod
+                && dateKey >= internshipPeriod.start_date
+                && dateKey <= internshipPeriod.end_date)
+        : [];
 
-              return (
-                  status === 'working' ||
-                  status === 'off'
-              );
-          }).length
-        : 0;
-
-    const isWeekComplete =
-        completedDays === 7;
+    const elapsedWeekDateKeys = applicableWeekDateKeys.filter((dateKey) => dateKey <= serverToday);
+    const completedDays = elapsedWeekDateKeys.filter((dateKey) => {
+        const status = entries[dateKey]?.status;
+        return status === 'working' || status === 'off';
+    }).length;
+    const expectedDays = applicableWeekDateKeys.length;
+    const allApplicableDaysHaveOccurred = expectedDays > 0 && elapsedWeekDateKeys.length === expectedDays;
+    const isWeekComplete = allApplicableDaysHaveOccurred && completedDays === expectedDays;
 
     return (
         <div
@@ -594,537 +481,72 @@ export default function Logbook({
                 </p>
             </div>
 
+            {internshipPeriod && isRecruited && (
+                <p className="mt-3 text-xs text-slate-500">
+                    Internship period: {internshipPeriod.start_date} – {internshipPeriod.end_date}. Fill in each day only after it occurs and within this period.
+                </p>
+            )}
 
-            {/* =========================================================
-                MONTH NAVIGATION
-            ========================================================== */}
-
-            <div
-                className="
-                    relative
-                    mx-auto
-                    mt-8
-                    h-10
-                    w-[250px]
-                "
-            >
-
-                <button
-                    type="button"
-                    onClick={
-                        goToPreviousMonth
-                    }
-                    aria-label="Previous month"
-                    className="
-                        absolute
-                        left-0
-                        top-0
-                        flex
-                        h-10
-                        w-10
-                        items-center
-                        justify-center
-                        rounded-md
-                        border
-                        bg-white
-                        text-gray-500
-                        hover:bg-gray-50
-                    "
-                >
-                    <ChevronLeft className="size-4" />
-                </button>
-
-
-                <button
-                    type="button"
-                    onClick={() =>
-                        setShowMonthPicker(
-                            !showMonthPicker
-                        )
-                    }
-                    className="
-                        absolute
-                        left-1/2
-                        top-0
-                        flex
-                        h-10
-                        w-[160px]
-                        -translate-x-1/2
-                        items-center
-                        justify-center
-                        gap-2
-                        rounded-md
-                        text-sm
-                        font-semibold
-                        whitespace-nowrap
-                        hover:bg-gray-50
-                    "
-                >
-                    <CalendarDays className="size-4 shrink-0" />
-
-                    <span>
-                        {
-                            MONTHS[
-                                currentMonthIndex
-                            ]
-                        }{' '}
-                        {currentYear}
-                    </span>
-                </button>
-
-
-                <button
-                    type="button"
-                    onClick={
-                        goToNextMonth
-                    }
-                    aria-label="Next month"
-                    className="
-                        absolute
-                        right-0
-                        top-0
-                        flex
-                        h-10
-                        w-10
-                        items-center
-                        justify-center
-                        rounded-md
-                        border
-                        bg-white
-                        text-gray-500
-                        hover:bg-gray-50
-                    "
-                >
-                    <ChevronRight className="size-4" />
-                </button>
-
-
-                {/* =====================================================
-                    MONTH / YEAR PICKER
-                ====================================================== */}
-
-                {showMonthPicker && (
-                    <div
-                        className="
-                            absolute
-                            left-1/2
-                            top-12
-                            z-50
-                            w-[320px]
-                            -translate-x-1/2
-                            rounded-xl
-                            border
-                            bg-white
-                            p-5
-                            shadow-lg
-                        "
-                    >
-
-                        {showYearPicker ? (
-                            <>
-                                <div
-                                    className="
-                                        mb-6
-                                        flex
-                                        items-center
-                                        justify-between
-                                        gap-8
-                                    "
-                                >
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            changeYear(
-                                                currentYear -
-                                                    1
-                                            )
-                                        }
-                                        className="
-                                            flex
-                                            h-10
-                                            w-10
-                                            shrink-0
-                                            items-center
-                                            justify-center
-                                            rounded-md
-                                            border
-                                            border-gray-200
-                                            bg-white
-                                            text-gray-600
-                                            hover:bg-gray-50
-                                        "
-                                    >
-                                        <ChevronLeft className="size-4" />
-                                    </button>
-
-                                    <div
-                                        className="
-                                            flex-1
-                                            text-center
-                                            text-lg
-                                            font-semibold
-                                            text-gray-900
-                                            whitespace-nowrap
-                                        "
-                                    >
-                                        Select Year
-                                    </div>
-
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            changeYear(
-                                                currentYear +
-                                                    1
-                                            )
-                                        }
-                                        className="
-                                            flex
-                                            h-10
-                                            w-10
-                                            shrink-0
-                                            items-center
-                                            justify-center
-                                            rounded-md
-                                            border
-                                            border-gray-200
-                                            bg-white
-                                            text-gray-600
-                                            hover:bg-gray-50
-                                        "
-                                    >
-                                        <ChevronRight className="size-4" />
-                                    </button>
-                                </div>
-
-
-                                <div
-                                    className="
-                                        grid
-                                        grid-cols-3
-                                        gap-3
-                                    "
-                                >
-                                    {yearOptions.map(
-                                        (year) => {
-                                            const isSelected =
-                                                year ===
-                                                currentYear;
-
-                                            return (
-                                                <button
-                                                    type="button"
-                                                    key={year}
-                                                    onClick={() =>
-                                                        changeYear(
-                                                            year
-                                                        )
-                                                    }
-                                                    className={`
-                                                        flex
-                                                        h-12
-                                                        items-center
-                                                        justify-center
-                                                        rounded-md
-                                                        border
-                                                        text-sm
-                                                        font-medium
-                                                        transition
-                                                        ${
-                                                            isSelected
-                                                                ? 'border-blue-600 bg-blue-600 text-white'
-                                                                : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
-                                                        }
-                                                    `}
-                                                >
-                                                    {year}
-                                                </button>
-                                            );
-                                        }
-                                    )}
-                                </div>
-
-
-                                <div
-                                    className="
-                                        my-6
-                                        border-t
-                                        border-gray-200
-                                    "
-                                />
-
-
-                                <button
-                                    type="button"
-                                    onClick={() =>
-                                        setShowYearPicker(
-                                            false
-                                        )
-                                    }
-                                    className="
-                                        flex
-                                        h-11
-                                        w-full
-                                        items-center
-                                        justify-center
-                                        rounded-md
-                                        border
-                                        border-gray-200
-                                        bg-white
-                                        text-sm
-                                        font-medium
-                                        text-gray-600
-                                        hover:bg-gray-50
-                                    "
-                                >
-                                    Back to Months
-                                </button>
-                            </>
-                        ) : (
-                            <>
-                                <div
-                                    className="
-                                        mb-5
-                                        flex
-                                        items-center
-                                        justify-between
-                                        gap-8
-                                    "
-                                >
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            changeYear(
-                                                currentYear -
-                                                    1
-                                            )
-                                        }
-                                        className="
-                                            flex
-                                            h-10
-                                            w-10
-                                            shrink-0
-                                            items-center
-                                            justify-center
-                                            rounded-md
-                                            border
-                                            border-gray-200
-                                            bg-white
-                                            text-gray-600
-                                            hover:bg-gray-50
-                                        "
-                                    >
-                                        <ChevronLeft className="size-4" />
-                                    </button>
-
-
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            setShowYearPicker(
-                                                true
-                                            )
-                                        }
-                                        className="
-                                            min-w-[88px]
-                                            rounded-md
-                                            border
-                                            border-gray-300
-                                            bg-white
-                                            px-4
-                                            py-2
-                                            text-base
-                                            font-semibold
-                                            text-gray-900
-                                            hover:bg-gray-50
-                                        "
-                                    >
-                                        {currentYear}
-                                    </button>
-
-
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            changeYear(
-                                                currentYear +
-                                                    1
-                                            )
-                                        }
-                                        className="
-                                            flex
-                                            h-10
-                                            w-10
-                                            shrink-0
-                                            items-center
-                                            justify-center
-                                            rounded-md
-                                            border
-                                            border-gray-200
-                                            bg-white
-                                            text-gray-600
-                                            hover:bg-gray-50
-                                        "
-                                    >
-                                        <ChevronRight className="size-4" />
-                                    </button>
-                                </div>
-
-
-                                <div
-                                    className="
-                                        mb-5
-                                        border-t
-                                        border-gray-200
-                                    "
-                                />
-
-
-                                <div
-                                    className="
-                                        grid
-                                        grid-cols-3
-                                        gap-3
-                                    "
-                                >
-                                    {MONTHS.map(
-                                        (
-                                            month,
-                                            index
-                                        ) => {
-                                            const isSelected =
-                                                index ===
-                                                currentMonthIndex;
-
-                                            return (
-                                                <button
-                                                    type="button"
-                                                    key={month}
-                                                    onClick={() =>
-                                                        changeMonth(
-                                                            index,
-                                                            currentYear
-                                                        )
-                                                    }
-                                                    className={`
-                                                        flex
-                                                        h-11
-                                                        items-center
-                                                        justify-center
-                                                        rounded-md
-                                                        text-sm
-                                                        font-medium
-                                                        transition
-                                                        ${
-                                                            isSelected
-                                                                ? 'bg-blue-600 text-white'
-                                                                : 'text-gray-700 hover:bg-gray-100'
-                                                        }
-                                                    `}
-                                                >
-                                                    {month.slice(
-                                                        0,
-                                                        3
-                                                    )}
-                                                </button>
-                                            );
-                                        }
-                                    )}
-                                </div>
-                            </>
-                        )}
-
-                    </div>
-                )}
-
-            </div>
-
-
-            {/* =========================================================
-                WEEK NAVIGATION
-            ========================================================== */}
-
-            <div
-                className="
-                    mt-6
-                    w-full
-                    border-b
-                    border-gray-200
-                "
-            >
-                <div
-                    className="
-                        mx-auto
-                        flex
-                        h-[47px]
-                        w-full
-                        max-w-[900px]
-                        items-stretch
-                        justify-center
-                    "
-                >
-                    {weeks.map(
-                        (week, index) => {
-                            const isSelected =
-                                activeWeekIndex ===
-                                index;
-
-                            return (
-                                <button
-                                    type="button"
-                                    key={
-                                        week.weekNumber
-                                    }
-                                    onClick={() =>
-                                        setSelectedWeek(
-                                            index
-                                        )
-                                    }
-                                    className={`
-                                        relative
-                                        flex
-                                        h-[47px]
-                                        min-w-0
-                                        flex-1
-                                        basis-0
-                                        items-center
-                                        justify-center
-                                        px-4
-                                        text-sm
-                                        font-medium
-                                        whitespace-nowrap
-                                        bg-transparent
-                                        ${
-                                            isSelected
-                                                ? 'text-blue-600'
-                                                : 'text-gray-500 hover:text-gray-900'
-                                        }
-                                    `}
-                                >
-                                    Week{' '}
-                                    {
-                                        week.weekNumber
-                                    }
-
-                                    {isSelected && (
-                                        <span
-                                            className="
-                                                absolute
-                                                bottom-0
-                                                left-0
-                                                right-0
-                                                h-[2px]
-                                                bg-blue-600
-                                            "
-                                        />
-                                    )}
-                                </button>
-                            );
-                        }
-                    )}
+            {waitingMessage && (
+                <div role="status" className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-5 text-sm text-slate-700">
+                    {waitingMessage}
                 </div>
-            </div>
+            )}
 
+            {restrictionMessage && (
+                <div role="alert" className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                    {restrictionMessage}
+                </div>
+            )}
+
+            {hasStarted && selectedWeekData && <>
+                <div className="mt-8">
+                    <div className="mx-auto flex w-full max-w-sm items-center gap-3">
+                        <button
+                            type="button"
+                            onClick={() => moveSelectedWeek(-1)}
+                            disabled={activeWeekIndex === 0}
+                            aria-label="Previous internship week"
+                            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border bg-white text-gray-500 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                            <ChevronLeft className="size-4" />
+                        </button>
+                        <div className="min-w-0 flex-1 text-center">
+                            <p className="flex min-h-10 items-center justify-center gap-2 text-sm font-semibold">
+                                <CalendarDays className="size-4 shrink-0" />
+                                Week {selectedWeekData.weekNumber} of {weeks.length}
+                            </p>
+                            <p className="mt-1 text-xs text-slate-500">{selectedWeekRange}</p>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => moveSelectedWeek(1)}
+                            disabled={activeWeekIndex === weeks.length - 1}
+                            aria-label="Next internship week"
+                            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border bg-white text-gray-500 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                            <ChevronRight className="size-4" />
+                        </button>
+                    </div>
+                </div>
+
+                <div className="mt-6 flex w-full border-b border-gray-200" role="group" aria-label="Internship weeks">
+                    {visibleWeeks.map((week) => {
+                        const isSelected = selectedWeekStart === week.weekStart;
+                        return (
+                            <button
+                                type="button"
+                                key={week.weekStart}
+                                aria-pressed={isSelected}
+                                onClick={() => setSelectedCalendarWeekStart(week.weekStart)}
+                                className={`relative flex h-12 min-w-0 flex-1 items-center justify-center whitespace-nowrap px-1 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500 ${isSelected ? 'text-blue-600' : 'text-gray-500 hover:text-gray-900'}`}
+                            >
+                                Week {week.weekNumber}
+                                {isSelected && <span className="absolute inset-x-0 bottom-0 h-0.5 bg-blue-600" />}
+                            </button>
+                        );
+                    })}
+                </div>
 
             {/* =========================================================
                 REVIEWED LOCK MESSAGE
@@ -1164,27 +586,27 @@ export default function Logbook({
                     className="
                         mt-4
                         flex
+                        flex-wrap
                         items-center
+                        justify-between
                         gap-3
                         rounded-lg
-                        border
-                        border-green-200
-                        bg-green-50
+                        border border-slate-200
+                        bg-slate-100
                         px-4
                         py-3
                     "
                 >
-                    <LockKeyhole className="size-5 text-green-700" />
-
-                    <div>
-                        <p className="text-sm font-semibold text-green-800">
-                            Week Reviewed
-                        </p>
-
-                        <p className="text-xs text-green-700">
-                            This week has been reviewed by your Academic Supervisor and can no longer be edited.
-                        </p>
+                    <div className="flex items-center gap-3">
+                        <LockKeyhole className="size-5 shrink-0 text-slate-600" />
+                        <div>
+                            <p className="text-sm font-semibold text-slate-800">Week reviewed and locked</p>
+                            <p className="text-xs text-slate-600">This week has been reviewed by your Academic Supervisor and can no longer be edited.</p>
+                        </div>
                     </div>
+                    <button type="button" onClick={() => setShowReviewedSubmission(true)} className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-50">
+                        View submitted logbook
+                    </button>
                 </div>
             )}
 
@@ -1207,30 +629,7 @@ export default function Logbook({
                         const status =
                             getDayStatus(day);
 
-                        const isPreviousMonth =
-                            day.date.getFullYear() <
-                                currentYear ||
-                            (
-                                day.date.getFullYear() ===
-                                    currentYear &&
-                                day.date.getMonth() <
-                                    currentMonthIndex
-                            );
-
-                        const isNextMonth =
-                            day.date.getFullYear() >
-                                currentYear ||
-                            (
-                                day.date.getFullYear() ===
-                                    currentYear &&
-                                day.date.getMonth() >
-                                    currentMonthIndex
-                            );
-
-                        const isOutsideCurrentMonth =
-                            isPreviousMonth ||
-                            isNextMonth;
-
+                        const dateRestriction = getDateRestriction(getDateKey(day.date));
                         const dayIsFlagged = isDayFlagged(day);
 
                         return (
@@ -1240,7 +639,7 @@ export default function Logbook({
                                 onClick={() =>
                                     openDay(day)
                                 }
-                                disabled={isWeekReviewed}
+                                disabled={isWeekReviewed || Boolean(dateRestriction)}
                                 className={`
                                     flex
                                     w-full
@@ -1252,7 +651,7 @@ export default function Logbook({
                                     text-left
                                     last:border-b-0
                                     ${
-                                        isWeekReviewed
+                                        isWeekReviewed || dateRestriction
                                             ? 'cursor-not-allowed bg-gray-50'
                                             : dayIsFlagged
                                                 ? 'bg-rose-50 hover:bg-rose-100'
@@ -1264,54 +663,9 @@ export default function Logbook({
 
                                     <div className="flex items-center gap-2">
 
-                                        <p
-                                            className={`
-                                                font-semibold
-                                                ${
-                                                    isOutsideCurrentMonth
-                                                        ? 'text-gray-500'
-                                                        : 'text-gray-900'
-                                                }
-                                            `}
-                                        >
-                                            {
-                                                day.dayName
-                                            }
+                                        <p className="font-semibold text-gray-900">
+                                            {day.dayName}
                                         </p>
-
-
-                                        {isPreviousMonth && (
-                                            <span
-                                                className="
-                                                    rounded-full
-                                                    bg-gray-100
-                                                    px-2
-                                                    py-0.5
-                                                    text-[10px]
-                                                    font-medium
-                                                    text-gray-500
-                                                "
-                                            >
-                                                Previous month
-                                            </span>
-                                        )}
-
-
-                                        {isNextMonth && (
-                                            <span
-                                                className="
-                                                    rounded-full
-                                                    bg-gray-100
-                                                    px-2
-                                                    py-0.5
-                                                    text-[10px]
-                                                    font-medium
-                                                    text-gray-500
-                                                "
-                                            >
-                                                Next month
-                                            </span>
-                                        )}
 
                                         {dayIsFlagged && (
                                             <span
@@ -1363,11 +717,21 @@ export default function Logbook({
                                                 gap-1.5
                                                 text-sm
                                                 font-medium
-                                                text-green-700
+                                                text-slate-600
                                             "
                                         >
                                             <LockKeyhole className="size-4" />
                                             Locked
+                                        </span>
+
+                                    ) : dateRestriction ? (
+
+                                        <span
+                                            title={dateRestriction}
+                                            className="flex items-center gap-1.5 text-sm font-medium text-slate-400"
+                                        >
+                                            <LockKeyhole className="size-4" />
+                                            {dateRestriction === 'Future date' ? 'Future date' : 'Unavailable'}
                                         </span>
 
                                     ) : status === 'working' ? (
@@ -1514,14 +878,10 @@ export default function Logbook({
                 )}
 
                 {isWeekReviewed ? (
-                    <button
-                        type="button"
-                        disabled
-                        className="flex items-center gap-2 cursor-not-allowed rounded-lg border border-green-200 bg-green-50 px-5 py-2.5 text-sm font-semibold text-green-700 opacity-90"
-                    >
+                    <span className="flex cursor-not-allowed items-center gap-2 rounded-lg border border-slate-200 bg-slate-100 px-5 py-2.5 text-sm font-semibold text-slate-600">
                         <LockKeyhole className="size-4" />
                         Reviewed & Locked
-                    </button>
+                    </span>
                 ) : isWeekNeedsRevision ? (
                     <button
                         type="button"
@@ -1580,8 +940,71 @@ export default function Logbook({
                     </button>
                 )}
 
+                {!isWeekReviewed && !isWeekPending && !isWeekSubmitted && expectedDays > 0 && !isWeekComplete && (
+                    <p className="max-w-md text-right text-xs text-slate-500">
+                        Complete the {expectedDays} internship day{expectedDays === 1 ? '' : 's'} in this week. Future dates become available when they arrive, and the week can be submitted after all applicable dates have passed.
+                    </p>
+                )}
+
             </div>
 
+            <Dialog open={showReviewedSubmission} onOpenChange={setShowReviewedSubmission}>
+                <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-3xl">
+                    <DialogHeader>
+                        <DialogTitle>Reviewed weekly logbook</DialogTitle>
+                        <DialogDescription>
+                            {selectedWeekRange}
+                            {selectedWeekSubmission?.reviewed_at && ` · Reviewed ${new Date(selectedWeekSubmission.reviewed_at).toLocaleString('en-GB')}`}
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    {selectedWeekSubmission?.supervisor_feedback && (
+                        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Academic Supervisor feedback</p>
+                            <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-slate-800">{selectedWeekSubmission.supervisor_feedback}</p>
+                        </div>
+                    )}
+
+                    <div className="space-y-3">
+                        {selectedWeekData?.days.map((day) => {
+                            const entry = entries[getDateKey(day.date)];
+
+                            return (
+                                <section key={getDateKey(day.date)} className="rounded-xl border border-slate-200 p-4">
+                                    <div className="flex flex-wrap items-center justify-between gap-2">
+                                        <h3 className="font-semibold text-slate-900">{day.dayName} · {day.formattedDate}</h3>
+                                        <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                                            {entry?.status === 'working' ? 'Working Day' : entry?.status === 'off' ? 'Off Day' : 'No saved entry'}
+                                        </span>
+                                    </div>
+
+                                    {entry?.status === 'working' && (
+                                        <div className="mt-4 space-y-3 text-sm">
+                                            <div>
+                                                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Activities</p>
+                                                <p className="mt-1 whitespace-pre-line text-slate-800">{entry.description || 'No activities entered.'}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Learning outcomes</p>
+                                                <p className="mt-1 whitespace-pre-line text-slate-800">{entry.learning_outcomes || 'No learning outcomes entered.'}</p>
+                                            </div>
+                                            {entry.issues && (
+                                                <div>
+                                                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Issues or support needed</p>
+                                                    <p className="mt-1 whitespace-pre-line text-slate-800">{entry.issues}</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </section>
+                            );
+                        })}
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+
+            </>}
 
             {/* =========================================================
                 DAY STATUS MODAL

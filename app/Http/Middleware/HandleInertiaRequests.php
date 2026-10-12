@@ -29,14 +29,20 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $user = $request->user();
+        $student = $user?->student;
+        $missingProfileFields = $student?->getProfileCompletionIssues() ?? [];
+
         return [
             ...parent::share($request),
             'auth' => [
-                'user' => $request->user() ? array_merge($request->user()->toArray(), [
-                    'student' => $request->user()->student ? [
-                        'student_id'      => $request->user()->student->student_id,
-                        'cv_snapshot'     => $request->user()->student->cv_snapshot,
-                        'cv_generated_at' => $request->user()->student->cv_generated_at,
+                'user' => $user ? array_merge($user->toArray(), [
+                    'student' => $student ? [
+                        'student_id'      => $student->student_id,
+                        'cv_snapshot'     => $student->cv_snapshot,
+                        'cv_generated_at' => $student->cv_generated_at,
+                        'profile_complete' => $missingProfileFields === [],
+                        'missing_profile_fields' => $missingProfileFields,
                     ] : null,
                 ]) : null,
             ],

@@ -75,6 +75,21 @@ class Student extends Model
         );
     }
 
+    public function finalInternshipReport()
+    {
+        return $this->hasOne(FinalInternshipReport::class, 'student_id', 'student_id');
+    }
+
+    public function logbookReminders()
+    {
+        return $this->hasMany(LogbookReminder::class, 'student_id', 'student_id');
+    }
+
+    public function internshipCompletion()
+    {
+        return $this->hasOne(InternshipCompletion::class, 'student_id', 'student_id');
+    }
+
     public function supervisorAssignments()
     {
         return $this->hasMany(SupervisorAssignment::class, 'student_id', 'student_id');
@@ -181,19 +196,41 @@ class Student extends Model
         );
     }
 
-    /**
-     * Check if the student's profile requirements are fully completed.
-     */
+    /** Return the required profile fields that are still missing. */
+    public function getProfileCompletionIssues(): array
+    {
+        $missing = [];
+
+        if (blank($this->full_name)) $missing[] = 'Full Name';
+        if (blank($this->user?->email)) $missing[] = 'Email Address';
+        if (blank($this->ic_number)) $missing[] = 'Identity Card Number';
+        if (blank($this->date_of_birth)) $missing[] = 'Date of Birth';
+        if (blank($this->mobile_phone)) $missing[] = 'Mobile Phone';
+        if (blank($this->postal_address)) $missing[] = 'Postal Address';
+        if (blank($this->passport_photo_path)) $missing[] = 'Passport Photo';
+        if (!$this->programme()->exists()) $missing[] = 'Academic Programme';
+        if (!$this->professionalProfile()->whereNotNull('profile')->where('profile', '<>', '')->exists()) {
+            $missing[] = 'Professional Profile';
+        }
+        if (!$this->education()
+            ->whereNotNull('institution')->where('institution', '<>', '')
+            ->whereNotNull('qualification')->where('qualification', '<>', '')
+            ->exists()) {
+            $missing[] = 'Education History';
+        }
+        if (!$this->skills()->whereNotNull('skill_name')->where('skill_name', '<>', '')->exists()) {
+            $missing[] = 'Technical Skills';
+        }
+        if (!$this->languages()->whereNotNull('language_name')->where('language_name', '<>', '')->exists()) {
+            $missing[] = 'Languages';
+        }
+
+        return $missing;
+    }
+
+    /** Check if the student's required profile and CV information is complete. */
     public function isProfileComplete(): bool
     {
-        $hasBio = !empty($this->passport_photo_path) 
-            && !empty($this->mobile_phone) 
-            && !empty($this->ic_number)
-            && !empty($this->date_of_birth);
-
-        $hasEducation = $this->education()->exists();
-        $hasSkills = $this->skills()->exists();
-
-        return $hasBio && $hasEducation && $hasSkills;
+        return $this->getProfileCompletionIssues() === [];
     }
 }

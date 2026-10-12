@@ -1,5 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { usePage, Head } from '@inertiajs/react';
+import { usePage, Head, Link } from '@inertiajs/react';
 import { useMemo, type ReactNode } from 'react';
 import { DataTable } from '@/Components/ui/data-table';
 import { ColumnDef } from '@tanstack/react-table';
@@ -10,6 +10,7 @@ interface Application {
     created_at: string;
     app_status: string;
     student: {
+        student_id: number;
         full_name: string;
         programme: {
             programme_name: string;
@@ -88,6 +89,11 @@ export default function ApplicationList() {
                     </Badge>
                 );
             }
+        },
+        {
+            id: 'manage',
+            header: 'Actions',
+            cell: ({ row }) => <Link href={route('admin.students.show', row.original.student.student_id)} className="inline-flex rounded-lg border px-3 py-2 text-sm font-semibold text-indigo-700">View</Link>,
         },
     ], []);
 

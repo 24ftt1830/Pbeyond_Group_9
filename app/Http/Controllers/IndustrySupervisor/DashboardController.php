@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\IndustrySupervisor;
 
 use App\Http\Controllers\Controller;
-use App\Models\Evaluation;
+use App\Models\EvaluationSubmission;
 use App\Models\IndustrySupervisor;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -23,7 +23,7 @@ class DashboardController extends Controller
             ->get();
 
         $applicantIds = $applications->pluck('student_id')->unique();
-        $evaluations = Evaluation::where('industry_supervisor_id', $supervisor->supervisor_id)
+        $evaluations = EvaluationSubmission::where('industry_supervisor_id', $supervisor->supervisor_id)
             ->whereIn('student_id', $applicantIds)
             ->count();
 

@@ -1,7 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Link, useForm } from '@inertiajs/react';
 import {
-    ArrowLeft,
     ChevronLeft,
     ChevronRight,
     CheckCircle2,
@@ -12,6 +11,7 @@ import {
     MessageSquare,
 } from 'lucide-react';
 import { useState } from 'react';
+import BackButton from '@/Components/BackButton';
 
 interface Props {
     date?: string;
@@ -126,22 +126,7 @@ export default function LogbookSubmission({
 
             <div className="mb-8">
 
-                <Link
-                    href={logbookHref}
-                    className="
-                        inline-flex
-                        items-center
-                        gap-2
-                        text-sm
-                        font-medium
-                        text-gray-500
-                        transition
-                        hover:text-gray-900
-                    "
-                >
-                    <ArrowLeft className="size-4" />
-                    Back to Logbook
-                </Link>
+                <BackButton href={logbookHref}>Back to Logbook</BackButton>
 
             </div>
 

@@ -21,6 +21,12 @@ class ApplicationController extends Controller
             return back()->withErrors(['error' => 'Student record not found.']);
         }
 
+        if (!$student->isProfileComplete()) {
+            return back()->withErrors([
+                'error' => 'Complete and save all required profile information before applying for a job placement.',
+            ]);
+        }
+
         // Single source of truth check
         if (empty($student->cv_generated_at) || empty($student->cv_snapshot)) {
             return back()->withErrors([

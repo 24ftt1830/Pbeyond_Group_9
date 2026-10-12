@@ -1,21 +1,16 @@
 import { useState } from 'react'
-import { Switch } from "@/Components/ui/switch";
 import { DataTable } from '@/Components/ui/data-table';
+import type { ColumnDef } from '@tanstack/react-table';
 import { useForm, usePage } from '@inertiajs/react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/Components/ui/tabs'
-import UserTable from '@/Components/data-table'
 import { Button } from '@/Components/ui/button'
 import { AnimatedTabsList } from '@/Components/ui/animated-tabs'
 import {
   Plus,
-  Building2,
   Loader2,
-  UserCog,
-  GraduationCap,
   ListFilter,
-  Link,
-  Import,
-  Search
+  Search,
+  Pencil
 } from 'lucide-react'
 import {
   Dialog,
@@ -25,12 +20,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/Components/ui/dialog"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/Components/ui/dropdown-menu"
 import { Input } from "@/Components/ui/input"
 import { Label } from "@/Components/ui/label"
 import {
@@ -41,29 +30,55 @@ import {
   SelectValue
 } from "@/Components/ui/select"
 import { ImportStudentsDialog } from '@/Components/import-csv'
+import SupervisorAccounts, { SupervisorForm, type Supervisor } from '@/Components/Admin/SupervisorAccounts'
+import { Errors, Field } from '@/Components/Admin/RecordControls'
 
-const studentColumns = [
+type EditableUserRow = {
+  full_name?: string;
+  display_name?: string;
+  email: string;
+  programme_name?: string;
+  company_name?: string;
+  onEdit: () => void;
+};
+
+const editColumn: ColumnDef<EditableUserRow> = {
+  id: 'actions',
+  header: () => <span className="sr-only">Actions</span>,
+  cell: ({ row }) => (
+    <div className="flex justify-end">
+      <Button type="button" size="sm" variant="outline" className="gap-1.5 shadow-sm"
+        aria-label={`Edit ${row.original.full_name ?? row.original.display_name ?? 'user'}`}
+        onClick={row.original.onEdit}>
+        <Pencil className="size-3.5" />
+        Edit
+      </Button>
+    </div>
+  ),
+};
+
+const studentColumns: ColumnDef<EditableUserRow>[] = [
   { id: 'full_name', header: 'Full Name', accessorKey: 'full_name' },
   { id: 'email', header: 'Email Address', accessorKey: 'email' },
   { id: 'programme_name', header: 'Academic Programme', accessorKey: 'programme_name' },
-  { id: 'actions', header: '', accessorKey: 'actions' },
+  editColumn,
 ];
 
-const repColumns = [
+const repColumns: ColumnDef<EditableUserRow>[] = [
   { id: 'display_name', header: 'Focal Person', accessorKey: 'display_name' },
   { id: 'email', header: 'Email Address', accessorKey: 'email' },
   { id: 'company_name', header: 'Assigned Company', accessorKey: 'company_name' },
-  { id: 'actions', header: '', accessorKey: 'actions' },
+  editColumn,
 ];
 
 const UserTabs = () => {
-  const { students, companyUsers, companies, programmes } = usePage<any>().props;
+  const { students, companyUsers, companies, programmes, supervisors, quotas } = usePage<any>().props;
 
   const [activeTab, setActiveTab] = useState('students');
-  const [focalOpen, setFocalOpen] = useState(false);
+  const [supervisorOpen, setSupervisorOpen] = useState(false);
+  const [supervisorType, setSupervisorType] = useState<Supervisor['type']>('industry');
   const [studentOpen, setStudentOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const [assignModalOpen, setAssignModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
   // Filter logic
@@ -77,14 +92,6 @@ const UserTabs = () => {
     u.email?.toLowerCase().includes(searchQuery.toLowerCase())
   ) || [];
 
-  const focalForm = useForm({
-    username: '',
-    email: '',
-    password: '',
-    company_id: '',
-    role: 'Company'
-  });
-
   const studentForm = useForm({
     username: '',
     full_name: '',
@@ -97,14 +104,13 @@ const UserTabs = () => {
 
   const updateForm = useForm({
     id: '',
+    full_name: '',
     username: '',
     email: '',
+    password: '',
     role: '',
     programme_id: '',
-  });
-
-  const assignForm = useForm({
-    id: '',
+    pb_student_code: '',
     company_id: '',
   });
 
@@ -114,52 +120,25 @@ const UserTabs = () => {
     updateForm.clearErrors();
     updateForm.setData({
       id: userId,
+      full_name: role === 'Student' ? user.student?.full_name ?? '' : '',
       username: user.username || '',
       email: user.email || '',
+      password: '',
       role: role,
-      programme_id: role === 'Student' ? user.student?.programme_id?.toString() : '',
+      programme_id: role === 'Student' ? String(user.student?.programme_id ?? '') : '',
+      pb_student_code: role === 'Student' ? user.student?.pb_student_code ?? '' : '',
+      company_id: role === 'Company' ? String(user.company_id ?? user.company?.company_id ?? '') : '',
     });
     setEditModalOpen(true);
-  };
-
-  const openAssignModal = (user: any) => {
-    assignForm.setData({
-      id: user.user_id,
-      company_id: '',
-    });
-    setAssignModalOpen(true);
   };
 
   const submitUpdate = (e: React.FormEvent) => {
     e.preventDefault();
     updateForm.put(route('admin.manage-users.update', updateForm.data.id), {
+      preserveScroll: true,
       onSuccess: () => {
         setEditModalOpen(false);
         updateForm.reset();
-      }
-    });
-  };
-
-  const submitAssign = (e: React.FormEvent) => {
-    e.preventDefault();
-    assignForm.put(route('admin.manage-users.update', assignForm.data.id), {
-      onSuccess: () => {
-        setAssignModalOpen(false);
-        assignForm.reset();
-      },
-      onError: (errors) => {
-        console.error(errors);
-        alert("Save Failed: " + Object.values(errors).join(", "));
-      }
-    });
-  };
-
-  const submitFocal = (e: React.FormEvent) => {
-    e.preventDefault();
-    focalForm.post(route('admin.manage-users.store'), {
-      onSuccess: () => {
-        setFocalOpen(false);
-        focalForm.reset();
       }
     });
   };
@@ -179,41 +158,36 @@ const UserTabs = () => {
 
   return (
     <div className="p-6">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
         <h1 className="font-sato text-3xl font-bold">Manage Users</h1>
 
         <div className="flex items-center gap-2">
-          <ImportStudentsDialog programmes={programmes} />
-
-          <DropdownMenu modal={false}>
-            <DropdownMenuTrigger asChild>
-              <Button size="sm" className="flex items-center gap-1.5 shadow-sm">
-                <Plus className="size-3.5" />
-                Add User
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-fit min-w-[140px]">
-              <DropdownMenuItem onClick={() => setStudentOpen(true)} className="cursor-pointer">
-                <GraduationCap className="size-4 text-muted-foreground" /> Student
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setFocalOpen(true)} className="cursor-pointer">
-                <UserCog className="size-4 text-muted-foreground" /> Focal Person
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {activeTab === 'supervisors' && <Button size="sm" className="flex items-center gap-1.5 shadow-sm" onClick={() => setSupervisorOpen(true)}>
+            <Plus className="size-3.5" />
+            Add supervisor
+          </Button>}
+          {activeTab === 'students' && <>
+            <ImportStudentsDialog programmes={programmes} />
+            <Button size="sm" className="flex items-center gap-1.5 shadow-sm" onClick={() => setStudentOpen(true)}>
+              <Plus className="size-3.5" />
+              Add Student
+            </Button>
+          </>}
         </div>
       </div>
 
       <div className='w-full mt-4'>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
             <AnimatedTabsList
             groupId="users"
+              className="max-w-full overflow-x-auto"
               activeValue={activeTab}
               setActiveValue={setActiveTab}
               tabs={[
                 { value: "students", label: "Students" },
-                { value: "reps", label: "Representatives" }
+                { value: "reps", label: "Representatives" },
+                { value: "supervisors", label: "Supervisors" }
               ]}
             />
 
@@ -228,91 +202,6 @@ const UserTabs = () => {
               />
               <ListFilter className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
             </div>
-
-            {/* FOCAL PERSON DIALOG */}
-            <Dialog open={focalOpen} onOpenChange={setFocalOpen}>
-              <DialogContent className="sm:max-w-[425px]">
-                <form onSubmit={submitFocal}>
-                  <DialogHeader>
-                    <DialogTitle>Register Focal Person</DialogTitle>
-                    <DialogDescription>Create a company account linked to an existing company.</DialogDescription>
-                  </DialogHeader>
-                  <div className="grid gap-4 py-4">
-                    <div className="grid gap-2">
-                      <Label>Username</Label>
-                      <Input
-                        value={focalForm.data.username}
-                        className="shadow-none"
-                        onChange={e => focalForm.setData('username', e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div className="grid gap-2">
-                      <Label>Email</Label>
-                      <Input
-                        type="email"
-                        className="shadow-none"
-                        value={focalForm.data.email}
-                        onChange={e => focalForm.setData('email', e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div className="grid gap-2">
-                      <Label>Password</Label>
-                      <Input
-                        type="password"
-                        className="shadow-none"
-                        value={focalForm.data.password}
-                        onChange={e => focalForm.setData('password', e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div className="grid gap-2">
-                      <Label className="flex items-center gap-2">
-                        Assign Company
-                        <span className="font-normal text-muted-foreground">(optional)</span>
-                      </Label>
-                      <Select
-                        disabled={!companies || companies.length === 0}
-                        onValueChange={(val) => focalForm.setData('company_id', val)}
-                      >
-                        <SelectTrigger className="shadow-none">
-                          <SelectValue placeholder={(!companies || companies.length === 0) ? "No Companies Registered" : "Select Company"} />
-                        </SelectTrigger>
-                        <SelectContent className="max-h-[200px]">
-                          {companies && companies.length > 0 ? (
-                            companies.map((c: any) => (
-                              <SelectItem key={c.company_id} value={c.company_id.toString()}>
-                                {c.company_name}
-                              </SelectItem>
-                            ))
-                          ) : (
-                            <div className="flex flex-col items-center justify-center py-6 px-2 text-center text-slate-500">
-                              <p className="text-xs font-bold italic">No available companies</p>
-                              <p className="text-[10px] opacity-70 mt-1">You can skip this and assign a company later.</p>
-                            </div>
-                          )}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <Button
-                      type="submit"
-                      disabled={
-                        focalForm.processing ||
-                        !focalForm.data.username ||
-                        !focalForm.data.email ||
-                        !focalForm.data.password
-                      }
-                      className="w-full"
-                    >
-                      {focalForm.processing ? <Loader2 className="animate-spin size-4" /> : 'Create Focal Person'}
-                    </Button>
-                  </DialogFooter>
-                </form>
-              </DialogContent>
-            </Dialog>
 
             {/* STUDENT DIALOG */}
             <Dialog open={studentOpen} onOpenChange={setStudentOpen}>
@@ -407,6 +296,7 @@ const UserTabs = () => {
                     </div>
                   </div>
 
+                  <Errors errors={studentForm.errors} />
                   <DialogFooter>
                     <Button
                       type="submit"
@@ -463,12 +353,7 @@ const UserTabs = () => {
                     assigned_company_id: u.company?.company_id || null,
                     company_name: u.company?.company_name || 'Unassigned',
                     onEdit: () => openEditModal(u, 'Company'),
-                    onAssign: () => openAssignModal(u),
-                    customActions: u.company?.company_name ? null : (
-                        <DropdownMenuItem onClick={() => openAssignModal(u)}>
-                            <Link className="mr-2 size-4" /> Assign Company
-                        </DropdownMenuItem>
-                    )
+
                 }))} 
             />
         ) : (
@@ -476,129 +361,88 @@ const UserTabs = () => {
         )}
     </div>
 </TabsContent>
+<TabsContent value="supervisors" className="mt-4">
+    <SupervisorAccounts
+        supervisors={supervisors}
+        companies={companies}
+        quotas={quotas}
+        searchQuery={searchQuery}
+        supervisorType={supervisorType}
+        onSupervisorTypeChange={setSupervisorType}
+        embedded
+    />
+</TabsContent>
         </Tabs>
+
+        <Dialog open={supervisorOpen} onOpenChange={setSupervisorOpen}>
+          <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-[560px]">
+            <DialogHeader>
+              <DialogTitle>Add Supervisor</DialogTitle>
+              <DialogDescription>Create a new Academic or Industry Supervisor account.</DialogDescription>
+            </DialogHeader>
+            {supervisorOpen && <SupervisorForm
+              initialType={supervisorType}
+              companies={companies}
+              quotas={quotas}
+              close={() => setSupervisorOpen(false)}
+            />}
+          </DialogContent>
+        </Dialog>
 
         {/* ... DIALOGS REMAIN THE SAME ... */}
         {/* EDIT USER DIALOG */}
         <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
-          <DialogContent className="sm:max-w-[425px]">
-            <form onSubmit={submitUpdate}>
-              <DialogHeader>
-                <DialogTitle>
-                  Edit {updateForm.data.role === 'Student' ? 'Student' : 'Representative'}
-                </DialogTitle>
-                <DialogDescription>
-                  Update user credentials.
-                </DialogDescription>
-              </DialogHeader>
-
-              <div className="grid gap-4 py-4">
-                <div className="grid gap-2">
-                  <Label>
-                    {updateForm.data.role === 'Student' ? 'Full Name' : 'Focal Person Name'}
-                  </Label>
-                  <Input
-                    value={updateForm.data.username}
-                    onChange={(e) => updateForm.setData('username', e.target.value)}
-                    className="shadow-none"
-                  />
-                  {updateForm.errors.username && (
-                    <p className="text-xs text-red-500">{updateForm.errors.username}</p>
-                  )}
-                </div>
-
-                <div className="grid gap-2">
-                  <Label>Email Address</Label>
-                  <Input
-                    type="email"
-                    value={updateForm.data.email}
-                    onChange={(e) => updateForm.setData('email', e.target.value)}
-                    className="shadow-none"
-                  />
-                  {updateForm.errors.email && (
-                    <p className="text-xs text-red-500">{updateForm.errors.email}</p>
-                  )}
-                </div>
-
-                {updateForm.data.role === 'Student' && (
-                  <div className="grid gap-2">
-                    <Label>Academic Programme</Label>
-                    <Select
-                      value={updateForm.data.programme_id}
-                      onValueChange={(val) => updateForm.setData('programme_id', val)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select Programme" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {programmes?.map((p: any) => (
-                          <SelectItem key={p.programme_id} value={p.programme_id.toString()}>
-                            {p.programme_name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
+          <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-[560px]">
+            <DialogHeader>
+              <DialogTitle>Edit {updateForm.data.role === 'Student' ? 'Student' : 'Representative'}</DialogTitle>
+              <DialogDescription>
+                {updateForm.data.role === 'Student'
+                  ? 'Update this student’s account and academic programme.'
+                  : 'Update this company’s existing HR login details.'}
+              </DialogDescription>
+            </DialogHeader>
+            <form className="space-y-4" onSubmit={submitUpdate}>
+              <Field label="Account role">
+                <select disabled className="h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm shadow-sm" value={updateForm.data.role}>
+                  <option value="Student">Student</option>
+                  <option value="Company">Representative</option>
+                </select>
+              </Field>
+              <div className="grid gap-4 sm:grid-cols-2">
+                {updateForm.data.role === 'Student' && <Field label="Full Name">
+                  <Input required value={updateForm.data.full_name} onChange={(event) => updateForm.setData('full_name', event.target.value)} />
+                </Field>}
+                <Field label={updateForm.data.role === 'Student' ? 'Username' : 'Focal Person Name / Username'}>
+                  <Input required value={updateForm.data.username} onChange={(event) => updateForm.setData('username', event.target.value)} />
+                </Field>
+                <Field label="Email">
+                  <Input required type="email" value={updateForm.data.email} onChange={(event) => updateForm.setData('email', event.target.value)} />
+                </Field>
+                {updateForm.data.role === 'Student' && <Field label="Student ID">
+                  <Input required value={updateForm.data.pb_student_code} onChange={(event) => updateForm.setData('pb_student_code', event.target.value)} />
+                </Field>}
               </div>
-
-              <DialogFooter>
-                <Button
-                  type="submit"
-                  disabled={updateForm.processing}
-                  className="w-full"
-                >
-                  {updateForm.processing ? 'Updating...' : 'Update Account'}
-                </Button>
-              </DialogFooter>
+              <Field label="New Password (optional)">
+                <Input type="password" autoComplete="new-password" minLength={8} value={updateForm.data.password} onChange={(event) => updateForm.setData('password', event.target.value)} />
+              </Field>
+              {updateForm.data.role === 'Student' ? <Field label="Academic Programme">
+                <select required className="h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm shadow-sm" value={updateForm.data.programme_id} onChange={(event) => updateForm.setData('programme_id', event.target.value)}>
+                  <option value="" disabled>Select Programme</option>
+                  {programmes?.map((programme: any) => <option key={programme.programme_id} value={programme.programme_id}>{programme.programme_name}</option>)}
+                </select>
+              </Field> : <Field label="Company">
+                <Input readOnly value={companies?.find((company: any) => String(company.company_id) === updateForm.data.company_id)?.company_name ?? 'Unassigned'} />
+              </Field>}
+              <Errors errors={updateForm.errors} />
+              <div className="flex justify-end gap-2">
+                <Button type="button" variant="outline" onClick={() => setEditModalOpen(false)}>Cancel</Button>
+                <Button type="submit" disabled={updateForm.processing}>{updateForm.processing ? 'Saving…' : 'Save changes'}</Button>
+              </div>
             </form>
           </DialogContent>
         </Dialog>
 
-        {/* Assign Company Dialog */}
-        <Dialog open={assignModalOpen} onOpenChange={setAssignModalOpen}>
-          <DialogContent className="sm:max-w-[400px]">
-            <form onSubmit={submitAssign}>
-              <DialogHeader>
-                <DialogTitle>Assign Company</DialogTitle>
-                <DialogDescription>
-                  Link this focal person to a registered company profile.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-6">
-                <div className="space-y-2">
-                  <Label className="text-[10px] font-bold uppercase text-slate-500">Target Company</Label>
-                  <Select
-                    onValueChange={(val) => assignForm.setData('company_id', val)}
-                  >
-                    <SelectTrigger className="h-11">
-                      <SelectValue placeholder="Select a company..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {companies?.map((c: any) => (
-                        <SelectItem key={c.company_id} value={c.company_id.toString()}>
-                          {c.company_name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {assignForm.errors.company_id && (
-                    <p className="text-xs text-red-500">{assignForm.errors.company_id}</p>
-                  )}
-                </div>
-              </div>
-              <DialogFooter>
-                <Button
-                  type="submit"
-                  disabled={assignForm.processing || !assignForm.data.company_id}
-                  className="w-full bg-blue-600 hover:bg-blue-700"
-                >
-                  {assignForm.processing ? <Loader2 className="animate-spin size-4" /> : 'Confirm Assignment'}
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
+
       </div>
     </div>
   )

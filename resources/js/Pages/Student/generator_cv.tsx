@@ -3,7 +3,6 @@ import { Head, Link } from '@inertiajs/react';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
 import {
-    ArrowLeft,
     Download,
     AlertCircle,
     CheckCircle2,
@@ -19,6 +18,7 @@ import {
     Mail,
     MapPin,
 } from 'lucide-react';
+import BackButton from '@/Components/BackButton';
 
 type Student = {
     student_id: number;
@@ -137,6 +137,7 @@ type Language = {
 };
 
 type Props = {
+    backHref?: string;
     student: Student;
     isCompanyView?: boolean;
     quotaId?: number;
@@ -199,7 +200,7 @@ function splitDescription(description?: string) {
    COMPONENT
 ============================================================ */
 
-export default function GeneratorCV({ student, isCompanyView = false }: Props) {
+export default function GeneratorCV({ student, isCompanyView = false, backHref }: Props) {
 
     const professionalProfile =
         student.professionalProfile?.profile ??
@@ -308,22 +309,9 @@ export default function GeneratorCV({ student, isCompanyView = false }: Props) {
                         <div className="flex gap-3">
 
                             {isCompanyView ? (
-                                <button
-                                    type="button"
-                                    onClick={() => window.history.back()}
-                                    className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
-                                >
-                                    <ArrowLeft className="size-4" />
-                                    Back to Application
-                                </button>
+                                <BackButton href={backHref} onClick={backHref ? undefined : () => window.history.back()}>{backHref ? 'Back to Student Details' : 'Back to Application'}</BackButton>
                             ) : (
-                                <Link
-                                    href={route('student.profile')}
-                                    className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
-                                >
-                                    <ArrowLeft className="size-4" />
-                                    Back to Profile
-                                </Link>
+                                <BackButton href={route('student.profile')}>Back to Profile</BackButton>
                             )}
 
                             {(canGenerate || isCompanyView) && (

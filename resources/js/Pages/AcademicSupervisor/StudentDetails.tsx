@@ -2,8 +2,8 @@ import { Head, Link, useForm } from '@inertiajs/react';
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import BackButton from '@/Components/BackButton';
 import {
-    ArrowLeft,
     User,
     GraduationCap,
     Phone,
@@ -113,6 +113,16 @@ interface Evaluation {
     academic_reviewed_at?: string | null;
 }
 
+interface DynamicEvaluation {
+    id: number;
+    reopened_at?: string | null;
+    overall_score: number | string;
+    submitted_at: string;
+    template_snapshot: { name?: string; version?: number };
+    answers: Record<string, { section: string; section_weight: number; criterion: string; level: string; points: number }>;
+    comments?: string | null;
+}
+
 interface Student {
     student_id: number;
     pb_student_code: string;
@@ -156,7 +166,21 @@ interface Props {
     student: Student;
     visits: InternshipVisit[];
     evaluation: Evaluation | null;
+    academicEvaluation: DynamicEvaluation | null;
+    industryEvaluation: DynamicEvaluation | null;
+    hasActiveEvaluationTemplate: boolean;
     monitoringStatus: 'On Track' | 'Needs Attention' | 'At Risk';
+    finalReport: { submitted_at?: string | null; academic_review_status: string; report_score?: number | string | null } | null;
+    completionRecord: {
+        industry_confirmation_status: 'Pending Confirmation' | 'Confirmed' | 'Changes Required';
+        industry_confirmed_at?: string | null;
+        academic_completion_status: 'Pending Evaluation' | 'Completed' | 'Incomplete';
+        academic_completion_decided_at?: string | null;
+    } | null;
+    canFinalizeCompleted: boolean;
+    canFinalizeIncomplete: boolean;
+    completionStatus: 'Pending Evaluation' | 'Incomplete' | 'Completed';
+    overallScore: number | null;
 }
 
 const display = (value?: string | number | null) => {
@@ -193,8 +217,9 @@ const formatDateRange = (start?: string, end?: string) => {
     return `${start ? formatDate(start) : 'Start date not provided'} – ${end ? formatDate(end) : 'Present'}`;
 };
 
-export default function StudentDetails({ student, visits, evaluation, monitoringStatus, }: Props) {
-    const [activeTab, setActiveTab] = useState<'overview' | 'profile'>('overview');
+export default function StudentDetails({ student, visits, evaluation, academicEvaluation, industryEvaluation, hasActiveEvaluationTemplate, monitoringStatus, finalReport, completionRecord, canFinalizeCompleted, canFinalizeIncomplete, completionStatus, overallScore, }: Props) {
+    const [activeTab, setActiveTab] = useState<'overview' | 'profile' | 'assessments' | 'confirmation'>('overview');
+    const [editingCompletionDecision, setEditingCompletionDecision] = useState(false);
     const {
         data,
         setData,
@@ -246,6 +271,21 @@ export default function StudentDetails({ student, visits, evaluation, monitoring
 
     const { post: postComplete, processing: completing } = useForm({});
 
+    const completionDecisionForm = useForm<{
+        decision: 'Completed' | 'Incomplete';
+    }>({
+        decision: completionRecord?.academic_completion_status === 'Incomplete' ? 'Incomplete' : 'Completed',
+    });
+
+    const saveCompletionDecision = (decision: 'Completed' | 'Incomplete') => {
+        completionDecisionForm.transform((data) => ({ ...data, decision }));
+        completionDecisionForm.put(route('academic-supervisor.student.completion-decision.update', student.student_id), {
+            preserveScroll: true,
+            onSuccess: () => setEditingCompletionDecision(false),
+            onFinish: () => completionDecisionForm.transform((data) => data),
+        });
+    };
+
     const markEvaluationCompleted = () => {
         postComplete(
             route(
@@ -265,6 +305,29 @@ export default function StudentDetails({ student, visits, evaluation, monitoring
     const workExperiences =
         student.workExperiences ?? student.work_experiences ?? [];
 
+    const completionChecklist = [
+        {
+            label: 'Company Internship Completion',
+            state: completionRecord?.industry_confirmation_status === 'Confirmed'
+                ? 'Confirmed'
+                : completionRecord?.industry_confirmation_status === 'Changes Required'
+                    ? 'Requirements incomplete'
+                    : 'Awaiting confirmation',
+        },
+        { label: 'Academic Supervisor evaluation', state: academicEvaluation?.reopened_at ? 'Pending correction' : academicEvaluation ? 'Submitted' : 'Pending' },
+        { label: 'Industry Supervisor evaluation', state: industryEvaluation?.reopened_at ? 'Pending correction' : industryEvaluation ? 'Submitted' : 'Pending' },
+        {
+            label: 'Written report',
+            state: !finalReport?.submitted_at
+                ? 'Not submitted'
+                : finalReport.academic_review_status === 'Approved'
+                    ? 'Approved and marked'
+                    : finalReport.academic_review_status === 'Changes Required'
+                        ? 'Changes required'
+                        : 'Pending review',
+        },
+    ];
+
     const monitoringTone = {
         'On Track': 'border-emerald-200 bg-emerald-50 text-emerald-700',
         'Needs Attention': 'border-amber-200 bg-amber-50 text-amber-700',
@@ -279,13 +342,30 @@ export default function StudentDetails({ student, visits, evaluation, monitoring
                 {/* Header */}
                 <header className="bg-slate-50">
                     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-                        <Link
-                            href={route('academic-supervisor.students')}
-                            className="mb-5 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 transition hover:text-blue-700"
-                        >
-                            <ArrowLeft size={16} />
-                            Back to My Students
-                        </Link>
+                        <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                            <BackButton href={route('academic-supervisor.students')}>
+                                Back to My Students
+                            </BackButton>
+                            {hasActiveEvaluationTemplate || academicEvaluation ? (
+                                <Link
+                                    href={route('academic-supervisor.student.evaluate', student.student_id)}
+                                    className="inline-flex w-fit items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700"
+                                >
+                                    <ClipboardCheck size={16} />
+                                    {academicEvaluation?.reopened_at ? 'Revise Evaluation' : academicEvaluation ? 'View Evaluation' : 'Evaluate Student'}
+                                </Link>
+                            ) : (
+                                <button
+                                    type="button"
+                                    disabled
+                                    title="The Admin has not activated an Academic Supervisor evaluation template yet."
+                                    className="inline-flex w-fit cursor-not-allowed items-center gap-2 rounded-xl bg-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-500"
+                                >
+                                    <ClipboardCheck size={16} />
+                                    Evaluation unavailable
+                                </button>
+                            )}
+                        </div>
 
                         <div className="relative isolate overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-blue-950 to-blue-800 px-6 py-7 shadow-lg shadow-blue-950/10 sm:px-8 sm:py-9">
                             <div className="pointer-events-none absolute -right-12 -top-24 h-72 w-72 rounded-full border-[40px] border-white/[0.04]" />
@@ -337,39 +417,159 @@ export default function StudentDetails({ student, visits, evaluation, monitoring
                 </header>
 
                 <main className="mx-auto max-w-7xl space-y-6 px-4 py-7 pb-16 sm:px-6 lg:px-8">
-                    <div className="inline-flex rounded-2xl border border-slate-200 bg-white p-1.5 shadow-sm">
+                    <div className="grid w-full grid-cols-2 gap-1 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-sm xl:grid-cols-4">
                         <button
                             type="button"
                             onClick={() => setActiveTab('overview')}
-                            className={`rounded-xl px-5 py-2.5 text-sm font-semibold transition ${activeTab === 'overview' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`}
+                            className={`flex min-h-10 w-full items-center justify-center rounded-xl px-3 py-2.5 text-center text-sm font-semibold leading-5 transition ${activeTab === 'overview' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`}
                         >
                             Overview
                         </button>
                         <button
                             type="button"
                             onClick={() => setActiveTab('profile')}
-                            className={`rounded-xl px-5 py-2.5 text-sm font-semibold transition ${activeTab === 'profile' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`}
+                            className={`flex min-h-10 w-full items-center justify-center rounded-xl px-3 py-2.5 text-center text-sm font-semibold leading-5 transition ${activeTab === 'profile' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`}
                         >
                             Background &amp; Skills
                         </button>
+                        <button
+                            type="button"
+                            onClick={() => setActiveTab('assessments')}
+                            className={`flex min-h-10 w-full items-center justify-center rounded-xl px-3 py-2.5 text-center text-sm font-semibold leading-5 transition ${activeTab === 'assessments' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`}
+                        >
+                            Written Report &amp; Evaluations
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setActiveTab('confirmation')}
+                            className={`flex min-h-10 w-full items-center justify-center rounded-xl px-3 py-2.5 text-center text-sm font-semibold leading-5 transition ${activeTab === 'confirmation' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`}
+                        >
+                            Internship Confirmation
+                        </button>
                     </div>
 
-                    {activeTab === 'overview' ? (
+                    {activeTab !== 'profile' && (
                     <div className="space-y-6">
-                    {/* Industry Supervisor Evaluation */}
-                    <section>
-                        <div className="mb-4 flex items-center gap-2">
-                            <ClipboardCheck size={20} className="text-blue-600" />
-
-                            <h2 className="text-lg font-bold text-slate-900">
-                                Industry Supervisor Evaluation
-                            </h2>
+                    {activeTab === 'assessments' && (
+                    <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                            <div>
+                                <h2 className="text-lg font-bold text-slate-900">Final Internship Report</h2>
+                                <p className="mt-1 text-sm text-slate-500">
+                                    {finalReport?.submitted_at ? `Academic review: ${finalReport.academic_review_status}` : 'The student has not submitted a final report yet.'}
+                                </p>
+                                {overallScore !== null && (
+                                    <p className="mt-1 text-sm font-semibold text-indigo-700">
+                                        Overall evaluation (Academic + Industry + Written Report): {overallScore.toFixed(2)}%
+                                    </p>
+                                )}
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <span className={`rounded-full px-3 py-1 text-xs font-bold ${completionStatus === 'Completed' ? 'bg-emerald-100 text-emerald-800' : completionStatus === 'Incomplete' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800'}`}>{completionStatus}</span>
+                                <Link href={route('academic-supervisor.student.final-report', student.student_id)} className="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-700">Review report</Link>
+                            </div>
                         </div>
+                    </section>
+                    )}
+                    {activeTab === 'confirmation' && (
+                    <SectionCard
+                        title="Internship Completion Decision"
+                        icon={<CheckCircle2 size={20} />}
+                    >
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                            <p className="text-sm text-slate-600">The Academic Supervisor makes the final school decision after the Company and both supervisors submit their decisions and the report is reviewed.</p>
+                            <span className={`rounded-full px-3 py-1 text-xs font-bold ${completionStatusTone(completionStatus)}`}>{completionStatus}</span>
+                        </div>
+                        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                            {completionChecklist.map((item) => (
+                                <div key={item.label} className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm">
+                                    <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${item.state === 'Confirmed' || item.state === 'Submitted' || item.state === 'Approved and marked' ? 'bg-emerald-500' : item.state === 'Requirements incomplete' || item.state === 'Changes required' ? 'bg-rose-500' : 'bg-amber-500'}`} />
+                                    <span className="text-slate-700">{item.label}</span>
+                                    <span className={`ml-auto text-xs font-semibold ${item.state === 'Confirmed' || item.state === 'Submitted' || item.state === 'Approved and marked' ? 'text-emerald-700' : item.state === 'Requirements incomplete' || item.state === 'Changes required' ? 'text-rose-700' : 'text-amber-700'}`}>{item.state}</span>
+                                </div>
+                            ))}
+                        </div>
+                        {completionRecord && completionRecord.academic_completion_status !== 'Pending Evaluation' && !editingCompletionDecision ? (
+                            <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-5">
+                                <p className="text-sm text-slate-600">
+                                    Decision recorded: <span className="font-semibold text-slate-900">{completionRecord.academic_completion_status}</span>
+                                    {completionRecord.academic_completion_decided_at ? ` · ${formatDate(completionRecord.academic_completion_decided_at)}` : ''}
+                                </p>
+                                <button type="button" onClick={() => setEditingCompletionDecision(true)} className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                                    Edit decision
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="mt-5 border-t border-slate-100 pt-5">
+                                {completionDecisionForm.errors.decision && <p className="mt-1 text-sm text-rose-600">{completionDecisionForm.errors.decision}</p>}
+                                {!canFinalizeCompleted && !canFinalizeIncomplete && <p className="mb-3 text-sm text-slate-500">Final decision is available after both evaluations, the report review, and the Company confirmation are submitted.</p>}
+                                {completionDecisionForm.errors.decision && <p className="mb-3 text-sm text-rose-600">{completionDecisionForm.errors.decision}</p>}
+                                <div className="mt-4 flex flex-wrap justify-end gap-3">
+                                    {editingCompletionDecision && (
+                                        <button type="button" onClick={() => setEditingCompletionDecision(false)} className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                                            Cancel
+                                        </button>
+                                    )}
+                                    <button type="button" disabled={!canFinalizeIncomplete || completionDecisionForm.processing} onClick={() => saveCompletionDecision('Incomplete')} className="rounded-xl border border-rose-300 px-4 py-2.5 text-sm font-semibold text-rose-700 hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-50">
+                                        Mark Incomplete
+                                    </button>
+                                    <button type="button" disabled={!canFinalizeCompleted || completionDecisionForm.processing} onClick={() => saveCompletionDecision('Completed')} className="rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50">
+                                        Confirm Internship Completed
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </SectionCard>
+                    )}
+                    {activeTab === 'assessments' && (
+                    <SectionCard
+                        title="Supervisor Evaluations"
+                        icon={<ClipboardCheck size={20} />}
+                    >
+                        <div className="divide-y divide-slate-200">
+                            <div className="pb-5">
+                                {academicEvaluation ? (
+                                    <div className="flex flex-wrap items-center justify-between gap-3">
+                                        <div>
+                                            <h3 className="text-base font-bold text-slate-900">Academic Supervisor Evaluation</h3>
+                                            <p className="mt-1 text-sm text-slate-500">{academicEvaluation.reopened_at ? 'Pending correction · Previous score' : academicEvaluation.template_snapshot?.name ?? 'Evaluation'} · {academicEvaluation.reopened_at ? '' : 'Score '}{academicEvaluation.overall_score}%</p>
+                                        </div>
+                                        <Link
+                                            href={route('academic-supervisor.student.evaluations.show', { student: student.student_id, submission: academicEvaluation.id })}
+                                            className="inline-flex shrink-0 items-center justify-center rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700"
+                                        >
+                                            View Evaluation
+                                        </Link>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <h3 className="text-base font-bold text-slate-900">Academic Supervisor Evaluation</h3>
+                                        <p className="mt-1 text-sm text-slate-500">No evaluation submitted yet.</p>
+                                    </>
+                                )}
+                        </div>
+                        <div className="pt-5">
+                            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                                <div>
+                                    <h3 className="text-base font-bold text-slate-900">Industry Supervisor Evaluation</h3>
+                                    {industryEvaluation && (
+                                        <p className="mt-1 text-sm text-slate-500">{industryEvaluation.reopened_at ? 'Pending correction · Previous score' : industryEvaluation.template_snapshot?.name ?? 'Industry Supervisor Evaluation'} · {industryEvaluation.reopened_at ? '' : 'Score '}{industryEvaluation.overall_score}%</p>
+                                    )}
+                                </div>
+                                {industryEvaluation && (
+                                    <Link
+                                        href={route('academic-supervisor.student.evaluations.show', { student: student.student_id, submission: industryEvaluation.id })}
+                                        className="inline-flex shrink-0 items-center justify-center rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700"
+                                    >
+                                        View Evaluation
+                                    </Link>
+                                )}
+                            </div>
 
-                        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                            {!evaluation ? (
-                                <EmptyState text="The industry supervisor has not submitted an evaluation for this student yet." />
-                            ) : (
+                        <div>
+                            {!evaluation && !industryEvaluation ? (
+                                <p className="text-sm text-slate-500">No evaluation submitted yet.</p>
+                            ) : evaluation ? (
                                 <>
                                     <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
                                         <span
@@ -460,21 +660,20 @@ export default function StudentDetails({ student, visits, evaluation, monitoring
                                         )}
                                     </div>
                                 </>
-                            )}
+                            ) : null}
                         </div>
-                    </section>
+                            </div>
+                        </div>
+                    </SectionCard>
+                    )}
 
+                    {activeTab === 'overview' && <>
                     {/* Basic Information */}
-                    <section>
-                        <div className="mb-4 flex items-center gap-2">
-                            <User size={20} className="text-blue-600" />
-
-                            <h2 className="text-lg font-bold text-slate-900">
-                                Personal Information
-                            </h2>
-                        </div>
-
-                        <div className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:grid-cols-2 lg:grid-cols-3">
+                    <SectionCard
+                        title="Personal Information"
+                        icon={<User size={20} />}
+                    >
+                        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                             <InfoItem
                                 label="Student ID"
                                 value={student.pb_student_code}
@@ -546,22 +745,14 @@ export default function StudentDetails({ student, visits, evaluation, monitoring
                                 />
                             </div>
                         </div>
-                    </section>
+                    </SectionCard>
 
                     {/* Academic Information */}
-                    <section>
-                        <div className="mb-4 flex items-center gap-2">
-                            <GraduationCap
-                                size={20}
-                                className="text-blue-600"
-                            />
-
-                            <h2 className="text-lg font-bold text-slate-900">
-                                Academic Information
-                            </h2>
-                        </div>
-
-                        <div className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:grid-cols-2 lg:grid-cols-3">
+                    <SectionCard
+                        title="Academic Information"
+                        icon={<GraduationCap size={20} />}
+                    >
+                        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                             <InfoItem
                                 label="Programme"
                                 value={student.programme?.programme_name}
@@ -582,7 +773,7 @@ export default function StudentDetails({ student, visits, evaluation, monitoring
                                 value={student.vetting_status}
                             />
                         </div>
-                    </section>
+                    </SectionCard>
 
                     {/* Internship Visits */}
                     <SectionCard
@@ -755,8 +946,10 @@ export default function StudentDetails({ student, visits, evaluation, monitoring
                             )}
                         </div>
                     </SectionCard>
+                    </>}
                     </div>
-                    ) : (
+                    )}
+                    {activeTab === 'profile' && (
                     <div className="grid items-start gap-6 xl:grid-cols-2">
                     {/* Professional Profile */}
                     <SectionCard
@@ -1117,6 +1310,12 @@ function InfoItem({
             </p>
         </div>
     );
+}
+
+function completionStatusTone(status: 'Pending Evaluation' | 'Incomplete' | 'Completed') {
+    if (status === 'Completed') return 'bg-emerald-100 text-emerald-800';
+    if (status === 'Incomplete') return 'bg-rose-100 text-rose-800';
+    return 'bg-amber-100 text-amber-800';
 }
 
 function SectionCard({

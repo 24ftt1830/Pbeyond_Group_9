@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\PlacementQuota;
+use App\Services\LogbookTracking;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -15,14 +16,8 @@ class DashboardController extends Controller
     {
         $student = $request->user()->student;
 
-        // Get the student's exact programme (course) ID
-        $programmeId = $student->programme_id;
-
-        // Retrieve approved & released quotas strictly linked to the student's exact course
+        // Students from every programme can browse all approved and released quotas.
         $quotas = PlacementQuota::available()
-            ->whereHas('programmes', function ($query) use ($programmeId) {
-                $query->where('programmes.programme_id', $programmeId);
-            })
             ->with([
                 'company:company_id,company_name,office_address',
                 'applications' => function ($query) {
@@ -69,12 +64,13 @@ class DashboardController extends Controller
             ->count();
 
         $completedOnboardingTasks = $student?->completed_onboarding_tasks ?? [];
+        $missingLogbookWeeks = app(LogbookTracking::class)->missingWeeks($student);
 
         return Inertia::render('Student/Dashboard', [
             'availableQuotas'          => $quotasWithStats,
-            'studentProgramme'         => $student->programme->programme_name,
             'completedOnboardingTasks' => $student->completed_onboarding_tasks ?? [],
             'recentApplications' => $applications,
+            'missingLogbookWeeks' => $missingLogbookWeeks,
             'stats' => [
                 'open_positions' => $quotasWithStats->where('is_full', false)->count(),
                 'available_slots' => $quotasWithStats->sum('available'),

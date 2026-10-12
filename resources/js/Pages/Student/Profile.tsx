@@ -161,8 +161,10 @@ interface Student {
 }
 
 interface ProfileProps {
+    adminContext?: boolean;
     student: Student;
     canGenerateCv: boolean;
+    missingProfileFields: string[];
     hasGeneratedCv: boolean;
     cvGeneratedAt?: string | null;
 }
@@ -282,11 +284,14 @@ const emptyLanguage = (): Language => ({
 // ============================================================
 
 export default function Profile({
+    adminContext = false,
     student,
-    canGenerateCv,
+    canGenerateCv: profileCanGenerateCv,
+    missingProfileFields = [],
     hasGeneratedCv,
     cvGeneratedAt,
 }: ProfileProps) {
+    const canGenerateCv = profileCanGenerateCv && !adminContext;
 
     const [saveSuccess, setSaveSuccess] = useState(false);
     const [generatingCv, setGeneratingCv] = useState(false);
@@ -436,7 +441,7 @@ export default function Profile({
 
         setSaveSuccess(false);
 
-        post(route('student.profile.update'), {
+        post(route(adminContext ? 'admin.students.profile.update' : 'student.profile.update', adminContext ? student.student_id : undefined), {
             onSuccess: () => {
                 setSaveSuccess(true);
             },
@@ -449,6 +454,7 @@ export default function Profile({
     // ========================================================
 
     const generateCv = () => {
+        if (adminContext) return;
         const missing: string[] = [];
 
         // Validation checks matching required CV criteria
@@ -717,13 +723,13 @@ export default function Profile({
                 ================================================== */}
 
                 <div>
+                    {adminContext && <Link href={route('admin.students.show', student.student_id)} className="mb-4 inline-flex rounded-xl border bg-white px-4 py-2 font-semibold text-slate-700">Back to Student Details</Link>}
                     <h1 className="font-sato text-3xl font-bold">
-                        My Profile
+                        {adminContext ? student.full_name + ' · Profile' : 'My Profile'}
                     </h1>
 
                     <p className="text-gray-500 mt-1">
-                        Complete your profile information to build
-                        your CV.
+                        {adminContext ? 'Manage this student’s profile information. Their saved CV is generated from their own account.' : 'Complete your profile information to build your CV.'}
                     </p>
                 </div>
 
@@ -3007,8 +3013,12 @@ export default function Profile({
                                             </p>
                                         ) : (
                                             <p className="text-sm text-gray-500 mt-1">
-                                                Complete and save your profile before
-                                                generating your CV.
+                                                Complete and save the required profile fields before generating your CV.
+                                                {missingProfileFields.length > 0 && (
+                                                    <span className="block mt-1 text-amber-700">
+                                                        Missing: {missingProfileFields.join(', ')}.
+                                                    </span>
+                                                )}
                                             </p>
                                         )}
 
@@ -3024,7 +3034,7 @@ export default function Profile({
                                             variant="outline"
                                             asChild
                                         >
-                                            <Link href={route('student.cv-generator')}>
+                                            <Link href={route(adminContext ? 'admin.students.cv' : 'student.cv-generator', adminContext ? student.student_id : undefined)}>
                                                 View CV
                                             </Link>
                                         </Button>
@@ -3065,8 +3075,8 @@ export default function Profile({
                                     </div>
                                 ) : (
                                     <p className="text-sm text-blue-600 mt-3 font-medium">
-                                        CV Generator will be available after your profile
-                                        is complete and saved.
+                                        CV Generator will be available after your profile is complete and saved.
+                                        {missingProfileFields.length > 0 && ` Missing: ${missingProfileFields.join(', ')}.`}
                                     </p>
                                 )}
 
@@ -3163,7 +3173,7 @@ export default function Profile({
                                     variant="outline"
                                     asChild
                                 >
-                                    <Link href={route('student.cv-generator')}>
+                                    <Link href={route(adminContext ? 'admin.students.cv' : 'student.cv-generator', adminContext ? student.student_id : undefined)}>
                                         View CV
                                     </Link>
                                 </Button>

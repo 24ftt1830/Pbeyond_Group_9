@@ -4,8 +4,12 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\LogbookEntry;
+use App\Models\LogbookReminder;
 use App\Models\LogbookWeeklySubmission;
+use App\Models\Student;
+use App\Services\LogbookTracking;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Inertia\Inertia;
 
 class LogbookController extends Controller
@@ -13,6 +17,9 @@ class LogbookController extends Controller
     public function index(Request $request)
     {
         $student = $request->user()->student;
+        $internship = $student->internship;
+        $isRecruited = $student->applications()->where('app_status', 'Recruited')->exists();
+        $missingWeeks = app(LogbookTracking::class)->missingWeeks($student);
 
         $entries = LogbookEntry::where(
             'student_id',
@@ -68,13 +75,28 @@ class LogbookController extends Controller
         return Inertia::render('Student/Logbook', [
             'entries' => $entries,
             'weeklySubmissions' => $weeklySubmissions,
+            'missingLogbookWeeks' => $missingWeeks,
+            'isRecruited' => $isRecruited,
+            'internshipPeriod' => $internship ? [
+                'start_date' => $internship->start_date->toDateString(),
+                'end_date' => $internship->end_date->toDateString(),
+            ] : null,
+            'today' => now()->toDateString(),
         ]);
     }
 
     public function create(Request $request)
     {
         $student = $request->user()->student;
-        $date = $request->query('date');
+        $date = $request->validate([
+            'date' => ['required', 'date_format:Y-m-d'],
+        ])['date'];
+
+        if ($restriction = $this->dateRestriction($student, $date)) {
+            return redirect()
+                ->route('student.logbook', ['week' => $date])
+                ->withErrors(['date' => $restriction]);
+        }
 
         $entry = LogbookEntry::where(
             'student_id',
@@ -127,7 +149,7 @@ class LogbookController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'date' => ['required', 'date'],
+            'date' => ['required', 'date_format:Y-m-d'],
             'status' => ['required', 'in:working,off,none'],
             'description' => ['nullable', 'string'],
             'learning_outcomes' => ['nullable', 'string'],
@@ -137,6 +159,12 @@ class LogbookController extends Controller
         $student = $request->user()->student;
 
         $entryDate = $validated['date'];
+
+        if ($restriction = $this->dateRestriction($student, $entryDate)) {
+            return redirect()
+                ->route('student.logbook', ['week' => $entryDate])
+                ->withErrors(['date' => $restriction]);
+        }
 
         $isReviewed = LogbookWeeklySubmission::where(
             'student_id',
@@ -186,7 +214,7 @@ class LogbookController extends Controller
         }
 
         $validated = $request->validate([
-            'date' => ['required', 'date'],
+            'date' => ['required', 'date_format:Y-m-d'],
             'status' => ['required', 'in:working'],
             'description' => ['required', 'string'],
             'learning_outcomes' => ['required', 'string'],
@@ -215,26 +243,60 @@ class LogbookController extends Controller
     {
         $student = $request->user()->student;
 
+        if (!$student->applications()->where('app_status', 'Recruited')->exists()) {
+            return back()->withErrors([
+                'week' => 'Your logbook will become available after recruitment and internship dates are assigned.',
+            ]);
+        }
+
         $weekStart = $request->validate([
-            'week_start' => ['required', 'date'],
+            'week_start' => ['required', 'date_format:Y-m-d'],
         ])['week_start'];
 
-        $weekStartDate = \Carbon\Carbon::parse($weekStart)->startOfWeek();
+        $weekStartDate = Carbon::parse($weekStart)->startOfWeek();
         $weekEndDate = $weekStartDate->copy()->endOfWeek();
+        $internship = $student->internship;
+
+        if (!$internship) {
+            return back()->withErrors([
+                'week' => 'Your internship dates have not been set yet.',
+            ]);
+        }
+
+        $activeStartDate = $weekStartDate->gt($internship->start_date)
+            ? $weekStartDate->copy()
+            : $internship->start_date->copy();
+        $activeEndDate = $weekEndDate->lt($internship->end_date)
+            ? $weekEndDate->copy()
+            : $internship->end_date->copy();
+
+        if ($activeStartDate->gt($activeEndDate)) {
+            return back()->withErrors([
+                'week' => 'This week is outside your internship period.',
+            ]);
+        }
+
+        if ($activeEndDate->gt(now()->startOfDay())) {
+            return back()->withErrors([
+                'week' => 'You can submit a week after all internship dates in that week have happened.',
+            ]);
+        }
 
         $entries = LogbookEntry::where(
             'student_id',
             $student->student_id
         )
             ->whereBetween('date', [
-                $weekStartDate->toDateString(),
-                $weekEndDate->toDateString(),
+                $activeStartDate->toDateString(),
+                $activeEndDate->toDateString(),
             ])
             ->get();
 
-        if ($entries->count() !== 7) {
+        $expectedDays = (int) $activeStartDate->diffInDays($activeEndDate) + 1;
+
+        if ($entries->count() !== $expectedDays) {
             return back()->withErrors([
-                'week' => 'You must complete all 7 days before submitting the week.',
+                'week' => "You must complete all {$expectedDays} internship day(s) in this week before submitting.",
             ]);
         }
 
@@ -276,11 +338,19 @@ class LogbookController extends Controller
                     'submitted_at' => now(),
                 ]);
 
+                LogbookReminder::where('student_id', $student->student_id)
+                    ->whereDate('week_start', $weekStartDate)
+                    ->delete();
+
                 return back()->with(
                     'success',
                     'Weekly logbook resubmitted successfully.'
                 );
             }
+
+            LogbookReminder::where('student_id', $student->student_id)
+                ->whereDate('week_start', $weekStartDate)
+                ->delete();
 
             return back()->withErrors([
                 'week' => 'This week has already been submitted.',
@@ -295,6 +365,10 @@ class LogbookController extends Controller
             'submitted_at' => now(),
         ]);
 
+        LogbookReminder::where('student_id', $student->student_id)
+            ->whereDate('week_start', $weekStartDate)
+            ->delete();
+
         return back()->with(
             'success',
             'Weekly logbook submitted successfully.'
@@ -304,6 +378,26 @@ class LogbookController extends Controller
     public function destroy(Request $request, string $date)
     {
         $student = $request->user()->student;
+        $date = validator(['date' => $date], [
+            'date' => ['required', 'date_format:Y-m-d'],
+        ])->validate()['date'];
+
+        if ($restriction = $this->dateRestriction($student, $date)) {
+            return redirect()
+                ->route('student.logbook', ['week' => $date])
+                ->withErrors(['date' => $restriction]);
+        }
+
+        $weekSubmission = LogbookWeeklySubmission::where('student_id', $student->student_id)
+            ->whereDate('week_start', '<=', $date)
+            ->whereDate('week_end', '>=', $date)
+            ->first();
+
+        if ($weekSubmission && in_array($weekSubmission->status, ['reviewed', 'approved'], true)) {
+            return redirect()
+                ->route('student.logbook', ['week' => $date])
+                ->withErrors(['date' => 'This week has already been reviewed and can no longer be edited.']);
+        }
 
         LogbookEntry::where(
             'student_id',
@@ -315,5 +409,34 @@ class LogbookController extends Controller
         return redirect()
             ->route('student.logbook', ['week' => $date])
             ->with('success', 'Daily log deleted successfully.');
+    }
+
+    private function dateRestriction(Student $student, string $date): ?string
+    {
+        if (!$student->applications()->where('app_status', 'Recruited')->exists()) {
+            return 'Your logbook will become available after recruitment and internship dates are assigned.';
+        }
+
+        $internship = $student->internship;
+
+        if (!$internship) {
+            return 'Your internship dates have not been set yet. Please contact your company HR.';
+        }
+
+        $entryDate = Carbon::parse($date)->startOfDay();
+
+        if ($entryDate->lt($internship->start_date->copy()->startOfDay())) {
+            return 'You cannot enter a logbook before your internship start date.';
+        }
+
+        if ($entryDate->gt($internship->end_date->copy()->startOfDay())) {
+            return 'You cannot enter a logbook after your internship end date.';
+        }
+
+        if ($entryDate->gt(now()->startOfDay())) {
+            return 'You can only fill in logbooks for today or an earlier date.';
+        }
+
+        return null;
     }
 }

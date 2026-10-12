@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Application;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -9,90 +10,50 @@ class ApplicationSeeder extends Seeder
 {
     public function run(): void
     {
-        DB::table('applications')->insert([
-            // Ahmad (student_id = 1) applications
+        $examples = [
             [
-                'student_id' => 1,
-                'quota_id' => 1,
-                'apply_date' => now(),
-                'app_status' => 'Approved',
-                'company_feedback' => 'Interview went well, offered position'
+                'company' => 'TechCorp Brunei',
+                'job_title' => 'Data Analyst Intern',
+                'student_code' => '24FTT003',
+                'status' => 'Pending',
             ],
             [
-                'student_id' => 1,
-                'quota_id' => 4,
-                'apply_date' => now(),
-                'app_status' => 'Reviewing',
-                'company_feedback' => 'Scheduling interview'
-            ],
-            // Sarah (student_id = 2) applications
-            [
-                'student_id' => 2,
-                'quota_id' => 1,
-                'apply_date' => now(),
-                'app_status' => 'Pending',
-                'company_feedback' => null
+                'company' => 'TechCorp Brunei',
+                'job_title' => 'Web Developer Intern',
+                'student_code' => '24FTT001',
+                'status' => 'Pending',
             ],
             [
-                'student_id' => 2,
-                'quota_id' => 3,
-                'apply_date' => now(),
-                'app_status' => 'Pending',
-                'company_feedback' => null
-            ],
-            // John (student_id = 3) applications
-            [
-                'student_id' => 3,
-                'quota_id' => 2,
-                'apply_date' => now(),
-                'app_status' => 'Approved',
-                'company_feedback' => 'Offered position'
+                'company' => 'GlobalTech Solutions',
+                'job_title' => 'Frontend Developer Intern',
+                'student_code' => '24FTT001',
+                'status' => 'Pending',
             ],
             [
-                'student_id' => 3,
-                'quota_id' => 5,
-                'apply_date' => now(),
-                'app_status' => 'Reviewing',
-                'company_feedback' => 'Second interview scheduled'
+                'company' => 'GlobalTech Solutions',
+                'job_title' => 'Junior Data Scientist',
+                'student_code' => '24FTT003',
+                'status' => 'Pending',
             ],
-            // Nurul (student_id = 4) applications
-            [
-                'student_id' => 4,
-                'quota_id' => 6,
-                'apply_date' => now(),
-                'app_status' => 'Approved',
-                'company_feedback' => 'Offered internship'
-            ],
-            [
-                'student_id' => 4,
-                'quota_id' => 2,
-                'apply_date' => now(),
-                'app_status' => 'Rejected',
-                'company_feedback' => 'Looking for more technical candidates'
-            ],
-            // Faiz (student_id = 5) applications
-            [
-                'student_id' => 5,
-                'quota_id' => 6,
-                'apply_date' => now(),
-                'app_status' => 'Pending',
-                'company_feedback' => null
-            ],
-            // Wei Jie (student_id = 6) applications
-            [
-                'student_id' => 6,
-                'quota_id' => 7,
-                'apply_date' => now(),
-                'app_status' => 'Approved',
-                'company_feedback' => 'Offered position'
-            ],
-            [
-                'student_id' => 6,
-                'quota_id' => 8,
-                'apply_date' => now(),
-                'app_status' => 'Pending',
-                'company_feedback' => null
-            ],
-        ]);
+        ];
+
+        foreach ($examples as $example) {
+            $companyId = DB::table('companies')->where('company_name', $example['company'])->value('company_id');
+            $quotaId = DB::table('placement_quotas')
+                ->where('company_id', $companyId)
+                ->where('job_title', $example['job_title'])
+                ->where('quota_status', 'Approved')
+                ->where('is_released', true)
+                ->value('quota_id');
+            $studentId = DB::table('students')->where('pb_student_code', $example['student_code'])->value('student_id');
+            if (!$companyId || !$quotaId || !$studentId) {
+                continue;
+            }
+
+            Application::updateOrCreate(
+                ['student_id' => $studentId, 'quota_id' => $quotaId],
+                ['app_status' => $example['status']]
+            );
+        }
     }
 }

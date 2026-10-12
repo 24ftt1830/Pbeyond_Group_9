@@ -1,7 +1,8 @@
 import { useState, FormEvent } from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { ArrowLeft, ClipboardCheck, UserRound } from 'lucide-react';
+import { ClipboardCheck, UserRound } from 'lucide-react';
+import BackButton from '@/Components/BackButton';
 
 interface Student {
     student_id: number;
@@ -101,13 +102,12 @@ export default function Evaluation({ student, evaluation }: Props) {
             <div className="min-h-screen bg-slate-50">
                 <header className="border-b border-slate-200 bg-white">
                     <div className="mx-auto max-w-4xl px-6 py-6">
-                        <Link
+                        <BackButton
                             href={route('industry-supervisor.student.show', student.student_id)}
-                            className="mb-5 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 transition hover:text-blue-600"
+                            className="mb-5"
                         >
-                            <ArrowLeft size={16} />
                             Back to Student Details
-                        </Link>
+                        </BackButton>
 
                         <div className="flex items-center gap-5">
                             <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">

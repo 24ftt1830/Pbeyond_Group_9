@@ -140,12 +140,16 @@ export default function Show({
             payload,
             {
                 preserveScroll: true,
-                preserveState: false,
+                preserveState: true,
                 onSuccess: () => {
                     toast.success(`Status updated to ${status}`);
                     setInterviewApp(null);
                     setInterviewDate("");
-                }
+                },
+                onError: (errors) => {
+                    const firstError = Object.values(errors)[0];
+                    toast.error(Array.isArray(firstError) ? firstError[0] : String(firstError || 'Unable to update the application status.'));
+                },
             }
         );
     };

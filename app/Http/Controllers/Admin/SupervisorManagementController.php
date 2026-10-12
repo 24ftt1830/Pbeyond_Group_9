@@ -1,0 +1,120 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\AcademicSupervisor;
+use App\Models\AdminRecordChange;
+use App\Models\Company;
+use App\Models\IndustrySupervisor;
+use App\Models\PlacementQuota;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
+use Inertia\Inertia;
+
+class SupervisorManagementController extends Controller
+{
+    public function index()
+    {
+        return Inertia::render('Admin/Supervisors', $this->accounts());
+    }
+
+    public function accounts(): array
+    {
+        $academic = AcademicSupervisor::with('user')->orderBy('full_name')->get()->map(fn ($record) => $this->row($record, 'academic'));
+        $industry = IndustrySupervisor::with('user')->orderBy('full_name')->get()->map(fn ($record) => $this->row($record, 'industry'));
+        return [
+            'supervisors' => $academic->concat($industry)->values(),
+            'companies' => Company::orderBy('company_name')->get(['company_id', 'company_name']),
+            'quotas' => PlacementQuota::orderBy('job_title')->get(['quota_id', 'company_id', 'job_title', 'quota_status', 'is_released']),
+        ];
+    }
+
+    private function row($record, string $type): array
+    {
+        return [
+            'id' => $record->getKey(), 'type' => $type, 'user_id' => $record->user_id,
+            'username' => $record->user?->username ?? '', 'email' => $record->user?->email ?? $record->email ?? '',
+            'full_name' => $record->full_name, 'phone' => $record->phone ?? '',
+            'company_id' => $record->company_id ?? '', 'quota_id' => $record->quota_id ?? '',
+            'position' => $record->position ?? '',
+        ];
+    }
+
+    private function validated(Request $request, string $type, $record = null): array
+    {
+        $user = $record?->user;
+        $data = $request->validate([
+            'username' => ['required', 'string', 'max:100', Rule::unique('users', 'username')->ignore($user?->user_id, 'user_id')],
+            'email' => ['required', 'email', 'max:150', Rule::unique('users', 'email')->ignore($user?->user_id, 'user_id')],
+            'password' => [$user ? 'nullable' : 'required', 'string', 'min:8'],
+            'full_name' => ['required', 'string', $type === 'industry' ? 'max:150' : 'max:255'],
+            'phone' => ['nullable', 'string', $type === 'industry' ? 'max:20' : 'max:255'],
+            'position' => ['nullable', 'string', 'max:100'],
+            'company_id' => [$type === 'industry' ? 'required' : 'nullable', 'exists:companies,company_id'],
+            'quota_id' => ['nullable', 'integer', Rule::exists('placement_quotas', 'quota_id')
+                ->where('company_id', $request->input('company_id'))
+                ->when(!$record || (string) $record->quota_id !== (string) $request->input('quota_id'),
+                    fn ($rule) => $rule->where('quota_status', 'Approved')->where('is_released', true))],
+        ]);
+        if ($type === 'academic') {
+            $data['company_id'] = null;
+            $data['quota_id'] = null;
+        }
+        return $data;
+    }
+
+    public function store(Request $request)
+    {
+        $type = $request->validate(['type' => ['required', 'in:academic,industry']])['type'];
+        $data = $this->validated($request, $type);
+        $this->save($request, $type, $data);
+        return back()->with('success', 'Supervisor account created.');
+    }
+
+    public function update(Request $request, string $type, int $id)
+    {
+        abort_unless(in_array($type, ['academic', 'industry'], true), 404);
+        $record = $type === 'academic' ? AcademicSupervisor::findOrFail($id) : IndustrySupervisor::findOrFail($id);
+        $data = $this->validated($request, $type, $record);
+        $this->save($request, $type, $data, $record);
+        return back()->with('success', 'Supervisor account and assignment updated.');
+    }
+
+    private function save(Request $request, string $type, array $data, $record = null): void
+    {
+        DB::transaction(function () use ($request, $type, $data, $record) {
+            $record ??= $type === 'academic' ? new AcademicSupervisor() : new IndustrySupervisor();
+            $before = $record->exists ? $record->toArray() : null;
+            $user = $record->user ?? new User();
+            $beforeUser = $user->exists ? $user->toArray() : null;
+            $user->fill([
+                'username' => $data['username'], 'email' => $data['email'],
+                'role' => $type === 'academic' ? 'Academic Supervisor' : 'Industry Supervisor',
+                'company_id' => $data['company_id'] ?? null,
+            ]);
+            if (!empty($data['password'])) {
+                $user->password = Hash::make($data['password']);
+            }
+            $user->save();
+            $record->fill([
+                'user_id' => $user->user_id, 'full_name' => $data['full_name'],
+                'email' => $data['email'], 'phone' => $data['phone'] ?? null,
+            ]);
+            if ($type === 'industry') {
+                if ($record->exists && (string) $record->quota_id !== (string) ($data['quota_id'] ?? '')) {
+                    foreach ($record->applications()->where('app_status', 'Recruited')->with('student.internshipCompletion')->get() as $application) {
+                        $application->student->internshipCompletion?->resetAcademicDecision();
+                    }
+                }
+                $record->fill(['company_id' => $data['company_id'], 'quota_id' => $data['quota_id'] ?? null, 'position' => $data['position'] ?? null]);
+            }
+            $record->save();
+            AdminRecordChange::record($request->user(), $user, 'Updated supervisor login', $beforeUser);
+            AdminRecordChange::record($request->user(), $record, 'Updated supervisor profile and assignment', $before);
+        });
+    }
+}

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Company;
 
+use App\Services\InternshipWorkflow;
+
 use App\Http\Controllers\Controller;
 use App\Models\Application;
 use App\Models\PlacementQuota;
@@ -154,20 +156,7 @@ class ApplicationController extends Controller
             'interview_date' => 'nullable|date',
         ]);
 
-        $updateData = [
-            'app_status' => $validated['status'],
-        ];
-
-        // Explicitly handle clearing vs setting interview_date
-        if ($validated['status'] === 'Interviewing') {
-            if ($request->filled('interview_date')) {
-                $updateData['interview_date'] = $validated['interview_date'];
-            }
-        } else {
-            $updateData['interview_date'] = null;
-        }
-
-        $application->update($updateData);
+        app(InternshipWorkflow::class)->application($application, $validated, $request->user());
 
         return redirect()->back()->with(
             'success',

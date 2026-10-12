@@ -24,8 +24,8 @@ interface Applicant {
 interface Props {
     quota: Quota | null;
     stats: {
-        applicants: number;
-        pending_applications: number;
+        students_assigned: number;
+        position_slots: number;
         evaluations: number;
         evaluations_due: number;
     };

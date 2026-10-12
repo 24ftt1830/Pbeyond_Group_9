@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
-use App\Models\Company;
+use App\Models\PlacementQuota;
 use Inertia\Inertia;
 
 class FavouriteController extends Controller
@@ -12,12 +12,10 @@ class FavouriteController extends Controller
 {
     $student = auth()->user()->student;
 
-    // Get approved, released quotas that match student's programme, have available slots,
-    // and the student hasn't applied to.
+    // Recommend any approved, released quota that has slots and has not been applied to.
     $appliedQuotaIds = $student->applications()->pluck('quota_id')->toArray();
 
     $recommendedQuotas = PlacementQuota::with('company')
-        ->where('programme_id', $student->programme_id)
         ->where('is_released', true)
         ->where('quota_status', 'Approved')
         ->whereNotIn('quota_id', $appliedQuotaIds)

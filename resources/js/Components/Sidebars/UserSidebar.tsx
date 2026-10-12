@@ -62,6 +62,11 @@ const data = {
             icon: FileText,
         },
         {
+            title: "Written Report",
+            url: route('student.final-report'),
+            icon: FileText,
+        },
+        {
             title: "Calendar",
             url: route('student.calendar'),
             icon: CalendarDays,

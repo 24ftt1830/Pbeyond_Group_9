@@ -15,6 +15,13 @@ import {
 import { Input } from '@/Components/ui/input';
 import { Label } from '@/Components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/Components/ui/card';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/Components/ui/select';
 
 interface IndustrySupervisor {
     supervisor_id: number;
@@ -35,6 +42,8 @@ interface Quota {
     quota_id: number;
     job_title: string;
     total_slots: number;
+    recruited_students_count: number;
+    industry_supervisors_count: number;
 }
 
 interface Props {
@@ -273,23 +282,34 @@ export default function ManageUsers({
 
                                 <div className="grid gap-2">
                                     <Label htmlFor="quota_id">Position</Label>
-                                    <select
-                                        id="quota_id"
+                                    <Select
                                         value={form.data.quota_id}
-                                        onChange={(e) => form.setData('quota_id', e.target.value)}
-                                        required
-                                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                        onValueChange={(value) => form.setData('quota_id', value)}
                                     >
-                                        <option value="" disabled>
-                                            Select an approved job position
-                                        </option>
-                                        {quotas.map((quota) => (
-                                            <option key={quota.quota_id} value={quota.quota_id}>
-                                                {quota.job_title} ({quota.total_slots}{' '}
-                                                {quota.total_slots === 1 ? 'slot' : 'slots'})
-                                            </option>
-                                        ))}
-                                    </select>
+                                        <SelectTrigger id="quota_id" className="w-full">
+                                            <SelectValue placeholder="Select an approved job position" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {quotas.map((quota) => (
+                                                <SelectItem
+                                                    key={quota.quota_id}
+                                                    value={String(quota.quota_id)}
+                                                    className="h-auto py-2.5"
+                                                >
+                                                    <span className="flex flex-col items-start gap-0.5">
+                                                        <span className="font-medium">{quota.job_title}</span>
+                                                        <span className="text-xs text-muted-foreground">
+                                                            {quota.recruited_students_count} / {quota.total_slots} students
+                                                            {' • '}
+                                                            {quota.industry_supervisors_count > 0
+                                                                ? 'Supervisor assigned'
+                                                                : 'No supervisor'}
+                                                        </span>
+                                                    </span>
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
                                     {form.errors.quota_id && (
                                         <p className="text-xs text-red-500">{form.errors.quota_id}</p>
                                     )}

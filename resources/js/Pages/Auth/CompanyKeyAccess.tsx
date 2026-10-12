@@ -5,7 +5,8 @@ import { Input } from '@/Components/ui/input';
 import { Label } from '@/Components/ui/label';
 import InputError from '@/Components/InputError';
 import DitherShaderDemoDuotone from "@/Components/dither-shader-demo-duotone";
-import { LoaderCircleIcon, KeyRound, ChevronLeft } from 'lucide-react';
+import { LoaderCircleIcon, KeyRound } from 'lucide-react';
+import BackButton from '@/Components/BackButton';
 
 export default function CompanyKeyAccess() {
     const { data, setData, post, processing, errors } = useForm({
@@ -32,12 +33,7 @@ export default function CompanyKeyAccess() {
                         <span className="font-sato">PBeyond</span>
                     </Link>
 
-                    <Button variant="ghost" size="sm" asChild className="gap-1 text-xs">
-                        <Link href={route('login')}>
-                            <ChevronLeft className="size-4" />
-                            Back to Standard Login
-                        </Link>
-                    </Button>
+                    <BackButton href={route('login')} className="h-8 rounded-md px-3 text-xs">Back to Standard Login</BackButton>
                 </div>
 
                 <div className="flex flex-1 items-center justify-center">

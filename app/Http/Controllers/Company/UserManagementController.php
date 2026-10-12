@@ -29,7 +29,12 @@ class UserManagementController extends Controller
         $quotas = PlacementQuota::available()
             ->where('company_id', $companyId)
             ->orderBy('job_title')
-            ->get(['quota_id', 'job_title', 'total_slots']);
+            ->select(['quota_id', 'job_title', 'total_slots'])
+            ->withCount([
+                'applications as recruited_students_count' => fn ($query) => $query->where('app_status', 'Recruited'),
+                'industrySupervisors',
+            ])
+            ->get();
 
         return Inertia::render('Company/ManageUsers', [
             'industrySupervisors' => $industrySupervisors,

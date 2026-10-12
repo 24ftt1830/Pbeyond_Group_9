@@ -28,9 +28,20 @@ interface WeeklySubmission {
     student?: Student;
 }
 
+interface MissingWeek {
+    week_start: string;
+    week_end: string;
+}
+
+interface MissingLogbookStudent extends Student {
+    full_name: string;
+    missing_weeks: MissingWeek[];
+}
+
 interface Props {
     pendingSubmissions?: WeeklySubmission[];
     reviewedSubmissions?: WeeklySubmission[];
+    missingLogbooks?: MissingLogbookStudent[];
 }
 
 const formatDate = (date: string) => {
@@ -81,11 +92,11 @@ const renderStatusBadge = (status: string) => {
 export default function Logbook({
     pendingSubmissions = [],
     reviewedSubmissions = [],
+    missingLogbooks = [],
 }: Props) {
     const [activeTab, setActiveTab] = useState<
-        'all' | 'pending' | 'reviewed'
+        'all' | 'pending' | 'reviewed' | 'missing'
     >('all');
-
     const totalSubmissions =
         pendingSubmissions.length + reviewedSubmissions.length;
 
@@ -219,7 +230,7 @@ export default function Logbook({
                             </div>
 
                             {/* Tabs */}
-                            <div className="inline-flex w-fit rounded-xl border border-slate-200 bg-white p-1 shadow-sm">
+                            <div className="flex w-fit max-w-full flex-wrap rounded-xl border border-slate-200 bg-white p-1 shadow-sm">
                                 <button
                                     type="button"
                                     onClick={() => setActiveTab('all')}
@@ -263,6 +274,21 @@ export default function Logbook({
                                         <span className="ml-1.5 opacity-75">
                                             ({reviewedSubmissions.length})
                                         </span>
+                                    )}
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onClick={() => setActiveTab('missing')}
+                                    className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${
+                                        activeTab === 'missing'
+                                            ? 'bg-slate-700 text-white shadow-sm'
+                                            : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
+                                    }`}
+                                >
+                                    Missing Logbooks
+                                    {missingLogbooks.length > 0 && (
+                                        <span className="ml-1.5 opacity-75">({missingLogbooks.length})</span>
                                     )}
                                 </button>
                             </div>
@@ -592,6 +618,49 @@ export default function Logbook({
                                                     </div>
                                                 </div>
                                             </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {activeTab === 'missing' && (
+                            <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                                {missingLogbooks.length === 0 ? (
+                                    <div className="px-6 py-14 text-center">
+                                        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-400">
+                                            <CheckCircle2 size={22} />
+                                        </div>
+                                        <p className="mt-4 text-sm font-semibold text-slate-900">No overdue logbooks</p>
+                                        <p className="mt-1 text-sm text-slate-500">Your active interns have submitted all completed weeks.</p>
+                                    </div>
+                                ) : (
+                                    <div className="divide-y divide-slate-100">
+                                        {missingLogbooks.map((student) => (
+                                            <article key={student.student_id} className="px-5 py-5 sm:px-6">
+                                                <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                                                    <div>
+                                                        <h3 className="font-bold text-slate-900">{student.full_name}</h3>
+                                                        <p className="mt-1 text-xs text-slate-500">
+                                                            {student.pb_student_code || `Student #${student.student_id}`} · {student.missing_weeks.length} missing week{student.missing_weeks.length === 1 ? '' : 's'}
+                                                        </p>
+                                                    </div>
+                                                    <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-800 ring-1 ring-amber-200">
+                                                        Active internship
+                                                    </span>
+                                                </div>
+
+                                                <div className="space-y-2">
+                                                    {student.missing_weeks.map((week) => (
+                                                        <div key={week.week_start} className="flex flex-col gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                                                            <p className="text-sm font-semibold text-slate-800">
+                                                                {formatDate(week.week_start)} – {formatDate(week.week_end)}
+                                                            </p>
+                                                            <span className="text-xs font-medium text-amber-700">Not submitted</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </article>
                                         ))}
                                     </div>
                                 )}

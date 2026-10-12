@@ -1,9 +1,11 @@
 <?php
 use App\Http\Controllers\AcademicSupervisor\EvaluationController as AcademicEvaluationController;
-use App\Http\Controllers\IndustrySupervisor\EvaluationController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\InterventionController;
+use App\Http\Controllers\Admin\EvaluationTemplateController;
+use App\Http\Controllers\SupervisorEvaluationController;
+use App\Http\Controllers\FinalInternshipReportController;
 use App\Http\Controllers\Student\CalendarController as StudentCalendarController;
 use App\Http\Controllers\Student\CompanyController as StudentCompanyController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
@@ -87,6 +89,45 @@ Route::middleware('auth')->group(function () {
                 '/dashboard',
                 [App\Http\Controllers\Admin\DashboardController::class, 'index']
             )->name('dashboard');
+
+            // Superadmin management remains in the existing Admin portal.
+            Route::get('/students', [App\Http\Controllers\Admin\StudentRecordController::class, 'index'])->name('students');
+            Route::get('/students/{student}', [App\Http\Controllers\Admin\StudentRecordController::class, 'show'])->name('students.show');
+            Route::get('/students/{student}/profile', [StudentProfileController::class, 'index'])->name('students.profile');
+            Route::post('/students/{student}/profile', [StudentProfileController::class, 'update'])->name('students.profile.update');
+            Route::get('/students/{student}/cv', [App\Http\Controllers\Admin\StudentRecordController::class, 'cv'])->name('students.cv');
+            Route::put('/students/{student}/dates', [App\Http\Controllers\Admin\StudentRecordController::class, 'dates'])->name('students.dates');
+            Route::put('/students/{student}/company-confirmation', [App\Http\Controllers\Admin\StudentRecordController::class, 'confirmCompany'])->name('students.company-confirmation');
+            Route::put('/students/{student}/completion', [App\Http\Controllers\Admin\StudentRecordController::class, 'decide'])->name('students.completion');
+            Route::put('/students/{student}/academic-assignment', [App\Http\Controllers\Admin\StudentRecordController::class, 'assignAcademic'])->name('students.academic-assignment');
+            Route::put('/students/{student}/monitoring', [App\Http\Controllers\Admin\StudentRecordController::class, 'monitoring'])->name('students.monitoring');
+            Route::post('/students/{student}/visits', [App\Http\Controllers\Admin\StudentRecordController::class, 'visit'])->name('students.visits');
+            Route::put('/students/{student}/visits/{visit}', [App\Http\Controllers\Admin\StudentRecordController::class, 'updateVisit'])->name('students.visits.update');
+            Route::get('/students/{student}/evaluations/{submission}', [App\Http\Controllers\Admin\StudentRecordController::class, 'evaluation'])->name('students.evaluations.show');
+            Route::post('/students/{student}/evaluations/{submission}/reopen', [App\Http\Controllers\Admin\StudentRecordController::class, 'reopenEvaluation'])->name('students.evaluations.reopen');
+            Route::get('/students/{student}/written-report', [FinalInternshipReportController::class, 'admin'])->name('students.report');
+            Route::get('/students/{student}/written-report/pdf', [FinalInternshipReportController::class, 'download'])->name('students.report.pdf');
+            Route::post('/students/{student}/written-report/reopen', [App\Http\Controllers\Admin\StudentRecordController::class, 'reopenReport'])->name('students.report.reopen');
+            Route::get('/logbooks/{submission}', [AcademicSupervisorLogbookController::class, 'review'])->name('logbooks.review');
+            Route::post('/logbooks/{submission}/review', [AcademicSupervisorLogbookController::class, 'markReviewed'])->name('logbooks.update');
+            Route::post('/students/{student}/logbooks/{submission}/reopen', [App\Http\Controllers\Admin\StudentRecordController::class, 'reopenLogbook'])->name('students.logbooks.reopen');
+            Route::get('/manage-users/supervisors', [App\Http\Controllers\Admin\SupervisorManagementController::class, 'index'])->name('supervisors');
+            Route::post('/manage-users/supervisors', [App\Http\Controllers\Admin\SupervisorManagementController::class, 'store'])->name('supervisors.store');
+            Route::put('/manage-users/supervisors/{type}/{id}', [App\Http\Controllers\Admin\SupervisorManagementController::class, 'update'])->name('supervisors.update');
+            Route::get('/companies/{company}/manage', [App\Http\Controllers\Admin\CompanyRecordController::class, 'show'])->name('companies.manage');
+            Route::put('/companies/{company}', [App\Http\Controllers\Admin\CompanyRecordController::class, 'update'])->name('companies.update');
+            Route::post('/companies/{company}/quotas', [App\Http\Controllers\Admin\CompanyRecordController::class, 'storeQuota'])->name('companies.quotas.store');
+            Route::put('/quotas/{quota:quota_id}', [App\Http\Controllers\Admin\CompanyRecordController::class, 'updateQuota'])->name('quotas.update');
+            Route::delete('/quotas/{quota:quota_id}', [App\Http\Controllers\Admin\CompanyRecordController::class, 'destroyQuota'])->name('quotas.destroy');
+            Route::post('/quotas/{quota:quota_id}/close', [App\Http\Controllers\Admin\CompanyRecordController::class, 'closeQuota'])->name('quotas.close');
+            Route::put('/applications/{application}', [App\Http\Controllers\Admin\CompanyRecordController::class, 'application'])->name('applications.update');
+
+            Route::get('/evaluations', [EvaluationTemplateController::class, 'index'])->name('evaluations');
+            Route::post('/evaluations', [EvaluationTemplateController::class, 'store'])->name('evaluations.store');
+            Route::put('/evaluations/student-written-report', [EvaluationTemplateController::class, 'saveReportComponent'])->name('evaluations.report-component');
+            Route::post('/evaluations/student-written-report/rubric', [EvaluationTemplateController::class, 'saveWrittenReportTemplate'])->name('evaluations.report-rubric');
+            Route::post('/evaluations/activate', [EvaluationTemplateController::class, 'activateAll'])->name('evaluations.activate');
+            Route::put('/evaluations/{template}', [EvaluationTemplateController::class, 'update'])->name('evaluations.update');
             
             Route::get(
                 '/interventions',
@@ -349,8 +390,13 @@ Route::middleware('auth')->group(function () {
 
             Route::get(
                 '/interns',
-                fn () => Inertia::render('Company/Interns')
+                [App\Http\Controllers\Company\InternController::class, 'index']
             )->name('interns');
+
+            Route::put(
+                '/interns/{application}/dates',
+                [App\Http\Controllers\Company\InternController::class, 'updateDates']
+            )->name('interns.update-dates');
 
             Route::get(
                 '/contact-support',
@@ -399,7 +445,6 @@ Route::middleware('auth')->group(function () {
                 [AcademicSupervisorLogbookController::class, 'markReviewed']
             )->name('logbook.mark-reviewed');
 
-
             // Students
 
             Route::get(
@@ -417,6 +462,9 @@ Route::middleware('auth')->group(function () {
                 [AcademicSupervisorStudentController::class, 'updateMonitoringStatus']
             )->name('student.monitoring-status.update');
 
+            Route::put('/students/{student}/completion-decision', [AcademicSupervisorStudentController::class, 'updateCompletionDecision'])
+                ->name('student.completion-decision.update');
+
             // Internship Visits
 
             Route::post(
@@ -427,6 +475,19 @@ Route::middleware('auth')->group(function () {
             //Evaluation check
             Route::post('/students/{student}/evaluation/complete', [AcademicEvaluationController::class, 'complete'])
              ->name('student.evaluation.complete');
+
+            Route::get('/students/{student}/evaluate', [SupervisorEvaluationController::class, 'createAcademic'])
+                ->name('student.evaluate');
+            Route::post('/students/{student}/evaluate', [SupervisorEvaluationController::class, 'storeAcademic'])
+                ->name('student.evaluate.store');
+            Route::get('/students/{student}/evaluations/{submission}', [SupervisorEvaluationController::class, 'showAcademicSubmission'])
+                ->name('student.evaluations.show');
+            Route::get('/students/{student}/final-report', [FinalInternshipReportController::class, 'academic'])
+                ->name('student.final-report');
+            Route::put('/students/{student}/final-report/review', [FinalInternshipReportController::class, 'reviewAcademic'])
+                ->name('student.final-report.review');
+            Route::get('/students/{student}/final-report/pdf', [FinalInternshipReportController::class, 'download'])
+                ->name('student.final-report.download');
 
         });
                 
@@ -456,11 +517,16 @@ Route::middleware('auth')->group(function () {
                 [IndustrySupervisorStudentController::class, 'show']
             )->name('student.show');
 
-            Route::get('/students/{student}/evaluate', [EvaluationController::class, 'create'])
+            Route::put('/students/{student}/completion-confirmation', [IndustrySupervisorStudentController::class, 'updateCompletionConfirmation'])
+                ->name('student.completion-confirmation.update');
+
+            Route::get('/students/{student}/evaluate', [SupervisorEvaluationController::class, 'createIndustry'])
                 ->name('student.evaluate');
 
-            Route::post('/students/{student}/evaluate', [EvaluationController::class, 'store'])
+            Route::post('/students/{student}/evaluate', [SupervisorEvaluationController::class, 'storeIndustry'])
                 ->name('student.evaluate.store');
+            Route::get('/students/{student}/evaluations/{submission}', [SupervisorEvaluationController::class, 'showIndustrySubmission'])
+                ->name('student.evaluations.show');
         });
 
  
@@ -610,6 +676,8 @@ Route::middleware('auth')->group(function () {
                 '/report-issue',
                 [StudentReportController::class, 'store']
             )->name('report-issue.store');
+            Route::get('/final-report', [FinalInternshipReportController::class, 'student'])->name('final-report');
+            Route::post('/final-report', [FinalInternshipReportController::class, 'saveStudent'])->name('final-report.save');
         });
 });
 

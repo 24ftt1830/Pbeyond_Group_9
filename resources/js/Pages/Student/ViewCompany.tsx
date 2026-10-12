@@ -47,7 +47,8 @@ interface Props {
 export default function ViewCompany({ company, quotas, applications = [] }: Props) {
     const { auth } = usePage<any>().props;
     const student = auth?.user?.student;
-    
+
+    const isProfileComplete = Boolean(student?.profile_complete);
     // Check for CV generation snapshot and timestamp
     const hasGeneratedCv = Boolean(student?.cv_generated_at && student?.cv_snapshot);
 
@@ -55,17 +56,36 @@ export default function ViewCompany({ company, quotas, applications = [] }: Prop
     const remainingChoices = MAX_APPLICATIONS - applications.length;
 
     const handleApply = (quota_id: number) => {
-        if (!hasGeneratedCv) {
+        if (!isProfileComplete) {
+            const missingFields = student?.missing_profile_fields ?? [];
             toast.error('Profile Incomplete', {
                 description: (
                     <span>
-                        Please complete your profile and generate your CV at{' '}
+                        Complete and save your required profile information before applying.
+                        {missingFields.length > 0 && ` Missing: ${missingFields.join(', ')}. `}
+                        <Link href="/student/profile" className="underline font-bold text-blue-600 hover:text-blue-800">
+                            Go to Profile
+                        </Link>
+                    </span>
+                ),
+            });
+            return;
+        }
+
+        if (!hasGeneratedCv) {
+            toast.error('CV Required', {
+                description: (
+                    <span className="font-semibold text-slate-900">
+                        Please save your profile and generate your CV before applying. Visit{' '}
                         <Link href="/student/profile" className="underline font-bold text-blue-600 hover:text-blue-800">
                             /student/profile
                         </Link>{' '}
                         before submitting an application.
                     </span>
                 ),
+                classNames: {
+                    description: '!text-slate-900 font-semibold',
+                },
             });
             return;
         }

@@ -90,6 +90,15 @@ class PlacementQuota extends Model
         );
     }
 
+    public function industrySupervisors()
+    {
+        return $this->hasMany(
+            IndustrySupervisor::class,
+            'quota_id',
+            'quota_id'
+        );
+    }
+
     // Scope for approved and released quotas
     public function scopeAvailable($query)
     {
@@ -102,7 +111,7 @@ class PlacementQuota extends Model
     public function getRemainingSlotsAttribute()
     {
         $approvedCount = $this->applications()
-            ->where('app_status', 'Approved')
+            ->whereIn('app_status', ['Approved', 'Recruited'])
             ->count();
 
         return max(

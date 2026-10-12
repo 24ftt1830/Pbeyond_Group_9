@@ -1,5 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Link } from '@inertiajs/react';
+import { useEffect } from 'react';
+import { toast } from 'sonner';
 import { ArrowRight, Briefcase, CheckCircle2, FileText, Search } from 'lucide-react';
 import { ScrollAreaHorizontalDemo, steps } from '@/Components/Dashboard/student-onboarding';
 import { DashboardEmptyState, DashboardPanel, RoleDashboard } from '@/Components/Dashboard/RoleDashboard';
@@ -26,11 +28,16 @@ interface Application {
     company_name?: string;
 }
 
+interface MissingLogbookWeek {
+    week_start: string;
+    week_end: string;
+}
+
 interface Props {
     availableQuotas: Quota[];
-    studentProgramme: string;
     completedOnboardingTasks?: string[];
     recentApplications: Application[];
+    missingLogbookWeeks?: MissingLogbookWeek[];
     stats: {
         open_positions: number;
         available_slots: number;
@@ -56,22 +63,55 @@ const formatDate = (value: string) => {
 
 export default function Dashboard({
     availableQuotas = [],
-    studentProgramme,
     completedOnboardingTasks = [],
     recentApplications = [],
+    missingLogbookWeeks = [],
     stats,
 }: Props) {
     const safeStats = stats ?? {
         open_positions: 0, available_slots: 0, applications: 0, pending_applications: 0, recruited_applications: 0,
     };
 
+    useEffect(() => {
+        if (missingLogbookWeeks.length === 0) return;
+
+        toast.warning(`${missingLogbookWeeks.length} missing weekly logbook${missingLogbookWeeks.length === 1 ? '' : 's'}`, {
+            id: 'student-missing-logbooks',
+            duration: 10000,
+            description: (
+                <span className="font-semibold text-slate-900">
+                    Submit your completed internship weeks: {' '}
+                    {missingLogbookWeeks.slice(0, 4).map((week, index) => (
+                        <span key={week.week_start}>
+                            {index > 0 && ', '}
+                            <Link href={route('student.logbook', { week: week.week_start })} className="font-bold text-blue-700 underline hover:text-blue-900">
+                                Week of {formatDate(week.week_start)}
+                            </Link>
+                        </span>
+                    ))}
+                    {missingLogbookWeeks.length > 4 && (
+                        <>
+                            {' '}and {missingLogbookWeeks.length - 4} more.{' '}
+                            <Link href={route('student.logbook')} className="font-bold text-blue-700 underline hover:text-blue-900">
+                                Open Logbook
+                            </Link>
+                        </>
+                    )}
+                </span>
+            ),
+            classNames: {
+                description: '!text-slate-900 font-semibold',
+            },
+        });
+    }, [missingLogbookWeeks]);
+
     return (
         <RoleDashboard
             title="Student"
-            description={`Your internship opportunities and application progress${studentProgramme ? ` for ${studentProgramme}` : ''}.`}
+            description="Browse approved internship opportunities across all programmes and track your applications."
             stats={[
-                { label: 'Open positions', value: safeStats.open_positions, detail: 'Positions matching your programme', icon: Briefcase },
-                { label: 'Available slots', value: safeStats.available_slots, detail: 'Places remaining across matching positions', icon: Search },
+                { label: 'Open positions', value: safeStats.open_positions, detail: 'Approved positions across all programmes', icon: Briefcase },
+                { label: 'Available slots', value: safeStats.available_slots, detail: 'Places remaining across open positions', icon: Search },
                 { label: 'My applications', value: safeStats.applications, detail: `${safeStats.pending_applications} awaiting a response`, icon: FileText },
                 { label: 'Recruited', value: safeStats.recruited_applications, detail: 'Positions where you have been recruited', icon: CheckCircle2 },
             ]}
@@ -89,12 +129,12 @@ export default function Dashboard({
 
             <div className="grid gap-6 xl:grid-cols-2">
                 <DashboardPanel
-                    title="Positions for your programme"
-                    description="Approved openings that match your programme."
+                    title="Open internship positions"
+                    description="Approved openings available to students across all programmes."
                     action={<Link href={route('student.companies')} className="text-sm font-semibold text-blue-700 hover:text-blue-800">Browse all</Link>}
                 >
                     {availableQuotas.length === 0 ? (
-                        <DashboardEmptyState message="There are no released positions matching your programme right now." />
+                        <DashboardEmptyState message="There are no released positions available right now." />
                     ) : (
                         <div className="divide-y divide-slate-100">
                             {availableQuotas.slice(0, 5).map((quota) => (

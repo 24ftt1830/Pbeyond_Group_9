@@ -4,6 +4,7 @@ namespace App\Http\Controllers\AcademicSupervisor;
 
 use App\Http\Controllers\Controller;
 use App\Models\AcademicSupervisor;
+use App\Models\AdminRecordChange;
 use App\Models\LogbookEntry;
 use App\Models\LogbookWeeklySubmission;
 use App\Models\Student;
@@ -41,9 +42,69 @@ class LogbookController extends Controller
             ->orderBy('reviewed_at', 'desc')
             ->get();
 
+        $today = now()->startOfDay();
+        $lastCompletedWeekStart = $today->copy()->startOfWeek()->subWeek();
+        $activeInterns = Student::query()
+            ->whereIn('student_id', $assignedStudentIds)
+            ->whereHas('internship', function ($query) use ($today) {
+                $query->whereDate('start_date', '<=', $today)
+                    ->whereDate('end_date', '>=', $today);
+            })
+            ->with('internship')
+            ->orderBy('full_name')
+            ->get();
+
+        $activeInternIds = $activeInterns->pluck('student_id');
+        $submittedWeekKeys = LogbookWeeklySubmission::query()
+            ->whereIn('student_id', $activeInternIds)
+            ->whereDate('week_start', '<=', $lastCompletedWeekStart->toDateString())
+            ->get(['student_id', 'week_start'])
+            ->mapWithKeys(fn ($submission) => [
+                $submission->student_id . '|' . $submission->week_start->toDateString() => true,
+            ]);
+
+        $missingLogbooks = $activeInterns->map(function ($student) use (
+            $lastCompletedWeekStart,
+            $submittedWeekKeys
+        ) {
+            $internship = $student->internship;
+            $weekStart = $internship->start_date->copy()->startOfWeek();
+            $missingWeeks = [];
+
+            while (
+                $weekStart->lte($lastCompletedWeekStart)
+                && $weekStart->lte($internship->end_date)
+            ) {
+                $weekKey = $student->student_id . '|' . $weekStart->toDateString();
+
+                if (!$submittedWeekKeys->has($weekKey)) {
+                    $weekEnd = $weekStart->copy()->endOfWeek();
+
+                    $missingWeeks[] = [
+                        'week_start' => $weekStart->toDateString(),
+                        'week_end' => $weekEnd->toDateString(),
+                    ];
+                }
+
+                $weekStart->addWeek();
+            }
+
+            if ($missingWeeks === []) {
+                return null;
+            }
+
+            return [
+                'student_id' => $student->student_id,
+                'student_code' => $student->pb_student_code,
+                'full_name' => $student->full_name,
+                'missing_weeks' => $missingWeeks,
+            ];
+        })->filter()->values();
+
         return Inertia::render('AcademicSupervisor/Logbook', [
             'pendingSubmissions' => $pendingSubmissions,
             'reviewedSubmissions' => $reviewedSubmissions,
+            'missingLogbooks' => $missingLogbooks,
         ]);
     }
 
@@ -51,12 +112,12 @@ class LogbookController extends Controller
         Request $request,
         LogbookWeeklySubmission $submission
     ) {
-        $academicSupervisor = AcademicSupervisor::where(
+        $academicSupervisor = auth()->user()->role === 'Admin' ? null : AcademicSupervisor::where(
             'user_id',
             auth()->user()->user_id
         )->firstOrFail();
 
-        $isAssigned = Student::where('student_id', $submission->student_id)
+        $isAssigned = auth()->user()->role === 'Admin' || Student::where('student_id', $submission->student_id)
             ->whereHas(
                 'programme.academicSupervisorAssignments',
                 function ($query) use ($academicSupervisor) {
@@ -97,6 +158,7 @@ class LogbookController extends Controller
             ]);
 
         return Inertia::render('AcademicSupervisor/LogbookReview', [
+            'adminContext' => auth()->user()->role === 'Admin',
             'submission' => [
                 'id' => $submission->id,
                 'student_id' => $submission->student_id,
@@ -116,12 +178,12 @@ class LogbookController extends Controller
         Request $request,
         LogbookWeeklySubmission $submission
     ) {
-        $academicSupervisor = AcademicSupervisor::where(
+        $academicSupervisor = auth()->user()->role === 'Admin' ? null : AcademicSupervisor::where(
             'user_id',
             auth()->user()->user_id
         )->firstOrFail();
 
-        $isAssigned = Student::where('student_id', $submission->student_id)
+        $isAssigned = auth()->user()->role === 'Admin' || Student::where('student_id', $submission->student_id)
             ->whereHas(
                 'programme.academicSupervisorAssignments',
                 function ($query) use ($academicSupervisor) {
@@ -141,6 +203,7 @@ class LogbookController extends Controller
             'flagged_entries' => 'nullable|array',
         ]);
 
+        $before = $submission->toArray();
         $submission->update([
             'status' => $validated['status'],
             'supervisor_feedback' => $validated['supervisor_feedback'] ?? null,
@@ -148,8 +211,11 @@ class LogbookController extends Controller
             // Ensure 'flagged_entries' is in your $fillable array if using a JSON column on your table
             'flagged_entries' => $validated['flagged_entries'] ?? [],
         ]);
+        AdminRecordChange::record($request->user(), $submission, 'Reviewed weekly logbook', $before);
 
         // Redirect back to the Logbook list page instead of back()
-        return redirect('/academic-supervisor/logbook')->with('success', 'Logbook review updated successfully.');
+        return redirect($request->user()->role === 'Admin'
+            ? route('admin.students.show', $submission->student_id)
+            : route('academic-supervisor.logbook'))->with('success', 'Logbook review updated successfully.');
     }
 }

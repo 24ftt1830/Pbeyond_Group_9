@@ -9,6 +9,8 @@ import {
     BriefcaseBusiness,
     CheckCircle2,
     AlertTriangle,
+    CalendarDays,
+    ClipboardList,
 } from 'lucide-react';
 import {
     BarChart,
@@ -40,8 +42,29 @@ type DashboardStats = {
     weekly_logbooks_approved: number;
     weekly_logbooks_needing_fixes: number;
     missing_logbooks: number;
+    missing_logbook_weeks: number;
     approaching_completion: number;
     requiring_intervention: number;
+};
+
+type ProgressStudent = {
+    student_id: number;
+    student_code: string | null;
+    full_name: string;
+    programme_name: string | null;
+    company_name: string | null;
+    start_date: string | null;
+    end_date: string | null;
+    missing_weeks?: number;
+    oldest_missing_week?: string | null;
+    monitoring_status?: 'Needs Attention' | 'At Risk';
+};
+
+type DashboardProgress = {
+    current_internships: ProgressStudent[];
+    missing_logbooks: ProgressStudent[];
+    approaching_completion: ProgressStudent[];
+    requiring_intervention: ProgressStudent[];
 };
 
 type Activity = {
@@ -58,6 +81,7 @@ type PageProps = {
     availableSemesters: number[];
     selectedSemester: number | null;
     activities: Activity[];
+    progress: DashboardProgress;
 };
 
 export default function AdminDashboard() {
@@ -66,6 +90,7 @@ export default function AdminDashboard() {
         availableSemesters,
         selectedSemester,
         activities,
+        progress,
     } = usePage().props as unknown as PageProps;
 
     const chartData = [
@@ -171,28 +196,77 @@ export default function AdminDashboard() {
                             link="/admin/quotas"
                         />
 
-                        <StatCard
-                            label="Approaching Completion"
-                            value={stats.approaching_completion}
-                            icon={<AlertCircle className="size-4" />}
-                        />
+                    </div>
 
-                        <div className="relative">
-                            <StatCard
-                                label="Requiring Intervention"
-                                value={stats.requiring_intervention}
-                                icon={<AlertTriangle className="size-4" />}
+                    {/* Internship Progress Tracking */}
+                    <section>
+                        <div className="mb-4">
+                            <h2 className="text-lg font-semibold text-zinc-900">
+                                Internship Progress Tracking
+                            </h2>
+                            <p className="mt-1 text-sm text-zinc-500">
+                                Active placements, overdue weekly logbooks, upcoming end dates, and current interns in flagged classes.
+                            </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+                            <ProgressCard
+                                title="Students Currently on Internship"
+                                description="Students whose internship dates include today."
+                                icon={<BriefcaseBusiness className="size-4" />}
+                                students={progress.current_internships}
+                                emptyMessage="No students are currently on internship."
+                                renderDetails={(student) => (
+                                    <>
+                                        <p>{student.company_name ?? 'Company not linked'}</p>
+                                        <p> {formatDate(student.start_date)} – {formatDate(student.end_date)}</p>
+                                    </>
+                                )}
                             />
 
-                            <Link
-                                href={route('admin.interventions')}
-                                className="absolute bottom-4 right-4 text-xs font-semibold text-blue-600 hover:text-blue-800"
-                            >
-                                View Students →
-                            </Link>
+                            <ProgressCard
+                                title="Students Missing Logbooks"
+                                description={`${stats.missing_logbook_weeks} overdue completed week${stats.missing_logbook_weeks === 1 ? '' : 's'}; the current week is not counted.`}
+                                icon={<ClipboardList className="size-4" />}
+                                students={progress.missing_logbooks}
+                                emptyMessage="No current interns have overdue weekly logbooks."
+                                renderDetails={(student) => (
+                                    <p>
+                                        {student.missing_weeks} missing week{student.missing_weeks === 1 ? '' : 's'} · oldest: {formatDate(student.oldest_missing_week ?? null)}
+                                    </p>
+                                )}
+                            />
+
+                            <ProgressCard
+                                title="Approaching Completion"
+                                description="Current internships ending within the next four weeks."
+                                icon={<CalendarDays className="size-4" />}
+                                students={progress.approaching_completion}
+                                emptyMessage="No current internships are ending within four weeks."
+                                renderDetails={(student) => (
+                                    <p>
+                                        Ends {formatDate(student.end_date)} · {student.company_name ?? 'Company not linked'}
+                                    </p>
+                                )}
+                            />
+
+                            <ProgressCard
+                                title="Students Requiring Intervention"
+                                description="Current interns in classes marked Needs Attention or At Risk by an Academic Supervisor."
+                                icon={<AlertTriangle className="size-4" />}
+                                students={progress.requiring_intervention}
+                                emptyMessage="No current interns are in classes flagged for intervention."
+                                actionHref={selectedSemester
+                                    ? route('admin.interventions', { semester: selectedSemester })
+                                    : route('admin.interventions')}
+                                renderDetails={(student) => (
+                                    <p>
+                                        {student.programme_name ?? 'Programme not set'} · {student.company_name ?? 'Company not linked'}
+                                    </p>
+                                )}
+                            />
                         </div>
-                        
-                    </div>
+                    </section>
 
                     {/* Weekly Logbook Tracking */}
                     <section>
@@ -225,11 +299,6 @@ export default function AdminDashboard() {
                                 icon={<AlertTriangle className="size-4" />}
                             />
 
-                            <StatCard
-                                label="Missing Logbooks"
-                                value={stats.missing_logbooks}
-                                icon={<AlertCircle className="size-4" />}
-                            />
                         </div>
                     </section>
 
@@ -443,6 +512,87 @@ function StatCard({
     );
 
     return link ? <Link href={link}>{card}</Link> : card;
+}
+
+function formatDate(value: string | null) {
+    if (!value) return '—';
+
+    const [year, month, day] = value.slice(0, 10).split('-').map(Number);
+    return new Intl.DateTimeFormat('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+    }).format(new Date(year, month - 1, day));
+}
+
+function ProgressCard({
+    title,
+    description,
+    icon,
+    students,
+    emptyMessage,
+    renderDetails,
+    actionHref,
+}: {
+    title: string;
+    description: string;
+    icon: React.ReactNode;
+    students: ProgressStudent[];
+    emptyMessage: string;
+    renderDetails: (student: ProgressStudent) => React.ReactNode;
+    actionHref?: string;
+}) {
+    return (
+        <Card className="border-zinc-200 shadow-none">
+            <CardHeader className="pb-3">
+                <div className="flex items-start justify-between gap-3">
+                    <div>
+                        <div className="flex items-center gap-2">
+                            <span className="text-zinc-500">{icon}</span>
+                            <CardTitle className="text-base">{title}</CardTitle>
+                        </div>
+                        <p className="mt-1 text-xs text-zinc-500">{description}</p>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-3">
+                        <span className="rounded-full bg-zinc-100 px-2.5 py-1 text-sm font-semibold text-zinc-800">
+                            {students.length}
+                        </span>
+                        {actionHref && (
+                            <Link href={actionHref} className="text-xs font-semibold text-blue-600 hover:text-blue-800">
+                                View all
+                            </Link>
+                        )}
+                    </div>
+                </div>
+            </CardHeader>
+            <CardContent>
+                {students.length === 0 ? (
+                    <p className="rounded-lg bg-zinc-50 px-4 py-5 text-sm text-zinc-500">{emptyMessage}</p>
+                ) : (
+                    <div className="max-h-80 space-y-2 overflow-y-auto pr-1">
+                        {students.map((student) => (
+                            <div key={student.student_id} className="rounded-lg border border-zinc-100 bg-zinc-50/70 px-3 py-2.5">
+                                <div className="flex items-start justify-between gap-3">
+                                    <div className="min-w-0">
+                                        <p className="truncate text-sm font-semibold text-zinc-900">{student.full_name}</p>
+                                        <p className="mt-0.5 text-xs text-zinc-500">
+                                            {student.student_code ?? 'No student ID'} · {student.programme_name ?? 'Programme not set'}
+                                        </p>
+                                    </div>
+                                    {student.monitoring_status && (
+                                        <Badge variant={student.monitoring_status === 'At Risk' ? 'destructive' : 'secondary'}>
+                                            {student.monitoring_status}
+                                        </Badge>
+                                    )}
+                                </div>
+                                <div className="mt-2 text-xs text-zinc-600">{renderDetails(student)}</div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </CardContent>
+        </Card>
+    );
 }
 
 AdminDashboard.layout = (page: React.ReactNode) => (

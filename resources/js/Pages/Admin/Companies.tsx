@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, router } from '@inertiajs/react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
 import CompanyDataTable from '@/Components/company-data-table';
 import DashboardCard from '@/Components/DashboardCards';
 import { Building2, LayoutGrid, User, UserCheck, SearchIcon, RotateCcw, Plus } from 'lucide-react';
@@ -21,6 +21,7 @@ import {
     DialogTrigger,
 } from "@/Components/ui/dialog";
 import { Label } from "@/Components/ui/label";
+import { Errors, RecordFeedback } from '@/Components/Admin/RecordControls';
 
 // --- Types ---
 interface Company {
@@ -60,7 +61,6 @@ export default function Companies({ stats, companies, quotas = [] }: Props) {
     const approvedQuotas = useMemo(() => quotas.filter(q => q.quota_status === 'Approved'), [quotas]);
 
     const [open, setOpen] = useState(false);
-    const [submitting, setSubmitting] = useState(false);
     const [activeTab, setActiveTab] = useState('all_companies');
     const [lastSeenCount, setLastSeenCount] = useState(0);
 
@@ -72,10 +72,14 @@ export default function Companies({ stats, companies, quotas = [] }: Props) {
     const pendingCount = pendingQuotas.length;
     const showBadge = pendingCount > lastSeenCount;
 
-    const [formData, setFormData] = useState({
+    const companyForm = useForm({
         company_name: '',
         industry_sector: '',
         office_address: '',
+        username: '',
+        email: '',
+        password: '',
+        access_key: '',
     });
 
     const [searchTerm, setSearchTerm] = useState('');
@@ -107,6 +111,11 @@ export default function Companies({ stats, companies, quotas = [] }: Props) {
         { accessorKey: "total_quota", header: "Total Quota" },
         { accessorKey: "filled", header: "Filled" },
         { accessorKey: "available", header: "Available" },
+        {
+            id: "manage",
+            header: "Actions",
+            cell: ({ row }: any) => <Link href={route('admin.companies.manage', row.original.company_id)} className="inline-flex rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Manage company</Link>,
+        },
     ], []);
 
     const allQuotasColumns = useMemo(() => [
@@ -173,19 +182,19 @@ export default function Companies({ stats, companies, quotas = [] }: Props) {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        setSubmitting(true);
-        router.post(route('admin.companies.store'), formData as any, {
+        companyForm.post(route('admin.companies.store'), {
             preserveScroll: true,
-            onFinish: () => setSubmitting(false),
             onSuccess: () => {
                 setOpen(false);
-                setFormData({ company_name: '', industry_sector: '', office_address: '' });
+                companyForm.reset();
+                companyForm.clearErrors();
             },
         });
     };
 
     return (
         <div className="p-6">
+            <RecordFeedback />
             <div className="flex items-center justify-between mb-6">
                 <header>
                     <h1 className="text-3xl font-sato font-bold">Company and Quota</h1>
@@ -198,22 +207,23 @@ export default function Companies({ stats, companies, quotas = [] }: Props) {
                             Add Company
                         </Button>
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-[425px]">
+                    <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-[560px]">
                         <form onSubmit={handleSubmit}>
                             <DialogHeader>
                                 <DialogTitle>Register New Company</DialogTitle>
-                                <DialogDescription>Add a new partner organization to the system.</DialogDescription>
+                                <DialogDescription>Register the company and create its linked HR / focal person login account in one step.</DialogDescription>
                             </DialogHeader>
                             <div className="grid gap-4 py-4">
                                 <div className="grid gap-2">
                                     <Label htmlFor="co-name">Company Name</Label>
-                                    <Input id="co-name" value={formData.company_name} onChange={(e) => setFormData({ ...formData, company_name: e.target.value })} required />
+                                    <Input id="co-name" maxLength={150} value={companyForm.data.company_name} onChange={(e) => companyForm.setData('company_name', e.target.value)} required />
                                 </div>
                                 <div className="grid gap-2">
                                     <Label htmlFor="co-category">Industrial Category</Label>
                                     <Select
-                                        value={formData.industry_sector}
-                                        onValueChange={(value) => setFormData({ ...formData, industry_sector: value })}
+                                        required
+                                        value={companyForm.data.industry_sector}
+                                        onValueChange={(value) => companyForm.setData('industry_sector', value)}
                                     >
                                         <SelectTrigger id="co-category" className="shadow-none">
                                             <SelectValue placeholder="Select category" />
@@ -231,8 +241,9 @@ export default function Companies({ stats, companies, quotas = [] }: Props) {
                                 <div className="grid gap-2">
                                     <Label htmlFor="co-location">District</Label>
                                     <Select
-                                        value={formData.office_address}
-                                        onValueChange={(value) => setFormData({ ...formData, office_address: value })}
+                                        required
+                                        value={companyForm.data.office_address}
+                                        onValueChange={(value) => companyForm.setData('office_address', value)}
                                     >
                                         <SelectTrigger id="co-location" className="shadow-none">
                                             <SelectValue placeholder="Select District" />
@@ -246,9 +257,34 @@ export default function Companies({ stats, companies, quotas = [] }: Props) {
                                     </Select>
                                 </div>
                             </div>
+                            <div className="mb-4 space-y-4 border-t pt-4">
+                                <h2 className="text-base font-semibold">Company HR / Focal Person Login</h2>
+                                <div className="grid gap-4 sm:grid-cols-2">
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="co-username">Username</Label>
+                                        <Input id="co-username" required maxLength={100} autoComplete="off" value={companyForm.data.username} onChange={(event) => companyForm.setData('username', event.target.value)} />
+                                    </div>
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="co-email">Email</Label>
+                                        <Input id="co-email" required type="email" maxLength={150} autoComplete="off" value={companyForm.data.email} onChange={(event) => companyForm.setData('email', event.target.value)} />
+                                    </div>
+                                </div>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="co-password">Password</Label>
+                                    <Input id="co-password" required type="password" minLength={8} autoComplete="new-password" value={companyForm.data.password} onChange={(event) => companyForm.setData('password', event.target.value)} />
+                                    <p className="text-xs text-muted-foreground">At least 8 characters.</p>
+                                </div>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="co-access-key">Company Access Key</Label>
+                                    <Input id="co-access-key" required inputMode="numeric" pattern="[0-9]{6}" minLength={6} maxLength={6} autoComplete="off" placeholder="6 digits" value={companyForm.data.access_key} onChange={(event) => companyForm.setData('access_key', event.target.value)} />
+                                    <p className="text-xs text-muted-foreground">Choose a unique six-digit key. The HR user enters it in “Log in as Company” before their email and password. Keep it with their login details.</p>
+                                </div>
+                                <Errors errors={companyForm.errors} />
+                            </div>
                             <DialogFooter>
-                                <Button type="submit" disabled={submitting} className="w-full">
-                                    {submitting ? 'Registering...' : 'Complete Registration'}
+                                <Button type="button" variant="outline" disabled={companyForm.processing} onClick={() => setOpen(false)}>Cancel</Button>
+                                <Button type="submit" disabled={companyForm.processing}>
+                                    {companyForm.processing ? 'Creating...' : 'Create Company & HR Account'}
                                 </Button>
                             </DialogFooter>
                         </form>

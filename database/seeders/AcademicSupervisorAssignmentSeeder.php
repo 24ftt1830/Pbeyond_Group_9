@@ -14,8 +14,6 @@ class AcademicSupervisorAssignmentSeeder extends Seeder
             ['email' => 'academic.supervisor@pb.edu.bn', 'class_id' => 1],
             // Nur Afiqah: Accounting.
             ['email' => 'academic.supervisor2@pb.edu.bn', 'class_id' => 6],
-            // Daniel: Nursing.
-            ['email' => 'academic.supervisor3@pb.edu.bn', 'class_id' => 13],
         ];
 
         $supervisorIds = [];

@@ -21,6 +21,7 @@ import {
     Headset,
     CalendarDays,
     ClipboardList, 
+    ClipboardCheck,
 } from "lucide-react";
 
 const data = {
@@ -46,9 +47,19 @@ const data = {
             icon: UserPlus,
         },
         {
+            title: "Student Records",
+            url: route('admin.students'),
+            icon: UserPlus,
+        },
+        {
             title: "Applications",   
             url: route('admin.applications'),
             icon: ClipboardList,
+        },
+        {
+            title: "Evaluations",
+            url: route('admin.evaluations'),
+            icon: ClipboardCheck,
         },
     ],
     navSecondary: [
@@ -97,7 +108,7 @@ export function AdminSidebar({ ...props }: React.ComponentProps<typeof Sidebar>)
 
             <SidebarContent className="gap-0">
                 <div className="pt-2">
-                    <NavMain items={data.navPrimary} label="Management" />
+                    <NavMain items={data.navPrimary} label="Superadmin Management" />
                 </div>
                 <SidebarSeparator />
                 <NavMain items={data.navSecondary} label="Resources" />
