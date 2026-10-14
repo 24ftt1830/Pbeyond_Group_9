@@ -17,6 +17,7 @@ type Student = {
 type Props = {
     students: Student[];
     selectedSemester: number | null;
+    selectedSemesterName: string | null;
 };
 
 function formatDate(value: string | null) {
@@ -30,7 +31,7 @@ function formatDate(value: string | null) {
     }).format(new Date(year, month - 1, day));
 }
 
-export default function Interventions({ students, selectedSemester }: Props) {
+export default function Interventions({ students, selectedSemester, selectedSemesterName }: Props) {
     const dashboardUrl = selectedSemester
         ? route('admin.dashboard', { semester: selectedSemester })
         : route('admin.dashboard');
@@ -51,8 +52,8 @@ export default function Interventions({ students, selectedSemester }: Props) {
                         </h1>
 
                         <p className="mt-1 text-sm text-slate-500">
-                            Current interns in classes marked as needing attention or at risk by an Academic Supervisor.
-                            {selectedSemester ? ` Filtered to Semester ${selectedSemester}.` : ''}
+                            Internship students marked as needing attention or at risk by an Academic Supervisor.
+                            {selectedSemesterName ? ` Filtered to ${selectedSemesterName}.` : ''}
                         </p>
                     </div>
 
@@ -62,11 +63,11 @@ export default function Interventions({ students, selectedSemester }: Props) {
                         {/* Card Header */}
                         <div className="border-b border-slate-200 px-6 py-5">
                             <h2 className="text-lg font-semibold text-slate-900">
-                                Current Interns in Flagged Classes
+                                Internship Students in Flagged Classes
                             </h2>
 
                             <p className="mt-1 text-sm text-slate-500">
-                                {students.length} current intern
+                                {students.length} student
                                 {students.length !== 1 ? 's' : ''} in a class marked for intervention.
                             </p>
                         </div>
@@ -75,7 +76,7 @@ export default function Interventions({ students, selectedSemester }: Props) {
                         {students.length === 0 ? (
                             <div className="px-6 py-10 text-center">
                                 <p className="text-sm text-slate-500">
-                                    No current interns are in classes flagged for intervention.
+                                    No students in this semester are in classes flagged for intervention.
                                 </p>
                             </div>
                         ) : (

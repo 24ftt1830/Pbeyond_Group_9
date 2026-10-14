@@ -128,6 +128,8 @@ interface Student {
     ic_number: string;
     ic_colour: string;
     intake_session: string;
+    intake_semester_id?: number | null;
+    intake_semester?: { id: number; name: string } | null;
     postal_address: string;
     date_of_birth: string;
     place_of_birth: string;
@@ -163,6 +165,7 @@ interface Student {
 interface ProfileProps {
     adminContext?: boolean;
     student: Student;
+    academicSemesters?: { id: number; name: string }[];
     canGenerateCv: boolean;
     missingProfileFields: string[];
     hasGeneratedCv: boolean;
@@ -173,7 +176,7 @@ interface ProfileFormData {
     full_name: string;
     ic_number: string;
     ic_colour: string;
-    intake_session: string;
+    intake_semester_id: string;
     postal_address: string;
     date_of_birth: string;
     place_of_birth: string;
@@ -286,6 +289,7 @@ const emptyLanguage = (): Language => ({
 export default function Profile({
     adminContext = false,
     student,
+    academicSemesters = [],
     canGenerateCv: profileCanGenerateCv,
     missingProfileFields = [],
     hasGeneratedCv,
@@ -324,7 +328,7 @@ export default function Profile({
         full_name: student.full_name || '',
         ic_number: student.ic_number || '',
         ic_colour: student.ic_colour || 'Yellow',
-        intake_session: student.intake_session || '',
+        intake_semester_id: String(student.intake_semester_id ?? ''),
         postal_address: student.postal_address || '',
         date_of_birth: formatDateForInput(student.date_of_birth),
         place_of_birth: student.place_of_birth || '',
@@ -934,19 +938,17 @@ export default function Profile({
 
                                 <div className="space-y-2">
 
-                                    <Label>
-                                        Intake Session
-                                    </Label>
-
-                                    <Input
-                                        value={data.intake_session}
-                                        onChange={e =>
-                                            setData(
-                                                'intake_session',
-                                                e.target.value
-                                            )
-                                        }
-                                    />
+                                    <Label>Intake Semester</Label>
+                                    {adminContext ? (
+                                        <Select value={data.intake_semester_id} onValueChange={value => setData('intake_semester_id', value)}>
+                                            <SelectTrigger><SelectValue placeholder="Select intake semester" /></SelectTrigger>
+                                            <SelectContent className="max-h-[250px] overflow-y-auto">
+                                                {academicSemesters.map(semester => <SelectItem key={semester.id} value={String(semester.id)}>{semester.name}</SelectItem>)}
+                                            </SelectContent>
+                                        </Select>
+                                    ) : (
+                                        <Input readOnly value={student.intake_semester?.name || student.intake_session || 'Not assigned'} />
+                                    )}
 
                                 </div>
 

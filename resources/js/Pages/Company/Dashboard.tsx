@@ -21,6 +21,15 @@ interface Application {
     quota?: { job_title?: string };
 }
 
+interface InternSetupItem {
+    student_id: number;
+    full_name: string;
+    student_code: string | null;
+    positions: string[];
+    needs_dates: boolean;
+    needs_supervisor: boolean;
+}
+
 interface Stats {
     total_applications: number;
     new_applications: number;
@@ -35,6 +44,7 @@ interface Props {
     applications: Application[];
     stats: Stats;
     completedOnboardingTasks?: string[];
+    internSetupQueue?: InternSetupItem[];
 }
 
 const statusClass = (status: string) => {
@@ -56,6 +66,7 @@ export default function Dashboard({
     applications = [],
     stats,
     completedOnboardingTasks = [],
+    internSetupQueue = [],
 }: Props) {
     const safeStats = stats ?? {
         total_applications: 0,
@@ -81,6 +92,49 @@ export default function Dashboard({
                 <DashboardPanel title="Company setup" description="Complete these steps to prepare your company for student applications.">
                     <div className="p-4 sm:p-5">
                         <ScrollAreaHorizontalDemo completedOnboardingTasks={completedOnboardingTasks} />
+                    </div>
+                </DashboardPanel>
+            )}
+
+            {internSetupQueue.length > 0 && (
+                <DashboardPanel
+                    title="Recruited interns to set up"
+                    description="Set internship dates and make sure each position has an Industry Supervisor."
+                    action={<span className="text-sm font-medium text-slate-500">{internSetupQueue.length} need setup</span>}
+                >
+                    <div className="divide-y divide-slate-100">
+                        {internSetupQueue.slice(0, 5).map((intern) => (
+                            <div key={intern.student_id} className="flex flex-col gap-3 px-5 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
+                                <div className="min-w-0">
+                                    <p className="truncate font-semibold text-slate-900">{intern.full_name}</p>
+                                    <p className="mt-1 truncate text-sm text-slate-500">
+                                        {intern.student_code ?? 'Student ID unavailable'}
+                                        {intern.positions.length > 0 ? ` · ${intern.positions.join(', ')}` : ''}
+                                    </p>
+                                    <div className="mt-2 flex flex-wrap gap-2">
+                                        {intern.needs_dates && <span className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-800">Dates needed</span>}
+                                        {intern.needs_supervisor && <span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700">Industry Supervisor needed</span>}
+                                    </div>
+                                </div>
+                                <div className="flex shrink-0 flex-wrap gap-2">
+                                    {intern.needs_dates && (
+                                        <Link href={route('company.interns')} className="inline-flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-50">
+                                            Set dates <ArrowRight className="size-4" />
+                                        </Link>
+                                    )}
+                                    {intern.needs_supervisor && (
+                                        <Link href={route('company.manage-users')} className="inline-flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-50">
+                                            Assign supervisor <ArrowRight className="size-4" />
+                                        </Link>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                        {internSetupQueue.length > 5 && (
+                            <p className="px-5 py-3 text-sm text-slate-500 sm:px-6">
+                                Showing 5 of {internSetupQueue.length} interns needing setup.
+                            </p>
+                        )}
                     </div>
                 </DashboardPanel>
             )}

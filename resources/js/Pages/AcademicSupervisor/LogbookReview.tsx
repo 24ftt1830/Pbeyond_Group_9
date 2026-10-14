@@ -166,9 +166,6 @@ export default function LogbookReview({ submission, entries, adminContext = fals
 
                 <main className="mx-auto max-w-7xl px-4 py-7 pb-32 sm:px-6 lg:px-8">
                     <div className="mb-6">
-                        <p className="text-sm font-medium text-blue-600">
-                            {adminContext ? 'Superadmin' : 'Academic Supervisor Portal'}
-                        </p>
                         <h2 className="mt-1 text-2xl font-bold tracking-tight">
                             Weekly Logbook Review
                         </h2>

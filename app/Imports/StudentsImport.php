@@ -4,12 +4,20 @@ namespace App\Imports;
 
 use App\Models\User;
 use App\Models\Student;
+use App\Models\AcademicSemester;
 use Illuminate\Support\Facades\Hash;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
 class StudentsImport implements ToModel, WithHeadingRow
 {
+    private string $intakeName;
+
+    public function __construct(private readonly int $intakeSemesterId)
+    {
+        $this->intakeName = AcademicSemester::query()->whereKey($intakeSemesterId)->value('name') ?? '';
+    }
+
     /**
      * @param array $row
      * @return \Illuminate\Database\Eloquent\Model|null
@@ -43,6 +51,8 @@ class StudentsImport implements ToModel, WithHeadingRow
             ['pb_student_code' => $studentCode],
             [
                 'programme_id' => $programmeId,
+                'intake_semester_id' => $this->intakeSemesterId,
+                'intake_session' => $this->intakeName,
                 'full_name'    => $fullName,
                 'cgpa'         => $cgpa,
             ]

@@ -90,6 +90,10 @@ Route::middleware('auth')->group(function () {
                 [App\Http\Controllers\Admin\DashboardController::class, 'index']
             )->name('dashboard');
 
+            Route::get('/academic-semesters', [App\Http\Controllers\Admin\AcademicSemesterController::class, 'index'])->name('academic-semesters');
+            Route::post('/academic-semesters', [App\Http\Controllers\Admin\AcademicSemesterController::class, 'store'])->name('academic-semesters.store');
+            Route::put('/academic-semesters/{semester}', [App\Http\Controllers\Admin\AcademicSemesterController::class, 'update'])->name('academic-semesters.update');
+
             // Superadmin management remains in the existing Admin portal.
             Route::get('/students', [App\Http\Controllers\Admin\StudentRecordController::class, 'index'])->name('students');
             Route::get('/students/{student}', [App\Http\Controllers\Admin\StudentRecordController::class, 'show'])->name('students.show');
@@ -153,6 +157,11 @@ Route::middleware('auth')->group(function () {
                     '/',
                     [App\Http\Controllers\Admin\CompanyController::class, 'store']
                 )->name('companies.store');
+
+                Route::post(
+                    '/import',
+                    [App\Http\Controllers\Admin\CompanyController::class, 'import']
+                )->name('companies.import');
 
                 Route::post(
                     '/{company}/approve',

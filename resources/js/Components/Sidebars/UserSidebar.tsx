@@ -5,16 +5,7 @@ import {
     SidebarTrigger,
     SidebarSeparator,
     SidebarFooter,
-    SidebarMenu,
-    SidebarMenuItem,
-    SidebarMenuButton,
 } from "@/Components/ui/sidebar"
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/Components/ui/dropdown-menu"
 import { NavMain } from "@/Components/nav-main"
 import { NavUser } from "@/Components/nav-user"
 import { usePage, Link } from '@inertiajs/react'
@@ -24,12 +15,7 @@ import {
     Building2,
     ClipboardList,
     BookOpen,
-    CalendarDays,
     FileText,
-    LifeBuoy,
-    Flag,
-    HelpCircle,
-    ChevronDown,
 } from "lucide-react";
 
 const data = {
@@ -57,19 +43,9 @@ const data = {
     ],
     navSecondary: [
         {
-            title: "Past Reports",
-            url: route('student.past-reports'),
-            icon: FileText,
-        },
-        {
             title: "Written Report",
             url: route('student.final-report'),
             icon: FileText,
-        },
-        {
-            title: "Calendar",
-            url: route('student.calendar'),
-            icon: CalendarDays,
         },
     ]
 }
@@ -109,41 +85,7 @@ export function UserSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) 
             </SidebarContent>
 
             <SidebarFooter>
-                {/* Support Dropdown */}
-                <SidebarMenu>
-                    <SidebarMenuItem>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <SidebarMenuButton size="sm" className="focus-visible:ring-0">
-                                    <LifeBuoy className="size-4" />
-                                    <span>Support</span>
-                                </SidebarMenuButton>
-                            </DropdownMenuTrigger>
-
-                            <DropdownMenuContent
-                                side="top"
-                                className="w-[--radix-popper-anchor-width]"
-                            >
-                                <DropdownMenuItem asChild>
-                                    <Link href={route('student.report-issue')}>
-                                        <Flag className="mr-2 size-4" />
-                                        <span>Report Issue</span>
-                                    </Link>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem asChild>
-                                    <Link href={route('student.faqs')}>
-                                        <HelpCircle className="mr-2 size-4" />
-                                        <span>FAQs</span>
-                                    </Link>
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    </SidebarMenuItem>
-                </SidebarMenu>
-
-                {/* User Account */}
-                    <NavUser user={auth.user} />
-
+                <NavUser user={auth.user} />
             </SidebarFooter>
         </Sidebar>
     )

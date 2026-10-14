@@ -68,7 +68,7 @@ export default function EvaluationResult({
             <Head title={`${submission.supervisor_type} Evaluation · ${student.full_name}`} />
 
             <main className="min-h-screen bg-slate-50 px-4 py-6 sm:px-6 lg:px-8">
-                <div className="mx-auto max-w-5xl space-y-6">
+                <div className="mx-auto max-w-6xl space-y-5">
                     <BackButton href={backHref}>Back to Student Details</BackButton>
                     {currentSubmission.reopened_at && <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">Reopened by Superadmin. The previous result remains visible for reference and is pending correction before it contributes to completion.</div>}
                     {viewer === 'admin' && <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border bg-white p-4">
@@ -77,93 +77,46 @@ export default function EvaluationResult({
                     </div>}
                     {currentSubmission.reopened_at && ((viewer === 'academic' && currentSubmission.supervisor_type === 'Academic Supervisor') || (viewer === 'industry' && currentSubmission.supervisor_type === 'Industry Supervisor')) && <Link className={linkClass} href={route(viewer === 'academic' ? 'academic-supervisor.student.evaluate' : 'industry-supervisor.student.evaluate', student.student_id)}>Revise evaluation</Link>}
 
-                    <header className="relative isolate overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-blue-950 to-blue-800 px-6 py-7 shadow-lg shadow-blue-950/10 sm:px-8 sm:py-9">
-                        <div className="pointer-events-none absolute -right-12 -top-24 h-72 w-72 rounded-full border-[40px] border-white/[0.04]" />
-                        <div className="relative flex flex-col justify-between gap-6 sm:flex-row sm:items-center">
-                            <div>
-                                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-200">
-                                    {submission.supervisor_type} · Evaluation Result
-                                </p>
-                                <h1 className="mt-2 text-2xl font-bold tracking-tight text-white sm:text-3xl">
-                                    {student.full_name}
-                                </h1>
-                                <div className="mt-4 flex flex-wrap gap-2">
-                                    <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-medium text-white/90">
-                                        <UserRound size={14} className="text-blue-200" />
-                                        {student.pb_student_code}
-                                    </span>
-                                    <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-medium text-white/90">
-                                        <ClipboardCheck size={14} className="text-blue-200" />
-                                        {submission.template_snapshot?.name ?? 'Evaluation'} · Version {submission.template_snapshot?.version ?? submission.template_version}
-                                    </span>
-                                    {submission.template_snapshot?.component_weight !== undefined && (
-                                        <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-medium text-white/90">
-                                            <GraduationCap size={14} className="text-blue-200" />
-                                            Component weight: {submission.template_snapshot.component_weight}%
-                                        </span>
-                                    )}
+                    <header className="flex flex-wrap items-center justify-between gap-5 rounded-xl border border-slate-200 bg-white px-5 py-5 sm:px-6">
+                        <div className="flex min-w-0 items-start gap-4">
+                            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600"><ClipboardCheck size={20} /></span>
+                            <div className="min-w-0">
+                                <p className="text-xs font-semibold uppercase tracking-wide text-indigo-600">{submission.supervisor_type} · Evaluation result</p>
+                                <h1 className="mt-1 break-words font-sato text-2xl font-bold text-slate-900 sm:text-3xl">{student.full_name}</h1>
+                                <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-500">
+                                    <span className="inline-flex items-center gap-1.5"><UserRound size={14} />{student.pb_student_code}</span>
+                                    <span>{submission.template_snapshot?.name ?? 'Evaluation'} · Version {submission.template_snapshot?.version ?? submission.template_version}</span>
+                                    {submission.template_snapshot?.component_weight !== undefined && <span className="inline-flex items-center gap-1.5"><GraduationCap size={14} />{submission.template_snapshot.component_weight}% of final score</span>}
                                 </div>
-                                {submission.submitted_at && (
-                                    <p className="mt-3 text-sm text-blue-100/80">
-                                        Submitted {new Date(submission.submitted_at).toLocaleString()}
-                                    </p>
-                                )}
+                                {submission.submitted_at && <p className="mt-1.5 text-xs text-slate-400">Submitted {new Date(submission.submitted_at).toLocaleString()}</p>}
                             </div>
-
-                            <div className="rounded-2xl border border-white/15 bg-white/10 px-6 py-4 text-white shadow-inner backdrop-blur-sm">
-                                <p className="text-xs font-semibold uppercase tracking-wide text-blue-200">{submission.reopened_at ? 'Previous evaluation score' : 'Evaluation score'}</p>
-                                <p className="mt-1 text-3xl font-bold">{submission.overall_score}%</p>
-                            </div>
+                        </div>
+                        <div className="min-w-32 rounded-lg bg-slate-50 px-4 py-3 text-right">
+                            <p className="text-xs font-medium text-slate-500">{submission.reopened_at ? 'Previous score' : 'Evaluation score'}</p>
+                            <p className="mt-0.5 text-2xl font-semibold tabular-nums text-slate-900">{submission.overall_score}%</p>
                         </div>
                     </header>
 
-                    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-                        <div className="mb-5 flex items-center gap-3 border-b border-slate-100 pb-4">
-                            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-700 ring-1 ring-blue-100">
-                                <ClipboardCheck size={20} />
-                            </span>
-                            <h2 className="text-base font-bold tracking-tight text-slate-900 sm:text-lg">Grading Results</h2>
-                        </div>
-
-                        <div className="space-y-6">
-                            {Object.entries(groupedAnswers).map(([section, answers]) => (
-                                <div key={section}>
-                                    <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                                        <h3 className="font-bold text-slate-900">{section}</h3>
-                                        {answers[0]?.section_weight !== undefined && (
-                                            <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700">
-                                                {answers[0].section_weight}%
-                                            </span>
-                                        )}
+                    <section className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+                        <div className="border-b border-slate-100 px-5 py-4 sm:px-6"><h2 className="text-base font-semibold text-slate-900">Grading results</h2></div>
+                        <div className="divide-y divide-slate-100 px-5 sm:px-6">
+                            {Object.entries(groupedAnswers).map(([section, answers], sectionIndex) => (
+                                <div key={section} className="py-4 first:pt-5 last:pb-5">
+                                    <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                                        <h3 className="text-sm font-semibold text-slate-800"><span className="mr-2 text-xs font-medium tabular-nums text-slate-400">{String(sectionIndex + 1).padStart(2, '0')}</span>{section}</h3>
+                                        {answers[0]?.section_weight !== undefined && <span className="text-xs tabular-nums text-slate-500">{answers[0].section_weight}%</span>}
                                     </div>
-                                    <div className="grid gap-3 sm:grid-cols-2">
-                                        {answers.map((answer, index) => (
-                                            <article key={`${answer.criterion}-${index}`} className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                                                <h4 className="font-semibold text-slate-900">{answer.criterion}</h4>
-                                                {answer.criterion_description && <p className="mt-1 text-sm leading-5 text-slate-500">{answer.criterion_description}</p>}
-                                                <div className="mt-4 flex items-start justify-between gap-3 border-t border-slate-200 pt-3">
-                                                    <div>
-                                                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Selected level</p>
-                                                        <p className="mt-1 font-semibold text-indigo-700">{answer.level}</p>
-                                                    </div>
-                                                    <span className="shrink-0 rounded-lg bg-white px-2.5 py-1.5 text-sm font-bold text-slate-700 ring-1 ring-slate-200">
-                                                        {answer.points} pts
-                                                    </span>
-                                                </div>
-                                                {answer.level_description && <p className="mt-3 text-sm leading-6 text-slate-600">{answer.level_description}</p>}
-                                            </article>
-                                        ))}
+                                    <div className="divide-y divide-slate-100 border-t border-slate-100">
+                                        {answers.map((answer, index) => <article key={`${answer.criterion}-${index}`} className="grid gap-2 py-3 sm:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_auto] sm:items-start sm:gap-5">
+                                            <div><h4 className="text-sm font-medium text-slate-800">{answer.criterion}</h4>{answer.criterion_description && <p className="mt-0.5 text-sm leading-5 text-slate-500">{answer.criterion_description}</p>}</div>
+                                            <div><p className="text-sm font-medium text-indigo-700">{answer.level}</p>{answer.level_description && <p className="mt-0.5 text-sm leading-5 text-slate-500">{answer.level_description}</p>}</div>
+                                            <span className="text-xs font-semibold tabular-nums text-slate-500 sm:pt-1">{answer.points} pts</span>
+                                        </article>)}
                                     </div>
                                 </div>
                             ))}
                         </div>
-
-                        {submission.comments && (
-                            <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-4">
-                                <h3 className="text-sm font-bold text-slate-800">Supervisor Comments</h3>
-                                <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-600">{submission.comments}</p>
-                            </div>
-                        )}
+                        {submission.comments && <div className="border-t border-slate-100 px-5 py-4 sm:px-6"><h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500">Supervisor comments</h3><p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-slate-700">{submission.comments}</p></div>}
                     </section>
                 </div>
             </main>

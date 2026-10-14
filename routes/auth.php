@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\CompanyKeyAccessController;
+use App\Http\Controllers\Auth\CompanyLoginController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\EmailVerificationPromptController;
@@ -25,17 +26,18 @@ Route::middleware('guest')->group(function () {
 
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
 
-    // Company Access Flow
     Route::get('company/key-access', [CompanyKeyAccessController::class, 'create'])
         ->name('company.key-access');
 
-    Route::post('company/key-access', [CompanyKeyAccessController::class, 'verify']);
+    Route::post('company/key-access', [CompanyKeyAccessController::class, 'verify'])
+        ->middleware('throttle:6,1');
 
-    Route::get('company/login', [CompanyKeyAccessController::class, 'showLoginForm'])
+    Route::get('company/login', [CompanyLoginController::class, 'create'])
         ->name('company.login-form');
 
-    Route::post('company/login', [CompanyKeyAccessController::class, 'login'])
-        ->name('company.login');
+    Route::post('company/login', [CompanyLoginController::class, 'login'])
+        ->name('company.login')
+        ->middleware('throttle:6,1');
 
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
         ->name('password.request');

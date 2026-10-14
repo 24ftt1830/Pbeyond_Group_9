@@ -12,16 +12,15 @@ import { usePage } from '@inertiajs/react'
 import { PageProps } from '@/types'
 import { Link } from '@inertiajs/react';
 import {
-    LayoutDashboard,
-    Users,
-    Building2,
+    GaugeCircle,
+    Factory,
     IdCardLanyard,
     UserPlus,
     ChartPie,
-    Headset,
-    CalendarDays,
-    ClipboardList, 
+    Files,
     ClipboardCheck,
+    ContactRound,
+    CalendarRange,
 } from "lucide-react";
 
 const data = {
@@ -29,12 +28,17 @@ const data = {
         {
             title: "Dashboard",
             url: route('admin.dashboard'),
-            icon: LayoutDashboard,
+            icon: GaugeCircle,
+        },
+        {
+            title: "Academic Semesters",
+            url: route('admin.academic-semesters'),
+            icon: CalendarRange,
         },
         {
             title: "Companies",
             url: route('admin.companies'),
-            icon: Building2,
+            icon: Factory,
         },
         {
             title: "Placements",
@@ -49,12 +53,12 @@ const data = {
         {
             title: "Student Records",
             url: route('admin.students'),
-            icon: UserPlus,
+            icon: ContactRound,
         },
         {
             title: "Applications",   
             url: route('admin.applications'),
-            icon: ClipboardList,
+            icon: Files,
         },
         {
             title: "Evaluations",
@@ -67,16 +71,6 @@ const data = {
             title: "Reports",
             url: route('admin.reports'),
             icon: ChartPie,
-        },
-        {
-            title: "Support",
-            url: route('admin.support'),
-            icon: Headset,
-        },
-        {
-            title: "Calendar",
-            url: route('admin.calendar'),
-            icon: CalendarDays,
         },
     ]
 }

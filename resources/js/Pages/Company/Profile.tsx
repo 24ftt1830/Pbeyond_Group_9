@@ -144,10 +144,23 @@ export default function Profile({ user }: Props) {
         description: user.company?.description || "",
         additional_information: user.company?.additional_information || "",
     });
+    const passwordForm = useForm({
+        current_password: "",
+        password: "",
+        password_confirmation: "",
+    });
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
         put(route("company.profile.update"));
+    };
+
+    const updatePassword = (e: React.FormEvent) => {
+        e.preventDefault();
+        passwordForm.put(route("password.update"), {
+            preserveScroll: true,
+            onSuccess: () => passwordForm.reset(),
+        });
     };
 
     return (
@@ -264,6 +277,62 @@ export default function Profile({ user }: Props) {
                                 </Button>
                             </div>
                         )}
+                    </form>
+                </CardContent>
+            </Card>
+
+            <Card className="shadow-none border">
+                <CardHeader>
+                    <CardTitle>Update Password</CardTitle>
+                    <CardDescription>Change the password for your Company HR account.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <form onSubmit={updatePassword} className="grid gap-4">
+                        <div className="grid gap-2">
+                            <Label htmlFor="current-password">Current Password</Label>
+                            <Input
+                                id="current-password"
+                                type="password"
+                                autoComplete="current-password"
+                                value={passwordForm.data.current_password}
+                                onChange={(event) => passwordForm.setData("current_password", event.target.value)}
+                                required
+                            />
+                            {passwordForm.errors.current_password && <p className="text-sm text-destructive">{passwordForm.errors.current_password}</p>}
+                        </div>
+                        <div className="grid gap-2">
+                            <Label htmlFor="new-password">New Password</Label>
+                            <Input
+                                id="new-password"
+                                type="password"
+                                minLength={8}
+                                autoComplete="new-password"
+                                value={passwordForm.data.password}
+                                onChange={(event) => passwordForm.setData("password", event.target.value)}
+                                required
+                            />
+                            {passwordForm.errors.password && <p className="text-sm text-destructive">{passwordForm.errors.password}</p>}
+                        </div>
+                        <div className="grid gap-2">
+                            <Label htmlFor="confirm-new-password">Confirm New Password</Label>
+                            <Input
+                                id="confirm-new-password"
+                                type="password"
+                                autoComplete="new-password"
+                                value={passwordForm.data.password_confirmation}
+                                onChange={(event) => passwordForm.setData("password_confirmation", event.target.value)}
+                                required
+                            />
+                            {passwordForm.errors.password_confirmation && <p className="text-sm text-destructive">{passwordForm.errors.password_confirmation}</p>}
+                        </div>
+                        <div className="flex justify-end">
+                            <div className="flex items-center gap-3">
+                                {passwordForm.recentlySuccessful && <p role="status" className="text-sm text-muted-foreground">Password updated.</p>}
+                                <Button type="submit" disabled={passwordForm.processing}>
+                                    {passwordForm.processing ? "Updating..." : "Update Password"}
+                                </Button>
+                            </div>
+                        </div>
                     </form>
                 </CardContent>
             </Card>

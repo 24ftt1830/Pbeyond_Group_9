@@ -305,6 +305,10 @@ export default function StudentDetails({ student, visits, evaluation, academicEv
     const workExperiences =
         student.workExperiences ?? student.work_experiences ?? [];
 
+    const reportReviewStatus = finalReport?.submitted_at
+        ? finalReport.academic_review_status
+        : 'Not Submitted';
+
     const completionChecklist = [
         {
             label: 'Company Internship Completion',
@@ -465,7 +469,7 @@ export default function StudentDetails({ student, visits, evaluation, academicEv
                                 )}
                             </div>
                             <div className="flex items-center gap-3">
-                                <span className={`rounded-full px-3 py-1 text-xs font-bold ${completionStatus === 'Completed' ? 'bg-emerald-100 text-emerald-800' : completionStatus === 'Incomplete' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800'}`}>{completionStatus}</span>
+                                <span className={`rounded-full px-3 py-1 text-xs font-bold ${reportReviewStatusTone(reportReviewStatus)}`}>{reportReviewStatus}</span>
                                 <Link href={route('academic-supervisor.student.final-report', student.student_id)} className="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-700">Review report</Link>
                             </div>
                         </div>
@@ -1310,6 +1314,13 @@ function InfoItem({
             </p>
         </div>
     );
+}
+
+function reportReviewStatusTone(status: string) {
+    if (status === 'Approved') return 'bg-emerald-100 text-emerald-800';
+    if (status === 'Changes Required') return 'bg-rose-100 text-rose-800';
+    if (status === 'Not Submitted') return 'bg-slate-100 text-slate-600';
+    return 'bg-amber-100 text-amber-800';
 }
 
 function completionStatusTone(status: 'Pending Evaluation' | 'Incomplete' | 'Completed') {

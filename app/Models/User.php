@@ -39,12 +39,12 @@ class User extends Authenticatable
             }
 
             if ($user->company_id === null) {
-                // Allow editing old unassigned accounts, but never create a new one.
+                // Allow editing old unassigned accounts, but new HR accounts need a company.
                 if ($user->exists && ! $user->isDirty('company_id')) {
                     return;
                 }
                 throw ValidationException::withMessages([
-                    'company_id' => 'An HR account must be created with its company through Add Company.',
+                    'company_id' => 'Select an existing company for this HR account.',
                 ]);
             }
 

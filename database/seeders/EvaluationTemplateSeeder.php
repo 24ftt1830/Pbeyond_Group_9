@@ -18,7 +18,7 @@ class EvaluationTemplateSeeder extends Seeder
                         'title' => 'Professional Learning',
                         'description' => 'Application of academic knowledge and learning during the internship.',
                         'weight' => 25,
-                        'criteria' => ['Application of Knowledge'],
+                        'criteria' => ['Application of Knowledge', 'Problem Solving and Initiative'],
                     ],
                     [
                         'title' => 'Reflection and Development',
@@ -69,7 +69,53 @@ class EvaluationTemplateSeeder extends Seeder
         ];
 
         foreach ($examples as $supervisorType => $example) {
-            if (EvaluationTemplate::where('supervisor_type', $supervisorType)->exists()) {
+            $template = EvaluationTemplate::where('supervisor_type', $supervisorType)
+                ->orderByDesc('version')
+                ->first();
+
+            if ($template) {
+                foreach ($example['sections'] as $sectionData) {
+                    $section = $template->sections()->where('title', $sectionData['title'])->first();
+                    if (!$section) {
+                        continue;
+                    }
+
+                    foreach ($sectionData['criteria'] as $criterionOrder => $criterionTitle) {
+                        if ($section->criteria()->where('title', $criterionTitle)->exists()) {
+                            continue;
+                        }
+
+                        $emptyCriterion = $section->criteria()
+                            ->where(fn ($query) => $query->whereNull('title')->orWhere('title', ''))
+                            ->with('ratingLevels')
+                            ->get()
+                            ->first(fn ($candidate) => blank($candidate->description)
+                                && $candidate->ratingLevels->every(fn ($level) => blank($level->title)
+                                    && blank($level->description)
+                                    && $level->points === null));
+
+                        if ($emptyCriterion) {
+                            $emptyCriterion->update([
+                                'title' => $criterionTitle,
+                                'description' => 'Assess the student’s performance against this criterion.',
+                                'sort_order' => $criterionOrder,
+                            ]);
+                            $emptyCriterion->ratingLevels()->delete();
+                            $criterion = $emptyCriterion;
+                        } else {
+                            $criterion = $section->criteria()->create([
+                                'title' => $criterionTitle,
+                                'description' => 'Assess the student’s performance against this criterion.',
+                                'sort_order' => $criterionOrder,
+                            ]);
+                        }
+
+                        foreach ($this->ratingLevels() as $levelOrder => $level) {
+                            $criterion->ratingLevels()->create($level + ['sort_order' => $levelOrder]);
+                        }
+                    }
+                }
+
                 continue;
             }
 

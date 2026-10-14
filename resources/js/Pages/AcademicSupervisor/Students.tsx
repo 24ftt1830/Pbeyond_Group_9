@@ -30,7 +30,6 @@ export default function Students({ students = [], assignedClass }: Props) {
                 <div className="mx-auto max-w-6xl space-y-6">
                     <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                         <div>
-                            <p className="text-sm font-semibold text-blue-700">Academic Supervisor Portal</p>
                             <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
                                 My Students
                             </h1>

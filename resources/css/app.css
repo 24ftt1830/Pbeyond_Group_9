@@ -138,6 +138,73 @@ html {
   }
 }
 
+/* Give every authenticated role page the same outer width and page gutter. */
+.main-scroll :where(.mx-auto.max-w-4xl, .mx-auto.max-w-6xl, .mx-auto.max-w-7xl) {
+  width: 100%;
+  max-width: 80rem;
+  padding-inline: 0;
+}
+
+.main-scroll > :not([data-sonner-toaster]) {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 80rem;
+  margin-inline: auto;
+  padding: 1.5rem 1rem;
+}
+
+@media (min-width: 640px) {
+  .main-scroll > :not([data-sonner-toaster]) {
+    padding-inline: 1.5rem;
+  }
+}
+
+/* Keep the portal eyebrow and page title consistent across authenticated pages. */
+.main-scroll > .role-page-label {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 0;
+  color: #1d4ed8;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.25rem;
+}
+
+/* The role eyebrow replaces the outer top gutter so it sits directly above the page heading. */
+.main-scroll.has-role-page-label > :not([data-sonner-toaster]):not(.role-page-label) {
+  padding-top: 0;
+}
+
+.main-scroll h1:not(.cv-header h1) {
+  margin-top: 0.25rem;
+  margin-bottom: 0;
+  font-size: 1.5rem;
+  font-family: inherit;
+  font-weight: 700;
+  line-height: 2rem;
+  letter-spacing: -0.025em;
+}
+
+.main-scroll h1:not(.cv-header h1) + p {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.5rem;
+  color: #64748b;
+}
+
+@media (min-width: 640px) {
+  .main-scroll > .role-page-label {
+    padding-inline: 1.5rem;
+  }
+
+  .main-scroll h1:not(.cv-header h1) {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+  }
+}
+
 @layer utilities {
   .inline-code {
     @apply bg-slate-100 text-slate-800 px-1.5 py-0.5 rounded-md text-[0.85em] border border-slate-200 mx-0.5 ml-1;

@@ -104,48 +104,23 @@ export default function Logbook({
         <>
             <Head title="Academic Supervisor - Logbook Review" />
 
-            <div className="min-h-screen bg-slate-50 text-slate-900">
-                {/* Header */}
-                <header className="border-b border-slate-200 bg-white">
-                    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-                        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-                            <div>
-                                <p className="mb-1 text-sm font-medium text-blue-600">
-                                    Academic Supervisor Portal
-                                </p>
+            <main className="min-h-full bg-slate-50 px-4 py-7 sm:px-6 lg:px-8">
+                <div className="mx-auto max-w-7xl space-y-6">
+                    {/* Header */}
+                    <header>
+                        <div>
+                            <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+                                Weekly Logbook Review
+                            </h1>
 
-                                <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
-                                    Weekly Logbook Review
-                                </h1>
-
-                                <p className="mt-1 text-sm text-slate-500">
-                                    Review weekly logbook submissions from
-                                    students.
-                                </p>
-                            </div>
-
-                            <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
-                                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
-                                    <FileText size={18} />
-                                </div>
-
-                                <div>
-                                    <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-                                        Total Submissions
-                                    </p>
-
-                                    <p className="text-sm font-bold text-slate-900">
-                                        {totalSubmissions}
-                                    </p>
-                                </div>
-                            </div>
+                            <p className="mt-1 text-sm text-slate-500">
+                                Review weekly logbook submissions from students.
+                            </p>
                         </div>
-                    </div>
-                </header>
+                    </header>
 
-                <main className="mx-auto max-w-7xl px-4 py-7 pb-12 sm:px-6 lg:px-8">
                     {/* KPI Summary */}
-                    <section className="mb-8 grid gap-4 md:grid-cols-3">
+                    <section className="grid gap-4 md:grid-cols-3">
                         {/* Pending */}
                         <div className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
                             <div className="flex items-start justify-between">
@@ -667,8 +642,8 @@ export default function Logbook({
                             </div>
                         )}
                     </section>
-                </main>
-            </div>
+                </div>
+            </main>
         </>
     );
 }

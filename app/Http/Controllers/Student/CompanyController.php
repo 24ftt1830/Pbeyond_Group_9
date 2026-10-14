@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Application;
 use App\Models\Company;
 use App\Models\PlacementQuota;
+use App\Models\AcademicSemester;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -15,12 +16,15 @@ class CompanyController extends Controller
     /** Display companies with approved, released quotas available to all students. */
     public function index()
     {
+        $student = Auth::user()->student;
+        $internshipSemesterId = AcademicSemester::internshipTermIdForIntake((int) $student?->intake_semester_id);
+
         $companies = Company::whereHas(
             'placementQuotas',
-            fn ($query) => $query->available()
+            fn ($query) => $query->available()->where('academic_semester_id', $internshipSemesterId ?? 0)
         )
         ->with([
-            'placementQuotas' => fn ($query) => $query->available(),
+            'placementQuotas' => fn ($query) => $query->available()->where('academic_semester_id', $internshipSemesterId ?? 0),
         ])
         ->get();
 
@@ -39,6 +43,7 @@ class CompanyController extends Controller
 
         return Inertia::render('Student/Companies', [
             'companies' => $companiesData,
+            'hasAssignedIntake' => $internshipSemesterId !== null,
         ]);
     }
 
@@ -47,9 +52,11 @@ class CompanyController extends Controller
     {
         $student = Auth::user()->student;
         $company = Company::findOrFail($id);
+        $internshipSemesterId = AcademicSemester::internshipTermIdForIntake((int) $student?->intake_semester_id);
 
         $quotas = PlacementQuota::available()
             ->where('company_id', $id)
+            ->where('academic_semester_id', $internshipSemesterId ?? 0)
             ->with('programmes')
             ->get();
 
@@ -81,6 +88,13 @@ class CompanyController extends Controller
             ]);
         }
 
+        $internshipSemesterId = AcademicSemester::internshipTermIdForIntake((int) $student->intake_semester_id);
+        if (!$internshipSemesterId) {
+            return back()->withErrors([
+                'message' => 'Your intake semester is not assigned or does not yet have an internship term.',
+            ]);
+        }
+
         if (empty($student->cv_generated_at) || empty($student->cv_snapshot)) {
             return back()->withErrors([
                 'message' => 'Generate your CV from your profile before applying for a position.',
@@ -103,6 +117,7 @@ class CompanyController extends Controller
         $quota = PlacementQuota::available()
             ->where('quota_id', $request->quota_id)
             ->where('company_id', $companyId)
+            ->where('academic_semester_id', $internshipSemesterId)
             ->first();
 
         if (!$quota) {

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\PlacementQuota;
 use App\Models\AdminRecordChange;
 use App\Models\Company;
+use App\Models\AcademicSemester;
 use App\Models\Programme;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -24,13 +25,15 @@ class QuotaController extends Controller
 
         $quotas = $user->company
             ? $user->company->placementQuotas()
-                ->with(['programme', 'programmes.school'])
+                ->with(['programme', 'programmes.school', 'academicSemester'])
+                ->withCount('applications')
                 ->latest()
                 ->get()
             : [];
 
         return Inertia::render('Company/Quotas', [
             'quotas' => $quotas,
+            'academicSemesters' => AcademicSemester::orderBy('starts_on')->get(['id', 'name', 'starts_on', 'ends_on']),
             'programmes' => Programme::with('school')
                 ->select(
                     'programme_id',
@@ -60,6 +63,7 @@ class QuotaController extends Controller
         }
 
         $validated = $request->validate([
+            'academic_semester_id' => ['required', 'exists:academic_semesters,id'],
             'programme_ids' => [
                 'required',
                 'array',
@@ -112,6 +116,7 @@ class QuotaController extends Controller
                 // Temporary compatibility with the old database column.
                 // The real programme selection is stored in quota_programme.
                 'programme_id' => $validated['programme_ids'][0],
+                'academic_semester_id' => $validated['academic_semester_id'],
 
                 'job_title' => $validated['job_title'],
                 'skills' => $validated['skills'] ?? [],
@@ -185,6 +190,7 @@ class QuotaController extends Controller
         }
 
         $validated = $request->validate([
+            'academic_semester_id' => ['required', 'exists:academic_semesters,id'],
             'programme_ids' => [
                 'required',
                 'array',
@@ -234,6 +240,15 @@ class QuotaController extends Controller
 
         DB::transaction(function () use ($quota, $validated, $user) {
             $quota = PlacementQuota::whereKey($quota->getKey())->lockForUpdate()->firstOrFail();
+            if (
+                auth()->user()->role !== 'Admin'
+                && (int) $validated['academic_semester_id'] !== (int) $quota->academic_semester_id
+                && $quota->applications()->exists()
+            ) {
+                throw ValidationException::withMessages([
+                    'academic_semester_id' => 'The internship term cannot be changed after students have applied.',
+                ]);
+            }
             if ($validated['total_slots'] < $quota->applications()->whereIn('app_status', ['Recruited', 'Approved'])->count()) {
                 throw ValidationException::withMessages(['total_slots' => 'Slots cannot be lower than the number of recruited students.']);
             }
@@ -241,6 +256,7 @@ class QuotaController extends Controller
             $quota->update([
                 // Temporary compatibility with the old database column.
                 'programme_id' => $validated['programme_ids'][0],
+                'academic_semester_id' => $validated['academic_semester_id'],
 
                 'job_title' => $validated['job_title'],
                 'skills' => $validated['skills'] ?? [],

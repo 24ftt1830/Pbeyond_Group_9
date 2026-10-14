@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Company;
 
 use App\Http\Controllers\Controller;
+use App\Models\AcademicSemester;
 use App\Models\Application;
 use App\Services\InternshipWorkflow;
 use Illuminate\Http\Request;
@@ -21,7 +22,7 @@ class InternController extends Controller
 
         $today = now()->startOfDay();
 
-        $interns = Application::query()
+        $applications = Application::query()
             ->where('app_status', 'Recruited')
             ->whereHas('quota', function ($query) use ($company) {
                 $query->where('company_id', $company->company_id);
@@ -32,12 +33,21 @@ class InternController extends Controller
                 'student.internship',
             ])
             ->orderByDesc('updated_at')
-            ->get()
-            ->groupBy('student_id')
-            ->map(function ($applications) use ($today) {
+            ->get();
+
+        $semestersByIntake = $applications->pluck('student.intake_semester_id')
+            ->filter()
+            ->unique()
+            ->mapWithKeys(fn ($intakeId) => [
+                $intakeId => AcademicSemester::internshipTermForIntake((int) $intakeId),
+            ]);
+
+        $interns = $applications->groupBy('student_id')
+            ->map(function ($applications) use ($today, $semestersByIntake) {
                 $application = $applications->first();
                 $student = $application->student;
                 $internship = $student?->internship;
+                $semester = $semestersByIntake->get($student?->intake_semester_id);
 
                 $internshipStatus = 'Dates not set';
 
@@ -64,6 +74,11 @@ class InternController extends Controller
                         ->values(),
                     'start_date' => $internship?->start_date?->toDateString(),
                     'end_date' => $internship?->end_date?->toDateString(),
+                    'internship_semester' => $semester ? [
+                        'name' => $semester->name,
+                        'starts_on' => $semester->starts_on->toDateString(),
+                        'ends_on' => $semester->ends_on->toDateString(),
+                    ] : null,
                     'internship_status' => $internshipStatus,
                 ];
             })

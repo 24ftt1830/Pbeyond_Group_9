@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\AdminRecordChange;
+use App\Models\AcademicSemester;
+use App\Models\Company;
 use App\Models\Programme;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -23,11 +25,12 @@ class UserManagementController extends Controller
         return Inertia::render('Admin/ManageUsers', [
             ...app(SupervisorManagementController::class)->accounts(),
             'programmes' => Programme::all(['programme_id', 'programme_name']),
+            'academicSemesters' => AcademicSemester::orderBy('starts_on')->get(['id', 'name', 'starts_on', 'ends_on']),
             'companyUsers' => User::where('role', 'Company')
                 ->with('company')
                 ->get(),
             'students' => User::where('role', 'Student')
-                ->with('student.programme')
+                ->with('student.programme', 'student.intakeSemester')
                 ->get(),
         ]);
     }
@@ -38,34 +41,81 @@ class UserManagementController extends Controller
             'username' => 'required|string|max:255|unique:users,username',
             'email' => 'required|string|email|max:255|unique:users,email',
             'password' => 'required|string|min:8',
-            'role' => 'required|in:Student',
-            'programme_id' => 'required|exists:programmes,programme_id',
-            'pb_student_code' => 'required|string|max:50|unique:students,pb_student_code',
+            'role' => 'required|in:Student,Company',
         ];
 
+        if ($request->input('role') === 'Company') {
+            $rules['company_id'] = [
+                'required',
+                'exists:companies,company_id',
+                Rule::unique('users', 'company_id')->where(fn ($query) => $query->where('role', 'Company')),
+            ];
+            $rules['access_key'] = ['required', 'digits:6'];
+        } else {
+            $rules['programme_id'] = 'required|exists:programmes,programme_id';
+            $rules['pb_student_code'] = 'required|string|max:50|unique:students,pb_student_code';
+            $rules['intake_semester_id'] = 'required|exists:academic_semesters,id';
+        }
+
         $validated = $request->validate($rules, [
-            'role.in' => 'HR accounts are created with Add Company. Manage Users only creates student accounts.',
+            'company_id.unique' => 'This company already has an HR account. Edit the existing account instead.',
+            'access_key.digits' => 'The company access key must contain exactly 6 digits.',
         ]);
 
+        if ($validated['role'] === 'Company') {
+            $keyIsInUse = Company::query()
+                ->whereNotNull('access_key')
+                ->where('company_id', '<>', $validated['company_id'])
+                ->get(['access_key'])
+                ->contains(fn (Company $company) => Hash::check($validated['access_key'], $company->access_key));
+
+            if ($keyIsInUse) {
+                throw ValidationException::withMessages([
+                    'access_key' => 'This access key is already assigned to another company. Choose a different 6-digit key.',
+                ]);
+            }
+        }
+
         try {
-            return DB::transaction(function () use ($validated) {
+            return DB::transaction(function () use ($validated, $request) {
                 $userData = [
                     'username' => $validated['username'],
                     'email' => $validated['email'],
                     'password' => Hash::make($validated['password']),
-                    'role' => 'Student',
+                    'role' => $validated['role'],
                 ];
+
+                if ($validated['role'] === 'Company') {
+                    $userData['company_id'] = $validated['company_id'];
+                }
 
                 $user = User::create($userData);
 
-                $user->student()->create([
-                    'pb_student_code' => $validated['pb_student_code'],
-                    'programme_id' => $validated['programme_id'],
-                    'full_name' => $validated['username'],
-                    'cgpa' => 0.0,
+                if ($validated['role'] === 'Student') {
+                    $intakeSemester = AcademicSemester::findOrFail($validated['intake_semester_id']);
+                    $user->student()->create([
+                        'pb_student_code' => $validated['pb_student_code'],
+                        'programme_id' => $validated['programme_id'],
+                        'intake_semester_id' => $intakeSemester->id,
+                        'intake_session' => $intakeSemester->name,
+                        'full_name' => $validated['username'],
+                        'cgpa' => 0.0,
+                    ]);
+
+                    return redirect()->route('admin.manage-users')->with('success', 'Student account created successfully.');
+                }
+
+                $company = Company::where('company_id', $validated['company_id'])
+                    ->lockForUpdate()
+                    ->firstOrFail();
+                $company->update([
+                    'access_key' => Hash::make($validated['access_key']),
+                    'access_key_expires_at' => null,
                 ]);
 
-                return redirect()->route('admin.manage-users')->with('success', 'Student account created successfully.');
+                AdminRecordChange::record($request->user(), $user, 'Created company HR account');
+
+                return redirect()->route('admin.manage-users')->with('success', 'Company HR account created successfully.');
             });
 
         } catch (\Exception $e) {
@@ -90,20 +140,59 @@ class UserManagementController extends Controller
             $rules['full_name'] = 'sometimes|required|string|max:255';
             $rules['programme_id'] = 'sometimes|required|exists:programmes,programme_id';
             $rules['pb_student_code'] = "sometimes|required|string|max:50|unique:students,pb_student_code,{$user->student?->student_id},student_id";
+            $rules['intake_semester_id'] = 'sometimes|required|exists:academic_semesters,id';
         } else {
             $rules['company_id'] = [
-                'sometimes', $user->company_id === null ? 'nullable' : 'required',
-                Rule::in([$user->company_id]),
+                'sometimes',
+                'required',
+                'exists:companies,company_id',
+                Rule::unique('users', 'company_id')
+                    ->where(fn ($query) => $query->where('role', 'Company'))
+                    ->ignore($id, 'user_id'),
             ];
+            $rules['access_key'] = ['nullable', 'digits:6'];
         }
 
         $validated = $request->validate($rules, [
-            'company_id.in' => 'The HR account stays linked to its existing company. Edit its login details instead.',
+            'company_id.unique' => 'This company already has an HR account. Choose a company without an HR account.',
             'company_id.required' => 'The HR account must remain linked to its company.',
+            'access_key.digits' => 'The company access key must contain exactly 6 digits.',
         ]);
 
+        if ($user->role === 'Student'
+            && isset($validated['intake_semester_id'])
+            && (int) $validated['intake_semester_id'] !== (int) $user->student?->intake_semester_id
+            && $user->student?->applications()->exists()) {
+            throw ValidationException::withMessages([
+                'intake_semester_id' => 'A student’s intake cannot be changed after they have submitted an internship application.',
+            ]);
+        }
+
+        $companyChanged = $user->role === 'Company'
+            && (int) ($validated['company_id'] ?? $user->company_id) !== (int) $user->company_id;
+
+        if ($companyChanged && blank($validated['access_key'] ?? null)) {
+            throw ValidationException::withMessages([
+                'access_key' => 'Enter a new 6-digit access key when assigning this HR account to a different company.',
+            ]);
+        }
+
+        if ($user->role === 'Company' && filled($validated['access_key'] ?? null)) {
+            $keyIsInUse = Company::query()
+                ->whereNotNull('access_key')
+                ->where('company_id', '<>', $validated['company_id'] ?? $user->company_id)
+                ->get(['access_key'])
+                ->contains(fn (Company $company) => Hash::check($validated['access_key'], $company->access_key));
+
+            if ($keyIsInUse) {
+                throw ValidationException::withMessages([
+                    'access_key' => 'This access key is already assigned to another company. Choose a different 6-digit key.',
+                ]);
+            }
+        }
+
         try {
-            DB::transaction(function () use ($user, $validated, $request) {
+            DB::transaction(function () use ($user, $validated, $request, $companyChanged) {
                 $before = $user->toArray();
                 $updateData = [];
                 if (!empty($validated['password'])) {
@@ -115,7 +204,50 @@ class UserManagementController extends Controller
                 if ($request->has('email')) {
                     $updateData['email'] = $validated['email'];
                 }
+
+                if ($user->role === 'Company' && $companyChanged) {
+                    $companyIds = collect([$user->company_id, $validated['company_id']])
+                        ->filter()
+                        ->unique()
+                        ->sort()
+                        ->values();
+                    $lockedCompanies = Company::whereIn('company_id', $companyIds)
+                        ->orderBy('company_id')
+                        ->lockForUpdate()
+                        ->get()
+                        ->keyBy('company_id');
+
+                    $targetHasAnotherHr = User::query()
+                        ->where('role', 'Company')
+                        ->where('company_id', $validated['company_id'])
+                        ->where('user_id', '<>', $user->user_id)
+                        ->exists();
+
+                    if ($targetHasAnotherHr) {
+                        throw ValidationException::withMessages([
+                            'company_id' => 'This company already has an HR account. Choose another company.',
+                        ]);
+                    }
+
+                    $lockedCompanies->get($user->company_id)?->update([
+                        'access_key' => null,
+                        'access_key_expires_at' => null,
+                    ]);
+                    $lockedCompanies->get($validated['company_id'])?->update([
+                        'access_key' => Hash::make($validated['access_key']),
+                        'access_key_expires_at' => null,
+                    ]);
+                    $updateData['company_id'] = $validated['company_id'];
+                }
+
                 $user->update($updateData);
+
+                if ($user->role === 'Company' && !$companyChanged && filled($validated['access_key'] ?? null)) {
+                    $user->company?->update([
+                        'access_key' => Hash::make($validated['access_key']),
+                        'access_key_expires_at' => null,
+                    ]);
+                }
 
                 if ($user->role === 'Student') {
                     $studentData = [];
@@ -127,6 +259,11 @@ class UserManagementController extends Controller
                     }
                     if ($request->has('pb_student_code')) {
                         $studentData['pb_student_code'] = $validated['pb_student_code'];
+                    }
+                    if ($request->has('intake_semester_id')) {
+                        $intakeSemester = AcademicSemester::findOrFail($validated['intake_semester_id']);
+                        $studentData['intake_semester_id'] = $intakeSemester->id;
+                        $studentData['intake_session'] = $intakeSemester->name;
                     }
 
                     if (! empty($studentData)) {
@@ -143,6 +280,9 @@ class UserManagementController extends Controller
 
             return redirect()->route('admin.manage-users')->with('success', 'User updated successfully.');
         } catch (\Exception $e) {
+            if ($e instanceof ValidationException) {
+                throw $e;
+            }
             Log::error('User Update Error: '.$e->getMessage());
 
             return back()->withErrors(['message' => 'Failed to update user details.']);
@@ -165,12 +305,13 @@ class UserManagementController extends Controller
 
     public function import(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'file' => 'required|mimes:csv,txt,xlsx,xls',
+            'intake_semester_id' => 'required|exists:academic_semesters,id',
         ]);
 
-        DB::transaction(function () use ($request) {
-            Excel::import(new StudentsImport, $request->file('file'));
+        DB::transaction(function () use ($request, $validated) {
+            Excel::import(new StudentsImport((int) $validated['intake_semester_id']), $request->file('file'));
         });
 
         return redirect()->route('admin.manage-users')->with('success', 'Batch import completed successfully.');

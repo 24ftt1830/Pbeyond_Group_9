@@ -29,7 +29,7 @@ import {
 import QuotaCard from '@/Components/QuotaCard';
 import QuotaNumberInput from '@/Components/QuotaNumberInput';
 
-export default function Quotas({ quotas = [], programmes = [], company }: any) {
+export default function Quotas({ quotas = [], programmes = [], company, academicSemesters = [] }: any) {
 
     const [searchTerm, setSearchTerm] = useState('');
     const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -48,6 +48,7 @@ export default function Quotas({ quotas = [], programmes = [], company }: any) {
         reset,
         errors,
     } = useForm({
+        academic_semester_id: '',
         programme_ids: [] as number[],
         total_slots: 1,
         job_title: '',
@@ -84,6 +85,7 @@ export default function Quotas({ quotas = [], programmes = [], company }: any) {
                 : []);
 
         setData({
+            academic_semester_id: String(quota.academic_semester_id ?? ''),
             programme_ids: existingProgrammeIds,
             total_slots: quota.total_slots,
             job_title: quota.job_title,
@@ -270,6 +272,22 @@ export default function Quotas({ quotas = [], programmes = [], company }: any) {
                                                 {errors.job_title}
                                             </p>
                                         )}
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label>Internship Term</Label>
+                                        <select
+                                            required
+                                            disabled={Boolean(editingQuota?.applications_count || editingQuota?.applications?.length)}
+                                            value={data.academic_semester_id}
+                                            onChange={(event) => setData('academic_semester_id', event.target.value)}
+                                            className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm shadow-none disabled:opacity-60"
+                                        >
+                                            <option value="">Select semester</option>
+                                            {academicSemesters.map((semester: any) => <option key={semester.id} value={String(semester.id)}>{semester.name}</option>)}
+                                        </select>
+                                        {errors.academic_semester_id && <p className="text-sm text-red-500">{errors.academic_semester_id}</p>}
+                                        {Boolean(editingQuota?.applications_count || editingQuota?.applications?.length) && <p className="text-xs text-muted-foreground">The term is locked after a student applies.</p>}
                                     </div>
 
                                     {/* Required Skills Input */}
@@ -575,6 +593,7 @@ export default function Quotas({ quotas = [], programmes = [], company }: any) {
                                             type="submit"
                                             disabled={
                                                 processing ||
+                                                !data.academic_semester_id ||
                                                 !data.job_title ||
                                                 !programmeSelectionValid ||
                                                 !data.total_slots

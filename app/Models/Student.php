@@ -26,7 +26,7 @@ class Student extends Model
 
     protected $fillable = [
         'pb_student_code', 'user_id', 'full_name', 'ic_number', 'ic_colour',
-        'programme_id', 'intake_session', 'current_semester', 'postal_address', 'date_of_birth',
+        'programme_id', 'intake_session', 'intake_semester_id', 'current_semester', 'postal_address', 'date_of_birth',
         'place_of_birth', 'gender', 'religion', 'nationality', 'race',
         'mobile_phone', 'cgpa', 'work_experience', 'emergency_no',
         'cv_file_path', 'vetting_status', 'cv_generated_at', 'cv_snapshot',
@@ -49,6 +49,11 @@ class Student extends Model
     public function programme()
     {
         return $this->belongsTo(Programme::class, 'programme_id', 'programme_id');
+    }
+
+    public function intakeSemester()
+    {
+        return $this->belongsTo(AcademicSemester::class, 'intake_semester_id');
     }
 
     public function skills()

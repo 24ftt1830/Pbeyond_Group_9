@@ -19,12 +19,13 @@ interface Company {
 
 interface Props {
     companies: Company[];
+    hasAssignedIntake?: boolean;
 }
 
 const districtOptions = ['Brunei Muara', 'Tutong', 'Temburong', 'Belait'];
 const statusOptions = ['Available', 'Full'];
 
-export default function Companies({ companies = [] }: Props) {
+export default function Companies({ companies = [], hasAssignedIntake = true }: Props) {
     const { flash } = usePage().props as any;
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedDistricts, setSelectedDistricts] = useState<string[]>([]);
@@ -206,10 +207,13 @@ export default function Companies({ companies = [] }: Props) {
             )}
 
             <div className="mt-4 w-full overflow-hidden bg-white">
-                <DataTable
-                    columns={columns}
-                    data={filteredCompanies}
-                />
+                {!hasAssignedIntake ? (
+                    <div className="rounded-xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-900">
+                        An internship term is not available for your assigned intake yet. Ask the Admin to check your intake and the semester list before you apply.
+                    </div>
+                ) : (
+                    <DataTable columns={columns} data={filteredCompanies} />
+                )}
             </div>
         </div>
     );

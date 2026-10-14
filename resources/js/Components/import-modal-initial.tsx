@@ -24,14 +24,21 @@ interface Programme {
     programme_name: string;
 }
 
+interface AcademicSemester {
+    id: number;
+    name: string;
+}
+
 export function ImportModal({ 
     form, 
     onComplete, 
-    programmes 
+    programmes,
+    academicSemesters,
 }: { 
     form: any; 
     onComplete: () => void; 
     programmes: Programme[]; 
+    academicSemesters: AcademicSemester[];
 }) {
     const FORCE_INSTRUCTIONS = true;
 
@@ -94,6 +101,19 @@ export function ImportModal({
                     </DialogHeader>
 
                     <div className="grid gap-6 py-4">
+                        <div className="space-y-2">
+                            <label htmlFor="student-import-intake" className="text-sm font-medium text-slate-700">Intake semester for this import</label>
+                            <select
+                                id="student-import-intake"
+                                value={form.data.intake_semester_id}
+                                onChange={(event) => form.setData('intake_semester_id', event.target.value)}
+                                className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm"
+                            >
+                                <option value="">Select intake semester</option>
+                                {academicSemesters.map((semester) => <option key={semester.id} value={String(semester.id)}>{semester.name}</option>)}
+                            </select>
+                        </div>
+
                         {/* 1. Primary Action: The Upload Zone */}
                         <div
                             className={cn(
@@ -185,7 +205,7 @@ export function ImportModal({
                     <DialogFooter>
                         <Button
                             onClick={onComplete}
-                            disabled={form.processing || !form.data.file}
+                            disabled={form.processing || !form.data.file || !form.data.intake_semester_id}
                             className="w-full"
                         >
                             {form.processing ? 'Importing...' : 'Import'}

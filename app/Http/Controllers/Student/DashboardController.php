@@ -16,34 +16,23 @@ class DashboardController extends Controller
     {
         $student = $request->user()->student;
 
-        // Students from every programme can browse all approved and released quotas.
+        // Summarize approved and released quotas without loading full company records.
         $quotas = PlacementQuota::available()
-            ->with([
-                'company:company_id,company_name,office_address',
-                'applications' => function ($query) {
+            ->select(['quota_id', 'total_slots'])
+            ->withCount([
+                'applications as recruited_applications_count' => function ($query) {
                     $query->where('app_status', 'Recruited');
-                }
+                },
             ])
             ->get();
 
-        $quotasWithStats = $quotas->map(function ($quota) {
-            $filled = $quota->applications->count();
-            $available = $quota->total_slots - $filled;
-
-            return [
-                'quota_id'       => $quota->quota_id,
-                'position_title' => $quota->job_title,
-                'total_slots'    => $quota->total_slots,
-                'filled'         => $filled,
-                'available'      => max(0, $available),
-                'is_full'        => $available <= 0,
-                'company'        => [
-                    'company_id'     => $quota->company->company_id,
-                    'company_name'   => $quota->company->company_name,
-                    'office_address' => $quota->company->office_address ?? 'Brunei Muara',
-                ],
-            ];
-        });
+        $availableSlots = $quotas->sum(fn ($quota) => max(
+            0,
+            $quota->total_slots - $quota->recruited_applications_count,
+        ));
+        $openPositions = $quotas->filter(fn ($quota) =>
+            $quota->total_slots - $quota->recruited_applications_count > 0
+        )->count();
 
         $applications = $student->applications()
             ->with('quota.company')
@@ -62,20 +51,33 @@ class DashboardController extends Controller
         $recruitedApplications = (clone $studentApplications)
             ->where('app_status', 'Recruited')
             ->count();
+        $activeApplications = (clone $studentApplications)
+            ->whereNotIn('app_status', ['Recruited', 'Declined'])
+            ->count();
 
-        $completedOnboardingTasks = $student?->completed_onboarding_tasks ?? [];
         $missingLogbookWeeks = app(LogbookTracking::class)->missingWeeks($student);
+        $internship = $student->internship;
+        $today = now()->toDateString();
+        $internshipSummary = $internship ? [
+            'start_date' => $internship->start_date->toDateString(),
+            'end_date' => $internship->end_date->toDateString(),
+            'phase' => $today < $internship->start_date->toDateString()
+                ? 'upcoming'
+                : ($today > $internship->end_date->toDateString() ? 'ended' : 'active'),
+        ] : null;
 
         return Inertia::render('Student/Dashboard', [
-            'availableQuotas'          => $quotasWithStats,
-            'completedOnboardingTasks' => $student->completed_onboarding_tasks ?? [],
             'recentApplications' => $applications,
             'missingLogbookWeeks' => $missingLogbookWeeks,
+            'studentName' => $student->full_name ?: $request->user()->name,
+            'profileComplete' => $student->isProfileComplete(),
+            'cvGenerated' => !empty($student->cv_snapshot) && !empty($student->cv_generated_at),
+            'internship' => $internshipSummary,
             'stats' => [
-                'open_positions' => $quotasWithStats->where('is_full', false)->count(),
-                'available_slots' => $quotasWithStats->sum('available'),
+                'open_positions' => $openPositions,
+                'available_slots' => $availableSlots,
                 'applications' => $student->applications()->count(),
-                'pending_applications' => (clone $studentApplications)->where('app_status', 'Pending')->count(),
+                'active_applications' => $activeApplications,
                 'recruited_applications' => $recruitedApplications,
             ],
         ]);

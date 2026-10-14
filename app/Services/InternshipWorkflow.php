@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\AcademicSupervisor;
+use App\Models\AcademicSemester;
 use App\Models\AdminRecordChange;
 use App\Models\Application;
 use App\Models\IndustrySupervisor;
@@ -10,6 +11,7 @@ use App\Models\InternshipCompletion;
 use App\Models\Student;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Carbon;
 use Illuminate\Validation\ValidationException;
 
 class InternshipWorkflow
@@ -18,6 +20,33 @@ class InternshipWorkflow
     {
         if (!$student->applications()->where('app_status', 'Recruited')->exists()) {
             throw ValidationException::withMessages(['start_date' => 'Recruit the student before setting internship dates.']);
+        }
+
+        if ($actor->role !== 'Admin') {
+            $semester = AcademicSemester::internshipTermForIntake((int) $student->intake_semester_id);
+
+            if (!$semester) {
+                throw ValidationException::withMessages([
+                    'start_date' => 'Ask Admin to assign this student’s intake and configure their semester 5 period before setting internship dates.',
+                ]);
+            }
+
+            $earliestDate = $semester->starts_on->copy()->startOfDay();
+            $latestDate = $semester->ends_on->copy()->startOfDay();
+            $allowedRange = $earliestDate->format('j M Y') . ' to ' . $latestDate->format('j M Y');
+            $errors = [];
+
+            foreach (['start_date' => 'Start date', 'end_date' => 'End date'] as $field => $label) {
+                $date = Carbon::parse($dates[$field])->startOfDay();
+
+                if ($date->lt($earliestDate) || $date->gt($latestDate)) {
+                    $errors[$field] = "{$label} must be within semester 5 ({$semester->name}): {$allowedRange}. Contact Admin for dates outside this period.";
+                }
+            }
+
+            if ($errors !== []) {
+                throw ValidationException::withMessages($errors);
+            }
         }
 
         DB::transaction(function () use ($student, $dates, $actor) {

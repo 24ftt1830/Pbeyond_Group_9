@@ -41,9 +41,54 @@ class DashboardController extends Controller
             'application_count' => $quota->applications()->count(),
         ]);
 
+        $internSetupQueue = Application::query()
+            ->whereIn('quota_id', $quotaIds)
+            ->where('app_status', 'Recruited')
+            ->with([
+                'student.programme',
+                'student.internship',
+                'quota.industrySupervisors',
+            ])
+            ->orderByDesc('updated_at')
+            ->get()
+            ->groupBy('student_id')
+            ->map(function ($applications) {
+                $application = $applications->first();
+                $student = $application->student;
+
+                if (!$student) {
+                    return null;
+                }
+
+                $needsDates = !$student->internship?->start_date || !$student->internship?->end_date;
+                $positionsWithoutSupervisor = $applications
+                    ->filter(fn ($item) => !$item->quota || $item->quota->industrySupervisors->isEmpty());
+                $needsSupervisor = $positionsWithoutSupervisor->isNotEmpty();
+
+                if (!$needsDates && !$needsSupervisor) {
+                    return null;
+                }
+
+                return [
+                    'student_id' => $student->student_id,
+                    'full_name' => $student->full_name ?? 'Student',
+                    'student_code' => $student->pb_student_code,
+                    'positions' => $applications
+                        ->map(fn ($item) => $item->quota?->job_title)
+                        ->filter()
+                        ->unique()
+                        ->values(),
+                    'needs_dates' => $needsDates,
+                    'needs_supervisor' => $needsSupervisor,
+                ];
+            })
+            ->filter()
+            ->values();
+
         return Inertia::render('Company/Dashboard', [
             'quotas' => $quotaOverview,
             'applications' => $applications,
+            'internSetupQueue' => $internSetupQueue,
             'completedOnboardingTasks' => $completedTasks,
             'stats' => [
                 'total_applications' => $totalApplications,

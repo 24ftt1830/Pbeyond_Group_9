@@ -20,6 +20,7 @@ type Intern = {
     positions: string[];
     start_date: string | null;
     end_date: string | null;
+    internship_semester: { name: string; starts_on: string; ends_on: string } | null;
     internship_status: 'Dates not set' | 'Upcoming' | 'In Progress' | 'Ended';
 };
 
@@ -56,6 +57,23 @@ export default function Interns({ interns = [], companyName }: Props) {
     const [selectedIntern, setSelectedIntern] = useState<Intern | null>(null);
     const [dialogOpen, setDialogOpen] = useState(false);
     const form = useForm({ start_date: '', end_date: '' });
+
+    const semester = selectedIntern?.internship_semester ?? null;
+    const allowedRange = semester ? `${formatDate(semester.starts_on)} – ${formatDate(semester.ends_on)}` : '';
+    const startOutsideSemester = Boolean(semester && form.data.start_date && (
+        form.data.start_date < semester.starts_on || form.data.start_date > semester.ends_on
+    ));
+    const endOutsideSemester = Boolean(semester && form.data.end_date && (
+        form.data.end_date < semester.starts_on || form.data.end_date > semester.ends_on
+    ));
+    const endBeforeStart = Boolean(form.data.start_date && form.data.end_date && form.data.end_date < form.data.start_date);
+    const earliestEndDate = semester && form.data.start_date > semester.starts_on
+        ? form.data.start_date
+        : semester?.starts_on;
+    const startDateError = form.errors.start_date || (startOutsideSemester ? `Choose a date within ${allowedRange}.` : '');
+    const endDateError = form.errors.end_date || (endOutsideSemester
+        ? `Choose a date within ${allowedRange}.`
+        : endBeforeStart ? 'End date must be on or after the start date.' : '');
 
     const summary = useMemo(() => ({
         total: interns.length,
@@ -192,26 +210,37 @@ export default function Interns({ interns = [], companyName }: Props) {
                         <DialogHeader>
                             <DialogTitle>{selectedIntern?.start_date || selectedIntern?.end_date ? 'Edit internship dates' : 'Set internship dates'}</DialogTitle>
                             <DialogDescription>
-                                Set the confirmed internship period for {selectedIntern?.full_name ?? 'this student'}. These dates can be updated later.
+                                Set the confirmed internship period for {selectedIntern?.full_name ?? 'this student'} within their semester 5 dates.
                             </DialogDescription>
                         </DialogHeader>
 
                         <div className="space-y-4 py-5">
+                            {semester ? (
+                                <div className="space-y-1 rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm">
+                                    <p className="font-medium text-slate-900">Semester 5 · {semester.name}</p>
+                                    <p className="text-slate-600">{allowedRange}</p>
+                                    <p className="text-xs text-slate-500">Contact Admin for dates outside this period.</p>
+                                </div>
+                            ) : (
+                                <p className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+                                    Ask Admin to assign this student’s intake and configure their semester 5 period before setting dates.
+                                </p>
+                            )}
                             <div className="space-y-2">
                                 <Label htmlFor="internship-start-date">Start date</Label>
-                                <Input id="internship-start-date" type="date" required value={form.data.start_date} onChange={(event) => form.setData('start_date', event.target.value)} />
-                                {form.errors.start_date && <p className="text-sm text-rose-600">{form.errors.start_date}</p>}
+                                <Input id="internship-start-date" type="date" min={semester?.starts_on} max={semester?.ends_on} disabled={!semester} required value={form.data.start_date} onChange={(event) => { form.setData('start_date', event.target.value); form.clearErrors('start_date', 'end_date'); }} />
+                                {startDateError && <p className="text-sm text-rose-600">{startDateError}</p>}
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="internship-end-date">End date</Label>
-                                <Input id="internship-end-date" type="date" min={form.data.start_date || undefined} required value={form.data.end_date} onChange={(event) => form.setData('end_date', event.target.value)} />
-                                {form.errors.end_date && <p className="text-sm text-rose-600">{form.errors.end_date}</p>}
+                                <Input id="internship-end-date" type="date" min={earliestEndDate} max={semester?.ends_on} disabled={!semester} required value={form.data.end_date} onChange={(event) => { form.setData('end_date', event.target.value); form.clearErrors('end_date'); }} />
+                                {endDateError && <p className="text-sm text-rose-600">{endDateError}</p>}
                             </div>
                         </div>
 
                         <DialogFooter>
                             <Button type="button" variant="outline" onClick={() => closeDateEditor(false)} disabled={form.processing}>Cancel</Button>
-                            <Button type="submit" disabled={form.processing}>{form.processing ? 'Saving…' : 'Save dates'}</Button>
+                            <Button type="submit" disabled={form.processing || !semester || !form.data.start_date || !form.data.end_date || startOutsideSemester || endOutsideSemester || endBeforeStart}>{form.processing ? 'Saving…' : 'Save dates'}</Button>
                         </DialogFooter>
                     </form>
                 </DialogContent>

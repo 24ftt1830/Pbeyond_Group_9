@@ -115,10 +115,6 @@ export default function Evaluation({ student, evaluation }: Props) {
                             </div>
 
                             <div>
-                                <p className="text-sm font-medium text-blue-600">
-                                    Industry Supervisor Portal
-                                </p>
-
                                 <h1 className="mt-1 text-2xl font-bold text-slate-900 sm:text-3xl">
                                     {evaluation ? 'Update Evaluation' : 'Evaluate'}: {student.full_name}
                                 </h1>

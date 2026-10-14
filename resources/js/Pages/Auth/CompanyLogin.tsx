@@ -5,7 +5,8 @@ import { Input } from '@/Components/ui/input';
 import { Label } from '@/Components/ui/label';
 import InputError from '@/Components/InputError';
 import DitherShaderDemoDuotone from "@/Components/dither-shader-demo-duotone";
-import { LoaderCircleIcon, Lock, ChevronLeft } from 'lucide-react';
+import { LoaderCircleIcon, Lock } from 'lucide-react';
+import BackButton from '@/Components/BackButton';
 
 export default function CompanyLogin({ companyName }: { companyName: string }) {
     const { data, setData, post, processing, errors } = useForm({
@@ -33,12 +34,7 @@ export default function CompanyLogin({ companyName }: { companyName: string }) {
                         <span className="font-sato">PBeyond</span>
                     </Link>
 
-                    <Button variant="ghost" size="sm" asChild className="gap-1 text-xs">
-                        <Link href={route('company.key-access')}>
-                            <ChevronLeft className="size-4" />
-                            Change Access Key
-                        </Link>
-                    </Button>
+                    <BackButton href={route('company.key-access')} className="h-8 rounded-md px-3 text-xs">Change access key</BackButton>
                 </div>
 
                 <div className="flex flex-1 items-center justify-center">
@@ -50,10 +46,10 @@ export default function CompanyLogin({ companyName }: { companyName: string }) {
                                 </div>
                                 <h1 className="text-2xl font-bold font-sato">Company Login</h1>
                                 <span className="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-600/20">
-                                    {companyName}
+                                    Company HR
                                 </span>
                                 <p className="text-balance text-sm text-muted-foreground">
-                                    Enter your work email and password to access your dashboard.
+                                    {companyName ? `Sign in to ${companyName} with its HR email and password.` : 'Enter your work email and password to access your dashboard.'}
                                 </p>
                             </div>
 

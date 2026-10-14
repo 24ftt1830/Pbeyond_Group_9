@@ -13,6 +13,7 @@ interface QuotaCardProps {
         quota_status: string;
         is_released?: boolean;
         interview_required?: boolean;
+        academic_semester?: { name: string } | null;
 
         programme?: {
             programme_name: string;
@@ -71,6 +72,12 @@ export default function QuotaCard({
                         <p className="mt-1 text-xs font-medium text-muted-foreground">
                             {programmeName}
                         </p>
+
+                        {quota.academic_semester?.name && (
+                            <p className="mt-1 text-xs text-muted-foreground">
+                                Internship term: {quota.academic_semester.name}
+                            </p>
+                        )}
 
                         {/* Render Skills Badges */}
                         {skillsList.length > 0 && (

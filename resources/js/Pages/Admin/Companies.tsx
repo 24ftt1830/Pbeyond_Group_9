@@ -3,7 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import CompanyDataTable from '@/Components/company-data-table';
 import DashboardCard from '@/Components/DashboardCards';
-import { Building2, LayoutGrid, User, UserCheck, SearchIcon, RotateCcw, Plus } from 'lucide-react';
+import { Building2, LayoutGrid, User, UserCheck, SearchIcon, RotateCcw, Plus, FileUp } from 'lucide-react';
 import { Input } from '@/Components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select";
 import { Button } from "@/Components/ui/button";
@@ -61,6 +61,7 @@ export default function Companies({ stats, companies, quotas = [] }: Props) {
     const approvedQuotas = useMemo(() => quotas.filter(q => q.quota_status === 'Approved'), [quotas]);
 
     const [open, setOpen] = useState(false);
+    const [importOpen, setImportOpen] = useState(false);
     const [activeTab, setActiveTab] = useState('all_companies');
     const [lastSeenCount, setLastSeenCount] = useState(0);
 
@@ -76,11 +77,8 @@ export default function Companies({ stats, companies, quotas = [] }: Props) {
         company_name: '',
         industry_sector: '',
         office_address: '',
-        username: '',
-        email: '',
-        password: '',
-        access_key: '',
     });
+    const companyImportForm = useForm({ file: null as File | null });
 
     const [searchTerm, setSearchTerm] = useState('');
     const [filterCategory, setFilterCategory] = useState('all');
@@ -192,6 +190,18 @@ export default function Companies({ stats, companies, quotas = [] }: Props) {
         });
     };
 
+    const handleCompanyImport = (e: React.FormEvent) => {
+        e.preventDefault();
+        companyImportForm.post(route('admin.companies.import'), {
+            preserveScroll: true,
+            onSuccess: () => {
+                setImportOpen(false);
+                companyImportForm.reset();
+                companyImportForm.clearErrors();
+            },
+        });
+    };
+
     return (
         <div className="p-6">
             <RecordFeedback />
@@ -199,6 +209,48 @@ export default function Companies({ stats, companies, quotas = [] }: Props) {
                 <header>
                     <h1 className="text-3xl font-sato font-bold">Company and Quota</h1>
                 </header>
+
+                <div className="flex items-center gap-2">
+                <Dialog open={importOpen} onOpenChange={setImportOpen}>
+                    <DialogTrigger asChild>
+                        <Button variant="outline" size="sm" className="flex items-center gap-1.5">
+                            <FileUp className="size-3.5" />
+                            Import CSV
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[480px]">
+                        <form onSubmit={handleCompanyImport}>
+                            <DialogHeader>
+                                <DialogTitle>Import Companies</DialogTitle>
+                                <DialogDescription>
+                                    Import company records only. HR accounts are created separately from Manage Users.
+                                </DialogDescription>
+                            </DialogHeader>
+                            <div className="grid gap-4 py-4">
+                                <p className="text-sm text-muted-foreground">
+                                    CSV columns: <span className="font-medium text-foreground">company_name, industry_sector, office_address</span>
+                                </p>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="companies-csv">Company CSV file</Label>
+                                    <Input
+                                        id="companies-csv"
+                                        type="file"
+                                        accept=".csv,.txt,.xlsx,.xls"
+                                        onChange={(event) => companyImportForm.setData('file', event.currentTarget.files?.[0] ?? null)}
+                                        required
+                                    />
+                                </div>
+                                <Errors errors={companyImportForm.errors} />
+                            </div>
+                            <DialogFooter>
+                                <Button type="button" variant="outline" disabled={companyImportForm.processing} onClick={() => setImportOpen(false)}>Cancel</Button>
+                                <Button type="submit" disabled={companyImportForm.processing || !companyImportForm.data.file}>
+                                    {companyImportForm.processing ? 'Importing...' : 'Import Companies'}
+                                </Button>
+                            </DialogFooter>
+                        </form>
+                    </DialogContent>
+                </Dialog>
 
                 <Dialog open={open} onOpenChange={setOpen}>
                     <DialogTrigger asChild>
@@ -211,7 +263,7 @@ export default function Companies({ stats, companies, quotas = [] }: Props) {
                         <form onSubmit={handleSubmit}>
                             <DialogHeader>
                                 <DialogTitle>Register New Company</DialogTitle>
-                                <DialogDescription>Register the company and create its linked HR / focal person login account in one step.</DialogDescription>
+                                <DialogDescription>Add a company record. Create its HR login later from Manage Users.</DialogDescription>
                             </DialogHeader>
                             <div className="grid gap-4 py-4">
                                 <div className="grid gap-2">
@@ -257,39 +309,17 @@ export default function Companies({ stats, companies, quotas = [] }: Props) {
                                     </Select>
                                 </div>
                             </div>
-                            <div className="mb-4 space-y-4 border-t pt-4">
-                                <h2 className="text-base font-semibold">Company HR / Focal Person Login</h2>
-                                <div className="grid gap-4 sm:grid-cols-2">
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="co-username">Username</Label>
-                                        <Input id="co-username" required maxLength={100} autoComplete="off" value={companyForm.data.username} onChange={(event) => companyForm.setData('username', event.target.value)} />
-                                    </div>
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="co-email">Email</Label>
-                                        <Input id="co-email" required type="email" maxLength={150} autoComplete="off" value={companyForm.data.email} onChange={(event) => companyForm.setData('email', event.target.value)} />
-                                    </div>
-                                </div>
-                                <div className="grid gap-2">
-                                    <Label htmlFor="co-password">Password</Label>
-                                    <Input id="co-password" required type="password" minLength={8} autoComplete="new-password" value={companyForm.data.password} onChange={(event) => companyForm.setData('password', event.target.value)} />
-                                    <p className="text-xs text-muted-foreground">At least 8 characters.</p>
-                                </div>
-                                <div className="grid gap-2">
-                                    <Label htmlFor="co-access-key">Company Access Key</Label>
-                                    <Input id="co-access-key" required inputMode="numeric" pattern="[0-9]{6}" minLength={6} maxLength={6} autoComplete="off" placeholder="6 digits" value={companyForm.data.access_key} onChange={(event) => companyForm.setData('access_key', event.target.value)} />
-                                    <p className="text-xs text-muted-foreground">Choose a unique six-digit key. The HR user enters it in “Log in as Company” before their email and password. Keep it with their login details.</p>
-                                </div>
-                                <Errors errors={companyForm.errors} />
-                            </div>
+                            <Errors errors={companyForm.errors} />
                             <DialogFooter>
                                 <Button type="button" variant="outline" disabled={companyForm.processing} onClick={() => setOpen(false)}>Cancel</Button>
                                 <Button type="submit" disabled={companyForm.processing}>
-                                    {companyForm.processing ? 'Creating...' : 'Create Company & HR Account'}
+                                    {companyForm.processing ? 'Creating...' : 'Create Company'}
                                 </Button>
                             </DialogFooter>
                         </form>
                     </DialogContent>
                 </Dialog>
+                </div>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

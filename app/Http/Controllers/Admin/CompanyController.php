@@ -8,8 +8,9 @@ use App\Models\PlacementQuota;
 use App\Models\Application;   
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
+use Maatwebsite\Excel\Facades\Excel;
 use Inertia\Inertia;
+use App\Imports\CompaniesImport;
 
 class CompanyController extends Controller
 {
@@ -118,49 +119,38 @@ class CompanyController extends Controller
         return back()->with('success', 'Application submitted successfully. It will be reviewed by ILD.');
     }
 
-    /**
-     * Register a company and its linked HR account together.
-     */
+    /** Register a company record. HR accounts are created from Manage Users. */
     public function store(Request $request)
     {
         $validated = $request->validate([
             'company_name'    => 'required|string|max:150',
             'industry_sector' => 'required|string|max:100',
             'office_address'  => 'required|string',
-            'username' => 'required|string|max:100|unique:users,username',
-            'email' => 'required|string|email|max:150|unique:users,email',
-            'password' => 'required|string|min:8',
-            'access_key' => [
-                'bail', 'required', 'string', 'regex:/^[0-9]{6}$/',
-                function ($attribute, $value, $fail) {
-                    $alreadyUsed = Company::whereNotNull('access_key')->get(['access_key'])
-                        ->contains(fn ($company) => Hash::check($value, $company->access_key));
-                    if ($alreadyUsed) {
-                        $fail('This access key is already used by another company. Choose a different six-digit key.');
-                    }
-                },
-            ],
         ]);
 
-        DB::transaction(function () use ($validated) {
-            $company = Company::create([
-                'company_name' => $validated['company_name'],
-                'industry_sector' => $validated['industry_sector'],
-                'office_address' => $validated['office_address'],
-                'location_type' => 'Local',
-                'is_approved' => true,
-                'access_key' => Hash::make($validated['access_key']),
-            ]);
+        Company::create([
+            'company_name' => $validated['company_name'],
+            'industry_sector' => $validated['industry_sector'],
+            'office_address' => $validated['office_address'],
+            'location_type' => 'Local',
+            'is_approved' => true,
+        ]);
 
-            $company->users()->create([
-                'username' => $validated['username'],
-                'email' => $validated['email'],
-                'password' => Hash::make($validated['password']),
-                'role' => 'Company',
-            ]);
+        return back()->with('success', 'Company added. Create its HR account from Manage Users when ready.');
+    }
+
+    /** Import company records without creating HR accounts or access keys. */
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:csv,txt,xlsx,xls',
+        ]);
+
+        DB::transaction(function () use ($request) {
+            Excel::import(new CompaniesImport, $request->file('file'));
         });
 
-        return back()->with('success', 'Company and linked HR login account created successfully.');
+        return back()->with('success', 'Company records imported successfully. Create HR accounts from Manage Users when ready.');
     }
 
     /**

@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Link } from '@inertiajs/react';
-import { ArrowRight, Briefcase, ClipboardCheck, Users } from 'lucide-react';
+import { ArrowRight, CalendarDays, CheckCircle2, ClipboardCheck, Users } from 'lucide-react';
 import { DashboardEmptyState, DashboardPanel, RoleDashboard } from '@/Components/Dashboard/RoleDashboard';
 
 interface Quota {
@@ -9,27 +9,27 @@ interface Quota {
     total_slots: number;
 }
 
-interface Applicant {
-    id: number;
+interface AssignedStudent {
     student_id: number;
-    app_status: string;
-    updated_at: string;
-    student?: {
-        full_name?: string;
-        pb_student_code?: string;
-        programme?: { programme_name?: string };
-    };
+    full_name: string;
+    pb_student_code?: string;
+    programme_name?: string;
+    internship_start_date?: string | null;
+    internship_end_date?: string | null;
+    evaluation_due: boolean;
+    completion_confirmation_due: boolean;
 }
 
 interface Props {
     quota: Quota | null;
     stats: {
         students_assigned: number;
-        position_slots: number;
-        evaluations: number;
         evaluations_due: number;
+        completion_confirmations_due: number;
+        students_with_dates: number;
     };
-    recentRecruits: Applicant[];
+    hasActiveEvaluationTemplate: boolean;
+    students: AssignedStudent[];
 }
 
 const formatDate = (value: string) => {
@@ -39,25 +39,23 @@ const formatDate = (value: string) => {
         : new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).format(date);
 };
 
-const statusClass = (status: string) => {
-    if (status === 'Recruited') return 'bg-emerald-50 text-emerald-700';
-    if (status === 'Declined') return 'bg-rose-50 text-rose-700';
-    if (status === 'Interviewing') return 'bg-violet-50 text-violet-700';
-    return 'bg-amber-50 text-amber-700';
-};
-
-export default function Dashboard({ quota, stats, recentRecruits = [] }: Props) {
-    const safeStats = stats ?? { students_assigned: 0, position_slots: 0, evaluations: 0, evaluations_due: 0 };
+export default function Dashboard({ quota, stats, hasActiveEvaluationTemplate, students = [] }: Props) {
+    const safeStats = stats ?? {
+        students_assigned: 0,
+        evaluations_due: 0,
+        completion_confirmations_due: 0,
+        students_with_dates: 0,
+    };
 
     return (
         <RoleDashboard
             title="Industry Supervisor"
-            description="See students recruited for your assigned position and keep up with their evaluations."
+            description="Manage evaluations and company completion confirmations for your assigned interns."
             stats={[
                 { label: 'Students assigned', value: safeStats.students_assigned, detail: 'Students recruited by Company HR', icon: Users },
-                { label: 'Position slots', value: safeStats.position_slots, detail: quota?.job_title ?? 'No job position assigned', icon: Briefcase },
-                { label: 'Evaluations submitted', value: safeStats.evaluations, detail: 'Evaluations you have completed', icon: ClipboardCheck },
-                { label: 'Evaluations to do', value: safeStats.evaluations_due, detail: 'Recruited students without an evaluation', icon: ClipboardCheck },
+                { label: 'Evaluations to do', value: safeStats.evaluations_due, detail: hasActiveEvaluationTemplate ? 'Assigned students awaiting evaluation' : 'No active evaluation rubric is available', icon: ClipboardCheck },
+                { label: 'Completion checks', value: safeStats.completion_confirmations_due, detail: 'Ended internships awaiting company confirmation', icon: CheckCircle2 },
+                { label: 'Internship dates', value: safeStats.students_with_dates, detail: 'Assigned interns with confirmed dates', icon: CalendarDays },
             ]}
         >
             <section className="flex flex-col gap-4 rounded-2xl border border-blue-100 bg-gradient-to-r from-blue-50 to-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-6">
@@ -74,31 +72,52 @@ export default function Dashboard({ quota, stats, recentRecruits = [] }: Props) 
                 </Link>
             </section>
 
-            <DashboardPanel title="Recently recruited students" description="Students appear here after Company HR marks their application Recruited.">
-                {recentRecruits.length === 0 ? (
+            <DashboardPanel
+                title="My interns"
+                description="Review assigned students and see which actions are still pending."
+            >
+                {!hasActiveEvaluationTemplate && safeStats.evaluations_due > 0 && (
+                    <p className="border-b border-amber-100 bg-amber-50 px-5 py-3 text-sm text-amber-800 sm:px-6">
+                        Evaluation submissions are waiting for an active rubric from Admin.
+                    </p>
+                )}
+                {students.length === 0 ? (
                     <DashboardEmptyState message={quota ? 'No students have been recruited for this position yet.' : 'Ask your Company HR to assign a job position to your account.'} />
                 ) : (
                     <div className="divide-y divide-slate-100">
-                        {recentRecruits.map((application) => (
-                            <div key={application.id} className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+                        {students.map((student) => (
+                            <div key={student.student_id} className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
                                 <div className="min-w-0">
-                                    <p className="truncate font-semibold text-slate-900">{application.student?.full_name ?? 'Student'}</p>
+                                    <p className="truncate font-semibold text-slate-900">{student.full_name || 'Student'}</p>
                                     <p className="mt-1 text-sm text-slate-500">
-                                        {application.student?.pb_student_code ?? 'Student ID not available'}
-                                        {application.student?.programme?.programme_name ? ` · ${application.student.programme.programme_name}` : ''}
-                                        {` · Recruited ${formatDate(application.updated_at)}`}
+                                        {student.pb_student_code ?? 'Student ID not available'}
+                                        {student.programme_name ? ` · ${student.programme_name}` : ''}
+                                        {student.internship_start_date && student.internship_end_date
+                                            ? ` · ${formatDate(student.internship_start_date)} – ${formatDate(student.internship_end_date)}`
+                                            : ' · Internship dates not set'}
                                     </p>
                                 </div>
-                                <div className="flex shrink-0 items-center gap-3">
-                                    <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${statusClass(application.app_status)}`}>
-                                        Assigned
-                                    </span>
+                                <div className="flex shrink-0 flex-wrap items-center gap-2">
+                                    {student.evaluation_due && (
+                                        <span className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-800 ring-1 ring-inset ring-amber-200">
+                                            Evaluation due
+                                        </span>
+                                    )}
+                                    {student.completion_confirmation_due && (
+                                        <span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700 ring-1 ring-inset ring-blue-200">
+                                            Confirm completion
+                                        </span>
+                                    )}
+                                    {!student.evaluation_due && !student.completion_confirmation_due && (
+                                        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600 ring-1 ring-inset ring-slate-200">
+                                            No action pending
+                                        </span>
+                                    )}
                                     <Link
-                                        href={route('industry-supervisor.student.show', application.student_id)}
-                                        aria-label={`View ${application.student?.full_name ?? 'student'}`}
-                                        className="rounded-lg p-2 text-slate-500 transition hover:bg-slate-100 hover:text-blue-700"
+                                        href={route('industry-supervisor.student.show', student.student_id)}
+                                        className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-sm font-semibold text-blue-700 transition hover:bg-blue-50 hover:text-blue-800"
                                     >
-                                        <ArrowRight className="size-4" />
+                                        View <ArrowRight className="size-4" />
                                     </Link>
                                 </div>
                             </div>

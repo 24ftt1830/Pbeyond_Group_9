@@ -3,6 +3,8 @@ import { Head, useForm } from '@inertiajs/react';
 import { Clock3, ClipboardCheck, FileText } from 'lucide-react';
 import { useState } from 'react';
 import BackButton from '@/Components/BackButton';
+import GradingSection from '@/Components/Evaluations/GradingSection';
+import { evaluationInputClass } from '@/Components/Evaluations/RubricEditor';
 import { ConfirmAction, RecordFeedback, RecordPanel } from '@/Components/Admin/RecordControls';
 import {
     AlertDialog,
@@ -79,11 +81,11 @@ export default function FinalInternshipReport({ student, report, viewer, reportR
     return <AuthenticatedLayout>
         <RecordFeedback />
         <Head title="Student Written Report" />
-        <main className={`mx-auto w-full ${isStudent ? 'max-w-4xl' : 'max-w-5xl'} space-y-6 p-5 md:p-8`}>
+        <main className={`mx-auto w-full ${isStudent ? 'max-w-4xl' : 'max-w-6xl'} space-y-6 p-5 md:p-8`}>
             {!isStudent && <BackButton href={route(isAdmin ? 'admin.students.show' : 'academic-supervisor.student.show', student.student_id)}>Back to Student Details</BackButton>}
             <header className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                 <div className="flex flex-wrap items-start justify-between gap-4">
-                    <div className="flex gap-4"><div className="rounded-xl bg-indigo-100 p-3 text-indigo-700">{isStudent ? <FileText /> : <ClipboardCheck />}</div><div><p className="text-sm font-semibold text-indigo-700">{isStudent ? 'Student Written Report' : isAdmin ? 'Superadmin · Student Written Report' : 'Academic Supervisor · Student Written Report'} · {reportWeight}% of final score</p><h1 className="text-2xl font-bold text-slate-900">{isStudent ? 'Your final internship report' : 'Written Report Evaluation'}</h1><p className="mt-1 text-sm text-slate-500">{isStudent ? 'Upload your final report as a PDF. Your Academic Supervisor will grade it.' : `${student.full_name} · ${student.pb_student_code}`}</p></div></div>
+                    <div className="flex gap-4"><div className="rounded-xl bg-indigo-100 p-3 text-indigo-700">{isStudent ? <FileText /> : <ClipboardCheck />}</div><div><p className="text-sm font-semibold text-indigo-700">{isStudent ? 'Student Written Report' : isAdmin ? 'Superadmin · Student Written Report' : 'Academic Supervisor · Student Written Report'} · {reportWeight}% of final score</p><h1 className="font-sato text-2xl font-bold text-slate-900 sm:text-3xl">{isStudent ? 'Your final internship report' : 'Written Report Evaluation'}</h1><p className="mt-1 text-sm text-slate-500">{isStudent ? 'Upload your final report as a PDF. Your Academic Supervisor will grade it.' : `${student.full_name} · ${student.pb_student_code}`}</p></div></div>
                     <span className={`rounded-full px-3 py-1.5 text-sm font-bold ${tone(completionStatus)}`}>{completionStatus}</span>
                 </div>
             </header>
@@ -126,35 +128,12 @@ export default function FinalInternshipReport({ student, report, viewer, reportR
                 {report.academic_review_comments && <Notice title="Previous feedback" status={report.academic_review_status} text={report.academic_review_comments} />}
                 {isAdmin && <RecordPanel title="Submitted Marking"><SavedReportReview report={report} /></RecordPanel>}
                 {isAdmin && reviewHistory.length > 0 && <RecordPanel title="Original Submitted Reviews"><div className="space-y-4">{reviewHistory.map((revision) => <details key={revision.id} className="rounded-xl border bg-slate-50 p-4"><summary className="cursor-pointer font-semibold">Before reopening · {new Date(revision.created_at).toLocaleString()}</summary><div className="mt-4"><SavedReportReview report={revision.before_snapshot} /></div></details>)}</div></RecordPanel>}
-                {viewer === 'academic' && <form onSubmit={(event) => { event.preventDefault(); submitReview(); }} className="space-y-5">
-                    <fieldset disabled={reviewLocked} className="space-y-5">
-                    {!reportRubric ? <section className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-800">The written report grading rubric is not active yet. Ask the Admin to seed and activate the evaluation templates.</section> : reportRubric.sections.map((section) => <section key={section.id} className="space-y-5 rounded-2xl border bg-white p-6 shadow-sm">
-                        <div className="flex items-start justify-between gap-4"><div><h2 className="text-lg font-bold text-slate-900">{section.title}</h2>{section.description && <p className="mt-1 text-sm text-slate-500">{section.description}</p>}</div><span className="rounded-full bg-indigo-50 px-3 py-1 text-sm font-bold text-indigo-700">{section.weight}%</span></div>
-                        {section.criteria.map((criterion) => <fieldset key={criterion.id} className="border-t pt-4">
-                            <legend className="font-semibold text-slate-800">{criterion.title}</legend>
-                            {criterion.description && <p className="mb-3 mt-1 text-sm text-slate-500">{criterion.description}</p>}
-                            <div className="grid gap-3 md:grid-cols-2" role="group" aria-label={`Grading levels for ${criterion.title}`}>
-                                {criterion.rating_levels.map((level) => {
-                                    const selected = Number(review.data.answers[String(criterion.id)]) === level.id;
-
-                                    return <button
-                                        key={level.id}
-                                        type="button"
-                                        aria-pressed={selected}
-                                        onClick={() => review.setData('answers', { ...review.data.answers, [String(criterion.id)]: String(level.id) })}
-                                        className={`cursor-pointer rounded-xl border p-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 ${selected ? 'border-indigo-500 bg-indigo-50 ring-1 ring-indigo-500' : 'bg-white hover:border-slate-300'}`}
-                                    >
-                                        <span className="flex items-center justify-between gap-3"><span className="font-semibold text-slate-900">{level.title}</span><span className="rounded bg-white px-2 py-1 text-xs font-bold text-slate-600">{level.points} pts</span></span>
-                                        {level.description && <span className="mt-2 block text-sm leading-5 text-slate-600">{level.description}</span>}
-                                    </button>;
-                                })}
-                            </div>
-                            {review.errors[`answers.${criterion.id}`] && <p className="mt-2 text-sm text-rose-600">{review.errors[`answers.${criterion.id}`]}</p>}
-                        </fieldset>)}
-                    </section>)}
+                {viewer === 'academic' && <form onSubmit={(event) => { event.preventDefault(); submitReview(); }} className="space-y-6">
+                    <fieldset disabled={reviewLocked} className="space-y-6">
+                    {!reportRubric ? <section className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-800">The written report grading rubric is not active yet. Ask the Admin to seed and activate the evaluation templates.</section> : reportRubric.sections.map((section, index) => <GradingSection key={section.id} section={section} index={index} answers={review.data.answers} onSelect={(criterionId, levelId) => review.setData('answers', { ...review.data.answers, [String(criterionId)]: String(levelId) })} errors={review.errors as Record<string, string>} readOnly={reviewLocked} weightLabel="of report mark" />)}
                     {review.errors.answers && <p className="text-sm text-rose-600">{review.errors.answers}</p>}
-                    <section className="space-y-4 rounded-2xl border bg-white p-6 shadow-sm"><label className="block font-semibold text-slate-800">Review result<select value={review.data.status} onChange={(event) => review.setData('status', event.target.value as 'Approved' | 'Changes Required')} className="mt-2 w-full rounded-lg border px-3 py-2"><option>Approved</option><option>Changes Required</option></select></label><label className="mb-2 block font-semibold text-slate-800">Additional comments<textarea value={review.data.comments} onChange={(event) => review.setData('comments', event.target.value)} rows={4} className="mt-2 w-full rounded-lg border px-3 py-2" placeholder="Optional feedback for the student" /></label>{review.errors.comments && <p className="text-sm text-rose-600">{review.errors.comments}</p>}</section>
-                    <div className="flex justify-end"><button disabled={review.processing || !reportRubric || reviewLocked} className="rounded-xl bg-indigo-600 px-6 py-3 font-semibold text-white hover:bg-indigo-700 disabled:opacity-50">{review.processing ? 'Submitting…' : report.reopened_at ? 'Resubmit corrected report evaluation' : 'Save report evaluation'}</button></div>
+                    <section className="space-y-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6"><div><label htmlFor="report-review-result" className="block text-sm font-semibold text-slate-800">Review result</label><select id="report-review-result" value={review.data.status} onChange={(event) => review.setData('status', event.target.value as 'Approved' | 'Changes Required')} className={`${evaluationInputClass} mt-3`}><option>Approved</option><option>Changes Required</option></select>{review.errors.status && <p className="mt-2 text-sm text-rose-600">{review.errors.status}</p>}</div><div><label htmlFor="report-review-comments" className="block text-sm font-semibold text-slate-800">Additional comments <span className="font-normal text-slate-400">(optional)</span></label><textarea id="report-review-comments" value={review.data.comments} onChange={(event) => review.setData('comments', event.target.value)} rows={4} className={`${evaluationInputClass} mt-3 resize-y`} placeholder="Add feedback for the student" />{review.errors.comments && <p className="mt-2 text-sm text-rose-600">{review.errors.comments}</p>}</div></section>
+                    <div className="sticky bottom-4 z-10 flex justify-end rounded-2xl border border-slate-200 bg-white/95 px-5 py-4 shadow-lg shadow-slate-200/50 backdrop-blur-sm"><button type="submit" disabled={review.processing || !reportRubric || reviewLocked} className="w-full rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 disabled:opacity-50 sm:w-auto">{review.processing ? 'Submitting…' : report.reopened_at ? 'Resubmit corrected report evaluation' : 'Save report evaluation'}</button></div>
                     </fieldset>
                 </form>}
             </>}

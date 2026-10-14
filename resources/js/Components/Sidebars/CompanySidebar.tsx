@@ -3,7 +3,6 @@ import {
     SidebarContent,
     SidebarHeader,
     SidebarTrigger,
-    SidebarSeparator,
     SidebarFooter,
 } from "@/Components/ui/sidebar"
 import { NavMain } from "@/Components/nav-main"
@@ -12,15 +11,12 @@ import { usePage } from '@inertiajs/react'
 import { PageProps } from '@/types'
 import { Link } from '@inertiajs/react';
 import {
-    LayoutDashboard,
+    Gauge,
     Users,
     CircleDashed,
     FileUser,
     CircleUser,
-    MessagesSquare,
-    MessageCircleQuestionMark,
-    Info,
-    CalendarDays,
+    UserCog,
 } from "lucide-react";
 
 const data = {
@@ -28,7 +24,7 @@ const data = {
         {
             title: "Dashboard",
             url: route('company.dashboard'),
-            icon: LayoutDashboard,
+            icon: Gauge,
         },
         {
             title: "Quotas",
@@ -53,24 +49,7 @@ const data = {
         {
             title: "Manage Users",
             url: route('company.manage-users'),
-            icon: Users,
-        },
-    ],
-    navSecondary: [
-        {
-            title: "Contact Support",
-            url: route('company.contact-support'),
-            icon: MessageCircleQuestionMark,
-        },
-        {
-            title: "FAQs",
-            url: route('company.faqs'),
-            icon: Info,
-        },
-        {
-            title: "Calendar",
-            url: route('company.calendar'),
-            icon: CalendarDays,
+            icon: UserCog,
         },
     ]
 }
@@ -102,10 +81,8 @@ export function CompanySidebar({ ...props }: React.ComponentProps<typeof Sidebar
 
             <SidebarContent className="sidebar-scroll-custom gap-0">
                     <div className="pt-2">
-                        <NavMain items={data.navPrimary} label="Management" />
+                        <NavMain items={data.navPrimary} label="Company Portal" />
                     </div>
-                <SidebarSeparator className="mx-2 my-2" />
-                    <NavMain items={data.navSecondary} label="Resources" />
             </SidebarContent>
 
             <SidebarFooter>

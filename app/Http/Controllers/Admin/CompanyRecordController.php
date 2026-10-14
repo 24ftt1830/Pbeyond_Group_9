@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\AdminRecordChange;
 use App\Models\Application;
+use App\Models\AcademicSemester;
 use App\Models\Company;
 use App\Models\PlacementQuota;
 use App\Models\Programme;
@@ -19,12 +20,13 @@ class CompanyRecordController extends Controller
     {
         $company->load([
             'users', 'industrySupervisors.quota', 'industrySupervisors.user',
-            'placementQuotas.programmes', 'placementQuotas.applications.student.programme',
+            'placementQuotas.programmes', 'placementQuotas.academicSemester', 'placementQuotas.applications.student.programme',
             'placementQuotas.applications.student.internship',
         ]);
         return Inertia::render('Admin/CompanyRecord', [
             'company' => $company,
             'programmes' => Programme::orderBy('programme_name')->get(['programme_id', 'programme_name']),
+            'academicSemesters' => AcademicSemester::orderBy('starts_on')->get(['id', 'name', 'starts_on', 'ends_on']),
             'today' => now()->toDateString(),
         ]);
     }

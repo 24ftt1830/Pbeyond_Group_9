@@ -11,9 +11,14 @@ interface Programme {
     programme_name: string;
 }
 
-export function ImportStudentsDialog({ programmes }: { programmes: Programme[] }) {
+interface AcademicSemester {
+    id: number;
+    name: string;
+}
+
+export function ImportStudentsDialog({ programmes, academicSemesters }: { programmes: Programme[]; academicSemesters: AcademicSemester[] }) {
     const [open, setOpen] = useState(false);
-    const form = useForm({ file: null as File | null });
+    const form = useForm({ file: null as File | null, intake_semester_id: '' });
 
     const handleImport = () => {
         form.post(route('admin.students.import'), {
@@ -38,6 +43,7 @@ export function ImportStudentsDialog({ programmes }: { programmes: Programme[] }
                 form={form}
                 onComplete={handleImport}
                 programmes={programmes}
+                academicSemesters={academicSemesters}
             />
         </Dialog>
     );

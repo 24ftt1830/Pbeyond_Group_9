@@ -35,6 +35,14 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
         'Industry Supervisor': IndustrySupervisorSidebar,
     }
 
+    const pagePortalLabels: Record<UserRole, string> = {
+        Admin: 'Superadmin Portal',
+        Company: 'Company Portal',
+        Student: 'Student Portal',
+        'Academic Supervisor': 'Academic Supervisor Portal',
+        'Industry Supervisor': 'Industry Supervisor Portal',
+    }
+
     const SelectedSidebar = Sidebars[activeRole] || UserSidebar
 
     const handleRoleSwitch = (r: UserRole) => {
@@ -81,7 +89,8 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
                     </Button>*/}
                 </header>
 
-                <div className="main-scroll flex flex-1 flex-col gap-4 p-4 pt-0 overflow-y-auto overflow-x-hidden bg-slate-50">
+                <div className="main-scroll has-role-page-label flex flex-1 flex-col overflow-y-auto overflow-x-hidden bg-slate-50">
+                    <p className="role-page-label">{pagePortalLabels[activeRole]}</p>
                     {children}
                     <Toaster />
                 </div>

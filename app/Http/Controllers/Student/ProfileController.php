@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\AdminRecordChange;
+use App\Models\AcademicSemester;
 use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -23,6 +24,7 @@ class ProfileController extends Controller
         if ($student) {
             $student->load([
                 'programme',
+                'intakeSemester',
                 'education',
                 'professionalProfile',
                 'projects',
@@ -61,6 +63,7 @@ class ProfileController extends Controller
 
             $student->load([
                 'programme',
+                'intakeSemester',
                 'education',
                 'professionalProfile',
                 'projects',
@@ -79,6 +82,9 @@ class ProfileController extends Controller
         return Inertia::render('Student/Profile', [
             'adminContext' => $adminContext,
             'student' => $student,
+            'academicSemesters' => $adminContext
+                ? AcademicSemester::orderBy('starts_on')->get(['id', 'name'])
+                : [],
             'canGenerateCv' => $missingProfileFields === [],
             'missingProfileFields' => $missingProfileFields,
             'hasGeneratedCv' => !empty($student->cv_snapshot) && !empty($student->cv_generated_at),
@@ -250,13 +256,12 @@ class ProfileController extends Controller
         $student ??= $request->user()->student;
         $before = $student->toArray();
 
-        $validated = $request->validate([
+        $rules = [
             // Existing student information
             'full_name'        => 'nullable|string|max:255',
             'ic_number'        => 'nullable|string|max:20',
             'ic_colour'        => 'nullable|in:Yellow,Red,Purple',
             'programme_id'     => 'nullable|exists:programmes,programme_id',
-            'intake_session'   => 'nullable|string|max:50',
             'postal_address'   => 'nullable|string',
             'date_of_birth'    => 'nullable|date',
             'place_of_birth'   => 'nullable|string|max:100',
@@ -330,13 +335,28 @@ class ProfileController extends Controller
 
             'languages' => 'nullable|array',
             'languages.*.language_name' => 'nullable|string|max:255',
-        ], [
+        ];
+
+        if ($adminContext) {
+            $rules['intake_semester_id'] = 'required|exists:academic_semesters,id';
+        }
+
+        $validated = $request->validate($rules, [
             'ic_document.mimes'      => 'Identity Card must be a PDF file.',
             'driver_license.mimes'   => 'Driver License must be a PDF file.',
             'academic_results.mimes' => 'Academic Results must be a PDF file.',
         ]);
 
-        DB::transaction(function () use ($request, $student, $validated, $before) {
+        if ($adminContext
+            && isset($validated['intake_semester_id'])
+            && (int) $validated['intake_semester_id'] !== (int) $student->intake_semester_id
+            && $student->applications()->exists()) {
+            return back()->withErrors([
+                'intake_semester_id' => 'A student’s intake cannot be changed after they have submitted an internship application.',
+            ]);
+        }
+
+        DB::transaction(function () use ($request, $student, $validated, $before, $adminContext) {
 
             // Student core details
             $student->full_name       = $request->full_name;
@@ -348,7 +368,11 @@ class ProfileController extends Controller
                 }
                 $student->programme_id = $request->programme_id;
             }
-            $student->intake_session  = $request->intake_session;
+            if ($adminContext && isset($validated['intake_semester_id'])) {
+                $intakeSemester = AcademicSemester::findOrFail($validated['intake_semester_id']);
+                $student->intake_semester_id = $intakeSemester->id;
+                $student->intake_session = $intakeSemester->name;
+            }
             $student->postal_address  = $request->postal_address;
             $student->date_of_birth   = $request->date_of_birth;
             $student->place_of_birth  = $request->place_of_birth;

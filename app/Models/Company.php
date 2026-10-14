@@ -23,6 +23,10 @@ class Company extends Model
         'completed_onboarding_tasks',
     ];
 
+    protected $hidden = [
+        'access_key',
+    ];
+
     protected $casts = [
         'access_key_expires_at' => 'datetime',
         'completed_onboarding_tasks' => 'array',

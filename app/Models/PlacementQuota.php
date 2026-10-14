@@ -15,6 +15,7 @@ class PlacementQuota extends Model
 
     protected $fillable = [
         'company_id',
+        'academic_semester_id',
         'programme_id',
         'job_title',
         'job_description',
@@ -55,6 +56,11 @@ class PlacementQuota extends Model
             'company_id',
             'company_id'
         );
+    }
+
+    public function academicSemester()
+    {
+        return $this->belongsTo(AcademicSemester::class, 'academic_semester_id');
     }
 
     // OLD relationship - kept temporarily

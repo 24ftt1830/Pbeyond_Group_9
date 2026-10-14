@@ -1,14 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Link } from '@inertiajs/react';
-import { Activity, ArrowRight, CalendarDays, ClipboardCheck, Users } from 'lucide-react';
+import { ArrowRight, BookOpen, CheckCircle2, ClipboardCheck, Users } from 'lucide-react';
 import { DashboardEmptyState, DashboardPanel, RoleDashboard } from '@/Components/Dashboard/RoleDashboard';
-
-interface Student {
-    student_id: number;
-    pb_student_code: string;
-    full_name: string;
-    programme?: { programme_name?: string };
-}
 
 interface Visit {
     visit_id: number;
@@ -21,13 +14,21 @@ interface Props {
     assignedClass: { class_id: number; programme_name?: string } | null;
     stats: {
         students: number;
-        visits: number;
+        pending_logbook_reviews: number;
         pending_reviews: number;
-        completed_reviews: number;
+        final_decisions_ready: number;
         monitoring_status: string;
     };
-    students: Student[];
+    reviewQueue: ReviewItem[];
     recentVisits: Visit[];
+}
+
+interface ReviewItem {
+    key: string;
+    type: string;
+    title: string;
+    student_name: string;
+    href: string;
 }
 
 const formatDate = (value: string) => {
@@ -38,9 +39,9 @@ const formatDate = (value: string) => {
     }).format(new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]))));
 };
 
-export default function Dashboard({ assignedClass, stats, students = [], recentVisits = [] }: Props) {
+export default function Dashboard({ assignedClass, stats, reviewQueue = [], recentVisits = [] }: Props) {
     const safeStats = stats ?? {
-        students: 0, visits: 0, pending_reviews: 0, completed_reviews: 0, monitoring_status: 'Not set',
+        students: 0, pending_logbook_reviews: 0, pending_reviews: 0, final_decisions_ready: 0, monitoring_status: 'Not set',
     };
 
     return (
@@ -48,10 +49,10 @@ export default function Dashboard({ assignedClass, stats, students = [], recentV
             title="Academic Supervisor"
             description="Keep track of your assigned class, student progress, and evaluation reviews."
             stats={[
-                { label: 'Assigned students', value: safeStats.students, detail: assignedClass?.programme_name ?? 'No class assigned', icon: Users },
-                { label: 'Visits recorded', value: safeStats.visits, detail: 'Academic supervision visits for your class', icon: CalendarDays },
-                { label: 'Reviews pending', value: safeStats.pending_reviews, detail: `${safeStats.completed_reviews} evaluation reviews completed`, icon: ClipboardCheck },
-                { label: 'Monitoring status', value: safeStats.monitoring_status, detail: 'Current status for your assigned class', icon: Activity },
+                { label: 'Assigned students', value: safeStats.students, detail: 'Students in your assigned class', icon: Users },
+                { label: 'Logbooks to review', value: safeStats.pending_logbook_reviews, detail: 'Submitted weeks awaiting your review', icon: BookOpen },
+                { label: 'Assessments to review', value: safeStats.pending_reviews, detail: 'Written reports and evaluations', icon: ClipboardCheck },
+                { label: 'Final decisions ready', value: safeStats.final_decisions_ready, detail: 'Students ready for your completion decision', icon: CheckCircle2 },
             ]}
         >
             <section className="flex flex-col gap-4 rounded-2xl border border-blue-100 bg-gradient-to-r from-blue-50 to-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-6">
@@ -61,50 +62,49 @@ export default function Dashboard({ assignedClass, stats, students = [], recentV
                         {assignedClass?.programme_name ?? 'No class assigned'}
                     </h2>
                     {assignedClass && <p className="mt-1 text-sm text-slate-500">Class ID {assignedClass.class_id}</p>}
+                    <span className={`mt-3 inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${safeStats.monitoring_status === 'At Risk' ? 'bg-rose-50 text-rose-700' : safeStats.monitoring_status === 'Needs Attention' ? 'bg-amber-50 text-amber-800' : safeStats.monitoring_status === 'On Track' ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>
+                        Class status: {safeStats.monitoring_status}
+                    </span>
                 </div>
                 <Link
                     href={route('academic-supervisor.students')}
                     className="inline-flex w-fit items-center gap-2 rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
                 >
-                    View my students <ArrowRight className="size-4" />
+                    View class students <ArrowRight className="size-4" />
                 </Link>
             </section>
 
             <div className="grid gap-6 xl:grid-cols-2">
                 <DashboardPanel
-                    title="My students"
-                    description="Students currently in your assigned class."
-                    action={students.length > 0 ? (
-                        <Link href={route('academic-supervisor.students')} className="text-sm font-semibold text-blue-700 hover:text-blue-800">
-                            View all
-                        </Link>
-                    ) : undefined}
+                    title="Needs your attention"
+                    description="Open logbooks, assessments, or final completion decisions that need your attention."
                 >
-                    {students.length === 0 ? (
-                        <DashboardEmptyState message={assignedClass ? 'No students are currently listed in your class.' : 'An administrator has not assigned a class to you yet.'} />
+                    {reviewQueue.length === 0 ? (
+                        <DashboardEmptyState message="No logbooks, reports, or evaluations are waiting for review." />
                     ) : (
                         <div className="divide-y divide-slate-100">
-                            {students.map((student) => (
-                                <div key={student.student_id} className="flex items-center justify-between gap-4 px-5 py-4 sm:px-6">
+                            {reviewQueue.map((item) => (
+                                <Link key={item.key} href={item.href} className="flex items-center justify-between gap-4 px-5 py-4 transition hover:bg-slate-50 sm:px-6">
                                     <div className="min-w-0">
-                                        <p className="truncate font-semibold text-slate-900">{student.full_name}</p>
-                                        <p className="mt-1 text-sm text-slate-500">{student.pb_student_code}{student.programme?.programme_name ? ` · ${student.programme.programme_name}` : ''}</p>
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <p className="truncate font-semibold text-slate-900">{item.student_name}</p>
+                                            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">{item.type}</span>
+                                        </div>
+                                        <p className="mt-1 truncate text-sm text-slate-500">{item.title}</p>
                                     </div>
-                                    <Link href={route('academic-supervisor.student.show', student.student_id)} aria-label={`View ${student.full_name}`} className="rounded-lg p-2 text-slate-500 transition hover:bg-slate-100 hover:text-blue-700">
-                                        <ArrowRight className="size-4" />
-                                    </Link>
-                                </div>
+                                    <ArrowRight className="size-4 shrink-0 text-slate-400" />
+                                </Link>
                             ))}
                         </div>
                     )}
                 </DashboardPanel>
 
-                <DashboardPanel title="Recent visits" description="Latest visit records for your assigned class.">
+                <DashboardPanel title="Recent visits" description="Latest supervision visits recorded for your class.">
                     {recentVisits.length === 0 ? (
                         <DashboardEmptyState message="No academic visits have been recorded yet." />
                     ) : (
                         <div className="divide-y divide-slate-100">
-                            {recentVisits.map((visit) => (
+                            {recentVisits.slice(0, 3).map((visit) => (
                                 <div key={visit.visit_id} className="px-5 py-4 sm:px-6">
                                     <div className="flex items-center justify-between gap-3">
                                         <p className="font-semibold text-slate-900">{visit.class_name ?? 'Class visit'}</p>

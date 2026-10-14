@@ -1,24 +1,16 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Link } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
-import { ArrowRight, Briefcase, CheckCircle2, FileText, Search } from 'lucide-react';
-import { ScrollAreaHorizontalDemo, steps } from '@/Components/Dashboard/student-onboarding';
-import { DashboardEmptyState, DashboardPanel, RoleDashboard } from '@/Components/Dashboard/RoleDashboard';
-
-interface Quota {
-    quota_id: number;
-    position_title: string;
-    total_slots: number;
-    filled: number;
-    available: number;
-    is_full: boolean;
-    company: {
-        company_id: number;
-        company_name: string;
-        office_address: string;
-    };
-}
+import {
+    ArrowRight,
+    BookOpen,
+    BriefcaseBusiness,
+    CalendarDays,
+    CheckCircle2,
+    ClipboardList,
+    FileText,
+} from 'lucide-react';
 
 interface Application {
     id: number;
@@ -33,11 +25,19 @@ interface MissingLogbookWeek {
     week_end: string;
 }
 
+interface InternshipSummary {
+    start_date: string;
+    end_date: string;
+    phase: 'upcoming' | 'active' | 'ended';
+}
+
 interface Props {
-    availableQuotas: Quota[];
-    completedOnboardingTasks?: string[];
+    studentName: string;
+    profileComplete: boolean;
+    cvGenerated: boolean;
     recentApplications: Application[];
     missingLogbookWeeks?: MissingLogbookWeek[];
+    internship: InternshipSummary | null;
     stats: {
         open_positions: number;
         available_slots: number;
@@ -48,10 +48,11 @@ interface Props {
 }
 
 const statusClass = (status: string) => {
-    if (status === 'Recruited') return 'bg-emerald-50 text-emerald-700';
-    if (status === 'Declined') return 'bg-rose-50 text-rose-700';
-    if (status === 'Interviewing') return 'bg-violet-50 text-violet-700';
-    return 'bg-amber-50 text-amber-700';
+    if (status === 'Recruited') return 'bg-emerald-50 text-emerald-700 ring-emerald-100';
+    if (status === 'Declined') return 'bg-slate-100 text-slate-600 ring-slate-200';
+    if (status === 'Interviewing') return 'bg-blue-50 text-blue-700 ring-blue-100';
+    if (status === 'Waitlisted') return 'bg-violet-50 text-violet-700 ring-violet-100';
+    return 'bg-amber-50 text-amber-700 ring-amber-100';
 };
 
 const formatDate = (value: string) => {
@@ -62,14 +63,20 @@ const formatDate = (value: string) => {
 };
 
 export default function Dashboard({
-    availableQuotas = [],
-    completedOnboardingTasks = [],
+    studentName,
+    profileComplete,
+    cvGenerated,
     recentApplications = [],
     missingLogbookWeeks = [],
+    internship,
     stats,
 }: Props) {
     const safeStats = stats ?? {
-        open_positions: 0, available_slots: 0, applications: 0, pending_applications: 0, recruited_applications: 0,
+        open_positions: 0,
+        available_slots: 0,
+        applications: 0,
+        active_applications: 0,
+        recruited_applications: 0,
     };
 
     useEffect(() => {
@@ -80,7 +87,7 @@ export default function Dashboard({
             duration: 10000,
             description: (
                 <span className="font-semibold text-slate-900">
-                    Submit your completed internship weeks: {' '}
+                    Submit your completed internship weeks:{' '}
                     {missingLogbookWeeks.slice(0, 4).map((week, index) => (
                         <span key={week.week_start}>
                             {index > 0 && ', '}
@@ -105,83 +112,254 @@ export default function Dashboard({
         });
     }, [missingLogbookWeeks]);
 
+    const nextStep = (() => {
+        if (internship || safeStats.recruited_applications > 0) {
+            if (missingLogbookWeeks.length > 0) {
+                const firstMissingWeek = missingLogbookWeeks[0];
+                return {
+                    stage: 'Internship in progress',
+                    title: 'Submit your missing logbook week',
+                    description: `You have ${missingLogbookWeeks.length} completed internship week${missingLogbookWeeks.length === 1 ? '' : 's'} to submit.`,
+                    action: 'Open logbook',
+                    href: route('student.logbook', { week: firstMissingWeek.week_start }),
+                    icon: BookOpen,
+                };
+            }
+
+            if (internship?.phase === 'upcoming') {
+                return {
+                    stage: 'Internship starts soon',
+                    title: 'Your internship dates are set',
+                    description: `${formatDate(internship.start_date)} – ${formatDate(internship.end_date)}. You can view your logbook weeks before the internship begins.`,
+                    action: 'View logbook',
+                    href: route('student.logbook'),
+                    icon: CalendarDays,
+                };
+            }
+
+            if (internship?.phase === 'active') {
+                return {
+                    stage: 'Internship in progress',
+                    title: 'Keep your logbook up to date',
+                    description: `${formatDate(internship.start_date)} – ${formatDate(internship.end_date)}. Record each day after it occurs.`,
+                    action: 'Open logbook',
+                    href: route('student.logbook'),
+                    icon: BookOpen,
+                };
+            }
+
+            if (internship?.phase === 'ended') {
+                return {
+                    stage: 'Internship period ended',
+                    title: 'Continue to your written report',
+                    description: 'Open your report page to submit or review your written report.',
+                    action: 'Open written report',
+                    href: route('student.final-report'),
+                    icon: FileText,
+                };
+            }
+
+            return {
+                stage: 'Recruited',
+                title: 'Your internship dates are not set yet',
+                description: 'Your company will confirm the internship period after recruitment.',
+                action: 'Track application',
+                href: route('student.application-tracking'),
+                icon: ClipboardList,
+            };
+        }
+
+        if (safeStats.active_applications > 0) {
+            return {
+                stage: 'Applications in review',
+                title: 'Check your application updates',
+                description: `You have ${safeStats.active_applications} active application${safeStats.active_applications === 1 ? '' : 's'} to track.`,
+                action: 'Track applications',
+                href: route('student.application-tracking'),
+                icon: ClipboardList,
+            };
+        }
+
+        if (!profileComplete) {
+            return {
+                stage: 'Get ready to apply',
+                title: 'Complete your student profile',
+                description: 'Fill in the required profile details before applying for an internship.',
+                action: 'Complete profile',
+                href: route('student.profile'),
+                icon: CheckCircle2,
+            };
+        }
+
+        if (!cvGenerated) {
+            return {
+                stage: 'Get ready to apply',
+                title: 'Generate your CV',
+                description: 'Your profile is ready. Generate your CV to apply for available positions.',
+                action: 'Open profile',
+                href: route('student.profile'),
+                icon: FileText,
+            };
+        }
+
+        return {
+            stage: 'Explore opportunities',
+            title: safeStats.available_slots > 0 ? 'Find an internship that suits you' : 'You are ready to apply',
+            description: safeStats.available_slots > 0
+                ? `${safeStats.available_slots} opening${safeStats.available_slots === 1 ? '' : 's'} available across approved positions.`
+                : 'Browse approved internship positions and check back for new openings.',
+            action: 'Browse positions',
+            href: route('student.companies'),
+            icon: BriefcaseBusiness,
+        };
+    })();
+
+    const NextStepIcon = nextStep.icon;
+    const internshipStatus = internship
+        ? internship.phase === 'upcoming'
+            ? 'Starts soon'
+            : internship.phase === 'active'
+                ? 'In progress'
+                : 'Period ended'
+        : safeStats.recruited_applications > 0
+            ? 'Dates not set'
+            : 'Not started';
+
+    const internshipDetail = internship
+        ? `${formatDate(internship.start_date)} – ${formatDate(internship.end_date)}`
+        : safeStats.recruited_applications > 0
+            ? 'Waiting for your company to set the dates'
+            : 'Dates appear here after recruitment';
+
+    const progressLabel = internship ? 'Logbook' : 'Open positions';
+    const progressValue = internship
+        ? missingLogbookWeeks.length > 0
+            ? `${missingLogbookWeeks.length} due`
+            : 'Up to date'
+        : safeStats.available_slots;
+    const progressDetail = internship
+        ? missingLogbookWeeks.length > 0
+            ? 'Completed weeks still need submission'
+            : 'Your weekly entries are current'
+        : `${safeStats.open_positions} position${safeStats.open_positions === 1 ? '' : 's'} accepting applications`;
+
+    const summaryCards = [
+        {
+            label: 'Applications',
+            value: safeStats.applications,
+            detail: `${safeStats.active_applications} active · ${safeStats.recruited_applications} recruited`,
+            icon: ClipboardList,
+        },
+        {
+            label: 'Internship',
+            value: internshipStatus,
+            detail: internshipDetail,
+            icon: CalendarDays,
+        },
+        {
+            label: progressLabel,
+            value: progressValue,
+            detail: progressDetail,
+            icon: internship ? BookOpen : BriefcaseBusiness,
+        },
+    ];
+
     return (
-        <RoleDashboard
-            title="Student"
-            description="Browse approved internship opportunities across all programmes and track your applications."
-            stats={[
-                { label: 'Open positions', value: safeStats.open_positions, detail: 'Approved positions across all programmes', icon: Briefcase },
-                { label: 'Available slots', value: safeStats.available_slots, detail: 'Places remaining across open positions', icon: Search },
-                { label: 'My applications', value: safeStats.applications, detail: `${safeStats.pending_applications} awaiting a response`, icon: FileText },
-                { label: 'Recruited', value: safeStats.recruited_applications, detail: 'Positions where you have been recruited', icon: CheckCircle2 },
-            ]}
-        >
-            {completedOnboardingTasks.length < steps.length && (
-                <DashboardPanel
-                    title="Get ready to apply"
-                    description={`${completedOnboardingTasks.length} of ${steps.length} preparation steps completed.`}
-                >
-                    <div className="p-4 sm:p-5">
-                        <ScrollAreaHorizontalDemo completedOnboardingTasks={completedOnboardingTasks} />
-                    </div>
-                </DashboardPanel>
-            )}
+        <>
+            <Head title="Student Dashboard" />
+            <main className="min-h-full bg-slate-50 px-4 py-7 sm:px-6 lg:px-8">
+                <div className="mx-auto max-w-7xl space-y-6">
+                    <header>
+                        <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Dashboard</h1>
+                        <p className="mt-2 text-sm text-slate-500">
+                            Welcome back, {studentName}. Here is your internship progress and next step.
+                        </p>
+                    </header>
 
-            <div className="grid gap-6 xl:grid-cols-2">
-                <DashboardPanel
-                    title="Open internship positions"
-                    description="Approved openings available to students across all programmes."
-                    action={<Link href={route('student.companies')} className="text-sm font-semibold text-blue-700 hover:text-blue-800">Browse all</Link>}
-                >
-                    {availableQuotas.length === 0 ? (
-                        <DashboardEmptyState message="There are no released positions available right now." />
-                    ) : (
-                        <div className="divide-y divide-slate-100">
-                            {availableQuotas.slice(0, 5).map((quota) => (
-                                <div key={quota.quota_id} className="flex items-center justify-between gap-4 px-5 py-4 sm:px-6">
-                                    <div className="min-w-0">
-                                        <p className="truncate font-semibold text-slate-900">{quota.position_title}</p>
-                                        <p className="mt-1 truncate text-sm text-slate-500">{quota.company.company_name} · {quota.company.office_address}</p>
-                                    </div>
-                                    <div className="flex shrink-0 items-center gap-3">
-                                        <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${quota.is_full ? 'bg-slate-100 text-slate-600' : 'bg-emerald-50 text-emerald-700'}`}>
-                                            {quota.is_full ? 'Full' : `${quota.available} slots`}
+                    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+                        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+                            <div className="flex min-w-0 items-start gap-4">
+                                <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-700 ring-1 ring-blue-100">
+                                    <NextStepIcon className="size-5" />
+                                </span>
+                                <div className="min-w-0">
+                                    <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">{nextStep.stage}</p>
+                                    <h2 className="mt-1 text-lg font-semibold text-slate-900">{nextStep.title}</h2>
+                                    <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-600">{nextStep.description}</p>
+                                </div>
+                            </div>
+                            <Link
+                                href={nextStep.href}
+                                className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-lg bg-blue-700 px-4 text-sm font-semibold text-white transition hover:bg-blue-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+                            >
+                                {nextStep.action}
+                                <ArrowRight className="size-4" />
+                            </Link>
+                        </div>
+                    </section>
+
+                    <section aria-label="Student status" className="grid gap-4 md:grid-cols-3">
+                        {summaryCards.map((card) => {
+                            const Icon = card.icon;
+
+                            return (
+                                <article key={card.label} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                                    <div className="flex items-start justify-between gap-3">
+                                        <div className="min-w-0">
+                                            <p className="text-sm font-medium text-slate-500">{card.label}</p>
+                                            <p className="mt-2 truncate text-2xl font-bold tracking-tight text-slate-900">{card.value}</p>
+                                        </div>
+                                        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
+                                            <Icon className="size-5" />
                                         </span>
-                                        <Link href={route('student.companies.view', quota.company.company_id)} aria-label={`View ${quota.position_title}`} className="rounded-lg p-2 text-slate-500 transition hover:bg-slate-100 hover:text-blue-700">
-                                            <ArrowRight className="size-4" />
-                                        </Link>
                                     </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </DashboardPanel>
+                                    <p className="mt-3 text-xs leading-5 text-slate-500">{card.detail}</p>
+                                </article>
+                            );
+                        })}
+                    </section>
 
-                <DashboardPanel
-                    title="Recent applications"
-                    description="Check the latest status of positions you applied for."
-                    action={<Link href={route('student.application-tracking')} className="text-sm font-semibold text-blue-700 hover:text-blue-800">Track all</Link>}
-                >
-                    {recentApplications.length === 0 ? (
-                        <DashboardEmptyState message="You have not applied to any positions yet." />
-                    ) : (
-                        <div className="divide-y divide-slate-100">
-                            {recentApplications.map((application) => (
-                                <div key={application.id} className="flex items-center justify-between gap-4 px-5 py-4 sm:px-6">
-                                    <div className="min-w-0">
-                                        <p className="truncate font-semibold text-slate-900">{application.job_title ?? 'Position'}</p>
-                                        <p className="mt-1 text-sm text-slate-500">{application.company_name ?? 'Company'} · Applied {formatDate(application.created_at)}</p>
-                                    </div>
-                                    <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${statusClass(application.app_status)}`}>
-                                        {application.app_status}
-                                    </span>
-                                </div>
-                            ))}
+                    <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                        <div className="flex flex-col gap-3 border-b border-slate-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+                            <div>
+                                <h2 className="font-semibold text-slate-900">Recent applications</h2>
+                                <p className="mt-1 text-sm text-slate-500">A quick view of your latest application activity.</p>
+                            </div>
+                            <Link href={route('student.application-tracking')} className="inline-flex items-center gap-1 text-sm font-semibold text-blue-700 hover:text-blue-800">
+                                View all applications
+                                <ArrowRight className="size-4" />
+                            </Link>
                         </div>
-                    )}
-                </DashboardPanel>
-            </div>
-        </RoleDashboard>
+
+                        {recentApplications.length === 0 ? (
+                            <div className="px-6 py-10 text-center">
+                                <p className="text-sm text-slate-600">Your applications will appear here once you apply.</p>
+                                <Link href={route('student.companies')} className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-blue-700 hover:text-blue-800">
+                                    Browse positions
+                                    <ArrowRight className="size-4" />
+                                </Link>
+                            </div>
+                        ) : (
+                            <div className="divide-y divide-slate-100">
+                                {recentApplications.slice(0, 3).map((application) => (
+                                    <div key={application.id} className="flex flex-col gap-2 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+                                        <div className="min-w-0">
+                                            <p className="truncate font-semibold text-slate-900">{application.job_title ?? 'Position'}</p>
+                                            <p className="mt-1 truncate text-sm text-slate-500">
+                                                {application.company_name ?? 'Company'} · Applied {formatDate(application.created_at)}
+                                            </p>
+                                        </div>
+                                        <span className={`w-fit shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ring-inset ${statusClass(application.app_status)}`}>
+                                            {application.app_status}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </section>
+                </div>
+            </main>
+        </>
     );
 }
 

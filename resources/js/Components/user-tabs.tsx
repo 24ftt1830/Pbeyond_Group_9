@@ -38,6 +38,7 @@ type EditableUserRow = {
   display_name?: string;
   email: string;
   programme_name?: string;
+  intake_semester_name?: string;
   company_name?: string;
   onEdit: () => void;
 };
@@ -61,6 +62,7 @@ const studentColumns: ColumnDef<EditableUserRow>[] = [
   { id: 'full_name', header: 'Full Name', accessorKey: 'full_name' },
   { id: 'email', header: 'Email Address', accessorKey: 'email' },
   { id: 'programme_name', header: 'Academic Programme', accessorKey: 'programme_name' },
+  { id: 'intake_semester_name', header: 'Intake Semester', accessorKey: 'intake_semester_name' },
   editColumn,
 ];
 
@@ -72,13 +74,15 @@ const repColumns: ColumnDef<EditableUserRow>[] = [
 ];
 
 const UserTabs = () => {
-  const { students, companyUsers, companies, programmes, supervisors, quotas } = usePage<any>().props;
+  const { students, companyUsers, companies, programmes, supervisors, quotas, academicSemesters } = usePage<any>().props;
 
   const [activeTab, setActiveTab] = useState('students');
   const [supervisorOpen, setSupervisorOpen] = useState(false);
   const [supervisorType, setSupervisorType] = useState<Supervisor['type']>('industry');
   const [studentOpen, setStudentOpen] = useState(false);
+  const [companyOpen, setCompanyOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [originalCompanyId, setOriginalCompanyId] = useState('');
   const [searchQuery, setSearchQuery] = useState("");
 
   // Filter logic
@@ -92,6 +96,12 @@ const UserTabs = () => {
     u.email?.toLowerCase().includes(searchQuery.toLowerCase())
   ) || [];
 
+  const companiesWithoutHrAccount = (companies || []).filter((company: any) =>
+    !companyUsers?.some((user: any) =>
+      String(user.company_id ?? user.company?.company_id) === String(company.company_id)
+    )
+  );
+
   const studentForm = useForm({
     username: '',
     full_name: '',
@@ -99,7 +109,17 @@ const UserTabs = () => {
     password: '',
     programme_id: '',
     pb_student_code: '',
+    intake_semester_id: '',
     role: 'Student'
+  });
+
+  const companyAccountForm = useForm({
+    username: '',
+    email: '',
+    password: '',
+    access_key: '',
+    role: 'Company',
+    company_id: '',
   });
 
   const updateForm = useForm({
@@ -108,15 +128,19 @@ const UserTabs = () => {
     username: '',
     email: '',
     password: '',
+    access_key: '',
     role: '',
     programme_id: '',
     pb_student_code: '',
+    intake_semester_id: '',
     company_id: '',
   });
 
   const openEditModal = (user: any, role: 'Student' | 'Company') => {
     if (!user) return;
     const userId = user.user_id || user.id;
+    const companyId = role === 'Company' ? String(user.company_id ?? user.company?.company_id ?? '') : '';
+    setOriginalCompanyId(companyId);
     updateForm.clearErrors();
     updateForm.setData({
       id: userId,
@@ -124,10 +148,12 @@ const UserTabs = () => {
       username: user.username || '',
       email: user.email || '',
       password: '',
+      access_key: '',
       role: role,
       programme_id: role === 'Student' ? String(user.student?.programme_id ?? '') : '',
       pb_student_code: role === 'Student' ? user.student?.pb_student_code ?? '' : '',
-      company_id: role === 'Company' ? String(user.company_id ?? user.company?.company_id ?? '') : '',
+      intake_semester_id: role === 'Student' ? String(user.student?.intake_semester_id ?? '') : '',
+      company_id: companyId,
     });
     setEditModalOpen(true);
   };
@@ -156,6 +182,18 @@ const UserTabs = () => {
     });
   };
 
+  const submitCompanyAccount = (e: React.FormEvent) => {
+    e.preventDefault();
+    companyAccountForm.post(route('admin.manage-users.store'), {
+      preserveScroll: true,
+      onSuccess: () => {
+        setCompanyOpen(false);
+        companyAccountForm.reset();
+        companyAccountForm.clearErrors();
+      },
+    });
+  };
+
   return (
     <div className="p-6">
       <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
@@ -167,12 +205,16 @@ const UserTabs = () => {
             Add supervisor
           </Button>}
           {activeTab === 'students' && <>
-            <ImportStudentsDialog programmes={programmes} />
+            <ImportStudentsDialog programmes={programmes} academicSemesters={academicSemesters} />
             <Button size="sm" className="flex items-center gap-1.5 shadow-sm" onClick={() => setStudentOpen(true)}>
               <Plus className="size-3.5" />
               Add Student
             </Button>
           </>}
+          {activeTab === 'reps' && <Button size="sm" className="flex items-center gap-1.5 shadow-sm" onClick={() => setCompanyOpen(true)} disabled={!companiesWithoutHrAccount.length} title={!companiesWithoutHrAccount.length ? 'All companies already have an HR account.' : undefined}>
+            <Plus className="size-3.5" />
+            Add HR account
+          </Button>}
         </div>
       </div>
 
@@ -209,7 +251,7 @@ const UserTabs = () => {
                 <form onSubmit={submitStudent}>
                   <DialogHeader>
                     <DialogTitle>Register Student</DialogTitle>
-                    <DialogDescription>Create a student account and assign their academic programme.</DialogDescription>
+                    <DialogDescription>Create a student account and assign their academic programme and intake.</DialogDescription>
                   </DialogHeader>
 
                   <div className="grid gap-4 py-4">
@@ -294,6 +336,17 @@ const UserTabs = () => {
                         </SelectContent>
                       </Select>
                     </div>
+
+                    <div className="grid gap-2">
+                      <Label>Intake Semester</Label>
+                      <Select value={studentForm.data.intake_semester_id} onValueChange={(value) => studentForm.setData('intake_semester_id', value)}>
+                        <SelectTrigger className="shadow-none"><SelectValue placeholder="Select intake semester" /></SelectTrigger>
+                        <SelectContent className="max-h-[250px] overflow-y-auto">
+                          {academicSemesters?.map((semester: any) => <SelectItem key={semester.id} value={String(semester.id)}>{semester.name}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                      {studentForm.errors.intake_semester_id && <p className="text-xs text-red-500">{studentForm.errors.intake_semester_id}</p>}
+                    </div>
                   </div>
 
                   <Errors errors={studentForm.errors} />
@@ -307,10 +360,64 @@ const UserTabs = () => {
                         !studentForm.data.username ||
                         !studentForm.data.email ||
                         !studentForm.data.password ||
-                        !studentForm.data.programme_id
+                        !studentForm.data.programme_id ||
+                        !studentForm.data.intake_semester_id
                       }
                     >
                       {studentForm.processing ? <Loader2 className="animate-spin size-4" /> : 'Create Student'}
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
+
+            <Dialog open={companyOpen} onOpenChange={setCompanyOpen}>
+              <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-[480px]">
+                <form onSubmit={submitCompanyAccount}>
+                  <DialogHeader>
+                    <DialogTitle>Register Focal Person</DialogTitle>
+                    <DialogDescription>Create one HR login for an existing company.</DialogDescription>
+                  </DialogHeader>
+
+                  <div className="grid gap-4 py-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="hr-username">Username</Label>
+                      <Input id="hr-username" value={companyAccountForm.data.username} onChange={(event) => companyAccountForm.setData('username', event.target.value)} required />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="hr-email">Email</Label>
+                      <Input id="hr-email" type="email" value={companyAccountForm.data.email} onChange={(event) => companyAccountForm.setData('email', event.target.value)} required />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="hr-password">Initial Password</Label>
+                      <Input id="hr-password" type="password" minLength={8} autoComplete="new-password" value={companyAccountForm.data.password} onChange={(event) => companyAccountForm.setData('password', event.target.value)} required />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="hr-access-key">6-digit Company Access Key</Label>
+                      <Input id="hr-access-key" type="password" inputMode="numeric" pattern="[0-9]{6}" maxLength={6} autoComplete="off" value={companyAccountForm.data.access_key} onChange={(event) => companyAccountForm.setData('access_key', event.target.value.replace(/\D/g, '').slice(0, 6))} required />
+                      <p className="text-xs text-muted-foreground">The company will enter this key before signing in with its email and password.</p>
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="hr-company">Company</Label>
+                      <Select value={companyAccountForm.data.company_id} onValueChange={(value) => companyAccountForm.setData('company_id', value)}>
+                        <SelectTrigger id="hr-company" className="shadow-none">
+                          <SelectValue placeholder="Select a company" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {companiesWithoutHrAccount.map((company: any) => (
+                            <SelectItem key={company.company_id} value={String(company.company_id)}>{company.company_name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {!companiesWithoutHrAccount.length && <p className="text-xs text-muted-foreground">All existing companies already have an HR account.</p>}
+                    </div>
+                  </div>
+
+                  <Errors errors={companyAccountForm.errors} />
+                  <DialogFooter>
+                    <Button type="button" variant="outline" disabled={companyAccountForm.processing} onClick={() => setCompanyOpen(false)}>Cancel</Button>
+                    <Button type="submit" disabled={companyAccountForm.processing || !companyAccountForm.data.username || !companyAccountForm.data.email || !companyAccountForm.data.password || companyAccountForm.data.access_key.length !== 6 || !companyAccountForm.data.company_id}>
+                      {companyAccountForm.processing ? 'Creating...' : 'Create HR Account'}
                     </Button>
                   </DialogFooter>
                 </form>
@@ -330,6 +437,7 @@ const UserTabs = () => {
                     role: 'Student',
                     full_name: s.student?.full_name || 'N/A',
                     programme_name: s.student?.programme?.programme_name || 'Not Assigned',
+                    intake_semester_name: s.student?.intake_semester?.name || s.student?.intake_session || 'Not Assigned',
                     onEdit: () => openEditModal(s, 'Student')
                 }))} 
             />
@@ -425,18 +533,35 @@ const UserTabs = () => {
               <Field label="New Password (optional)">
                 <Input type="password" autoComplete="new-password" minLength={8} value={updateForm.data.password} onChange={(event) => updateForm.setData('password', event.target.value)} />
               </Field>
+              {updateForm.data.role === 'Company' && updateForm.data.company_id !== originalCompanyId && <Field label="New 6-digit Access Key">
+                <Input type="password" inputMode="numeric" pattern="[0-9]{6}" maxLength={6} autoComplete="off" value={updateForm.data.access_key} onChange={(event) => updateForm.setData('access_key', event.target.value.replace(/\D/g, '').slice(0, 6))} required />
+                <p className="text-xs text-muted-foreground">The previous company’s access key will be cleared. Give this new key to the newly assigned company.</p>
+              </Field>}
+              {updateForm.data.role === 'Company' && updateForm.data.company_id === originalCompanyId && <Field label="New 6-digit Access Key (optional)">
+                <Input type="password" inputMode="numeric" pattern="[0-9]{6}" maxLength={6} autoComplete="off" value={updateForm.data.access_key} onChange={(event) => updateForm.setData('access_key', event.target.value.replace(/\D/g, '').slice(0, 6))} />
+                <p className="text-xs text-muted-foreground">Leave blank to keep the current key.</p>
+              </Field>}
               {updateForm.data.role === 'Student' ? <Field label="Academic Programme">
                 <select required className="h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm shadow-sm" value={updateForm.data.programme_id} onChange={(event) => updateForm.setData('programme_id', event.target.value)}>
                   <option value="" disabled>Select Programme</option>
                   {programmes?.map((programme: any) => <option key={programme.programme_id} value={programme.programme_id}>{programme.programme_name}</option>)}
                 </select>
               </Field> : <Field label="Company">
-                <Input readOnly value={companies?.find((company: any) => String(company.company_id) === updateForm.data.company_id)?.company_name ?? 'Unassigned'} />
+                <select required className="h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm shadow-sm" value={updateForm.data.company_id} onChange={(event) => { updateForm.setData('company_id', event.target.value); updateForm.setData('access_key', ''); }}>
+                  <option value="" disabled>Select Company</option>
+                  {companies?.filter((company: any) => !companyUsers?.some((other: any) => String(other.user_id) !== String(updateForm.data.id) && String(other.company_id ?? other.company?.company_id) === String(company.company_id))).map((company: any) => <option key={company.company_id} value={String(company.company_id)}>{company.company_name}</option>)}
+                </select>
+              </Field>}
+              {updateForm.data.role === 'Student' && <Field label="Intake Semester">
+                <select required className="h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm shadow-sm" value={updateForm.data.intake_semester_id} onChange={(event) => updateForm.setData('intake_semester_id', event.target.value)}>
+                  <option value="" disabled>Select intake semester</option>
+                  {academicSemesters?.map((semester: any) => <option key={semester.id} value={String(semester.id)}>{semester.name}</option>)}
+                </select>
               </Field>}
               <Errors errors={updateForm.errors} />
               <div className="flex justify-end gap-2">
                 <Button type="button" variant="outline" onClick={() => setEditModalOpen(false)}>Cancel</Button>
-                <Button type="submit" disabled={updateForm.processing}>{updateForm.processing ? 'Saving…' : 'Save changes'}</Button>
+                <Button type="submit" disabled={updateForm.processing || (updateForm.data.role === 'Company' && updateForm.data.company_id !== originalCompanyId && updateForm.data.access_key.length !== 6)}>{updateForm.processing ? 'Saving…' : 'Save changes'}</Button>
               </div>
             </form>
           </DialogContent>

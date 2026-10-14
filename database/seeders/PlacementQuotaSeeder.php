@@ -95,6 +95,13 @@ class PlacementQuotaSeeder extends Seeder
                 $quota->is_released = false;
             }
 
+            if ($isNewQuota || !$quota->academic_semester_id) {
+                $quota->academic_semester_id = DB::table('academic_semesters')
+                    ->whereDate('starts_on', '<=', now()->toDateString())
+                    ->whereDate('ends_on', '>=', now()->toDateString())
+                    ->value('id');
+            }
+
             $quota->save();
 
             $quota->programmes()->syncWithoutDetaching([$programmeId]);

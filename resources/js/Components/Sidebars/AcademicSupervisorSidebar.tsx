@@ -3,27 +3,18 @@ import {
     SidebarContent,
     SidebarHeader,
     SidebarTrigger,
-    SidebarSeparator,
     SidebarFooter,
     SidebarMenu,
     SidebarMenuItem,
     SidebarMenuButton,
 } from "@/Components/ui/sidebar"
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/Components/ui/dropdown-menu"
 import { NavUser } from "@/Components/nav-user"
 import { usePage, Link } from "@inertiajs/react"
 import { PageProps } from "@/types"
 import {
-    LayoutDashboard,
-    BookOpen,
-    LifeBuoy,
-    Flag,
-    HelpCircle,
+    House,
+    GraduationCap,
+    BookMarked,
 } from "lucide-react"
 
 export function AcademicSupervisorSidebar({
@@ -91,6 +82,10 @@ export function AcademicSupervisorSidebar({
 
                 <div className="pt-2">
 
+                    <p className="mb-2 px-5 text-xs font-medium text-muted-foreground group-data-[collapsible=icon]:hidden">
+                        Academic Supervisor Portal
+                    </p>
+
                     <SidebarMenu>
 
                         {/* Dashboard */}
@@ -100,7 +95,7 @@ export function AcademicSupervisorSidebar({
                                 isActive={isDashboardPage}
                             >
                                 <Link href="/academic-supervisor/dashboard">
-                                    <LayoutDashboard />
+                                    <House />
                                     <span>Dashboard</span>
                                 </Link>
                             </SidebarMenuButton>
@@ -113,7 +108,7 @@ export function AcademicSupervisorSidebar({
                                 isActive={isStudentsPage}
                             >
                                 <Link href="/academic-supervisor/students">
-                                    <LayoutDashboard />
+                                    <GraduationCap />
                                     <span>Students</span>
                                 </Link>
                             </SidebarMenuButton>
@@ -126,7 +121,7 @@ export function AcademicSupervisorSidebar({
                                 isActive={isLogbookPage}
                             >
                                 <Link href="/academic-supervisor/logbook">
-                                    <BookOpen />
+                                    <BookMarked />
                                     <span>Logbook Review</span>
                                 </Link>
                             </SidebarMenuButton>
@@ -135,56 +130,6 @@ export function AcademicSupervisorSidebar({
                     </SidebarMenu>
 
                 </div>
-
-                <SidebarSeparator />
-
-
-                {/* Support */}
-                <SidebarMenu className="mt-auto">
-
-                    <SidebarMenuItem>
-
-                        <DropdownMenu>
-
-                            <DropdownMenuTrigger asChild>
-
-                                <SidebarMenuButton
-                                    size="sm"
-                                    className="focus-visible:ring-0"
-                                >
-                                    <LifeBuoy className="size-4" />
-                                    <span>Support</span>
-                                </SidebarMenuButton>
-
-                            </DropdownMenuTrigger>
-
-
-                            <DropdownMenuContent
-                                side="top"
-                                className="w-[--radix-popper-anchor-width]"
-                            >
-
-                                <DropdownMenuItem asChild>
-                                    <Link href={route("student.report-issue")}>
-                                        <Flag className="mr-2 size-4" />
-                                        <span>Report Issue</span>
-                                    </Link>
-                                </DropdownMenuItem>
-
-                                <DropdownMenuItem asChild>
-                                    <Link href={route("student.faqs")}>
-                                        <HelpCircle className="mr-2 size-4" />
-                                        <span>FAQs</span>
-                                    </Link>
-                                </DropdownMenuItem>
-
-                            </DropdownMenuContent>
-
-                        </DropdownMenu>
-
-                    </SidebarMenuItem>
-
-                </SidebarMenu>
 
             </SidebarContent>
 
