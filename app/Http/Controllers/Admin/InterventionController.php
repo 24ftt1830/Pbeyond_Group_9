@@ -25,7 +25,7 @@ class InterventionController extends Controller
             ->whereHas('internship', function ($query) {
                 $query->whereNotNull('start_date')->whereNotNull('end_date');
             })
-            ->whereHas('programme.academicSupervisorAssignments', function ($query) {
+            ->whereHas('academicSupervisorAssignments', function ($query) {
                 $query->whereIn('monitoring_status', ['Needs Attention', 'At Risk']);
             })
             ->when($intakeSemesterId, fn ($query) => $query->where('intake_semester_id', $intakeSemesterId), fn ($query) => $query->whereRaw('1 = 0'))
@@ -34,7 +34,7 @@ class InterventionController extends Controller
                 ->whereDate('end_date', '>=', $term->starts_on->toDateString())))
             ->with([
                 'internship',
-                'programme.academicSupervisorAssignments' => function ($query) {
+                'academicSupervisorAssignments' => function ($query) {
                     $query->whereIn('monitoring_status', ['Needs Attention', 'At Risk']);
                 },
                 'applications' => function ($query) {
@@ -46,7 +46,7 @@ class InterventionController extends Controller
             ->orderBy('full_name')
             ->get()
             ->map(function ($student) {
-                $statuses = $student->programme?->academicSupervisorAssignments
+                $statuses = $student->academicSupervisorAssignments
                     ->pluck('monitoring_status') ?? collect();
                 $application = $student->applications->first();
 

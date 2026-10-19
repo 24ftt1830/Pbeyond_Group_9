@@ -50,13 +50,13 @@ export function NavUser({ user }: { user: User }) {
               className="border data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground focus-visible:ring-0"
             >
               <Avatar className="w-8 h-8 rounded-lg">
-                <AvatarImage src={user.avatar} alt={user.name} />
+                <AvatarImage src={user.avatar} alt={(user.name || user.username || user.email)} />
                 <AvatarFallback className="rounded-lg">
-                  {user?.name?.substring(0, 2).toUpperCase() ?? ''}
+                  {(user.name || user.username || user.email).substring(0, 2).toUpperCase() ?? ''}
                 </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-sm leading-tight text-left">
-                <span className="font-semibold truncate">{user.name}</span>
+                <span className="font-semibold truncate">{(user.name || user.username || user.email)}</span>
                 <span className="text-xs truncate">{user.email}</span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
@@ -71,13 +71,13 @@ export function NavUser({ user }: { user: User }) {
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="w-8 h-8 rounded-lg">
-                  <AvatarImage src={user.avatar} alt={user.name} />
+                  <AvatarImage src={user.avatar} alt={(user.name || user.username || user.email)} />
                   <AvatarFallback className="rounded-lg">
-                    {user?.name?.substring(0, 2).toUpperCase() ?? ''}
+                    {(user.name || user.username || user.email).substring(0, 2).toUpperCase() ?? ''}
                   </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-sm leading-tight text-left">
-                  <span className="font-semibold truncate">{user.name}</span>
+                  <span className="font-semibold truncate">{(user.name || user.username || user.email)}</span>
                   <span className="text-xs truncate">{user.email}</span>
                 </div>
               </div>
@@ -90,10 +90,7 @@ export function NavUser({ user }: { user: User }) {
                   Profile
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <BadgeCheck />
-                Account settings
-              </DropdownMenuItem>
+              <DropdownMenuItem asChild><Link href={route('profile.edit')}><BadgeCheck />Account settings</Link></DropdownMenuItem>
               <DropdownMenuItem>
                 <Bell />
                 Notifications

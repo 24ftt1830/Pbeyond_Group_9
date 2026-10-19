@@ -1,3 +1,4 @@
+import { roleLabel } from '@/lib/role-labels';
 import * as React from "react"
 import {
     BookOpen,
@@ -121,7 +122,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                     </span>
 
                                     <span className="truncate text-xs capitalize">
-                                        {auth.user.role}
+                                        {roleLabel(auth.user.role)}
                                     </span>
                                 </div>
                             </Link>

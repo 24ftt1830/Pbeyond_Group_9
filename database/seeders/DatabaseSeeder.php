@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
             ProgrammeSeeder::class,
             AcademicSemesterSeeder::class,
             PlacementQuotaSeeder::class,
+            CompanyBranchSeeder::class,
             IldAdminSeeder::class,
             StudentSeeder::class,
             AcademicSupervisorSeeder::class,

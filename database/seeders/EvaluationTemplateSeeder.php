@@ -74,6 +74,11 @@ class EvaluationTemplateSeeder extends Seeder
                 ->first();
 
             if ($template) {
+                // Published rubrics and assessment snapshots must remain unchanged.
+                if ($template->is_active || $template->submissions()->exists()
+                    || \App\Models\FinalInternshipReport::where('report_template_id', $template->id)->exists()) {
+                    continue;
+                }
                 foreach ($example['sections'] as $sectionData) {
                     $section = $template->sections()->where('title', $sectionData['title'])->first();
                     if (!$section) {
@@ -124,7 +129,7 @@ class EvaluationTemplateSeeder extends Seeder
                 'name' => $supervisorType . ' Evaluation',
                 'component_weight' => $example['component_weight'],
                 'version' => 1,
-                'is_active' => true,
+                'is_active' => false,
             ]);
 
             foreach ($example['sections'] as $sectionOrder => $sectionData) {

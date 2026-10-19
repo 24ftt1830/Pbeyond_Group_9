@@ -14,11 +14,17 @@ class LogbookEntry extends Model
         'description',
         'learning_outcomes',
         'issues',
+        'attachments',
+        'legacy_permission',
     ];
 
     protected $casts = [
         'date' => 'date',
+        'attachments' => 'array',
+        'legacy_permission' => 'boolean',
     ];
+
+    protected $hidden = ['attachments'];
 
     public function student(): BelongsTo
     {

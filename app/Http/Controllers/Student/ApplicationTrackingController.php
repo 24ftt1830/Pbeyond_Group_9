@@ -17,7 +17,7 @@ class ApplicationTrackingController extends Controller
             return back()->withErrors(['message' => 'Student profile not found.']);
         }
 
-        $applications = Application::with('quota.company')
+        $applications = Application::with(['quota.company', 'branch', 'statusHistories'])
             ->where('student_id', $student->student_id)
             ->latest()
             ->get();
@@ -40,7 +40,9 @@ class ApplicationTrackingController extends Controller
                 'applied_at' => $app->created_at,
                 'interview_date' => $app->interview_date,
                 'requires_interview' => $requiresInterview,
-                'reviewed_at' => in_array($app->app_status, ['Recruited', 'Declined']) ? $app->updated_at : null,
+                'reviewed_at' => $app->statusHistories->last(fn ($history) => in_array($history->to_status, ['Recruited', 'Declined'], true))?->created_at,
+                'branch' => $app->branch?->only(['name', 'address', 'district']),
+                'history' => $app->statusHistories,
                 'step' => $this->calculateStep($app->app_status, $requiresInterview), 
                 'company' => [
                     'id' => $quota->company->company_id ?? $quota->company->id ?? 0,

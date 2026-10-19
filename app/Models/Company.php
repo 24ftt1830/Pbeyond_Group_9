@@ -15,20 +15,14 @@ class Company extends Model
         'location_type',
         'industry_sector',
         'office_address',
+        'district',
         'description',
         'additional_information',
         'is_approved',
-        'access_key',
-        'access_key_expires_at',
         'completed_onboarding_tasks',
     ];
 
-    protected $hidden = [
-        'access_key',
-    ];
-
     protected $casts = [
-        'access_key_expires_at' => 'datetime',
         'completed_onboarding_tasks' => 'array',
     ];
 
@@ -40,6 +34,11 @@ class Company extends Model
     public function placementQuotas()
     {
         return $this->hasMany(PlacementQuota::class, 'company_id', 'company_id');
+    }
+
+    public function branches()
+    {
+        return $this->hasMany(CompanyBranch::class, 'company_id', 'company_id')->orderBy('name');
     }
 
     public function industrySupervisors()

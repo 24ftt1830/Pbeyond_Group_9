@@ -22,6 +22,7 @@ import {
 } from "@/Components/ui/dialog";
 import { Label } from "@/Components/ui/label";
 import { Errors, RecordFeedback } from '@/Components/Admin/RecordControls';
+import { districts } from '@/Components/CompanyBranchEditor';
 
 // --- Types ---
 interface Company {
@@ -31,6 +32,9 @@ interface Company {
     office_address: string;
     available: number;
     status?: string;
+    district?: string;
+    branches?: { district?: string; name: string }[];
+    schools?: string[];
 }
 
 interface Quota {
@@ -77,12 +81,16 @@ export default function Companies({ stats, companies, quotas = [] }: Props) {
         company_name: '',
         industry_sector: '',
         office_address: '',
+        district: '',
     });
     const companyImportForm = useForm({ file: null as File | null });
 
     const [searchTerm, setSearchTerm] = useState('');
     const [filterCategory, setFilterCategory] = useState('all');
     const [filterStatus, setFilterStatus] = useState('all');
+    const [filterDistrict, setFilterDistrict] = useState('');
+    const [filterSchool, setFilterSchool] = useState('');
+    const schoolNames = [...new Set(companies.flatMap((company) => company.schools ?? []))].sort();
     const [isSearching, setIsSearching] = useState(false);
 
     const columns = useMemo(() => [
@@ -106,6 +114,7 @@ export default function Companies({ stats, companies, quotas = [] }: Props) {
         { accessorKey: "company_name", header: "Company Name" },
         { accessorKey: "industry_sector", header: "Industry Sector" },
         { accessorKey: "office_address", header: "Office Address" },
+        { accessorKey: 'district', header: 'District' },
         { accessorKey: "total_quota", header: "Total Quota" },
         { accessorKey: "filled", header: "Filled" },
         { accessorKey: "available", header: "Available" },
@@ -145,6 +154,7 @@ export default function Companies({ stats, companies, quotas = [] }: Props) {
     };
 
     const handleReject = (id: number) => {
+        if (!window.confirm('Reject this quota request and hide it from students?')) return;
         router.post(route('admin.placements.reject', { quota: id }), {}, {
         preserveScroll: true,
     });
@@ -162,14 +172,18 @@ export default function Companies({ stats, companies, quotas = [] }: Props) {
                     company.office_address.toLowerCase().includes(searchTerm.toLowerCase());
                 const matchesCategory = filterCategory === 'all' || company.industry_sector === filterCategory;
                 const matchesStatus = filterStatus === 'all' || (filterStatus.toLowerCase() === company.status?.toLowerCase());
-                return matchesSearch && matchesCategory && matchesStatus;
+                const matchesDistrict = !filterDistrict || [company.district, ...(company.branches ?? []).map((branch) => branch.district)].includes(filterDistrict);
+                const matchesSchool = !filterSchool || (company.schools ?? []).includes(filterSchool);
+                return matchesSearch && matchesCategory && matchesStatus && matchesDistrict && matchesSchool;
             });
-    }, [searchTerm, filterCategory, filterStatus, companies]);
+    }, [searchTerm, filterCategory, filterStatus, companies, filterDistrict, filterSchool]);
 
     const resetFilters = () => {
         setSearchTerm('');
         setFilterCategory('all');
         setFilterStatus('all');
+        setFilterDistrict('');
+        setFilterSchool('');
     };
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -228,7 +242,7 @@ export default function Companies({ stats, companies, quotas = [] }: Props) {
                             </DialogHeader>
                             <div className="grid gap-4 py-4">
                                 <p className="text-sm text-muted-foreground">
-                                    CSV columns: <span className="font-medium text-foreground">company_name, industry_sector, office_address</span>
+                                    CSV columns: <span className="font-medium text-foreground">company_name, industry_sector, office_address, district (optional)</span>
                                 </p>
                                 <div className="grid gap-2">
                                     <Label htmlFor="companies-csv">Company CSV file</Label>
@@ -294,21 +308,23 @@ export default function Companies({ stats, companies, quotas = [] }: Props) {
                                     <Label htmlFor="co-location">District</Label>
                                     <Select
                                         required
-                                        value={companyForm.data.office_address}
-                                        onValueChange={(value) => companyForm.setData('office_address', value)}
+                                        value={companyForm.data.district}
+                                        onValueChange={(value) => companyForm.setData('district', value)}
                                     >
                                         <SelectTrigger id="co-location" className="shadow-none">
                                             <SelectValue placeholder="Select District" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="Brunei Muara">Brunei Muara</SelectItem>
+                                            <SelectItem value="Brunei-Muara">Brunei-Muara</SelectItem>
                                             <SelectItem value="Belait">Belait</SelectItem>
                                             <SelectItem value="Tutong">Tutong</SelectItem>
                                             <SelectItem value="Temburong">Temburong</SelectItem>
+                                            <SelectItem value="Overseas">Overseas</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
                             </div>
+                            <div className="mb-4 grid gap-2"><Label htmlFor="co-address">Office address</Label><Input id="co-address" value={companyForm.data.office_address} onChange={(event) => companyForm.setData('office_address', event.target.value)} required /></div>
                             <Errors errors={companyForm.errors} />
                             <DialogFooter>
                                 <Button type="button" variant="outline" disabled={companyForm.processing} onClick={() => setOpen(false)}>Cancel</Button>
@@ -362,6 +378,8 @@ export default function Companies({ stats, companies, quotas = [] }: Props) {
                                     />
                                 </div>
                             </div>
+                            <select aria-label="Filter by school" value={filterSchool} onChange={(event) => setFilterSchool(event.target.value)} className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm"><option value="">All schools</option>{schoolNames.map((school) => <option key={school}>{school}</option>)}</select>
+                            <select aria-label="Filter by district" value={filterDistrict} onChange={(event) => setFilterDistrict(event.target.value)} className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm"><option value="">All districts</option>{districts.map((district) => <option key={district}>{district}</option>)}</select>
                             <Button variant="ghost" size="sm" onClick={resetFilters} className="text-gray-500 hover:text-red-600">
                                 <RotateCcw className="size-3.5" /> Reset
                             </Button>

@@ -62,6 +62,7 @@ export default function Calendar({ events = [] }: CalendarProps) {
             return;
         }
 
+        if (!window.confirm("Delete this calendar event?")) return;
         router.delete(route("admin.events.destroy", eventId), {
             preserveScroll: true,
             preserveState: true,

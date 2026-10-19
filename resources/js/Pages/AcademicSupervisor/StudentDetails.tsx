@@ -1,3 +1,4 @@
+import { roleLabel } from '@/lib/role-labels';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { useState } from 'react';
 import type { FormEvent } from 'react';
@@ -144,6 +145,8 @@ interface Student {
     cgpa?: number | string;
     work_experience?: string;
     emergency_no?: string;
+    emergency_no_2?: string;
+    insurance_document_path?: string;
     cv_file_path?: string;
     passport_photo_path?: string;
 
@@ -181,6 +184,7 @@ interface Props {
     canFinalizeIncomplete: boolean;
     completionStatus: 'Pending Evaluation' | 'Incomplete' | 'Completed';
     overallScore: number | null;
+    attendance: { recorded_days: number; credited_days: number; absent_days: number; missing_days: number; unapproved_days: number; percentage: number | null; elapsed_days: number; total_days: number };
 }
 
 const display = (value?: string | number | null) => {
@@ -217,7 +221,7 @@ const formatDateRange = (start?: string, end?: string) => {
     return `${start ? formatDate(start) : 'Start date not provided'} – ${end ? formatDate(end) : 'Present'}`;
 };
 
-export default function StudentDetails({ student, visits, evaluation, academicEvaluation, industryEvaluation, hasActiveEvaluationTemplate, monitoringStatus, finalReport, completionRecord, canFinalizeCompleted, canFinalizeIncomplete, completionStatus, overallScore, }: Props) {
+export default function StudentDetails({ student, visits, evaluation, academicEvaluation, industryEvaluation, hasActiveEvaluationTemplate, monitoringStatus, finalReport, completionRecord, canFinalizeCompleted, canFinalizeIncomplete, completionStatus, overallScore, attendance }: Props) {
     const [activeTab, setActiveTab] = useState<'overview' | 'profile' | 'assessments' | 'confirmation'>('overview');
     const [editingCompletionDecision, setEditingCompletionDecision] = useState(false);
     const {
@@ -318,7 +322,7 @@ export default function StudentDetails({ student, visits, evaluation, academicEv
                     ? 'Requirements incomplete'
                     : 'Awaiting confirmation',
         },
-        { label: 'Academic Supervisor evaluation', state: academicEvaluation?.reopened_at ? 'Pending correction' : academicEvaluation ? 'Submitted' : 'Pending' },
+        { label: 'PB Supervisor evaluation', state: academicEvaluation?.reopened_at ? 'Pending correction' : academicEvaluation ? 'Submitted' : 'Pending' },
         { label: 'Industry Supervisor evaluation', state: industryEvaluation?.reopened_at ? 'Pending correction' : industryEvaluation ? 'Submitted' : 'Pending' },
         {
             label: 'Written report',
@@ -362,7 +366,7 @@ export default function StudentDetails({ student, visits, evaluation, academicEv
                                 <button
                                     type="button"
                                     disabled
-                                    title="The Admin has not activated an Academic Supervisor evaluation template yet."
+                                    title="The Admin has not activated an PB Supervisor evaluation template yet."
                                     className="inline-flex w-fit cursor-not-allowed items-center gap-2 rounded-xl bg-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-500"
                                 >
                                     <ClipboardCheck size={16} />
@@ -382,7 +386,7 @@ export default function StudentDetails({ student, visits, evaluation, academicEv
 
                                 <div className="min-w-0 flex-1">
                                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-200">
-                                        Academic Supervisor · Student Record
+                                        PB Supervisor · Student Record
                                     </p>
 
                                     <h1 className="mt-2 text-2xl font-bold tracking-tight text-white sm:text-3xl">
@@ -460,11 +464,11 @@ export default function StudentDetails({ student, visits, evaluation, academicEv
                             <div>
                                 <h2 className="text-lg font-bold text-slate-900">Final Internship Report</h2>
                                 <p className="mt-1 text-sm text-slate-500">
-                                    {finalReport?.submitted_at ? `Academic review: ${finalReport.academic_review_status}` : 'The student has not submitted a final report yet.'}
+                                    {finalReport?.submitted_at ? `PB review: ${finalReport.academic_review_status}` : 'The student has not submitted a final report yet.'}
                                 </p>
                                 {overallScore !== null && (
                                     <p className="mt-1 text-sm font-semibold text-indigo-700">
-                                        Overall evaluation (Academic + Industry + Written Report): {overallScore.toFixed(2)}%
+                                        Overall evaluation (PB + Industry + Written Report): {overallScore.toFixed(2)}%
                                     </p>
                                 )}
                             </div>
@@ -481,7 +485,7 @@ export default function StudentDetails({ student, visits, evaluation, academicEv
                         icon={<CheckCircle2 size={20} />}
                     >
                         <div className="flex flex-wrap items-center justify-between gap-3">
-                            <p className="text-sm text-slate-600">The Academic Supervisor makes the final school decision after the Company and both supervisors submit their decisions and the report is reviewed.</p>
+                            <p className="text-sm text-slate-600">The PB Supervisor makes the final school decision after the Company and both supervisors submit their decisions and the report is reviewed.</p>
                             <span className={`rounded-full px-3 py-1 text-xs font-bold ${completionStatusTone(completionStatus)}`}>{completionStatus}</span>
                         </div>
                         <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -535,8 +539,8 @@ export default function StudentDetails({ student, visits, evaluation, academicEv
                                 {academicEvaluation ? (
                                     <div className="flex flex-wrap items-center justify-between gap-3">
                                         <div>
-                                            <h3 className="text-base font-bold text-slate-900">Academic Supervisor Evaluation</h3>
-                                            <p className="mt-1 text-sm text-slate-500">{academicEvaluation.reopened_at ? 'Pending correction · Previous score' : academicEvaluation.template_snapshot?.name ?? 'Evaluation'} · {academicEvaluation.reopened_at ? '' : 'Score '}{academicEvaluation.overall_score}%</p>
+                                            <h3 className="text-base font-bold text-slate-900">PB Supervisor Evaluation</h3>
+                                            <p className="mt-1 text-sm text-slate-500">{academicEvaluation.reopened_at ? 'Pending correction · Previous score' : roleLabel(academicEvaluation.template_snapshot?.name ?? 'Evaluation')} · {academicEvaluation.reopened_at ? '' : 'Score '}{academicEvaluation.overall_score}%</p>
                                         </div>
                                         <Link
                                             href={route('academic-supervisor.student.evaluations.show', { student: student.student_id, submission: academicEvaluation.id })}
@@ -547,7 +551,7 @@ export default function StudentDetails({ student, visits, evaluation, academicEv
                                     </div>
                                 ) : (
                                     <>
-                                        <h3 className="text-base font-bold text-slate-900">Academic Supervisor Evaluation</h3>
+                                        <h3 className="text-base font-bold text-slate-900">PB Supervisor Evaluation</h3>
                                         <p className="mt-1 text-sm text-slate-500">No evaluation submitted yet.</p>
                                     </>
                                 )}
@@ -672,6 +676,18 @@ export default function StudentDetails({ student, visits, evaluation, academicEv
                     )}
 
                     {activeTab === 'overview' && <>
+                    {attendance && <SectionCard title="Attendance" icon={<CalendarDays size={20} />}>
+                        <div className="grid gap-4 sm:grid-cols-3">
+                            <InfoItem label="Attendance" value={attendance.percentage === null ? 'No approved days' : `${attendance.percentage}%`} />
+                            <InfoItem label="Credited days" value={attendance.credited_days} />
+                            <InfoItem label="Absent days" value={attendance.absent_days} />
+                            <InfoItem label="Recorded days" value={attendance.recorded_days} />
+                            <InfoItem label="Days not logged" value={attendance.missing_days} />
+                            <InfoItem label="Days in unapproved weeks" value={attendance.unapproved_days} />
+                            <InfoItem label="Total internship days" value={attendance.total_days} />
+                        </div>
+                        <p className="mt-4 text-sm text-slate-500">Work days, permission/MC and public holidays count toward attendance after Industry Supervisor approval. The percentage uses recorded days in approved weeks.</p>
+                    </SectionCard>}
                     {/* Basic Information */}
                     <SectionCard
                         title="Personal Information"
@@ -736,10 +752,12 @@ export default function StudentDetails({ student, visits, evaluation, academicEv
                             />
 
                             <InfoItem
-                                label="Emergency Contact"
+                                label="Emergency Contact 1"
                                 value={student.emergency_no}
                                 icon={<Phone size={15} />}
                             />
+                            <InfoItem label="Emergency Contact 2" value={student.emergency_no_2} icon={<Phone size={15} />} />
+                            {student.insurance_document_path && <div><p className="mb-1 text-sm text-slate-500">Insurance document</p><a href={route('students.insurance.download', student.student_id)} className="text-sm font-medium text-blue-700 underline">Download insurance</a></div>}
 
                             <div className="sm:col-span-2 lg:col-span-3">
                                 <InfoItem

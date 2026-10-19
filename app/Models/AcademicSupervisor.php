@@ -34,6 +34,6 @@ class AcademicSupervisor extends Model
             AcademicSupervisorAssignment::class,
             'academic_supervisor_id',
             'academic_supervisor_id'
-        );
+        )->whereNotNull('student_id');
     }
 }

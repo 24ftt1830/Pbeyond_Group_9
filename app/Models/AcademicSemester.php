@@ -6,6 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class AcademicSemester extends Model
 {
+    public static function sessionName(int $year, bool $july): string
+    {
+        $intake = $year - ($july ? 2010 : 2011);
+        return ($july ? 'July ' : 'January ') . $year . ' · Intake ' . $intake;
+    }
+
     protected $fillable = ['name', 'starts_on', 'ends_on'];
 
     protected $casts = [

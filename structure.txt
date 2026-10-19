@@ -41,7 +41,6 @@ app\Http\Controllers\Admin\ReportController.php
 app\Http\Controllers\Admin\StudentController.php
 app\Http\Controllers\Admin\UserManagementController.php
 app\Http\Controllers\Auth\AuthenticatedSessionController.php
-app\Http\Controllers\Auth\CompanyKeyAccessController.php
 app\Http\Controllers\Auth\ConfirmablePasswordController.php
 app\Http\Controllers\Auth\EmailVerificationNotificationController.php
 app\Http\Controllers\Auth\EmailVerificationPromptController.php
@@ -326,8 +325,6 @@ resources\js\Pages\Admin\ManageUsers.tsx
 resources\js\Pages\Admin\Placements.tsx
 resources\js\Pages\Admin\Profile.tsx
 resources\js\Pages\Admin\Reports.tsx
-resources\js\Pages\Auth\CompanyKeyAccess.tsx
-resources\js\Pages\Auth\CompanyLogin.tsx
 resources\js\Pages\Auth\ConfirmPassword.tsx
 resources\js\Pages\Auth\ForgotPassword.tsx
 resources\js\Pages\Auth\Login.tsx

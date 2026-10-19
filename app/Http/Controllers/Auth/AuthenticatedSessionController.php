@@ -28,14 +28,13 @@ class AuthenticatedSessionController extends Controller
         ]);
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
-            // Block company users from logging in through the main portal
-            if (auth()->user()->role === 'Company') {
+            if (auth()->user()->role === 'Company' && ! auth()->user()->company()->exists()) {
                 Auth::logout();
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();
 
                 return back()->withErrors([
-                    'email' => 'Company users must log in using the "Log in as Company" portal.',
+                    'email' => __('auth.failed'),
                 ]);
             }
 

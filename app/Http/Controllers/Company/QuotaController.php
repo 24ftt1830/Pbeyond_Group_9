@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class QuotaController extends Controller
@@ -25,7 +26,7 @@ class QuotaController extends Controller
 
         $quotas = $user->company
             ? $user->company->placementQuotas()
-                ->with(['programme', 'programmes.school', 'academicSemester'])
+                ->with(['programme', 'programmes.school', 'academicSemester', 'branches'])
                 ->withCount('applications')
                 ->latest()
                 ->get()
@@ -42,6 +43,7 @@ class QuotaController extends Controller
                 )
                 ->get(),
             'company' => $user->company,
+            'branches' => $user->company?->branches()->get() ?? [],
         ]);
     }
 
@@ -63,6 +65,8 @@ class QuotaController extends Controller
         }
 
         $validated = $request->validate([
+            'branch_ids' => ['required', 'array', 'min:1'],
+            'branch_ids.*' => ['required', 'integer', 'distinct', Rule::exists('company_branches', 'id')->where('company_id', $company->company_id)],
             'academic_semester_id' => ['required', 'exists:academic_semesters,id'],
             'programme_ids' => [
                 'required',
@@ -128,6 +132,7 @@ class QuotaController extends Controller
 
             // Attach the selected 3–5 programmes
             $quota->programmes()->sync($validated['programme_ids']);
+            $quota->branches()->sync($validated['branch_ids']);
             AdminRecordChange::record($user, $quota, 'Created job quota');
         });
 
@@ -190,6 +195,8 @@ class QuotaController extends Controller
         }
 
         $validated = $request->validate([
+            'branch_ids' => ['required', 'array', 'min:1'],
+            'branch_ids.*' => ['required', 'integer', 'distinct', Rule::exists('company_branches', 'id')->where('company_id', $quota->company_id)],
             'academic_semester_id' => ['required', 'exists:academic_semesters,id'],
             'programme_ids' => [
                 'required',
@@ -266,6 +273,7 @@ class QuotaController extends Controller
 
             // Replace the quota's programme selections
             $quota->programmes()->sync($validated['programme_ids']);
+            $quota->branches()->sync($validated['branch_ids']);
             AdminRecordChange::record($user, $quota, 'Updated job quota', $before);
         });
 

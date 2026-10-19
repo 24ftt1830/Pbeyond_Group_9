@@ -21,6 +21,8 @@ import {
     ClipboardCheck,
     ContactRound,
     CalendarRange,
+    UserRoundSearch,
+    PanelsTopLeft,
 } from "lucide-react";
 
 const data = {
@@ -56,6 +58,11 @@ const data = {
             icon: ContactRound,
         },
         {
+            title: 'Unplaced Students',
+            url: route('admin.unplaced-students'),
+            icon: UserRoundSearch,
+        },
+        {
             title: "Applications",   
             url: route('admin.applications'),
             icon: Files,
@@ -67,6 +74,11 @@ const data = {
         },
     ],
     navSecondary: [
+        {
+            title: "UI Reference",
+            url: route('admin.ui-reference'),
+            icon: PanelsTopLeft,
+        },
         {
             title: "Reports",
             url: route('admin.reports'),

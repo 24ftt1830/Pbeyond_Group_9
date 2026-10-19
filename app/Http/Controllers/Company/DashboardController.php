@@ -13,6 +13,7 @@ class DashboardController extends Controller
     public function index()
     {
         $company = Auth::user()->company;
+        $companyId = $company?->company_id;
         $quotas = $company
             ? $company->placementQuotas()->latest()->get()
             : collect();
@@ -47,7 +48,10 @@ class DashboardController extends Controller
             ->with([
                 'student.programme',
                 'student.internship',
-                'quota.industrySupervisors',
+                'student.supervisorAssignments' => fn ($query) => $query->whereHas(
+                    'supervisor',
+                    fn ($supervisor) => $supervisor->where('company_id', $companyId)
+                ),
             ])
             ->orderByDesc('updated_at')
             ->get()
@@ -61,9 +65,7 @@ class DashboardController extends Controller
                 }
 
                 $needsDates = !$student->internship?->start_date || !$student->internship?->end_date;
-                $positionsWithoutSupervisor = $applications
-                    ->filter(fn ($item) => !$item->quota || $item->quota->industrySupervisors->isEmpty());
-                $needsSupervisor = $positionsWithoutSupervisor->isNotEmpty();
+                $needsSupervisor = $student->supervisorAssignments->isEmpty();
 
                 if (!$needsDates && !$needsSupervisor) {
                     return null;

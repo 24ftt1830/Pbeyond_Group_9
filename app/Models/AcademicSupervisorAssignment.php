@@ -14,9 +14,17 @@ class AcademicSupervisorAssignment extends Model
 
     protected $fillable = [
         'academic_supervisor_id',
+        'student_id',
         'class_id',
         'monitoring_status',
     ];
+
+    protected static function booted(): void
+    {
+        // Original class assignments remain in storage for historical visits.
+        // Active supervision always belongs to an individual student.
+        static::addGlobalScope('individual_student', fn ($query) => $query->whereNotNull('academic_supervisor_assignments.student_id'));
+    }
 
     public function academicSupervisor(): BelongsTo
     {
@@ -34,6 +42,11 @@ class AcademicSupervisorAssignment extends Model
             'class_id',
             'class_id'
         );
+    }
+
+    public function student(): BelongsTo
+    {
+        return $this->belongsTo(Student::class, 'student_id', 'student_id');
     }
     
     public function visits(): HasMany

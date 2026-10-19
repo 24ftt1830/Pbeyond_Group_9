@@ -4,6 +4,8 @@ namespace App\Http\Controllers\AcademicSupervisor;
 
 use App\Http\Controllers\Controller;
 use App\Models\AcademicSupervisor;
+use App\Models\School;
+use App\Models\IndustrySupervisor;
 use App\Models\Evaluation;
 use App\Models\EvaluationSubmission;
 use App\Models\EvaluationTemplate;
@@ -12,6 +14,8 @@ use App\Services\InternshipWorkflow;
 use App\Models\Student;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
 class StudentController extends Controller
@@ -23,12 +27,14 @@ class StudentController extends Controller
             auth()->user()->user_id
         )->firstOrFail();
 
-        $assignedClass = $academicSupervisor->assignments()
-            ->with('programme')
-            ->first()
-            ?->programme;
-
-        $students = Student::whereHas(
+        $filters = $request->validate([
+            'school_id' => ['nullable', 'integer', 'exists:schools,school_id'],
+            'search' => ['nullable', 'string', 'max:100'],
+        ]);
+        $studentQuery = Student::query()->with('programme.school')
+            ->when($filters['school_id'] ?? null, fn ($query, $schoolId) => $query->whereHas('programme', fn ($programme) => $programme->where('school_id', $schoolId)))
+            ->when($filters['search'] ?? null, fn ($query, $search) => $query->where(fn ($names) => $names->where('full_name', 'like', '%'.$search.'%')->orWhere('pb_student_code', 'like', '%'.$search.'%')));
+        $students = (clone $studentQuery)->whereHas(
             'academicSupervisorAssignments',
             function ($query) use ($academicSupervisor) {
                 $query->where(
@@ -37,15 +43,37 @@ class StudentController extends Controller
                 );
             }
         )
-            ->with('programme')
-            ->get();
+            ->orderBy('full_name')->get();
 
         return Inertia::render('AcademicSupervisor/Students', [
             'students' => $students,
-            'assignedClass' => $assignedClass
-                ? $assignedClass->only(['class_id', 'programme_name'])
-                : null,
+            'availableStudents' => (clone $studentQuery)->whereDoesntHave('academicSupervisorAssignments')
+                ->orderBy('full_name')->get(['student_id', 'programme_id', 'full_name', 'pb_student_code']),
+            'schools' => School::orderBy('school_name')->get(['school_id', 'school_code', 'school_name']),
+            'filters' => $filters,
         ]);
+    }
+
+    public function assign(Request $request)
+    {
+        $data = $request->validate(['student_id' => ['required', 'integer', 'exists:students,student_id']]);
+        $supervisor = AcademicSupervisor::where('user_id', $request->user()->user_id)->firstOrFail();
+        DB::transaction(function () use ($data, $supervisor) {
+            $student = Student::whereKey($data['student_id'])->lockForUpdate()->firstOrFail();
+            $assignment = $student->academicSupervisorAssignments()->first();
+            if ($assignment) {
+                if ((int) $assignment->academic_supervisor_id === (int) $supervisor->academic_supervisor_id) {
+                    return;
+                }
+                throw ValidationException::withMessages(['student_id' => 'This student already has a PB Supervisor. Ask Admin to correct the existing assignment.']);
+            }
+            $student->academicSupervisorAssignments()->create([
+                'academic_supervisor_id' => $supervisor->academic_supervisor_id,
+                'monitoring_status' => 'On Track',
+            ]);
+            $student->internshipCompletion?->resetAcademicDecision();
+        }, 3);
+        return back()->with('success', 'Student added to your supervision list.');
     }
 
     public function show(Request $request, Student $student)
@@ -55,7 +83,7 @@ class StudentController extends Controller
             auth()->user()->user_id
         )->firstOrFail();
 
-        $assignment = $student->programme->academicSupervisorAssignments()
+        $assignment = $student->academicSupervisorAssignments()
             ->where(
                 'academic_supervisor_id',
                 $academicSupervisor->academic_supervisor_id
@@ -86,6 +114,7 @@ class StudentController extends Controller
             ->where('academic_supervisor_id', $academicSupervisor->academic_supervisor_id)
             ->latest('submitted_at')->latest('id')->first();
         $industryEvaluation = EvaluationSubmission::where('student_id', $student->student_id)
+            ->whereIn('industry_supervisor_id', IndustrySupervisor::whereHas('students', fn ($query) => $query->where('students.student_id', $student->student_id))->select('supervisor_id'))
             ->where('supervisor_type', 'Industry Supervisor')->latest('submitted_at')->latest('id')->first();
 
         return Inertia::render('AcademicSupervisor/StudentDetails', [
@@ -108,6 +137,7 @@ class StudentController extends Controller
             'canFinalizeIncomplete' => app(InternshipCompletionStatus::class)->canAcademicFinalize($student, 'Incomplete'),
             'completionStatus' => app(InternshipCompletionStatus::class)->for($student),
             'overallScore' => app(InternshipCompletionStatus::class)->overallScore($student),
+            'attendance' => app(\App\Services\AttendanceService::class)->summary($student),
         ]);
     }
 
@@ -118,10 +148,7 @@ class StudentController extends Controller
             auth()->user()->user_id
         )->firstOrFail();
 
-        $programme = $student->programme;
-        abort_unless($programme, 404);
-
-        $programme->academicSupervisorAssignments()
+        $student->academicSupervisorAssignments()
             ->where('academic_supervisor_id', $academicSupervisor->academic_supervisor_id)
             ->firstOrFail();
 
@@ -143,7 +170,7 @@ class StudentController extends Controller
             auth()->user()->user_id
         )->firstOrFail();
 
-        $assignment = $student->programme->academicSupervisorAssignments()
+        $assignment = $student->academicSupervisorAssignments()
             ->where(
                 'academic_supervisor_id',
                 $academicSupervisor->academic_supervisor_id

@@ -39,7 +39,12 @@ class PlacementQuota extends Model
         parent::boot();
 
         static::creating(function ($quota) {
-            $quota->slug = Str::slug($quota->job_title);
+            $base = Str::slug($quota->job_title) ?: 'position';
+            $slug = $base;
+            for ($suffix = 2; static::where('slug', $slug)->exists(); $suffix++) {
+                $slug = $base . '-' . $suffix;
+            }
+            $quota->slug = $slug;
         });
     }
 
@@ -94,6 +99,11 @@ class PlacementQuota extends Model
             'quota_id',
             'quota_id'
         );
+    }
+
+    public function branches()
+    {
+        return $this->belongsToMany(CompanyBranch::class, 'company_branch_placement_quota', 'quota_id', 'company_branch_id', 'quota_id', 'id');
     }
 
     public function industrySupervisors()

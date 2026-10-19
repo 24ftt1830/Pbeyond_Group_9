@@ -37,7 +37,7 @@ class DashboardController extends Controller
             ->when($intakeSemesterId, fn ($query) => $query->where('intake_semester_id', $intakeSemesterId), fn ($query) => $query->whereRaw('1 = 0'))
             ->with([
                 'internship',
-                'programme.academicSupervisorAssignments',
+                'academicSupervisorAssignments',
                 'applications' => fn ($query) => $query
                     ->where('app_status', 'Recruited')
                     ->whereHas('quota', fn ($quota) => $quota->where('academic_semester_id', $selectedSemester ?? 0))
@@ -181,7 +181,7 @@ class DashboardController extends Controller
 
         $interventionStudents = $internshipStudents
             ->map(function ($student) use ($formatProgressStudent) {
-                $statuses = $student->programme?->academicSupervisorAssignments->pluck('monitoring_status') ?? collect();
+                $statuses = $student->academicSupervisorAssignments->pluck('monitoring_status');
                 if (!$statuses->contains(fn ($status) => in_array($status, ['Needs Attention', 'At Risk'], true))) {
                     return null;
                 }

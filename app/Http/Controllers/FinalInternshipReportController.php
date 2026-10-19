@@ -27,44 +27,66 @@ class FinalInternshipReportController extends Controller
     public function saveStudent(Request $request): RedirectResponse
     {
         $student = Student::where('user_id', auth()->id())->firstOrFail();
-        $existingReport = $student->finalInternshipReport;
-        $pdfRequired = empty($existingReport?->pdf_path);
-        $data = $request->validate([
-            'title' => ['required', 'string', 'max:255'],
-            'pdf' => [$pdfRequired ? 'required' : 'nullable', 'file', 'mimes:pdf', 'max:20480'],
-            'submit' => ['required', 'accepted'],
-        ]);
-
-        $report = $existingReport ?? new FinalInternshipReport(['student_id' => $student->student_id]);
-        // The legacy schema requires a text body, while new submissions contain a PDF.
-        $report->body ??= '';
-        $wasSubmitted = (bool) $report->submitted_at;
-        $oldPdfPath = $report->pdf_path;
-        $report->title = $data['title'] ?? $report->title ?? 'Final Internship Report';
+        $oldPdfPath = null;
         $newPdfPath = null;
-        if ($request->hasFile('pdf')) {
-            $newPdfPath = $request->file('pdf')->store('final-internship-reports', 'local');
-            $report->pdf_path = $newPdfPath;
+
+        try {
+            DB::transaction(function () use ($request, $student, &$oldPdfPath, &$newPdfPath) {
+                $report = FinalInternshipReport::where('student_id', $student->student_id)
+                    ->lockForUpdate()
+                    ->first();
+
+                if ($report?->academic_review_status === 'Approved' && !$report->reopened_at) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        'submit' => 'Your report has been approved and is locked. Ask Superadmin to reopen it before making changes.',
+                    ]);
+                }
+
+                $pdfRequired = empty($report?->pdf_path);
+                $data = $request->validate([
+                    'title' => ['required', 'string', 'max:255'],
+                    'pdf' => [$pdfRequired ? 'required' : 'nullable', 'file', 'mimes:pdf', 'max:20480'],
+                    'submit' => ['required', 'accepted'],
+                ]);
+
+                $report ??= new FinalInternshipReport(['student_id' => $student->student_id]);
+                // The legacy schema requires a text body, while new submissions contain a PDF.
+                $report->body ??= '';
+                $wasSubmitted = (bool) $report->submitted_at;
+                $oldPdfPath = $report->pdf_path;
+                $report->title = $data['title'] ?? $report->title ?? 'Final Internship Report';
+                if ($request->hasFile('pdf')) {
+                    $newPdfPath = $request->file('pdf')->store('final-internship-reports', 'local');
+                    $report->pdf_path = $newPdfPath;
+                }
+                if ($data['submit']) {
+                    abort_unless($report->pdf_path, 422, 'Upload a PDF before submitting your report.');
+                    $report->submitted_at = now();
+                }
+                if (($wasSubmitted && $newPdfPath) || $data['submit'] || $report->academic_review_status === 'Changes Required') {
+                    $report->academic_review_status = 'Pending Review';
+                    $report->report_score = null;
+                    $report->report_component_weight_snapshot = null;
+                    $report->academic_review_comments = null;
+                    $report->academic_reviewed_at = null;
+                    $report->report_template_id = null;
+                    $report->report_template_version = null;
+                    $report->report_template_snapshot = null;
+                    $report->report_answers = null;
+                    $report->reopened_at = null;
+                    $report->reopened_by_user_id = null;
+                }
+                $report->save();
+                $student->internshipCompletion?->resetAcademicDecision();
+            });
+        } catch (\Throwable $exception) {
+            if ($newPdfPath) {
+                Storage::disk('local')->delete($newPdfPath);
+            }
+
+            throw $exception;
         }
-        if ($data['submit']) {
-            abort_unless($report->pdf_path, 422, 'Upload a PDF before submitting your report.');
-            $report->submitted_at = now();
-        }
-        if (($wasSubmitted && $newPdfPath) || $data['submit'] || $report->academic_review_status === 'Changes Required') {
-            $report->academic_review_status = 'Pending Review';
-            $report->report_score = null;
-            $report->report_component_weight_snapshot = null;
-            $report->academic_review_comments = null;
-            $report->academic_reviewed_at = null;
-            $report->report_template_id = null;
-            $report->report_template_version = null;
-            $report->report_template_snapshot = null;
-            $report->report_answers = null;
-            $report->reopened_at = null;
-            $report->reopened_by_user_id = null;
-        }
-        $report->save();
-        $student->internshipCompletion?->resetAcademicDecision();
+
         if ($newPdfPath && $oldPdfPath && $oldPdfPath !== $newPdfPath) {
             Storage::disk('local')->delete($oldPdfPath);
         }
@@ -253,7 +275,7 @@ class FinalInternshipReportController extends Controller
     private function authorizeAcademic(Student $student): void
     {
         $supervisor = AcademicSupervisor::where('user_id', auth()->id())->firstOrFail();
-        $student->programme->academicSupervisorAssignments()
+        $student->academicSupervisorAssignments()
             ->where('academic_supervisor_id', $supervisor->academic_supervisor_id)->firstOrFail();
     }
 

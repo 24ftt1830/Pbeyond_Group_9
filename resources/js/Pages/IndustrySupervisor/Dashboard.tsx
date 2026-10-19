@@ -3,12 +3,6 @@ import { Link } from '@inertiajs/react';
 import { ArrowRight, CalendarDays, CheckCircle2, ClipboardCheck, Users } from 'lucide-react';
 import { DashboardEmptyState, DashboardPanel, RoleDashboard } from '@/Components/Dashboard/RoleDashboard';
 
-interface Quota {
-    quota_id: number;
-    job_title: string;
-    total_slots: number;
-}
-
 interface AssignedStudent {
     student_id: number;
     full_name: string;
@@ -21,7 +15,7 @@ interface AssignedStudent {
 }
 
 interface Props {
-    quota: Quota | null;
+    company: { company_id: number; company_name: string } | null;
     stats: {
         students_assigned: number;
         evaluations_due: number;
@@ -39,7 +33,7 @@ const formatDate = (value: string) => {
         : new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).format(date);
 };
 
-export default function Dashboard({ quota, stats, hasActiveEvaluationTemplate, students = [] }: Props) {
+export default function Dashboard({ company, stats, hasActiveEvaluationTemplate, students = [] }: Props) {
     const safeStats = stats ?? {
         students_assigned: 0,
         evaluations_due: 0,
@@ -60,9 +54,9 @@ export default function Dashboard({ quota, stats, hasActiveEvaluationTemplate, s
         >
             <section className="flex flex-col gap-4 rounded-2xl border border-blue-100 bg-gradient-to-r from-blue-50 to-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-6">
                 <div>
-                    <p className="text-xs font-bold uppercase tracking-[0.14em] text-blue-700">Assigned job position</p>
-                    <h2 className="mt-1 text-lg font-bold text-slate-900">{quota?.job_title ?? 'No position assigned'}</h2>
-                    {quota && <p className="mt-1 text-sm text-slate-500">{quota.total_slots} total {quota.total_slots === 1 ? 'slot' : 'slots'}</p>}
+                    <p className="text-xs font-bold uppercase tracking-[0.14em] text-blue-700">Your company</p>
+                    <h2 className="mt-1 text-lg font-bold text-slate-900">{company?.company_name ?? 'Company not assigned'}</h2>
+                    <p className="mt-1 text-sm text-slate-500">Students are assigned directly to you by Company HR.</p>
                 </div>
                 <Link
                     href={route('industry-supervisor.students')}
@@ -82,7 +76,7 @@ export default function Dashboard({ quota, stats, hasActiveEvaluationTemplate, s
                     </p>
                 )}
                 {students.length === 0 ? (
-                    <DashboardEmptyState message={quota ? 'No students have been recruited for this position yet.' : 'Ask your Company HR to assign a job position to your account.'} />
+                    <DashboardEmptyState message="Ask your Company HR to assign recruited students to your account." />
                 ) : (
                     <div className="divide-y divide-slate-100">
                         {students.map((student) => (

@@ -14,6 +14,7 @@ interface QuotaCardProps {
         is_released?: boolean;
         interview_required?: boolean;
         academic_semester?: { name: string } | null;
+        branches?: { id: number; name: string; district?: string }[];
 
         programme?: {
             programme_name: string;
@@ -80,6 +81,7 @@ export default function QuotaCard({
                         )}
 
                         {/* Render Skills Badges */}
+                        {Boolean(quota.branches?.length) && <p className="mt-2 text-xs text-muted-foreground">Branches: {quota.branches!.map((branch) => branch.name).join(', ')}</p>}
                         {skillsList.length > 0 && (
                             <div className="mt-3 flex flex-wrap gap-1.5">
                                 {skillsList.map((skill, index) => (

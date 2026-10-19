@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Company;
 use App\Models\PlacementQuota; 
 use App\Models\Application;   
+use App\Models\CompanyBranch;
+use Illuminate\Validation\Rule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
@@ -19,7 +21,7 @@ class CompanyController extends Controller
      */
     public function index()
     {
-        $companies = Company::with(['placementQuotas.applications' => function ($query) {
+        $companies = Company::with(['branches', 'placementQuotas.programmes.school', 'placementQuotas.applications' => function ($query) {
             $query->where('app_status', 'Recruited');
         }])->get();
 
@@ -37,6 +39,9 @@ class CompanyController extends Controller
                 'company_id'      => $company->company_id,
                 'company_name'    => $company->company_name,
                 'office_address'  => $company->office_address ?? 'N/A',
+                'district' => $company->district,
+                'branches' => $company->branches,
+                'schools' => $company->placementQuotas->flatMap(fn ($quota) => $quota->programmes->map(fn ($programme) => $programme->school?->school_name))->filter()->unique()->values(),
                 'total_quota'     => (int)$totalQuota,
                 'filled'          => (int)$filled,
                 'available'       => (int)$available,
@@ -126,20 +131,28 @@ class CompanyController extends Controller
             'company_name'    => 'required|string|max:150',
             'industry_sector' => 'required|string|max:100',
             'office_address'  => 'required|string',
+            'district' => ['nullable', Rule::in(CompanyBranch::DISTRICTS)],
         ]);
 
-        Company::create([
+        DB::transaction(function () use ($validated) {
+        $company = Company::create([
             'company_name' => $validated['company_name'],
             'industry_sector' => $validated['industry_sector'],
             'office_address' => $validated['office_address'],
+            'district' => $validated['district'] ?? null,
             'location_type' => 'Local',
             'is_approved' => true,
         ]);
+        $company->branches()->create([
+            'name' => 'Main Branch', 'address' => $company->office_address,
+            'district' => $company->district,
+        ]);
+        });
 
         return back()->with('success', 'Company added. Create its HR account from Manage Users when ready.');
     }
 
-    /** Import company records without creating HR accounts or access keys. */
+    /** Import company records without creating HR accounts. */
     public function import(Request $request)
     {
         $request->validate([

@@ -14,6 +14,7 @@ import { PageProps } from "@/types"
 import {
     ChartNoAxesCombined,
     UsersRound,
+    BookMarked,
 } from "lucide-react"
 
 export function IndustrySupervisorSidebar({
@@ -107,6 +108,11 @@ export function IndustrySupervisorSidebar({
                             </SidebarMenuButton>
                         </SidebarMenuItem>
 
+                        <SidebarMenuItem>
+                            <SidebarMenuButton asChild isActive={url.startsWith('/industry-supervisor/logbook')}>
+                                <Link href={route('industry-supervisor.logbook')}><BookMarked /><span>Logbook Review</span></Link>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
                     </SidebarMenu>
 
                 </div>

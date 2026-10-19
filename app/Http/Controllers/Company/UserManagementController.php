@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Company;
 
 use App\Http\Controllers\Controller;
 use App\Models\IndustrySupervisor;
-use App\Models\PlacementQuota;
+use App\Models\Student;
+use App\Services\IndustrySupervisorAssignments;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -18,33 +18,30 @@ class UserManagementController extends Controller
     public function index()
     {
         $companyId = Auth::user()->company_id;
+        abort_unless($companyId, 403, 'Your account is not linked to a company.');
 
         $industrySupervisors = IndustrySupervisor::where(
             'company_id',
             $companyId
         )
-            ->with(['user', 'quota'])
+            ->with(['user', 'students:students.student_id,full_name,pb_student_code'])
             ->get();
 
-        $quotas = PlacementQuota::available()
-            ->where('company_id', $companyId)
-            ->orderBy('job_title')
-            ->select(['quota_id', 'job_title', 'total_slots'])
-            ->withCount([
-                'applications as recruited_students_count' => fn ($query) => $query->where('app_status', 'Recruited'),
-                'industrySupervisors',
-            ])
-            ->get();
+        $students = Student::whereHas('applications', fn ($query) => $query->where('app_status', 'Recruited')
+            ->whereHas('quota', fn ($quota) => $quota->where('company_id', $companyId)))
+            ->with(['programme', 'supervisorAssignments'])
+            ->orderBy('full_name')->get();
 
         return Inertia::render('Company/ManageUsers', [
             'industrySupervisors' => $industrySupervisors,
-            'quotas' => $quotas,
+            'students' => $students,
         ]);
     }
 
     public function store(Request $request)
     {
         $companyId = Auth::user()->company_id;
+        abort_unless($companyId, 403, 'Your account is not linked to a company.');
 
         $validated = $request->validate([
             'username' => 'required|string|max:255|unique:users,username',
@@ -52,17 +49,11 @@ class UserManagementController extends Controller
             'password' => 'required|string|min:8',
             'full_name' => 'required|string|max:255',
             'phone' => 'nullable|string|max:50',
-            'quota_id' => [
-                'required',
-                'integer',
-                Rule::exists('placement_quotas', 'quota_id')
-                    ->where('company_id', $companyId)
-                    ->where('quota_status', 'Approved')
-                    ->where('is_released', true),
-            ],
+            'student_ids' => ['present', 'array'],
+            'student_ids.*' => ['required', 'integer', 'distinct', 'exists:students,student_id'],
         ]);
 
-        DB::transaction(function () use ($validated, $companyId) {
+        DB::transaction(function () use ($validated, $companyId, $request) {
 
             $user = User::create([
                 'username' => $validated['username'],
@@ -72,18 +63,30 @@ class UserManagementController extends Controller
                 'company_id' => $companyId,
             ]);
 
-            IndustrySupervisor::create([
+            $supervisor = IndustrySupervisor::create([
                 'user_id' => $user->user_id,
                 'company_id' => $companyId,
                 'full_name' => $validated['full_name'],
                 'email' => $validated['email'],
                 'phone' => $validated['phone'] ?? null,
-                'quota_id' => $validated['quota_id'],
+                'quota_id' => null,
             ]);
+            app(IndustrySupervisorAssignments::class)->sync($supervisor, $validated['student_ids'], $request->user());
         });
 
         return redirect()
             ->route('company.manage-users')
             ->with('success', 'Industry Supervisor created successfully.');
+    }
+
+    public function assign(Request $request, IndustrySupervisor $supervisor)
+    {
+        abort_unless((int) $supervisor->company_id === (int) $request->user()->company_id, 403);
+        $data = $request->validate([
+            'student_ids' => ['present', 'array'],
+            'student_ids.*' => ['required', 'integer', 'distinct', 'exists:students,student_id'],
+        ]);
+        app(IndustrySupervisorAssignments::class)->sync($supervisor, $data['student_ids'], $request->user());
+        return back()->with('success', 'Industry Supervisor student assignments updated.');
     }
 }

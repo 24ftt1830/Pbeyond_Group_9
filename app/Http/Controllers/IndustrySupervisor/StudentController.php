@@ -23,21 +23,13 @@ class StudentController extends Controller
         $industrySupervisor = IndustrySupervisor::where(
             'user_id',
             auth()->user()->user_id
-        )->with('quota')->firstOrFail();
+        )->with('company')->firstOrFail();
 
-        $students = $industrySupervisor->quota_id
-            ? Student::whereHas('applications', function ($query) use ($industrySupervisor) {
-                $query->where('quota_id', $industrySupervisor->quota_id)
-                    ->where('app_status', 'Recruited');
-            })
-                ->with('programme')
-                ->orderBy('full_name')
-                ->get()
-            : collect();
+        $students = $industrySupervisor->students()->with('programme')->orderBy('full_name')->get();
 
         return Inertia::render('IndustrySupervisor/Students', [
             'students' => $students,
-            'quota' => $industrySupervisor->quota,
+            'company' => $industrySupervisor->company?->only(['company_id', 'company_name']),
         ]);
     }
 
@@ -49,7 +41,7 @@ class StudentController extends Controller
         )->firstOrFail();
 
         $isAssigned = $industrySupervisor->applications()
-            ->where('student_id', $student->student_id)
+            ->where('applications.student_id', $student->student_id)
             ->where('app_status', 'Recruited')
             ->exists();
 
@@ -71,7 +63,7 @@ class StudentController extends Controller
 
         return Inertia::render('IndustrySupervisor/StudentDetails', [
             'student' => $student,
-            'quota' => $industrySupervisor->quota()->first(),
+            'quota' => $industrySupervisor->applications()->where('applications.student_id', $student->student_id)->first()?->quota,
             'evaluationSubmission' => EvaluationSubmission::where('student_id', $student->student_id)
                 ->where('industry_supervisor_id', $industrySupervisor->supervisor_id)->latest('submitted_at')->latest('id')->first(),
             'legacyEvaluation' => Evaluation::where('student_id', $student->student_id)
@@ -97,7 +89,7 @@ class StudentController extends Controller
 
         abort_unless(
             $industrySupervisor->applications()
-                ->where('student_id', $student->student_id)
+                ->where('applications.student_id', $student->student_id)
                 ->where('app_status', 'Recruited')
                 ->exists(),
             403

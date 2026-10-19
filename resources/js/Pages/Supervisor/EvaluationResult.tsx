@@ -1,3 +1,4 @@
+import { roleLabel } from '@/lib/role-labels';
 import { Head, Link } from '@inertiajs/react';
 import { useState } from 'react';
 import { ConfirmAction, RecordFeedback, inputClass, linkClass } from '@/Components/Admin/RecordControls';
@@ -65,7 +66,7 @@ export default function EvaluationResult({
     return (
         <AuthenticatedLayout>
             <RecordFeedback />
-            <Head title={`${submission.supervisor_type} Evaluation · ${student.full_name}`} />
+            <Head title={`${roleLabel(submission.supervisor_type)} Evaluation · ${student.full_name}`} />
 
             <main className="min-h-screen bg-slate-50 px-4 py-6 sm:px-6 lg:px-8">
                 <div className="mx-auto max-w-6xl space-y-5">
@@ -81,11 +82,11 @@ export default function EvaluationResult({
                         <div className="flex min-w-0 items-start gap-4">
                             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600"><ClipboardCheck size={20} /></span>
                             <div className="min-w-0">
-                                <p className="text-xs font-semibold uppercase tracking-wide text-indigo-600">{submission.supervisor_type} · Evaluation result</p>
+                                <p className="text-xs font-semibold uppercase tracking-wide text-indigo-600">{roleLabel(submission.supervisor_type)} · Evaluation result</p>
                                 <h1 className="mt-1 break-words font-sato text-2xl font-bold text-slate-900 sm:text-3xl">{student.full_name}</h1>
                                 <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-500">
                                     <span className="inline-flex items-center gap-1.5"><UserRound size={14} />{student.pb_student_code}</span>
-                                    <span>{submission.template_snapshot?.name ?? 'Evaluation'} · Version {submission.template_snapshot?.version ?? submission.template_version}</span>
+                                    <span>{roleLabel(submission.template_snapshot?.name) || 'Evaluation'} · Version {submission.template_snapshot?.version ?? submission.template_version}</span>
                                     {submission.template_snapshot?.component_weight !== undefined && <span className="inline-flex items-center gap-1.5"><GraduationCap size={14} />{submission.template_snapshot.component_weight}% of final score</span>}
                                 </div>
                                 {submission.submitted_at && <p className="mt-1.5 text-xs text-slate-400">Submitted {new Date(submission.submitted_at).toLocaleString()}</p>}

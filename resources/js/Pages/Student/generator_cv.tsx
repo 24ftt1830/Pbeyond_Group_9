@@ -141,6 +141,8 @@ type Props = {
     student: Student;
     isCompanyView?: boolean;
     quotaId?: number;
+    cvRevision?: number;
+    cvSnapshotUpdatedAt?: string | null;
 };
 
 
@@ -200,7 +202,7 @@ function splitDescription(description?: string) {
    COMPONENT
 ============================================================ */
 
-export default function GeneratorCV({ student, isCompanyView = false, backHref }: Props) {
+export default function GeneratorCV({ student, isCompanyView = false, backHref, cvRevision = 1, cvSnapshotUpdatedAt }: Props) {
 
     const professionalProfile =
         student.professionalProfile?.profile ??
@@ -328,6 +330,13 @@ export default function GeneratorCV({ student, isCompanyView = false, backHref }
                         </div>
 
                     </div>
+
+                    {isCompanyView && (
+                        <p className="mt-3 text-xs text-slate-500">
+                            {cvRevision > 1 ? 'Student updated this CV after applying' : 'CV submitted with application'}
+                            {cvSnapshotUpdatedAt && ` · ${new Date(cvSnapshotUpdatedAt).toLocaleString('en-GB')}`}
+                        </p>
+                    )}
 
 
                     {/* INCOMPLETE */}

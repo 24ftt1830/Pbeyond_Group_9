@@ -6,6 +6,7 @@ use App\Models\EvaluationSubmission;
 use App\Models\EvaluationTemplate;
 use App\Models\FinalInternshipReport;
 use App\Models\IndustrySupervisor;
+use App\Models\LogbookWeeklySubmission;
 use App\Models\Student;
 
 class InternshipCompletionStatus
@@ -35,8 +36,10 @@ class InternshipCompletionStatus
         $componentsReady = $this->components($student) !== null;
         $reportSubmitted = $report !== null && $report->submitted_at !== null && $report->pdf_path !== null;
         $industryDecisionMade = in_array($completion?->industry_confirmation_status, ['Confirmed', 'Changes Required'], true);
+        $dateChangeLogbooksPending = LogbookWeeklySubmission::where('student_id', $student->student_id)
+            ->where('date_change_review_required', true)->exists();
 
-        if (!$reportSubmitted || !$industryDecisionMade || !$componentsReady) {
+        if (!$reportSubmitted || !$industryDecisionMade || !$componentsReady || $dateChangeLogbooksPending) {
             return false;
         }
 
@@ -97,11 +100,9 @@ class InternshipCompletionStatus
             return null;
         }
 
-        $academicSupervisorIds = $student->programme
-            ? $student->programme->academicSupervisorAssignments()->pluck('academic_supervisor_id')
-            : collect();
-        $recruitedQuotaIds = $student->applications()->where('app_status', 'Recruited')->pluck('quota_id');
-        $industrySupervisorIds = IndustrySupervisor::whereIn('quota_id', $recruitedQuotaIds)->pluck('supervisor_id');
+        $academicSupervisorIds = $student->academicSupervisorAssignments()->pluck('academic_supervisor_id');
+        $industrySupervisorIds = IndustrySupervisor::whereHas('students', fn ($query) => $query->where('students.student_id', $student->student_id))
+            ->pluck('supervisor_id');
         if ($academicSupervisorIds->isEmpty() || $industrySupervisorIds->isEmpty()) {
             return null;
         }

@@ -7,8 +7,11 @@ use App\Models\Application;
 use App\Models\Company;
 use App\Models\PlacementQuota;
 use App\Models\AcademicSemester;
+use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
 class CompanyController extends Controller
@@ -24,6 +27,8 @@ class CompanyController extends Controller
             fn ($query) => $query->available()->where('academic_semester_id', $internshipSemesterId ?? 0)
         )
         ->with([
+            'branches',
+            'placementQuotas.programmes.school',
             'placementQuotas' => fn ($query) => $query->available()->where('academic_semester_id', $internshipSemesterId ?? 0),
         ])
         ->get();
@@ -38,6 +43,9 @@ class CompanyController extends Controller
                 'available'       => (int) $available,
                 'industry_sector' => $company->industry_sector ?? 'General',
                 'office_address'  => $company->office_address ?? 'Brunei Muara',
+                'district' => $company->district,
+                'branches' => $company->branches,
+                'schools' => $company->placementQuotas->flatMap(fn ($quota) => $quota->programmes->map(fn ($programme) => $programme->school?->school_name))->filter()->unique()->values(),
             ];
         });
 
@@ -57,15 +65,19 @@ class CompanyController extends Controller
         $quotas = PlacementQuota::available()
             ->where('company_id', $id)
             ->where('academic_semester_id', $internshipSemesterId ?? 0)
-            ->with('programmes')
+            ->with(['programmes.school', 'branches'])
+            ->withCount(['applications as recruited_count' => fn ($query) => $query->whereIn('app_status', ['Recruited', 'Approved'])])
             ->get();
+        $quotas->each(fn ($quota) => $quota->setAttribute('remaining_slots', max(0, $quota->total_slots - $quota->recruited_count)));
 
         // Query primary key 'id' and 'quota_id' explicitly
         $applications = $student->applications()
-            ->get(['id', 'quota_id'])
+            ->active()->get(['id', 'quota_id', 'app_status', 'company_branch_id'])
             ->map(fn ($app) => [
                 'application_id' => (int) $app->id,
                 'quota_id'       => (int) $app->quota_id,
+                'app_status' => $app->app_status,
+                'company_branch_id' => $app->company_branch_id,
             ]);
 
         return Inertia::render('Student/ViewCompany', [
@@ -101,52 +113,33 @@ class CompanyController extends Controller
             ]);
         }
 
-        $request->validate([
+        $data = $request->validate([
             'quota_id' => [
                 'required',
                 'exists:placement_quotas,quota_id',
             ],
+            'company_branch_id' => ['required', 'integer', 'exists:company_branches,id'],
         ]);
-
-        if ($student->applications()->count() >= 3) {
-            return back()->withErrors([
-                'message' => 'You have reached the maximum limit of 3 application choices.',
+        DB::transaction(function () use ($student, $data, $companyId, $internshipSemesterId) {
+            Student::whereKey($student->getKey())->lockForUpdate()->firstOrFail();
+            if ($student->applications()->active()->exists()) {
+                throw ValidationException::withMessages(['message' => 'You can have only one active application. Wait for a decision or cancel your pending application before applying again.']);
+            }
+            $quota = PlacementQuota::available()->whereKey($data['quota_id'])
+                ->where('company_id', $companyId)->where('academic_semester_id', $internshipSemesterId)
+                ->lockForUpdate()->first();
+            if (!$quota || $quota->remaining_slots <= 0) {
+                throw ValidationException::withMessages(['message' => 'This position is no longer available or has no remaining slots.']);
+            }
+            if (!$quota->branches()->where('company_branches.company_id', $companyId)->where('company_branches.id', $data['company_branch_id'])->exists()) {
+                throw ValidationException::withMessages(['company_branch_id' => 'Choose a branch offered for this position.']);
+            }
+            $application = Application::create([
+                'student_id' => $student->student_id, 'quota_id' => $quota->quota_id,
+                'company_branch_id' => $data['company_branch_id'], 'app_status' => 'Pending', 'apply_date' => now(),
             ]);
-        }
-
-        $quota = PlacementQuota::available()
-            ->where('quota_id', $request->quota_id)
-            ->where('company_id', $companyId)
-            ->where('academic_semester_id', $internshipSemesterId)
-            ->first();
-
-        if (!$quota) {
-            return back()->withErrors([
-                'message' => 'This position is no longer available.',
-            ]);
-        }
-
-        if (
-            $student->applications()
-                ->where('quota_id', $quota->quota_id)
-                ->exists()
-        ) {
-            return back()->withErrors([
-                'message' => 'You have already applied for this position.',
-            ]);
-        }
-
-        if ($quota->remaining_slots <= 0) {
-            return back()->withErrors([
-                'message' => 'This quota is already full.',
-            ]);
-        }
-
-        Application::create([
-            'student_id' => $student->student_id,
-            'quota_id'   => $quota->quota_id,
-            'app_status' => 'Pending',
-        ]);
+            $application->statusHistories()->create(['from_status' => null, 'to_status' => 'Pending', 'changed_by_user_id' => auth()->id()]);
+        });
 
         return back()->with(
             'success',
@@ -179,7 +172,15 @@ class CompanyController extends Controller
             ]);
         }
 
-        $appRecord->delete();
+        DB::transaction(function () use ($student, $applicationId) {
+            Student::whereKey($student->getKey())->lockForUpdate()->firstOrFail();
+            $record = $student->applications()->whereKey($applicationId)->lockForUpdate()->firstOrFail();
+            if ($record->app_status !== 'Pending') {
+                throw ValidationException::withMessages(['message' => 'You can only cancel applications that are pending review.']);
+            }
+            $record->update(['app_status' => 'Cancelled']);
+            $record->statusHistories()->create(['from_status' => 'Pending', 'to_status' => 'Cancelled', 'changed_by_user_id' => auth()->id()]);
+        });
 
         return back()->with(
             'success',

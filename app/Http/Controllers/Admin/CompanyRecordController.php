@@ -10,6 +10,7 @@ use App\Models\Company;
 use App\Models\PlacementQuota;
 use App\Models\Programme;
 use App\Services\InternshipWorkflow;
+use App\Services\CompanyBranchManager;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -19,6 +20,7 @@ class CompanyRecordController extends Controller
     public function show(Company $company)
     {
         $company->load([
+            'branches', 'placementQuotas.branches', 'placementQuotas.applications.branch',
             'users', 'industrySupervisors.quota', 'industrySupervisors.user',
             'placementQuotas.programmes', 'placementQuotas.academicSemester', 'placementQuotas.applications.student.programme',
             'placementQuotas.applications.student.internship',
@@ -40,10 +42,13 @@ class CompanyRecordController extends Controller
             'description' => ['nullable', 'string'],
             'additional_information' => ['nullable', 'string'],
             'location_type' => ['nullable', 'in:Local,Overseas'],
-        ]);
+        ] + CompanyBranchManager::rules());
         DB::transaction(function () use ($company, $data, $request) {
             $before = $company->toArray();
-            $company->update($data);
+            $company->update(collect($data)->except('branches')->all());
+            if (array_key_exists('branches', $data)) {
+                app(CompanyBranchManager::class)->sync($company, $data['branches']);
+            }
             AdminRecordChange::record($request->user(), $company, 'Updated company profile', $before);
         });
         return back()->with('success', 'Company profile updated.');

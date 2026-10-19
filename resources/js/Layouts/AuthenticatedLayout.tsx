@@ -39,7 +39,7 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
         Admin: 'Superadmin Portal',
         Company: 'Company Portal',
         Student: 'Student Portal',
-        'Academic Supervisor': 'Academic Supervisor Portal',
+        'Academic Supervisor': 'PB Supervisor Portal',
         'Industry Supervisor': 'Industry Supervisor Portal',
     }
 

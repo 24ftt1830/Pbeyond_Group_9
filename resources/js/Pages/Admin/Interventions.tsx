@@ -52,7 +52,7 @@ export default function Interventions({ students, selectedSemester, selectedSeme
                         </h1>
 
                         <p className="mt-1 text-sm text-slate-500">
-                            Internship students marked as needing attention or at risk by an Academic Supervisor.
+                            Internship students marked as needing attention or at risk by an PB Supervisor.
                             {selectedSemesterName ? ` Filtered to ${selectedSemesterName}.` : ''}
                         </p>
                     </div>

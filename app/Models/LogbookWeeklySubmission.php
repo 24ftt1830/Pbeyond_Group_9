@@ -16,6 +16,9 @@ class LogbookWeeklySubmission extends Model
         'flagged_entries',
         'submitted_at',
         'reviewed_at',
+        'date_change_review_required',
+        'date_change_reviewed_at',
+        'date_change_reviewer_user_id',
     ];
 
     protected $casts = [
@@ -24,6 +27,8 @@ class LogbookWeeklySubmission extends Model
         'week_end' => 'date',
         'submitted_at' => 'datetime',
         'reviewed_at' => 'datetime',
+        'date_change_review_required' => 'boolean',
+        'date_change_reviewed_at' => 'datetime',
     ];
 
     public function student(): BelongsTo

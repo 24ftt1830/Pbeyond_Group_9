@@ -29,7 +29,7 @@ import {
 import QuotaCard from '@/Components/QuotaCard';
 import QuotaNumberInput from '@/Components/QuotaNumberInput';
 
-export default function Quotas({ quotas = [], programmes = [], company, academicSemesters = [] }: any) {
+export default function Quotas({ quotas = [], programmes = [], company, academicSemesters = [], branches = [] }: any) {
 
     const [searchTerm, setSearchTerm] = useState('');
     const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -50,6 +50,7 @@ export default function Quotas({ quotas = [], programmes = [], company, academic
     } = useForm({
         academic_semester_id: '',
         programme_ids: [] as number[],
+        branch_ids: [] as number[],
         total_slots: 1,
         job_title: '',
         skills: [] as string[],
@@ -87,6 +88,7 @@ export default function Quotas({ quotas = [], programmes = [], company, academic
         setData({
             academic_semester_id: String(quota.academic_semester_id ?? ''),
             programme_ids: existingProgrammeIds,
+            branch_ids: (quota.branches ?? []).map((branch: any) => Number(branch.id)),
             total_slots: quota.total_slots,
             job_title: quota.job_title,
             skills: Array.isArray(quota.skills) ? quota.skills : [],
@@ -289,6 +291,8 @@ export default function Quotas({ quotas = [], programmes = [], company, academic
                                         {errors.academic_semester_id && <p className="text-sm text-red-500">{errors.academic_semester_id}</p>}
                                         {Boolean(editingQuota?.applications_count || editingQuota?.applications?.length) && <p className="text-xs text-muted-foreground">The term is locked after a student applies.</p>}
                                     </div>
+
+                                    <fieldset className="space-y-2"><legend className="text-sm font-medium">Available branches</legend>{branches.length === 0 ? <p className="text-sm text-amber-700">Add a branch in Company Profile before creating a position.</p> : <div className="space-y-2 rounded-lg border border-slate-200 p-3">{branches.map((branch: any) => <label key={branch.id} className="flex items-center gap-2 text-sm"><input type="checkbox" checked={data.branch_ids.includes(branch.id)} onChange={(event) => setData('branch_ids', event.target.checked ? [...data.branch_ids, branch.id] : data.branch_ids.filter((id) => id !== branch.id))} />{branch.name}{branch.district ? ` — ${branch.district}` : ''}</label>)}</div>}{errors.branch_ids && <p className="text-sm text-rose-600">{errors.branch_ids}</p>}</fieldset>
 
                                     {/* Required Skills Input */}
                                     <div className="space-y-2">

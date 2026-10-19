@@ -18,7 +18,7 @@ class DashboardController extends Controller
     public function index()
     {
         $supervisor = AcademicSupervisor::where('user_id', Auth::id())
-            ->with(['assignments.programme'])
+            ->with(['assignments.student.programme'])
             ->firstOrFail();
 
         $assignments = $supervisor->assignments;
@@ -38,8 +38,8 @@ class DashboardController extends Controller
             ->whereNotNull('submitted_at')
             ->where('academic_review_status', 'Pending Review')
             ->count();
-        $pendingLogbookReviews = LogbookWeeklySubmission::whereIn('student_id', $studentIds)
-            ->whereIn('status', ['submitted', 'pending', 'pending_fix'])
+        $logbookSubmissions = LogbookWeeklySubmission::whereIn('student_id', $studentIds)
+            ->whereNotNull('submitted_at')
             ->count();
 
         $decisionCandidates = Student::whereIn('student_id', $studentIds)
@@ -64,23 +64,6 @@ class DashboardController extends Controller
             ->values();
 
         $reviewQueue = collect();
-
-        $reviewQueue = $reviewQueue->merge(
-            LogbookWeeklySubmission::with('student:student_id,full_name')
-                ->whereIn('student_id', $studentIds)
-                ->whereIn('status', ['submitted', 'pending', 'pending_fix'])
-                ->orderByDesc('submitted_at')
-                ->limit(3)
-                ->get()
-                ->map(fn ($submission) => [
-                    'key' => 'logbook-' . $submission->id,
-                    'type' => 'Logbook review',
-                    'title' => 'Week of ' . $submission->week_start->format('j M') . ' – ' . $submission->week_end->format('j M Y'),
-                    'student_name' => $submission->student?->full_name ?? 'Student',
-                    'sort_at' => $submission->submitted_at?->toDateTimeString() ?? '',
-                    'href' => route('academic-supervisor.logbook.review', $submission->id),
-                ])
-        );
 
         $reviewQueue = $reviewQueue->merge(
             FinalInternshipReport::with('student:student_id,full_name')
@@ -139,7 +122,7 @@ class DashboardController extends Controller
 
         $assignmentIds = $assignments->pluck('assignment_id');
         $recentVisits = AcademicSupervisorVisit::whereIn('assignment_id', $assignmentIds)
-            ->with('assignment.programme')
+            ->with('assignment.student')
             ->orderByDesc('visit_date')
             ->limit(5)
             ->get()
@@ -147,17 +130,16 @@ class DashboardController extends Controller
                 'visit_id' => $visit->visit_id,
                 'visit_date' => $visit->visit_date,
                 'notes' => $visit->notes,
-                'class_name' => $visit->assignment?->programme?->programme_name,
+                'student_name' => $visit->assignment?->student?->full_name,
             ]);
 
         return Inertia::render('AcademicSupervisor/Dashboard', [
-            'assignedClass' => $assignments->first()?->programme?->only(['class_id', 'programme_name']),
             'stats' => [
                 'students' => $students->count(),
-                'pending_logbook_reviews' => $pendingLogbookReviews,
+                'logbook_submissions' => $logbookSubmissions,
                 'pending_reviews' => $pendingEvaluationReviews + $pendingReports,
                 'final_decisions_ready' => $readyCompletionDecisions->count(),
-                'monitoring_status' => $assignments->first()?->monitoring_status ?? 'Not set',
+                'needs_attention' => $assignments->whereIn('monitoring_status', ['Needs Attention', 'At Risk'])->count(),
             ],
             'recentVisits' => $recentVisits,
             'reviewQueue' => $reviewQueue,

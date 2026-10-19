@@ -82,7 +82,6 @@ const UserTabs = () => {
   const [studentOpen, setStudentOpen] = useState(false);
   const [companyOpen, setCompanyOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const [originalCompanyId, setOriginalCompanyId] = useState('');
   const [searchQuery, setSearchQuery] = useState("");
 
   // Filter logic
@@ -117,7 +116,6 @@ const UserTabs = () => {
     username: '',
     email: '',
     password: '',
-    access_key: '',
     role: 'Company',
     company_id: '',
   });
@@ -128,7 +126,6 @@ const UserTabs = () => {
     username: '',
     email: '',
     password: '',
-    access_key: '',
     role: '',
     programme_id: '',
     pb_student_code: '',
@@ -140,7 +137,6 @@ const UserTabs = () => {
     if (!user) return;
     const userId = user.user_id || user.id;
     const companyId = role === 'Company' ? String(user.company_id ?? user.company?.company_id ?? '') : '';
-    setOriginalCompanyId(companyId);
     updateForm.clearErrors();
     updateForm.setData({
       id: userId,
@@ -148,7 +144,6 @@ const UserTabs = () => {
       username: user.username || '',
       email: user.email || '',
       password: '',
-      access_key: '',
       role: role,
       programme_id: role === 'Student' ? String(user.student?.programme_id ?? '') : '',
       pb_student_code: role === 'Student' ? user.student?.pb_student_code ?? '' : '',
@@ -393,11 +388,6 @@ const UserTabs = () => {
                       <Input id="hr-password" type="password" minLength={8} autoComplete="new-password" value={companyAccountForm.data.password} onChange={(event) => companyAccountForm.setData('password', event.target.value)} required />
                     </div>
                     <div className="grid gap-2">
-                      <Label htmlFor="hr-access-key">6-digit Company Access Key</Label>
-                      <Input id="hr-access-key" type="password" inputMode="numeric" pattern="[0-9]{6}" maxLength={6} autoComplete="off" value={companyAccountForm.data.access_key} onChange={(event) => companyAccountForm.setData('access_key', event.target.value.replace(/\D/g, '').slice(0, 6))} required />
-                      <p className="text-xs text-muted-foreground">The company will enter this key before signing in with its email and password.</p>
-                    </div>
-                    <div className="grid gap-2">
                       <Label htmlFor="hr-company">Company</Label>
                       <Select value={companyAccountForm.data.company_id} onValueChange={(value) => companyAccountForm.setData('company_id', value)}>
                         <SelectTrigger id="hr-company" className="shadow-none">
@@ -416,7 +406,7 @@ const UserTabs = () => {
                   <Errors errors={companyAccountForm.errors} />
                   <DialogFooter>
                     <Button type="button" variant="outline" disabled={companyAccountForm.processing} onClick={() => setCompanyOpen(false)}>Cancel</Button>
-                    <Button type="submit" disabled={companyAccountForm.processing || !companyAccountForm.data.username || !companyAccountForm.data.email || !companyAccountForm.data.password || companyAccountForm.data.access_key.length !== 6 || !companyAccountForm.data.company_id}>
+                    <Button type="submit" disabled={companyAccountForm.processing || !companyAccountForm.data.username || !companyAccountForm.data.email || !companyAccountForm.data.password || !companyAccountForm.data.company_id}>
                       {companyAccountForm.processing ? 'Creating...' : 'Create HR Account'}
                     </Button>
                   </DialogFooter>
@@ -533,21 +523,13 @@ const UserTabs = () => {
               <Field label="New Password (optional)">
                 <Input type="password" autoComplete="new-password" minLength={8} value={updateForm.data.password} onChange={(event) => updateForm.setData('password', event.target.value)} />
               </Field>
-              {updateForm.data.role === 'Company' && updateForm.data.company_id !== originalCompanyId && <Field label="New 6-digit Access Key">
-                <Input type="password" inputMode="numeric" pattern="[0-9]{6}" maxLength={6} autoComplete="off" value={updateForm.data.access_key} onChange={(event) => updateForm.setData('access_key', event.target.value.replace(/\D/g, '').slice(0, 6))} required />
-                <p className="text-xs text-muted-foreground">The previous company’s access key will be cleared. Give this new key to the newly assigned company.</p>
-              </Field>}
-              {updateForm.data.role === 'Company' && updateForm.data.company_id === originalCompanyId && <Field label="New 6-digit Access Key (optional)">
-                <Input type="password" inputMode="numeric" pattern="[0-9]{6}" maxLength={6} autoComplete="off" value={updateForm.data.access_key} onChange={(event) => updateForm.setData('access_key', event.target.value.replace(/\D/g, '').slice(0, 6))} />
-                <p className="text-xs text-muted-foreground">Leave blank to keep the current key.</p>
-              </Field>}
               {updateForm.data.role === 'Student' ? <Field label="Academic Programme">
                 <select required className="h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm shadow-sm" value={updateForm.data.programme_id} onChange={(event) => updateForm.setData('programme_id', event.target.value)}>
                   <option value="" disabled>Select Programme</option>
                   {programmes?.map((programme: any) => <option key={programme.programme_id} value={programme.programme_id}>{programme.programme_name}</option>)}
                 </select>
               </Field> : <Field label="Company">
-                <select required className="h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm shadow-sm" value={updateForm.data.company_id} onChange={(event) => { updateForm.setData('company_id', event.target.value); updateForm.setData('access_key', ''); }}>
+                <select required className="h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm shadow-sm" value={updateForm.data.company_id} onChange={(event) => updateForm.setData('company_id', event.target.value)}>
                   <option value="" disabled>Select Company</option>
                   {companies?.filter((company: any) => !companyUsers?.some((other: any) => String(other.user_id) !== String(updateForm.data.id) && String(other.company_id ?? other.company?.company_id) === String(company.company_id))).map((company: any) => <option key={company.company_id} value={String(company.company_id)}>{company.company_name}</option>)}
                 </select>
@@ -561,7 +543,7 @@ const UserTabs = () => {
               <Errors errors={updateForm.errors} />
               <div className="flex justify-end gap-2">
                 <Button type="button" variant="outline" onClick={() => setEditModalOpen(false)}>Cancel</Button>
-                <Button type="submit" disabled={updateForm.processing || (updateForm.data.role === 'Company' && updateForm.data.company_id !== originalCompanyId && updateForm.data.access_key.length !== 6)}>{updateForm.processing ? 'Saving…' : 'Save changes'}</Button>
+                <Button type="submit" disabled={updateForm.processing}>{updateForm.processing ? 'Saving…' : 'Save changes'}</Button>
               </div>
             </form>
           </DialogContent>

@@ -85,6 +85,7 @@ export default function RubricEditor({ sections, onChange, errors = {}, fixedSec
 
     function removeSection(si: number) {
         if (sections.length <= 1) return;
+        if (!window.confirm('Delete this section and its assessment criteria?')) return;
         onChange(sections.filter((_, index) => index !== si));
         setOpenSections((current) => new Set([...current].filter((index) => index !== si).map((index) => index > si ? index - 1 : index)));
         setOpenCriteria((current) => Object.fromEntries(Object.entries(current).filter(([index]) => Number(index) !== si).map(([index, value]) => [Number(index) > si ? Number(index) - 1 : Number(index), value])));
@@ -101,6 +102,7 @@ export default function RubricEditor({ sections, onChange, errors = {}, fixedSec
 
     function removeCriterion(si: number, ci: number) {
         if (sections[si].criteria.length <= 1) return;
+        if (!window.confirm('Delete this assessment criterion and its grading levels?')) return;
         updateSection(si, { criteria: sections[si].criteria.filter((_, index) => index !== ci) });
         setOpenCriteria((current) => {
             const open = current[si];
@@ -209,7 +211,7 @@ export default function RubricEditor({ sections, onChange, errors = {}, fixedSec
                                         {criterion.levels.map((level, li) => {
                                             const levelPath = `${path}.levels.${li}`;
                                             return <div key={li} className="py-3 first:pt-3 last:pb-3">
-                                                <div className="mb-2 flex items-center justify-between"><span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Level {String(li + 1).padStart(2, '0')}</span><button type="button" aria-label={`Delete grading level ${li + 1}`} title={`Delete grading level ${li + 1}`} disabled={criterion.levels.length <= 1} onClick={() => updateCriterion(si, ci, { levels: criterion.levels.filter((_, index) => index !== li) })} className="flex h-8 w-8 items-center justify-center rounded-md text-slate-400 hover:bg-rose-50 hover:text-rose-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 disabled:cursor-not-allowed disabled:opacity-30"><Trash2 size={15} /></button></div>
+                                                <div className="mb-2 flex items-center justify-between"><span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Level {String(li + 1).padStart(2, '0')}</span><button type="button" aria-label={`Delete grading level ${li + 1}`} title={`Delete grading level ${li + 1}`} disabled={criterion.levels.length <= 1} onClick={() => { if (window.confirm('Delete this grading level?')) updateCriterion(si, ci, { levels: criterion.levels.filter((_, index) => index !== li) }); }} className="flex h-8 w-8 items-center justify-center rounded-md text-slate-400 hover:bg-rose-50 hover:text-rose-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 disabled:cursor-not-allowed disabled:opacity-30"><Trash2 size={15} /></button></div>
                                                 <div className="grid gap-x-4 gap-y-3 sm:grid-cols-[minmax(0,1fr)_100px]">
                                                     <Field label="Level name" id={fieldId(`${levelPath}.title`)} error={fieldError(`${levelPath}.title`)}><input id={fieldId(`${levelPath}.title`)} value={level.title} onChange={(event) => updateLevel(si, ci, li, { title: event.target.value })} placeholder="Enter level name" className={evaluationInputClass} aria-invalid={!!fieldError(`${levelPath}.title`)} /></Field>
                                                     <Field label="Points" id={fieldId(`${levelPath}.points`)} error={fieldError(`${levelPath}.points`)}><input id={fieldId(`${levelPath}.points`)} type="number" min="0" value={level.points ?? ''} onChange={(event) => updateLevel(si, ci, li, { points: event.target.value })} className={evaluationInputClass} aria-invalid={!!fieldError(`${levelPath}.points`)} /></Field>

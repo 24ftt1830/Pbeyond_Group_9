@@ -48,13 +48,13 @@ export default function Placements({
 
     const handleApprove = (id: number) => {
         if(confirm('Approve this company quota request?')) {
-            router.post(`/admin/placements/${id}/approve`);
+            router.post(route('admin.placements.approve', id));
         }
     };
 
     const handleReject = (id: number) => {
         if(confirm('Reject this company quota request?')) {
-            router.post(`/admin/placements/${id}/reject`);
+            router.post(route('admin.placements.reject', id));
         }
     };
 

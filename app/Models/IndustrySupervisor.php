@@ -51,11 +51,21 @@ class IndustrySupervisor extends Model
 
     public function applications()
     {
-        return $this->hasMany(
+        return $this->hasManyThrough(
             Application::class,
-            'quota_id',
-            'quota_id'
-        );
+            SupervisorAssignment::class,
+            'supervisor_id',
+            'student_id',
+            'supervisor_id',
+            'student_id'
+        )->whereExists(function ($query) {
+                $query->selectRaw('1')->from('placement_quotas as assigned_quota')
+                    ->join('industry_supervisors as assigned_industry', 'assigned_industry.company_id', '=', 'assigned_quota.company_id')
+                    ->whereColumn('assigned_quota.quota_id', 'applications.quota_id')
+                    ->whereColumn('assigned_industry.supervisor_id', 'supervisor_assignments.supervisor_id');
+            })
+            ->where('applications.app_status', 'Recruited')
+            ->select('applications.*');
     }
 
     public function assignments()
@@ -74,6 +84,15 @@ class IndustrySupervisor extends Model
             'supervisor_assignments',
             'supervisor_id',
             'student_id'
-        );
+        )->whereExists(function ($query) {
+                // Keep company checks inside this subquery: whereHas/withCount
+                // rebuild the outer relation query and do not retain extra joins.
+                $query->selectRaw('1')->from('applications')
+                    ->join('placement_quotas', 'placement_quotas.quota_id', '=', 'applications.quota_id')
+                    ->join('industry_supervisors as assigned_industry', 'assigned_industry.company_id', '=', 'placement_quotas.company_id')
+                    ->whereColumn('applications.student_id', 'students.student_id')
+                    ->whereColumn('assigned_industry.supervisor_id', 'supervisor_assignments.supervisor_id')
+                    ->where('applications.app_status', 'Recruited');
+            });
     }
 }

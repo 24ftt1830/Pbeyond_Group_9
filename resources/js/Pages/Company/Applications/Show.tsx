@@ -119,6 +119,7 @@ export default function Show({
         status: string,
         date?: string
     ) => {
+        if (status === 'Declined' && !window.confirm('Reject this application? The student will be notified.')) return;
         if (status === 'Interviewing' && !date) {
             const targetApp = applications.find(a => (a.id || a.application_id) === applicationId);
             if (targetApp) {
@@ -336,7 +337,7 @@ export default function Show({
                             {currentIndex} out of {applications.length} candidates
                         </SheetTitle>
 
-                        <DropdownMenu>
+                        {selectedApplication?.app_status !== 'Cancelled' && <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button
                                     variant="ghost"
@@ -376,7 +377,7 @@ export default function Show({
                                     </DropdownMenuItem>
                                 ))}
                             </DropdownMenuContent>
-                        </DropdownMenu>
+                        </DropdownMenu>}
                     </SheetHeader>
 
                     {selectedApplication && (

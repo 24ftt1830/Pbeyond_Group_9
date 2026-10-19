@@ -65,10 +65,13 @@ Route::middleware('auth')->group(function () {
         'edit'
     ])->name('profile.edit');
 
-    Route::post('/profile', [
+    Route::match(['post', 'patch'], '/profile', [
         ProfileController::class,
         'update'
     ])->name('profile.update');
+
+    Route::get('/students/{student}/insurance', [StudentProfileController::class, 'downloadInsurance'])->name('students.insurance.download');
+    Route::get('/logbooks/{entry}/attachments/{attachment}', [LogbookController::class, 'downloadAttachment'])->name('logbook.attachments.download');
 
     Route::delete('/profile', [
         ProfileController::class,
@@ -90,12 +93,16 @@ Route::middleware('auth')->group(function () {
                 [App\Http\Controllers\Admin\DashboardController::class, 'index']
             )->name('dashboard');
 
+            // Temporary catalogue of current interface patterns for the Admin review.
+            Route::get('/ui-reference', fn () => Inertia::render('Admin/UIReference'))->name('ui-reference');
+
             Route::get('/academic-semesters', [App\Http\Controllers\Admin\AcademicSemesterController::class, 'index'])->name('academic-semesters');
             Route::post('/academic-semesters', [App\Http\Controllers\Admin\AcademicSemesterController::class, 'store'])->name('academic-semesters.store');
             Route::put('/academic-semesters/{semester}', [App\Http\Controllers\Admin\AcademicSemesterController::class, 'update'])->name('academic-semesters.update');
 
             // Superadmin management remains in the existing Admin portal.
             Route::get('/students', [App\Http\Controllers\Admin\StudentRecordController::class, 'index'])->name('students');
+            Route::get('/unplaced-students', [App\Http\Controllers\Admin\UnplacedStudentController::class, 'index'])->name('unplaced-students');
             Route::get('/students/{student}', [App\Http\Controllers\Admin\StudentRecordController::class, 'show'])->name('students.show');
             Route::get('/students/{student}/profile', [StudentProfileController::class, 'index'])->name('students.profile');
             Route::post('/students/{student}/profile', [StudentProfileController::class, 'update'])->name('students.profile.update');
@@ -386,6 +393,7 @@ Route::middleware('auth')->group(function () {
                 '/manage-users',
                 [App\Http\Controllers\Company\UserManagementController::class, 'store']
             )->name('manage-users.store');
+            Route::put('/manage-users/{supervisor}/assignments', [App\Http\Controllers\Company\UserManagementController::class, 'assign'])->name('manage-users.assignments');
 
             Route::get(
                 '/profile',
@@ -460,6 +468,7 @@ Route::middleware('auth')->group(function () {
                 '/students',
                 [AcademicSupervisorStudentController::class, 'index']
             )->name('students');
+            Route::post('/students/assign', [AcademicSupervisorStudentController::class, 'assign'])->name('students.assign');
 
             Route::get(
                 '/students/{student}',
@@ -515,6 +524,10 @@ Route::middleware('auth')->group(function () {
                 '/dashboard',
                 [App\Http\Controllers\IndustrySupervisor\DashboardController::class, 'index']
             )->name('dashboard');
+
+            Route::get('/logbook', [App\Http\Controllers\IndustrySupervisor\LogbookController::class, 'index'])->name('logbook');
+            Route::get('/logbook/{submission}/review', [App\Http\Controllers\IndustrySupervisor\LogbookController::class, 'review'])->name('logbook.review');
+            Route::post('/logbook/{submission}/mark-reviewed', [App\Http\Controllers\IndustrySupervisor\LogbookController::class, 'markReviewed'])->name('logbook.mark-reviewed');
 
             Route::get(
                 '/students',
@@ -622,6 +635,9 @@ Route::middleware('auth')->group(function () {
                 '/logbook',
                 [LogbookController::class, 'index']
             )->name('logbook');
+
+            Route::get('/logbook/attachments', [LogbookController::class, 'attachmentsPage'])->name('logbook.attachments');
+            Route::get('/logbook/export', [LogbookController::class, 'export'])->name('logbook.export');
 
             Route::get(
                 '/logbook/create',

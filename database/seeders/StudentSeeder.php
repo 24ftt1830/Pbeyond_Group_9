@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\AcademicSemester;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -10,6 +11,8 @@ class StudentSeeder extends Seeder
 {
     public function run(): void
     {
+        $intakeSemester = AcademicSemester::where('name', AcademicSemester::sessionName(2024, true))->firstOrFail();
+
         $students = [
             [
                 'code' => '24FTT001', 'name' => 'Ahmad Haziq Bin Rahman',
@@ -136,8 +139,8 @@ class StudentSeeder extends Seeder
                     'ic_number' => $data['ic'],
                     'ic_colour' => $data['ic_colour'],
                     'programme_id' => $programmeId,
-                    'intake_session' => 'July 2024',
-                    'intake_semester_id' => DB::table('academic_semesters')->where('name', 'July 2024')->value('id'),
+                    'intake_session' => $intakeSemester->name,
+                    'intake_semester_id' => $intakeSemester->id,
                     'current_semester' => 5,
                     'postal_address' => $data['address'],
                     'date_of_birth' => $data['dob'],

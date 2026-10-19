@@ -20,7 +20,8 @@ type Intern = {
     positions: string[];
     start_date: string | null;
     end_date: string | null;
-    internship_semester: { name: string; starts_on: string; ends_on: string } | null;
+    internship_semester: { name: string; starts_on: string; earliest_start_on: string; ends_on: string } | null;
+    branch?: { name: string; address?: string; district?: string };
     internship_status: 'Dates not set' | 'Upcoming' | 'In Progress' | 'Ended';
 };
 
@@ -59,17 +60,17 @@ export default function Interns({ interns = [], companyName }: Props) {
     const form = useForm({ start_date: '', end_date: '' });
 
     const semester = selectedIntern?.internship_semester ?? null;
-    const allowedRange = semester ? `${formatDate(semester.starts_on)} – ${formatDate(semester.ends_on)}` : '';
+    const allowedRange = semester ? `${formatDate(semester.earliest_start_on)} – ${formatDate(semester.ends_on)}` : '';
     const startOutsideSemester = Boolean(semester && form.data.start_date && (
-        form.data.start_date < semester.starts_on || form.data.start_date > semester.ends_on
+        form.data.start_date < semester.earliest_start_on || form.data.start_date > semester.ends_on
     ));
     const endOutsideSemester = Boolean(semester && form.data.end_date && (
         form.data.end_date < semester.starts_on || form.data.end_date > semester.ends_on
     ));
     const endBeforeStart = Boolean(form.data.start_date && form.data.end_date && form.data.end_date < form.data.start_date);
-    const earliestEndDate = semester && form.data.start_date > semester.starts_on
+    const earliestEndDate = semester && form.data.start_date > semester.earliest_start_on
         ? form.data.start_date
-        : semester?.starts_on;
+        : semester?.earliest_start_on;
     const startDateError = form.errors.start_date || (startOutsideSemester ? `Choose a date within ${allowedRange}.` : '');
     const endDateError = form.errors.end_date || (endOutsideSemester
         ? `Choose a date within ${allowedRange}.`
@@ -228,7 +229,7 @@ export default function Interns({ interns = [], companyName }: Props) {
                             )}
                             <div className="space-y-2">
                                 <Label htmlFor="internship-start-date">Start date</Label>
-                                <Input id="internship-start-date" type="date" min={semester?.starts_on} max={semester?.ends_on} disabled={!semester} required value={form.data.start_date} onChange={(event) => { form.setData('start_date', event.target.value); form.clearErrors('start_date', 'end_date'); }} />
+                                <Input id="internship-start-date" type="date" min={semester?.earliest_start_on} max={semester?.ends_on} disabled={!semester} required value={form.data.start_date} onChange={(event) => { form.setData('start_date', event.target.value); form.clearErrors('start_date', 'end_date'); }} />
                                 {startDateError && <p className="text-sm text-rose-600">{startDateError}</p>}
                             </div>
                             <div className="space-y-2">

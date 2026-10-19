@@ -44,6 +44,16 @@ This repository contains the PBeyond web application maintained by Cohort 2. The
 
 The project is built with Laravel, Inertia.js, React, TypeScript (.tsx), and Vite.
 
+## Internship workflow update
+
+- Every role signs in at `/login` with an email and password and is taken to its own dashboard. Admin creates and manages HR accounts under Manage Users.
+- Existing installations: run `php artisan migrate` to apply the new branch, application history, individual supervisor, logbook and student document fields. Do not reset the database.
+- Evaluation examples are saved as drafts. Admin must activate the completed rubrics before supervisors can start assessments. Published rubrics and submitted assessments are preserved when the evaluation seeder is rerun.
+- Application acceptance/rejection notifications are queued after the status change is committed. Run `php artisan queue:work` alongside the application (or use the queue listener in `composer run dev`).
+- Mailtrap credentials will be configured later. `.env.example` documents the Sandbox SMTP fields; the real `.env` is unchanged. With the log mailer, processed messages are written to Laravel's log instead of being delivered. Live delivery requires the Email Sending credentials and verified domain.
+- Attendance uses recorded daily statuses: Work day, permission/MC and Public Holiday receive one credit; Absent receives zero. Missing days are shown separately. No workplace schedule is configured.
+- Old rejection records retain their last recorded timestamp; new decisions have a dated status history. Existing class supervision is copied to individual student assignments while the original records and visits are retained.
+
 Step 1: Clone the Repository
 Open Git Bash, PowerShell, or Terminal.
 Navigate to the folder where you want to store the project.

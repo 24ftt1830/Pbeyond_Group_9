@@ -83,7 +83,7 @@ export function AcademicSupervisorSidebar({
                 <div className="pt-2">
 
                     <p className="mb-2 px-5 text-xs font-medium text-muted-foreground group-data-[collapsible=icon]:hidden">
-                        Academic Supervisor Portal
+                        PB Supervisor Portal
                     </p>
 
                     <SidebarMenu>
@@ -122,7 +122,7 @@ export function AcademicSupervisorSidebar({
                             >
                                 <Link href="/academic-supervisor/logbook">
                                     <BookMarked />
-                                    <span>Logbook Review</span>
+                                    <span>Logbooks</span>
                                 </Link>
                             </SidebarMenuButton>
                         </SidebarMenuItem>

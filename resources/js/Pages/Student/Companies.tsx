@@ -14,6 +14,9 @@ interface Company {
     company_name: string;
     industry_sector: string;
     office_address: string;
+    district?: string;
+    branches?: { district?: string; address?: string }[];
+    schools?: string[];
     available: number;
 }
 
@@ -22,7 +25,7 @@ interface Props {
     hasAssignedIntake?: boolean;
 }
 
-const districtOptions = ['Brunei Muara', 'Tutong', 'Temburong', 'Belait'];
+const districtOptions = ['Brunei-Muara', 'Tutong', 'Temburong', 'Belait', 'Overseas'];
 const statusOptions = ['Available', 'Full'];
 
 export default function Companies({ companies = [], hasAssignedIntake = true }: Props) {
@@ -59,8 +62,9 @@ export default function Companies({ companies = [], hasAssignedIntake = true }: 
             header: 'Sector',
         },
         {
-            accessorKey: 'office_address',
+            accessorKey: 'district',
             header: 'District',
+            cell: ({ row }) => [...new Set([row.original.district, ...(row.original.branches ?? []).map((branch) => branch.district)].filter(Boolean))].join(', ') || 'Not assigned',
         },
         {
             id: 'actions',
@@ -88,7 +92,7 @@ export default function Companies({ companies = [], hasAssignedIntake = true }: 
                     company.office_address.toLowerCase().includes(searchQuery.toLowerCase());
 
                 const matchesDistrict = selectedDistricts.length === 0 ||
-                    selectedDistricts.includes(company.office_address);
+                    [company.district, ...(company.branches ?? []).map((branch) => branch.district)].some((district) => Boolean(district && selectedDistricts.includes(district)));
 
                 const matchesStatus = selectedStatuses.length === 0 ||
                     selectedStatuses.includes(company.calculatedStatus);

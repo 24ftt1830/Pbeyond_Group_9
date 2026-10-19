@@ -42,7 +42,7 @@ interface Props {
         open_positions: number;
         available_slots: number;
         applications: number;
-        pending_applications: number;
+        active_applications: number;
         recruited_applications: number;
     };
 }

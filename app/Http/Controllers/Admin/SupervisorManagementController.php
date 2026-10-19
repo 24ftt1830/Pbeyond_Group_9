@@ -8,7 +8,9 @@ use App\Models\AdminRecordChange;
 use App\Models\Company;
 use App\Models\IndustrySupervisor;
 use App\Models\PlacementQuota;
+use App\Models\Student;
 use App\Models\User;
+use App\Services\IndustrySupervisorAssignments;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -25,11 +27,19 @@ class SupervisorManagementController extends Controller
     public function accounts(): array
     {
         $academic = AcademicSupervisor::with('user')->orderBy('full_name')->get()->map(fn ($record) => $this->row($record, 'academic'));
-        $industry = IndustrySupervisor::with('user')->orderBy('full_name')->get()->map(fn ($record) => $this->row($record, 'industry'));
+        $industry = IndustrySupervisor::with(['user', 'assignments'])->orderBy('full_name')->get()->map(fn ($record) => $this->row($record, 'industry'));
         return [
             'supervisors' => $academic->concat($industry)->values(),
             'companies' => Company::orderBy('company_name')->get(['company_id', 'company_name']),
             'quotas' => PlacementQuota::orderBy('job_title')->get(['quota_id', 'company_id', 'job_title', 'quota_status', 'is_released']),
+            'assignmentStudents' => Student::whereHas('applications', fn ($query) => $query->where('app_status', 'Recruited'))
+                ->with(['applications' => fn ($query) => $query->where('app_status', 'Recruited')->with('quota:quota_id,company_id'), 'supervisorAssignments'])
+                ->orderBy('full_name')->get()->map(fn ($student) => [
+                    'student_id' => $student->student_id, 'full_name' => $student->full_name,
+                    'pb_student_code' => $student->pb_student_code,
+                    'company_id' => $student->applications->first()?->quota?->company_id,
+                    'supervisor_id' => $student->supervisorAssignments->first()?->supervisor_id,
+                ]),
         ];
     }
 
@@ -41,6 +51,7 @@ class SupervisorManagementController extends Controller
             'full_name' => $record->full_name, 'phone' => $record->phone ?? '',
             'company_id' => $record->company_id ?? '', 'quota_id' => $record->quota_id ?? '',
             'position' => $record->position ?? '',
+            'student_ids' => $type === 'industry' ? $record->assignments->pluck('student_id')->values() : [],
         ];
     }
 
@@ -55,10 +66,8 @@ class SupervisorManagementController extends Controller
             'phone' => ['nullable', 'string', $type === 'industry' ? 'max:20' : 'max:255'],
             'position' => ['nullable', 'string', 'max:100'],
             'company_id' => [$type === 'industry' ? 'required' : 'nullable', 'exists:companies,company_id'],
-            'quota_id' => ['nullable', 'integer', Rule::exists('placement_quotas', 'quota_id')
-                ->where('company_id', $request->input('company_id'))
-                ->when(!$record || (string) $record->quota_id !== (string) $request->input('quota_id'),
-                    fn ($rule) => $rule->where('quota_status', 'Approved')->where('is_released', true))],
+            'student_ids' => [$type === 'industry' ? 'present' : 'nullable', 'array'],
+            'student_ids.*' => ['required', 'integer', 'distinct', 'exists:students,student_id'],
         ]);
         if ($type === 'academic') {
             $data['company_id'] = null;
@@ -105,14 +114,12 @@ class SupervisorManagementController extends Controller
                 'email' => $data['email'], 'phone' => $data['phone'] ?? null,
             ]);
             if ($type === 'industry') {
-                if ($record->exists && (string) $record->quota_id !== (string) ($data['quota_id'] ?? '')) {
-                    foreach ($record->applications()->where('app_status', 'Recruited')->with('student.internshipCompletion')->get() as $application) {
-                        $application->student->internshipCompletion?->resetAcademicDecision();
-                    }
-                }
-                $record->fill(['company_id' => $data['company_id'], 'quota_id' => $data['quota_id'] ?? null, 'position' => $data['position'] ?? null]);
+                $record->fill(['company_id' => $data['company_id'], 'quota_id' => null, 'position' => $data['position'] ?? null]);
             }
             $record->save();
+            if ($type === 'industry') {
+                app(IndustrySupervisorAssignments::class)->sync($record, $data['student_ids'] ?? [], $request->user());
+            }
             AdminRecordChange::record($request->user(), $user, 'Updated supervisor login', $beforeUser);
             AdminRecordChange::record($request->user(), $record, 'Updated supervisor profile and assignment', $before);
         });

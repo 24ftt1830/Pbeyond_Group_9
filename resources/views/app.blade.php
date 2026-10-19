@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        @if (in_array($page['component'] ?? null, ['Auth/Login', 'Auth/CompanyLogin', 'Auth/CompanyKeyAccess'], true))
+        @if (($page['component'] ?? null) === 'Auth/Login')
             <link rel="preload" href="{{ Vite::asset('resources/images/bridge-cropped-top-two.png') }}" as="image">
         @endif
 

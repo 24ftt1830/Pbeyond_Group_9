@@ -33,14 +33,14 @@ class SupervisorEvaluationController extends Controller
     public function createIndustry(Student $student): Response
     {
         $supervisor = IndustrySupervisor::where('user_id', auth()->id())->firstOrFail();
-        abort_unless($supervisor->applications()->where('student_id', $student->student_id)->where('app_status', 'Recruited')->exists(), 403);
+        abort_unless($supervisor->applications()->where('applications.student_id', $student->student_id)->where('applications.app_status', 'Recruited')->exists(), 403);
         return $this->form($student, $supervisor, 'Industry Supervisor');
     }
 
     public function storeIndustry(Request $request, Student $student): RedirectResponse
     {
         $supervisor = IndustrySupervisor::where('user_id', auth()->id())->firstOrFail();
-        abort_unless($supervisor->applications()->where('student_id', $student->student_id)->where('app_status', 'Recruited')->exists(), 403);
+        abort_unless($supervisor->applications()->where('applications.student_id', $student->student_id)->where('applications.app_status', 'Recruited')->exists(), 403);
         return $this->submit($request, $student, $supervisor, 'Industry Supervisor');
     }
 
@@ -61,7 +61,7 @@ class SupervisorEvaluationController extends Controller
     public function showIndustrySubmission(Student $student, EvaluationSubmission $submission): Response
     {
         $supervisor = IndustrySupervisor::where('user_id', auth()->id())->firstOrFail();
-        abort_unless($supervisor->applications()->where('student_id', $student->student_id)->where('app_status', 'Recruited')->exists(), 403);
+        abort_unless($supervisor->applications()->where('applications.student_id', $student->student_id)->where('applications.app_status', 'Recruited')->exists(), 403);
         abort_unless(
             (int) $submission->student_id === (int) $student->student_id
                 && $submission->supervisor_type === 'Industry Supervisor'
@@ -162,6 +162,10 @@ class SupervisorEvaluationController extends Controller
         DB::transaction(function () use ($query, $template, $student, $type, $ownerField, $ownerId, $templateSnapshot, $answerSnapshots, $score, $validated) {
             Student::whereKey($student->getKey())->lockForUpdate()->firstOrFail();
             $submission = $query->lockForUpdate()->first() ?? new EvaluationSubmission();
+            $currentTemplate = EvaluationTemplate::whereKey($template->id)->lockForUpdate()->firstOrFail();
+            if (!$submission->exists && !$currentTemplate->is_active) {
+                throw ValidationException::withMessages(['answers' => 'This rubric is no longer active. Refresh the page to use the current rubric.']);
+            }
             if ($submission->exists && !$submission->reopened_at) {
                 throw ValidationException::withMessages(['answers' => 'This evaluation is already submitted and locked.']);
             }
@@ -185,7 +189,7 @@ class SupervisorEvaluationController extends Controller
 
     private function authorizeAcademic(AcademicSupervisor $supervisor, Student $student): void
     {
-        $student->programme->academicSupervisorAssignments()
+        $student->academicSupervisorAssignments()
             ->where('academic_supervisor_id', $supervisor->academic_supervisor_id)->firstOrFail();
     }
 

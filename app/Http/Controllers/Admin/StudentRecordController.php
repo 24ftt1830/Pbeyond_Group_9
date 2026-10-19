@@ -31,8 +31,9 @@ class StudentRecordController extends Controller
     public function show(Student $student)
     {
         $student->load([
-            'programme.academicSupervisorAssignments.academicSupervisor',
-            'programme.academicSupervisorAssignments.visits',
+            'programme',
+            'academicSupervisorAssignments.academicSupervisor',
+            'academicSupervisorAssignments.visits',
             'user', 'internship', 'internshipCompletion', 'finalInternshipReport',
             'applications.quota.company',
             'skills', 'languages', 'education', 'professionalProfile',
@@ -51,6 +52,7 @@ class StudentRecordController extends Controller
             'overallScore' => $completion->overallScore($student),
             'canFinalizeCompleted' => $completion->canAcademicFinalize($student, 'Completed'),
             'canFinalizeIncomplete' => $completion->canAcademicFinalize($student, 'Incomplete'),
+            'attendance' => app(\App\Services\AttendanceService::class)->summary($student),
         ]);
     }
 
@@ -81,42 +83,39 @@ class StudentRecordController extends Controller
     public function assignAcademic(Request $request, Student $student)
     {
         $data = $request->validate(['academic_supervisor_id' => ['required', 'exists:academic_supervisors,academic_supervisor_id']]);
-        if (!$student->programme?->class_id) {
-            throw ValidationException::withMessages(['academic_supervisor_id' => 'The student must belong to a class before assigning a supervisor.']);
-        }
         DB::transaction(function () use ($student, $data, $request) {
-            $assignment = $student->programme->academicSupervisorAssignments()->firstOrNew();
+            $student = Student::whereKey($student->student_id)->lockForUpdate()->firstOrFail();
+            $assignment = $student->academicSupervisorAssignments()->firstOrNew();
             $before = $assignment->exists ? $assignment->toArray() : null;
-            $assignment->fill($data + ['class_id' => $student->programme->class_id, 'monitoring_status' => $assignment->monitoring_status ?? 'On Track'])->save();
-            foreach (Student::whereHas('programme', fn ($query) => $query->where('class_id', $student->programme->class_id))->with('internshipCompletion')->get() as $classStudent) {
-                $classStudent->internshipCompletion?->resetAcademicDecision();
-            }
-            AdminRecordChange::record($request->user(), $assignment, 'Reassigned class academic supervisor', $before);
+            $changed = !$assignment->exists || (int) $assignment->academic_supervisor_id !== (int) $data['academic_supervisor_id'];
+            $assignment->fill($data + ['student_id' => $student->student_id, 'class_id' => null, 'monitoring_status' => $assignment->monitoring_status ?? 'On Track'])->save();
+            if ($changed) $student->internshipCompletion?->resetAcademicDecision();
+            AdminRecordChange::record($request->user(), $assignment, 'Reassigned student PB Supervisor', $before);
         });
-        return back()->with('success', 'Academic Supervisor assigned to the student’s class.');
+        return back()->with('success', 'PB Supervisor assigned to this student.');
     }
 
     public function monitoring(Request $request, Student $student)
     {
         $data = $request->validate(['monitoring_status' => ['required', 'in:On Track,Needs Attention,At Risk']]);
-        $assignment = $student->programme?->academicSupervisorAssignments()->first();
+        $assignment = $student->academicSupervisorAssignments()->first();
         if (!$assignment) {
-            throw ValidationException::withMessages(['monitoring_status' => 'Assign an Academic Supervisor to this class first.']);
+            throw ValidationException::withMessages(['monitoring_status' => 'Assign a PB Supervisor to this student first.']);
         }
         DB::transaction(function () use ($assignment, $data, $request) {
             $before = $assignment->toArray();
             $assignment->update($data);
-            AdminRecordChange::record($request->user(), $assignment, 'Updated class monitoring status', $before);
+            AdminRecordChange::record($request->user(), $assignment, 'Updated student monitoring status', $before);
         });
-        return back()->with('success', 'Class monitoring status updated.');
+        return back()->with('success', 'Student monitoring status updated.');
     }
 
     public function visit(Request $request, Student $student)
     {
         $data = $request->validate(['visit_date' => ['required', 'date'], 'notes' => ['required', 'string', 'max:5000']]);
-        $assignment = $student->programme?->academicSupervisorAssignments()->first();
+        $assignment = $student->academicSupervisorAssignments()->first();
         if (!$assignment) {
-            throw ValidationException::withMessages(['visit_date' => 'Assign an Academic Supervisor to this class first.']);
+            throw ValidationException::withMessages(['visit_date' => 'Assign a PB Supervisor to this student first.']);
         }
         DB::transaction(function () use ($assignment, $data, $request) {
             $visit = $assignment->visits()->create($data);
@@ -127,7 +126,7 @@ class StudentRecordController extends Controller
 
     public function updateVisit(Request $request, Student $student, AcademicSupervisorVisit $visit)
     {
-        abort_unless($student->programme?->academicSupervisorAssignments()->where('assignment_id', $visit->assignment_id)->exists(), 404);
+        abort_unless($student->academicSupervisorAssignments()->where('assignment_id', $visit->assignment_id)->exists(), 404);
         $data = $request->validate(['visit_date' => ['required', 'date'], 'notes' => ['required', 'string', 'max:5000']]);
         DB::transaction(function () use ($visit, $data, $request) {
             $before = $visit->toArray();
@@ -173,8 +172,8 @@ class StudentRecordController extends Controller
 
     public function reopenReport(Request $request, Student $student)
     {
-        if (!$student->programme?->academicSupervisorAssignments()->exists()) {
-            throw ValidationException::withMessages(['reopen' => 'Assign an Academic Supervisor before reopening the written report.']);
+        if (!$student->academicSupervisorAssignments()->exists()) {
+            throw ValidationException::withMessages(['reopen' => 'Assign a PB Supervisor before reopening the written report.']);
         }
         DB::transaction(function () use ($student, $request) {
             $report = FinalInternshipReport::where('student_id', $student->student_id)->lockForUpdate()->first();
@@ -190,7 +189,7 @@ class StudentRecordController extends Controller
             AdminRecordChange::record($request->user(), $report, 'Reopened written report', $before);
             $student->internshipCompletion?->resetAcademicDecision();
         });
-        return back()->with('success', 'Written report reopened for the assigned Academic Supervisor. Its original review has been preserved.');
+        return back()->with('success', 'Written report reopened for the assigned PB Supervisor. Its original review has been preserved.');
     }
 
     public function reopenLogbook(Request $request, Student $student, LogbookWeeklySubmission $submission)
@@ -228,10 +227,10 @@ class StudentRecordController extends Controller
             return false;
         }
         if ($submission->supervisor_type === 'Academic Supervisor') {
-            return (bool) $student->programme?->academicSupervisorAssignments()
+            return (bool) $student->academicSupervisorAssignments()
                 ->where('academic_supervisor_id', $submission->academic_supervisor_id)->exists();
         }
         return IndustrySupervisor::where('supervisor_id', $submission->industry_supervisor_id)
-            ->whereIn('quota_id', $student->applications()->where('app_status', 'Recruited')->select('quota_id'))->exists();
+            ->whereHas('students', fn ($query) => $query->where('students.student_id', $student->student_id))->exists();
     }
 }

@@ -43,6 +43,10 @@ export const getColumns = (
             const app = row.original;
             const status = app.app_status || 'Pending';
 
+            if (status === 'Cancelled') {
+                return <Badge variant={getBadgeVariant(status)}>Cancelled</Badge>;
+            }
+
             return (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -151,30 +155,31 @@ export const getColumns = (
                             <Eye className="w-4 h-4 mr-2" /> View Details
                         </DropdownMenuItem>
 
-                        <DropdownMenuSeparator />
-
-                        {isInterviewRequired && (
-                            <DropdownMenuItem 
-                                onClick={() => openInterviewModal ? openInterviewModal(app) : updateStatus(app.quota_id, app.id || app.application_id, "Interviewing")}
+                        {app.app_status !== 'Cancelled' && <>
+                            <DropdownMenuSeparator />
+                            {isInterviewRequired && (
+                                <DropdownMenuItem
+                                    onClick={() => openInterviewModal ? openInterviewModal(app) : updateStatus(app.quota_id, app.id || app.application_id, "Interviewing")}
+                                >
+                                    <Calendar className="w-4 h-4 mr-2 text-primary" /> Schedule Interview
+                                </DropdownMenuItem>
+                            )}
+                            <DropdownMenuItem
+                                onClick={() => updateStatus(app.quota_id, app.id || app.application_id, "Waitlisted")}
                             >
-                                <Calendar className="w-4 h-4 mr-2 text-primary" /> Schedule Interview
+                                Waitlist
                             </DropdownMenuItem>
-                        )}
-                        <DropdownMenuItem 
-                            onClick={() => updateStatus(app.quota_id, app.id || app.application_id, "Waitlisted")}
-                        >
-                            Waitlist
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                            onClick={() => updateStatus(app.quota_id, app.id || app.application_id, "Recruited")}
-                        >
-                            Recruit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                            onClick={() => updateStatus(app.quota_id, app.id || app.application_id, "Declined")}
-                        >
-                            Decline
-                        </DropdownMenuItem>
+                            <DropdownMenuItem
+                                onClick={() => updateStatus(app.quota_id, app.id || app.application_id, "Recruited")}
+                            >
+                                Recruit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                                onClick={() => updateStatus(app.quota_id, app.id || app.application_id, "Declined")}
+                            >
+                                Decline
+                            </DropdownMenuItem>
+                        </>}
                     </DropdownMenuContent>
                 </DropdownMenu>
             );

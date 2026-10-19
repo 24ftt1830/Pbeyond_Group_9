@@ -81,7 +81,7 @@ class EvaluationController extends Controller
     private function authorizeStudent(IndustrySupervisor $supervisor, Student $student): void
     {
         $isAssigned = $supervisor->applications()
-            ->where('student_id', $student->student_id)
+            ->where('applications.student_id', $student->student_id)
             ->where('app_status', 'Recruited')
             ->exists();
 

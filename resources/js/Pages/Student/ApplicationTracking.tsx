@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { CheckCircle, Circle, Clock, Calendar, XCircle } from 'lucide-react';
 import type { ReactNode } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { router } from '@inertiajs/react';
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
 import { Badge } from "@/Components/ui/badge";
@@ -15,6 +16,7 @@ type ApplicationItem = {
     interview_date: string | null;
     requires_interview: boolean;
     reviewed_at: string | null;
+    branch?: { name: string; address?: string; district?: string } | null;
     company: {
         id: number;
         name: string;
@@ -64,6 +66,7 @@ export default function ApplicationTracking({
     // Build steps dynamically based on whether interview is required or scheduled
     const getProcessSteps = (): ProcessStep[] => {
         if (!selectedApp) return [];
+        if (selectedApp.status_label === 'Cancelled') return [{ key: 'cancelled', label: 'Application Cancelled', date: null, extra: <span className="text-xs text-muted-foreground">You may apply for another placement.</span> }];
 
         const baseSteps: ProcessStep[] = [
             {
@@ -143,6 +146,8 @@ export default function ApplicationTracking({
                                             <p className="text-sm text-muted-foreground mt-1">
                                                 Position: {selectedApp.quota?.job_title ?? 'N/A'}
                                             </p>
+                                            {selectedApp.branch && <p className="mt-1 text-xs text-muted-foreground">Branch: {selectedApp.branch.name}{selectedApp.branch.district ? ` · ${selectedApp.branch.district}` : ''}</p>}
+                                            {selectedApp.status_label === 'Pending' && <Button type="button" variant="outline" size="sm" className="mt-3 text-rose-600" onClick={() => { if (window.confirm('Cancel this application? Your application history will be retained.')) router.delete(route('student.applications.cancel', selectedApp.id), { preserveScroll: true }); }}>Cancel application</Button>}
                                         </div>
 
                                         <Badge

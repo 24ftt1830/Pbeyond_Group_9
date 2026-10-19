@@ -49,11 +49,18 @@ class ApplicationSeeder extends Seeder
             if (!$companyId || !$quotaId || !$studentId) {
                 continue;
             }
-
-            Application::updateOrCreate(
-                ['student_id' => $studentId, 'quota_id' => $quotaId],
-                ['app_status' => $example['status']]
-            );
+            if (Application::where('student_id', $studentId)->active()->exists()) {
+                continue;
+            }
+            $branchId = DB::table('company_branch_placement_quota')->where('quota_id', $quotaId)->value('company_branch_id');
+            if (!$branchId) {
+                continue;
+            }
+            $application = Application::create([
+                'student_id' => $studentId, 'quota_id' => $quotaId,
+                'company_branch_id' => $branchId, 'app_status' => $example['status'], 'apply_date' => now(),
+            ]);
+            $application->statusHistories()->create(['from_status' => null, 'to_status' => $example['status']]);
         }
     }
 }

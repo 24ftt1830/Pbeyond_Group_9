@@ -26,9 +26,9 @@ class Student extends Model
 
     protected $fillable = [
         'pb_student_code', 'user_id', 'full_name', 'ic_number', 'ic_colour',
-        'programme_id', 'intake_session', 'intake_semester_id', 'current_semester', 'postal_address', 'date_of_birth',
+        'programme_id', 'intake_session', 'intake_semester_id', 'current_semester', 'postal_address', 'district', 'date_of_birth',
         'place_of_birth', 'gender', 'religion', 'nationality', 'race',
-        'mobile_phone', 'cgpa', 'work_experience', 'emergency_no',
+        'mobile_phone', 'cgpa', 'work_experience', 'emergency_no', 'emergency_no_2', 'insurance_document_path',
         'cv_file_path', 'vetting_status', 'cv_generated_at', 'cv_snapshot',
         'passport_photo_path', 'completed_onboarding_tasks',
     ];
@@ -71,6 +71,24 @@ class Student extends Model
         return $this->hasMany(Application::class, 'student_id', 'student_id');
     }
 
+    /**
+     * Replace the CV attached to applications that HR has not acted on yet.
+     */
+    public function refreshPendingApplicationCvSnapshots(array $snapshot): int
+    {
+        $applications = $this->applications()->pending()->get();
+
+        foreach ($applications as $application) {
+            $application->forceFill([
+                'cv_snapshot' => $snapshot,
+                'cv_snapshot_updated_at' => now(),
+                'cv_revision' => max(1, (int) ($application->cv_revision ?? 1)) + 1,
+            ])->save();
+        }
+
+        return $applications->count();
+    }
+
     public function internship()
     {
         return $this->hasOne(
@@ -102,13 +120,10 @@ class Student extends Model
 
     public function academicSupervisorAssignments()
     {
-        return $this->hasManyThrough(
+        return $this->hasMany(
             AcademicSupervisorAssignment::class,
-            Programme::class,
-            'programme_id',
-            'class_id',
-            'programme_id',
-            'class_id'
+            'student_id',
+            'student_id'
         );
     }
 

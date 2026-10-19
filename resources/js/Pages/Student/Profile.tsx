@@ -131,6 +131,7 @@ interface Student {
     intake_semester_id?: number | null;
     intake_semester?: { id: number; name: string } | null;
     postal_address: string;
+    district?: string | null;
     date_of_birth: string;
     place_of_birth: string;
     gender: string;
@@ -140,6 +141,8 @@ interface Student {
     mobile_phone: string;
     cgpa: string;
     emergency_no: string;
+    emergency_no_2?: string | null;
+    insurance_document_path?: string | null;
 
     // Legacy field - kept temporarily so existing data is not lost
     work_experience: string;
@@ -170,6 +173,7 @@ interface ProfileProps {
     missingProfileFields: string[];
     hasGeneratedCv: boolean;
     cvGeneratedAt?: string | null;
+    insuranceDownloadUrl?: string | null;
 }
 
 interface ProfileFormData {
@@ -178,6 +182,7 @@ interface ProfileFormData {
     ic_colour: string;
     intake_semester_id: string;
     postal_address: string;
+    district: string;
     date_of_birth: string;
     place_of_birth: string;
     gender: string;
@@ -187,6 +192,8 @@ interface ProfileFormData {
     mobile_phone: string;
     cgpa: string;
     emergency_no: string;
+    emergency_no_2: string;
+    insurance_document: File | null;
     work_experience: string;
 
     passport_photo: File | null;
@@ -294,6 +301,7 @@ export default function Profile({
     missingProfileFields = [],
     hasGeneratedCv,
     cvGeneratedAt,
+    insuranceDownloadUrl,
 }: ProfileProps) {
     const canGenerateCv = profileCanGenerateCv && !adminContext;
 
@@ -330,6 +338,7 @@ export default function Profile({
         ic_colour: student.ic_colour || 'Yellow',
         intake_semester_id: String(student.intake_semester_id ?? ''),
         postal_address: student.postal_address || '',
+        district: student.district || '',
         date_of_birth: formatDateForInput(student.date_of_birth),
         place_of_birth: student.place_of_birth || '',
         gender: student.gender || 'Male',
@@ -339,6 +348,8 @@ export default function Profile({
         mobile_phone: student.mobile_phone || '',
         cgpa: student.cgpa || '',
         emergency_no: student.emergency_no || '',
+        emergency_no_2: student.emergency_no_2 || '',
+        insurance_document: null,
 
         // Keep the old database field temporarily.
         // We will retire this later after the new
@@ -527,6 +538,7 @@ export default function Profile({
     };
 
     const removeEducation = (index: number) => {
+        if (!window.confirm('Remove this education entry?')) return;
 
         setData(
             'education',
@@ -550,6 +562,7 @@ export default function Profile({
     };
 
     const removeWorkExperience = (index: number) => {
+        if (!window.confirm('Remove this work experience?')) return;
 
         setData(
             'work_experiences',
@@ -573,6 +586,7 @@ export default function Profile({
     };
 
     const removeProject = (index: number) => {
+        if (!window.confirm('Remove this project?')) return;
 
         setData(
             'projects',
@@ -596,6 +610,7 @@ export default function Profile({
     };
 
     const removeActivity = (index: number) => {
+        if (!window.confirm('Remove this activity?')) return;
 
         setData(
             'activities',
@@ -619,6 +634,7 @@ export default function Profile({
     };
 
     const removeAchievement = (index: number) => {
+        if (!window.confirm('Remove this achievement?')) return;
 
         setData(
             'achievements',
@@ -642,6 +658,7 @@ export default function Profile({
     };
 
     const removeReferee = (index: number) => {
+        if (!window.confirm('Remove this referee?')) return;
 
         setData(
             'referees',
@@ -665,6 +682,7 @@ export default function Profile({
     };
 
     const removeSoftSkill = (index: number) => {
+        if (!window.confirm('Remove this soft skill?')) return;
 
         setData(
             'soft_skills',
@@ -686,6 +704,7 @@ export default function Profile({
     };
 
     const removeTechnicalSkill = (index: number) => {
+        if (!window.confirm('Remove this technical skill?')) return;
         setData(
             'skills',
             data.skills.filter((_, i) => i !== index)
@@ -705,6 +724,7 @@ export default function Profile({
     };
 
     const removeLanguage = (index: number) => {
+        if (!window.confirm('Remove this language?')) return;
         setData(
             'languages',
             data.languages.filter((_, i) => i !== index)
@@ -1128,7 +1148,7 @@ export default function Profile({
                                 <div className="space-y-2">
 
                                     <Label>
-                                        Emergency Contact
+                                        Emergency Contact 1
                                     </Label>
 
                                     <Input
@@ -1141,6 +1161,21 @@ export default function Profile({
                                         }
                                     />
 
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="emergency-contact-2">Emergency Contact 2</Label>
+                                    <Input id="emergency-contact-2" type="tel" value={data.emergency_no_2} onChange={e => setData('emergency_no_2', e.target.value)} />
+                                    {errors.emergency_no_2 && <p className="text-sm text-red-600">{errors.emergency_no_2}</p>}
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="student-district">District</Label>
+                                    <select id="student-district" value={data.district} onChange={e => setData('district', e.target.value)} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
+                                        <option value="">Select district</option>
+                                        {['Brunei-Muara', 'Belait', 'Tutong', 'Temburong', 'Overseas'].map(district => <option key={district}>{district}</option>)}
+                                    </select>
+                                    {errors.district && <p className="text-sm text-red-600">{errors.district}</p>}
                                 </div>
 
 
@@ -2986,6 +3021,14 @@ export default function Profile({
 
 
                         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                            <div className="rounded-lg border bg-gray-50 p-5">
+                                <Label htmlFor="insurance-document" className="font-medium">Insurance document</Label>
+                                <p className="mt-1 text-sm text-gray-500">Upload your internship insurance document. PDF, JPG or PNG, up to 5 MB.</p>
+                                <Input id="insurance-document" className="mt-4" type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={e => setData('insurance_document', e.target.files?.[0] ?? null)} />
+                                {errors.insurance_document && <p className="mt-2 text-sm text-red-600">{errors.insurance_document}</p>}
+                                {insuranceDownloadUrl && <a href={insuranceDownloadUrl} className="mt-3 inline-flex text-sm font-semibold text-blue-700 hover:underline">Download current insurance document</a>}
+                            </div>
 
 
                             {/* ==================================================

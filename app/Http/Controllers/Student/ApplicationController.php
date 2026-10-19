@@ -39,6 +39,9 @@ class ApplicationController extends Controller
                 'student_id' => $student->student_id,
                 'quota_id'   => $validated['quota_id'],
                 'app_status' => 'Pending',
+                'cv_snapshot' => $student->cv_snapshot,
+                'cv_snapshot_updated_at' => now(),
+                'cv_revision' => 1,
             ]);
 
             return back()->with('success', 'Application submitted successfully!');

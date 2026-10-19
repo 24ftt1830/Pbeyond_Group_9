@@ -58,6 +58,7 @@ class ApplicationController extends Controller
         }
 
         $quota->load([
+            'applications.branch',
             'programme',
             'applications.student.programme',
             'applications.student.user',
@@ -92,18 +93,7 @@ class ApplicationController extends Controller
 
         $application->load([
             'quota',
-            'student.user',
-            'student.programme',
-            'student.professionalProfile',
-            'student.education',
-            'student.workExperiences',
-            'student.projects',
-            'student.activities',
-            'student.achievements',
-            'student.referees',
-            'student.softSkills',
-            'student.skills',
-            'student.languages',
+            'student',
         ]);
 
         // Make sure this application belongs to this company.
@@ -114,16 +104,15 @@ class ApplicationController extends Controller
             abort(403, 'You do not have permission to view this application.');
         }
 
-        $student = $application->student;
-
-        // Check if student has filled out a professional profile or CV elements
-        $hasCv = $student && ($student->professionalProfile !== null || $student->education()->exists());
+        $cvSnapshot = $application->cv_snapshot ?: $application->student?->cv_snapshot;
+        abort_unless($cvSnapshot, 404, 'No generated CV is available for this application.');
 
         return Inertia::render('Student/generator_cv', [
-            'student' => $student,
-            'hasCv' => $hasCv,
+            'student' => $cvSnapshot,
             'isCompanyView' => true,
             'quotaId' => $application->quota_id,
+            'cvRevision' => (int) ($application->cv_revision ?? 1),
+            'cvSnapshotUpdatedAt' => $application->cv_snapshot_updated_at?->toIso8601String(),
         ]);
     }
 

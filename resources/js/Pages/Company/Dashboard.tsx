@@ -99,7 +99,7 @@ export default function Dashboard({
             {internSetupQueue.length > 0 && (
                 <DashboardPanel
                     title="Recruited interns to set up"
-                    description="Set internship dates and make sure each position has an Industry Supervisor."
+                    description="Set internship dates and make sure each intern has an Industry Supervisor."
                     action={<span className="text-sm font-medium text-slate-500">{internSetupQueue.length} need setup</span>}
                 >
                     <div className="divide-y divide-slate-100">

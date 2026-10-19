@@ -108,6 +108,7 @@ import { Input } from "@/Components/ui/input";
 import { Avatar, AvatarFallback } from "@/Components/ui/avatar";
 import { Button } from "@/Components/ui/button";
 import { useForm } from "@inertiajs/react";
+import CompanyBranchEditor, { districts, type CompanyBranch } from '@/Components/CompanyBranchEditor';
 
 interface Company {
     company_name: string;
@@ -115,6 +116,8 @@ interface Company {
     industry_sector?: string;
     description?: string;
     additional_information?: string;
+    district?: string;
+    branches?: CompanyBranch[];
 }
 
 interface User {
@@ -135,7 +138,7 @@ export default function Profile({ user }: Props) {
 
     const canEdit = user.role === "Company" || user.role === "Admin";
 
-    const { data, setData, put, processing } = useForm({
+    const { data, setData, put, processing, errors } = useForm({
         username: user.username || "",
         email: user.email || "",
         company_name: user.company?.company_name || "",
@@ -143,6 +146,8 @@ export default function Profile({ user }: Props) {
         industry_sector: user.company?.industry_sector || "",
         description: user.company?.description || "",
         additional_information: user.company?.additional_information || "",
+        district: user.company?.district || '',
+        branches: (user.company?.branches ?? []).map((branch) => ({ ...branch, address: branch.address ?? '', district: branch.district ?? '' })),
     });
     const passwordForm = useForm({
         current_password: "",
@@ -254,6 +259,10 @@ export default function Profile({ user }: Props) {
                                 className="min-h-[100px] rounded-md border px-3 py-2 text-sm"
                             />
                         </div>
+
+                        <label className="grid gap-2 text-sm">Main office district<select value={data.district} onChange={(event) => setData('district', event.target.value)} className="rounded-md border px-3 py-2"><option value="">Select district</option>{districts.map((district) => <option key={district}>{district}</option>)}</select></label>
+                        <CompanyBranchEditor branches={data.branches} onChange={(branches) => setData('branches', branches)} errors={errors as Record<string, string>} />
+                        {Object.values(errors).length > 0 && <p className="text-sm text-rose-600">{Object.values(errors).join(' ')}</p>}
 
                         <div className="grid gap-2">
                             <Label>Additional Information</Label>

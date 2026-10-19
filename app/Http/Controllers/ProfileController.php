@@ -35,7 +35,15 @@ class ProfileController extends Controller
             $request->user()->email_verified_at = null;
         }
 
-        $request->user()->save();
+        \Illuminate\Support\Facades\DB::transaction(function () use ($request) {
+            $user = $request->user();
+            $user->save();
+            if ($user->role === 'Academic Supervisor') {
+                \App\Models\AcademicSupervisor::where('user_id', $user->getKey())->update(['email' => $user->email]);
+            } elseif ($user->role === 'Industry Supervisor') {
+                \App\Models\IndustrySupervisor::where('user_id', $user->getKey())->update(['email' => $user->email]);
+            }
+        });
 
         return Redirect::route('profile.edit');
     }

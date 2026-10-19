@@ -91,6 +91,9 @@ export interface StudentProfile {
     cgpa?: number | string;
     work_experience?: string;
     emergency_no?: string;
+    emergency_no_2?: string;
+    district?: string;
+    insurance_document_path?: string;
     cv_file_path?: string;
     passport_photo_path?: string;
 
@@ -179,11 +182,14 @@ export default function StudentProfileCards({ student, tab, action }: { student:
                             />
 
                             <InfoItem
-                                label="Emergency Contact"
+                                label="Emergency Contact 1"
                                 value={student.emergency_no}
                                 icon={<Phone size={15} />}
                             />
 
+                            <InfoItem label="Emergency Contact 2" value={student.emergency_no_2} icon={<Phone size={15} />} />
+                            <InfoItem label="District" value={student.district} />
+                            {student.insurance_document_path && <div><p className="mb-1 text-sm text-slate-500">Insurance document</p><a href={route('students.insurance.download', student.student_id)} className="text-sm font-medium text-blue-700 underline">Download insurance</a></div>}
                             <div className="sm:col-span-2 lg:col-span-3">
                                 <InfoItem
                                     label="Postal Address"

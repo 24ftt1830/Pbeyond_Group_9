@@ -82,6 +82,8 @@ class ProfileController extends Controller
         return Inertia::render('Student/Profile', [
             'adminContext' => $adminContext,
             'student' => $student,
+            'insuranceDownloadUrl' => $student->insurance_document_path
+                ? route('students.insurance.download', $student->student_id) : null,
             'academicSemesters' => $adminContext
                 ? AcademicSemester::orderBy('starts_on')->get(['id', 'name'])
                 : [],
@@ -90,6 +92,21 @@ class ProfileController extends Controller
             'hasGeneratedCv' => !empty($student->cv_snapshot) && !empty($student->cv_generated_at),
             'cvGeneratedAt' => $student->cv_generated_at,
         ]);
+    }
+
+    public function downloadInsurance(Student $student)
+    {
+        $user = auth()->user();
+        $allowed = $user->role === 'Admin'
+            || ($user->role === 'Student' && (int) $student->user_id === (int) $user->getKey())
+            || ($user->role === 'Academic Supervisor' && $student->academicSupervisorAssignments()
+                ->whereHas('academicSupervisor', fn ($query) => $query->where('user_id', $user->getKey()))->exists())
+            || ($user->role === 'Industry Supervisor' && \App\Models\IndustrySupervisor::where('user_id', $user->getKey())
+                ->first()?->students()->where('students.student_id', $student->student_id)->exists());
+        abort_unless($allowed, 403);
+        abort_unless($student->insurance_document_path && Storage::disk('local')->exists($student->insurance_document_path), 404);
+        return Storage::disk('local')->download($student->insurance_document_path,
+            'Insurance-' . $student->pb_student_code . '.' . pathinfo($student->insurance_document_path, PATHINFO_EXTENSION));
     }
 
     public function generateCv()
@@ -216,10 +233,13 @@ class ProfileController extends Controller
         $student->cv_snapshot = $snapshot;
         $student->cv_generated_at = now();
         $student->save();
+        $updatedApplications = $student->refreshPendingApplicationCvSnapshots($snapshot);
 
         return redirect()
             ->route('student.cv-generator')
-            ->with('success', 'CV generated successfully.');
+            ->with('success', $updatedApplications > 0
+                ? 'CV generated successfully. Your pending application CV has been updated.'
+                : 'CV generated successfully.');
     }
 
     private function getMissingCvFields($student): array
@@ -263,6 +283,7 @@ class ProfileController extends Controller
             'ic_colour'        => 'nullable|in:Yellow,Red,Purple',
             'programme_id'     => 'nullable|exists:programmes,programme_id',
             'postal_address'   => 'nullable|string',
+            'district'         => 'nullable|in:Brunei-Muara,Belait,Tutong,Temburong,Overseas',
             'date_of_birth'    => 'nullable|date',
             'place_of_birth'   => 'nullable|string|max:100',
             'gender'           => 'nullable|in:Male,Female',
@@ -273,12 +294,14 @@ class ProfileController extends Controller
             'cgpa'             => 'nullable|numeric|min:0|max:4',
             'work_experience'  => 'nullable|string',
             'emergency_no'     => 'nullable|string|max:20',
+            'emergency_no_2'   => 'nullable|string|max:20|different:emergency_no',
 
             // Photo & Document uploads (PDF only for documents)
             'passport_photo'    => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'ic_document'       => 'nullable|mimes:pdf|max:5120',
             'driver_license'    => 'nullable|mimes:pdf|max:5120',
             'academic_results'  => 'nullable|mimes:pdf|max:5120',
+            'insurance_document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
 
             // CV information
             'professional_profile' => 'nullable|string',
@@ -356,7 +379,9 @@ class ProfileController extends Controller
             ]);
         }
 
-        DB::transaction(function () use ($request, $student, $validated, $before, $adminContext) {
+        $newInsurancePath = null;
+        try {
+        DB::transaction(function () use ($request, $student, $validated, $before, $adminContext, &$newInsurancePath) {
 
             // Student core details
             $student->full_name       = $request->full_name;
@@ -374,6 +399,7 @@ class ProfileController extends Controller
                 $student->intake_session = $intakeSemester->name;
             }
             $student->postal_address  = $request->postal_address;
+            $student->district        = $validated['district'] ?? null;
             $student->date_of_birth   = $request->date_of_birth;
             $student->place_of_birth  = $request->place_of_birth;
             $student->gender          = $request->gender;
@@ -387,6 +413,19 @@ class ProfileController extends Controller
             $student->cgpa            = $request->cgpa;
             $student->work_experience = $request->work_experience;
             $student->emergency_no    = $request->emergency_no;
+            $student->emergency_no_2  = $validated['emergency_no_2'] ?? null;
+
+            if ($request->hasFile('insurance_document')) {
+                $previousInsurance = $student->insurance_document_path;
+                $newInsurancePath = $request->file('insurance_document')->store('insurance-documents', 'local');
+                if (!$newInsurancePath) {
+                    throw new \RuntimeException('The insurance document could not be saved. Please try again.');
+                }
+                $student->insurance_document_path = $newInsurancePath;
+                if ($previousInsurance) {
+                    DB::afterCommit(fn () => Storage::disk('local')->delete($previousInsurance));
+                }
+            }
 
             // Passport photo
             if ($request->hasFile('passport_photo')) {
@@ -526,6 +565,10 @@ class ProfileController extends Controller
             }
             AdminRecordChange::record($request->user(), $student, 'Updated student profile', $before);
         });
+        } catch (\Throwable $exception) {
+            if ($newInsurancePath) Storage::disk('local')->delete($newInsurancePath);
+            throw $exception;
+        }
 
         return redirect()
             ->route($adminContext ? 'admin.students.profile' : 'student.profile', $adminContext ? [$student] : [])

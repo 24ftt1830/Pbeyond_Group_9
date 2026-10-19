@@ -346,7 +346,7 @@ class EvaluationTemplateController extends Controller
         return redirect()->route('admin.evaluations')->with(
             'success',
             $data['is_active']
-                ? 'Academic Supervisor, Industry Supervisor, and Student Written Report evaluation components are active.'
+                ? 'PB Supervisor, Industry Supervisor, and Student Written Report evaluation components are active.'
                 : 'Evaluation template draft saved.'
         );
     }

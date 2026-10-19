@@ -28,6 +28,7 @@ class InternController extends Controller
                 $query->where('company_id', $company->company_id);
             })
             ->with([
+                'branch',
                 'quota',
                 'student.programme',
                 'student.internship',
@@ -67,6 +68,7 @@ class InternController extends Controller
                     'student_code' => $student?->pb_student_code,
                     'full_name' => $student?->full_name ?? 'Unknown Student',
                     'programme_name' => $student?->programme?->programme_name,
+                    'branch' => $application->branch?->only(['name', 'address', 'district']),
                     'positions' => $applications
                         ->map(fn ($item) => $item->quota?->job_title)
                         ->filter()
@@ -77,6 +79,7 @@ class InternController extends Controller
                     'internship_semester' => $semester ? [
                         'name' => $semester->name,
                         'starts_on' => $semester->starts_on->toDateString(),
+                        'earliest_start_on' => $semester->starts_on->copy()->addDay()->toDateString(),
                         'ends_on' => $semester->ends_on->toDateString(),
                     ] : null,
                     'internship_status' => $internshipStatus,

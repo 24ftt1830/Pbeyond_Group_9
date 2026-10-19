@@ -14,13 +14,13 @@ class DashboardController extends Controller
     public function index()
     {
         $supervisor = IndustrySupervisor::where('user_id', Auth::id())
-            ->with('quota')
+            ->with('company')
             ->firstOrFail();
 
         $applications = $supervisor->applications()
-            ->where('app_status', 'Recruited')
+            ->where('applications.app_status', 'Recruited')
             ->with(['student.programme', 'student.internship', 'student.internshipCompletion'])
-            ->orderByDesc('updated_at')
+            ->orderByDesc('applications.updated_at')
             ->get();
 
         $assignedApplications = $applications->unique('student_id')->values();
@@ -65,7 +65,7 @@ class DashboardController extends Controller
         $completionConfirmationsDue = $students->where('completion_confirmation_due', true)->count();
 
         return Inertia::render('IndustrySupervisor/Dashboard', [
-            'quota' => $supervisor->quota?->only(['quota_id', 'job_title', 'total_slots']),
+            'company' => $supervisor->company?->only(['company_id', 'company_name']),
             'stats' => [
                 'students_assigned' => $students->count(),
                 'evaluations_due' => $evaluationsDue,

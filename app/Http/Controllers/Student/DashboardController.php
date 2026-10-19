@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\PlacementQuota;
+use App\Models\AcademicSemester;
 use App\Services\LogbookTracking;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -18,6 +19,7 @@ class DashboardController extends Controller
 
         // Summarize approved and released quotas without loading full company records.
         $quotas = PlacementQuota::available()
+            ->where('academic_semester_id', AcademicSemester::internshipTermIdForIntake((int) $student->intake_semester_id) ?? 0)
             ->select(['quota_id', 'total_slots'])
             ->withCount([
                 'applications as recruited_applications_count' => function ($query) {
@@ -52,7 +54,7 @@ class DashboardController extends Controller
             ->where('app_status', 'Recruited')
             ->count();
         $activeApplications = (clone $studentApplications)
-            ->whereNotIn('app_status', ['Recruited', 'Declined'])
+            ->active()
             ->count();
 
         $missingLogbookWeeks = app(LogbookTracking::class)->missingWeeks($student);

@@ -11,18 +11,12 @@ interface Student {
     };
 }
 
-interface Quota {
-    quota_id: number;
-    job_title: string;
-    total_slots: number;
-}
-
 interface Props {
     students: Student[];
-    quota: Quota | null;
+    company: { company_id: number; company_name: string } | null;
 }
 
-export default function Students({ students = [], quota }: Props) {
+export default function Students({ students = [], company }: Props) {
     return (
         <AuthenticatedLayout>
             <Head title="My Students" />
@@ -35,7 +29,7 @@ export default function Students({ students = [], quota }: Props) {
                                 My Students
                             </h1>
                             <p className="mt-2 text-sm text-slate-500">
-                            Students recruited for the position assigned to you.
+                            Recruited students assigned directly to you by Company HR.
                             </p>
                         </div>
                         <div className="inline-flex w-fit items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm">
@@ -51,21 +45,16 @@ export default function Students({ students = [], quota }: Props) {
                             </span>
                             <div>
                                 <p className="text-xs font-bold uppercase tracking-[0.14em] text-blue-700">
-                                    Assigned job position
+                                    Your company
                                 </p>
                                 <h2 className="mt-1 text-lg font-bold text-slate-900">
-                                    {quota?.job_title ?? 'No position assigned'}
+                                    {company?.company_name ?? 'Company not assigned'}
                                 </h2>
-                                {quota && (
-                                    <p className="mt-1 text-sm text-slate-500">
-                                        {quota.total_slots} total {quota.total_slots === 1 ? 'slot' : 'slots'}
-                                    </p>
-                                )}
                             </div>
                         </div>
                         <div className="flex items-center gap-2 text-sm text-slate-500">
                             <GraduationCap className="size-4 text-blue-700" />
-                            HR recruitments appear here automatically.
+                            Students are assigned individually.
                         </div>
                     </section>
 
@@ -73,7 +62,7 @@ export default function Students({ students = [], quota }: Props) {
                         <div className="border-b border-slate-100 px-5 py-4 sm:px-6">
                             <h2 className="font-semibold text-slate-900">Students assigned to you</h2>
                             <p className="mt-1 text-sm text-slate-500">
-                                Students appear after Company HR recruits them for this position.
+                                View student details, logbooks and evaluations.
                             </p>
                         </div>
 
@@ -83,12 +72,10 @@ export default function Students({ students = [], quota }: Props) {
                                     <Users className="size-5" />
                                 </span>
                                 <p className="mt-4 font-semibold text-slate-900">
-                                    {quota ? 'No students recruited yet' : 'No position assigned'}
+                                    No students assigned yet
                                 </p>
                                 <p className="mx-auto mt-1 max-w-md text-sm text-slate-500">
-                                    {quota
-                                        ? 'Students with pending applications are not assigned to you. Recruited students will appear here.'
-                                        : 'Ask your Company HR to assign an approved job position to your account.'}
+                                    Ask Company HR to assign recruited students to your account.
                                 </p>
                             </div>
                         ) : (

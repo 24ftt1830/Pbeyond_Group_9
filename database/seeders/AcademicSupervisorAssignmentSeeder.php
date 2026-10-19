@@ -3,7 +3,9 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
+use App\Models\AcademicSupervisor;
+use App\Models\AcademicSupervisorAssignment;
+use App\Models\Student;
 
 class AcademicSupervisorAssignmentSeeder extends Seeder
 {
@@ -16,31 +18,16 @@ class AcademicSupervisorAssignmentSeeder extends Seeder
             ['email' => 'academic.supervisor2@pb.edu.bn', 'class_id' => 6],
         ];
 
-        $supervisorIds = [];
         foreach ($assignments as $assignment) {
-            $supervisorId = DB::table('academic_supervisors')
-                ->where('email', $assignment['email'])
-                ->value('academic_supervisor_id');
-
-            $supervisorIds[] = $supervisorId;
-        }
-
-        // Keep only the three seeded class assignments; programme rows remain untouched.
-        DB::table('academic_supervisor_assignments')
-            ->whereIn('academic_supervisor_id', $supervisorIds)
-            ->delete();
-
-        foreach ($assignments as $assignment) {
-            $supervisorId = DB::table('academic_supervisors')
-                ->where('email', $assignment['email'])
-                ->value('academic_supervisor_id');
-
-            DB::table('academic_supervisor_assignments')->insert([
-                'academic_supervisor_id' => $supervisorId,
-                'class_id' => $assignment['class_id'],
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+            $supervisor = AcademicSupervisor::where('email', $assignment['email'])->first();
+            if (!$supervisor) continue;
+            foreach (Student::whereHas('programme', fn ($query) => $query->where('class_id', $assignment['class_id']))->get() as $student) {
+                AcademicSupervisorAssignment::firstOrCreate(['student_id' => $student->student_id], [
+                    'academic_supervisor_id' => $supervisor->academic_supervisor_id,
+                    'class_id' => null,
+                    'monitoring_status' => 'On Track',
+                ]);
+            }
         }
     }
 }
