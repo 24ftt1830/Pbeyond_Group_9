@@ -51,11 +51,11 @@ export default function Calendar() {
     return (
         <div className="p-6">
             <div className="flex items-center justify-between mb-6">
-                <h1 className="text-2xl font-bold">Calendar</h1>
+                <h1 className="text-2xl font-semibold">Calendar</h1>
                 <div className="flex items-center gap-2">
                     <button
                         onClick={goPrevMonth}
-                        className="p-2 rounded-md border border-gray-200 hover:bg-gray-50"
+                        className="p-2 rounded-lg border border-gray-200 hover:bg-gray-50"
                     >
                         <ChevronLeft className="w-5 h-5 text-gray-600" />
                     </button>
@@ -64,7 +64,7 @@ export default function Calendar() {
                     </span>
                     <button
                         onClick={goNextMonth}
-                        className="p-2 rounded-md border border-gray-200 hover:bg-gray-50"
+                        className="p-2 rounded-lg border border-gray-200 hover:bg-gray-50"
                     >
                         <ChevronRight className="w-5 h-5 text-gray-600" />
                     </button>

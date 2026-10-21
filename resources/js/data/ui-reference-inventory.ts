@@ -5,8 +5,8 @@ export type UIReferenceItem = {
     sources: { file: string; line: number; occurrences: number; pages: { name: string; role: string; href: string | null }[] }[];
 };
 export const uiInventory: { scannedAt: string; scannedFiles: number; categories: { id: string; title: string; label: string }[]; items: UIReferenceItem[] } = {
-  "scannedAt": "2026-10-19T13:35:29.343Z",
-  "scannedFiles": 168,
+  "scannedAt": "2026-10-19T17:14:39.725Z",
+  "scannedFiles": 171,
   "categories": [
     {
       "id": "buttons",
@@ -72,7 +72,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Custom page button",
       "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
       "kind": "native-button",
-      "className": "inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50",
+      "className": "ui-button ui-button-outline disabled:cursor-not-allowed disabled:opacity-50",
       "variant": "default",
       "size": "default",
       "value": "",
@@ -128,6 +128,11 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
               "href": "/admin/unplaced-students"
             },
             {
+              "name": "Company/Quotas",
+              "role": "Company",
+              "href": null
+            },
+            {
               "name": "FinalInternshipReport",
               "role": "Shared",
               "href": null
@@ -152,6 +157,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       ],
       "roles": [
         "Admin",
+        "Company",
         "PB Supervisor",
         "Shared",
         "Student"
@@ -165,7 +171,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Custom page button",
       "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
       "kind": "native-button",
-      "className": "inline-flex items-center justify-center rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50",
+      "className": "ui-button ui-button-primary",
       "variant": "default",
       "size": "default",
       "value": "",
@@ -221,6 +227,11 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
               "href": "/admin/unplaced-students"
             },
             {
+              "name": "Company/Quotas",
+              "role": "Company",
+              "href": null
+            },
+            {
               "name": "FinalInternshipReport",
               "role": "Shared",
               "href": null
@@ -244,7 +255,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/AcademicSupervisor/LogbookReview.tsx",
-          "line": 24,
+          "line": 42,
           "occurrences": 1,
           "pages": [
             {
@@ -256,7 +267,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Student/Logbook.tsx",
-          "line": 54,
+          "line": 55,
           "occurrences": 1,
           "pages": [
             {
@@ -268,7 +279,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Student/LogbookSubmission.tsx",
-          "line": 36,
+          "line": 37,
           "occurrences": 1,
           "pages": [
             {
@@ -281,6 +292,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       ],
       "roles": [
         "Admin",
+        "Company",
         "PB Supervisor",
         "Shared",
         "Student"
@@ -294,7 +306,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Custom page button",
       "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
       "kind": "native-button",
-      "className": "flex min-h-10 w-full items-center justify-center rounded-xl px-3 py-2.5 text-center text-sm font-semibold leading-5 transition bg-slate-900 text-white shadow-sm",
+      "className": "ui-tab flex min-h-10 w-full items-center justify-center rounded-lg px-3 py-2.5 text-center text-sm font-semibold leading-5 transition",
       "variant": "default",
       "size": "default",
       "value": "",
@@ -320,113 +332,21 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
               "href": "/admin/students"
             }
           ]
-        },
-        {
-          "file": "resources/js/Pages/AcademicSupervisor/StudentDetails.tsx",
-          "line": 429,
-          "occurrences": 4,
-          "pages": [
-            {
-              "name": "PB Supervisor/StudentDetails",
-              "role": "PB Supervisor",
-              "href": null
-            }
-          ]
-        },
-        {
-          "file": "resources/js/Pages/IndustrySupervisor/StudentDetails.tsx",
-          "line": 309,
-          "occurrences": 4,
-          "pages": [
-            {
-              "name": "IndustrySupervisor/StudentDetails",
-              "role": "Industry Supervisor",
-              "href": null
-            }
-          ]
         }
       ],
       "roles": [
-        "Admin",
-        "Industry Supervisor",
-        "PB Supervisor"
+        "Admin"
       ],
-      "occurrences": 9
+      "occurrences": 1
     },
     {
       "id": "buttons-4",
       "category": "buttons",
       "name": "Button Type 4",
-      "title": "Custom page button",
-      "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
-      "kind": "native-button",
-      "className": "flex min-h-10 w-full items-center justify-center rounded-xl px-3 py-2.5 text-center text-sm font-semibold leading-5 transition text-slate-600 hover:bg-slate-100 hover:text-slate-900",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Components/Admin/RecordView.tsx",
-          "line": 34,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Admin/StudentRecord",
-              "role": "Admin",
-              "href": null
-            },
-            {
-              "name": "Admin/CompanyRecord",
-              "role": "Admin",
-              "href": null
-            },
-            {
-              "name": "Admin/StudentRecords",
-              "role": "Admin",
-              "href": "/admin/students"
-            }
-          ]
-        },
-        {
-          "file": "resources/js/Pages/AcademicSupervisor/StudentDetails.tsx",
-          "line": 429,
-          "occurrences": 4,
-          "pages": [
-            {
-              "name": "PB Supervisor/StudentDetails",
-              "role": "PB Supervisor",
-              "href": null
-            }
-          ]
-        },
-        {
-          "file": "resources/js/Pages/IndustrySupervisor/StudentDetails.tsx",
-          "line": 309,
-          "occurrences": 4,
-          "pages": [
-            {
-              "name": "IndustrySupervisor/StudentDetails",
-              "role": "Industry Supervisor",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Admin",
-        "Industry Supervisor",
-        "PB Supervisor"
-      ],
-      "occurrences": 9
-    },
-    {
-      "id": "buttons-5",
-      "category": "buttons",
-      "name": "Button Type 5",
       "title": "Shared button · default / sm",
       "description": "Shared Button with a page-specific style override.",
       "kind": "button",
-      "className": "gap-1.5 shadow-sm",
+      "className": "gap-1.5",
       "variant": "default",
       "size": "sm",
       "value": "",
@@ -454,6 +374,28 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
           ]
         },
         {
+          "file": "resources/js/Components/Admin/SupervisorAccounts.tsx",
+          "line": 44,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "Admin/ManageUsers",
+              "role": "Admin",
+              "href": "/admin/manage-users"
+            },
+            {
+              "name": "Admin/CompanyRecord",
+              "role": "Admin",
+              "href": null
+            },
+            {
+              "name": "Admin/Supervisors",
+              "role": "Admin",
+              "href": null
+            }
+          ]
+        },
+        {
           "file": "resources/js/Pages/Admin/CompanyRecord.tsx",
           "line": 61,
           "occurrences": 1,
@@ -464,17 +406,30 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
               "href": null
             }
           ]
+        },
+        {
+          "file": "resources/js/Pages/Company/ManageUsers.tsx",
+          "line": 42,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "Company/ManageUsers",
+              "role": "Company",
+              "href": null
+            }
+          ]
         }
       ],
       "roles": [
-        "Admin"
+        "Admin",
+        "Company"
       ],
-      "occurrences": 2
+      "occurrences": 4
     },
     {
-      "id": "buttons-6",
+      "id": "buttons-5",
       "category": "buttons",
-      "name": "Button Type 6",
+      "name": "Button Type 5",
       "title": "Shared button · outline",
       "description": "The shared Button component without a page-specific style override.",
       "kind": "button",
@@ -553,7 +508,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Admin/Companies.tsx",
-          "line": 260,
+          "line": 266,
           "occurrences": 2,
           "pages": [
             {
@@ -577,7 +532,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Admin/StudentRecord.tsx",
-          "line": 57,
+          "line": 58,
           "occurrences": 3,
           "pages": [
             {
@@ -589,7 +544,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Company/Applications/Show.tsx",
-          "line": 323,
+          "line": 325,
           "occurrences": 1,
           "pages": [
             {
@@ -625,7 +580,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Student/Profile.tsx",
-          "line": 1277,
+          "line": 1278,
           "occurrences": 24,
           "pages": [
             {
@@ -656,9 +611,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 42
     },
     {
-      "id": "buttons-7",
+      "id": "buttons-6",
       "category": "buttons",
-      "name": "Button Type 7",
+      "name": "Button Type 6",
       "title": "Shared button · default",
       "description": "The shared Button component without a page-specific style override.",
       "kind": "button",
@@ -725,7 +680,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/AcademicSupervisor/Students.tsx",
-          "line": 43,
+          "line": 44,
           "occurrences": 1,
           "pages": [
             {
@@ -749,7 +704,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Admin/Companies.tsx",
-          "line": 261,
+          "line": 267,
           "occurrences": 2,
           "pages": [
             {
@@ -773,7 +728,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Admin/StudentRecord.tsx",
-          "line": 121,
+          "line": 122,
           "occurrences": 1,
           "pages": [
             {
@@ -785,7 +740,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Company/Applications/Show.tsx",
-          "line": 324,
+          "line": 326,
           "occurrences": 1,
           "pages": [
             {
@@ -821,8 +776,8 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Company/Profile.tsx",
-          "line": 284,
-          "occurrences": 2,
+          "line": 270,
+          "occurrences": 1,
           "pages": [
             {
               "name": "Company/Profile",
@@ -833,7 +788,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Company/Quotas.tsx",
-          "line": 596,
+          "line": 603,
           "occurrences": 1,
           "pages": [
             {
@@ -845,7 +800,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Profile/Edit.tsx",
-          "line": 31,
+          "line": 40,
           "occurrences": 2,
           "pages": [
             {
@@ -857,7 +812,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Student/Profile.tsx",
-          "line": 3207,
+          "line": 3208,
           "occurrences": 1,
           "pages": [
             {
@@ -887,16 +842,16 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         "Shared",
         "Student"
       ],
-      "occurrences": 21
+      "occurrences": 20
     },
     {
-      "id": "buttons-8",
+      "id": "buttons-7",
       "category": "buttons",
-      "name": "Button Type 8",
+      "name": "Button Type 7",
       "title": "Shared button · outline / sm",
       "description": "Shared Button with a page-specific style override.",
       "kind": "button",
-      "className": "gap-1.5 shadow-sm",
+      "className": "gap-1.5",
       "variant": "outline",
       "size": "sm",
       "value": "",
@@ -934,70 +889,29 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
               "href": "/admin/manage-users"
             }
           ]
+        },
+        {
+          "file": "resources/js/Pages/Admin/CompanyRecord.tsx",
+          "line": 63,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "Admin/CompanyRecord",
+              "role": "Admin",
+              "href": null
+            }
+          ]
         }
       ],
       "roles": [
         "Admin"
       ],
-      "occurrences": 2
+      "occurrences": 3
     },
     {
-      "id": "buttons-9",
+      "id": "buttons-8",
       "category": "buttons",
-      "name": "Button Type 9",
-      "title": "Shared button · default / sm",
-      "description": "Shared Button with a page-specific style override.",
-      "kind": "button",
-      "className": "gap-1.5",
-      "variant": "default",
-      "size": "sm",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Components/Admin/SupervisorAccounts.tsx",
-          "line": 44,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Admin/ManageUsers",
-              "role": "Admin",
-              "href": "/admin/manage-users"
-            },
-            {
-              "name": "Admin/CompanyRecord",
-              "role": "Admin",
-              "href": null
-            },
-            {
-              "name": "Admin/Supervisors",
-              "role": "Admin",
-              "href": null
-            }
-          ]
-        },
-        {
-          "file": "resources/js/Pages/Company/ManageUsers.tsx",
-          "line": 42,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Company/ManageUsers",
-              "role": "Company",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Admin",
-        "Company"
-      ],
-      "occurrences": 2
-    },
-    {
-      "id": "buttons-10",
-      "category": "buttons",
-      "name": "Button Type 10",
+      "name": "Button Type 8",
       "title": "Shared button · default / sm",
       "description": "The shared Button component without a page-specific style override.",
       "kind": "button",
@@ -1054,9 +968,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 5
     },
     {
-      "id": "buttons-11",
+      "id": "buttons-9",
       "category": "buttons",
-      "name": "Button Type 11",
+      "name": "Button Type 9",
       "title": "Shared button · outline / sm",
       "description": "Shared Button with a page-specific style override.",
       "kind": "button",
@@ -1067,7 +981,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "sources": [
         {
           "file": "resources/js/Components/Applications/columns.tsx",
-          "line": 103,
+          "line": 105,
           "occurrences": 1,
           "pages": [
             {
@@ -1084,9 +998,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "buttons-12",
+      "id": "buttons-10",
       "category": "buttons",
-      "name": "Button Type 12",
+      "name": "Button Type 10",
       "title": "Shared button · ghost / icon",
       "description": "Shared Button with a page-specific style override.",
       "kind": "button",
@@ -1097,7 +1011,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "sources": [
         {
           "file": "resources/js/Components/Applications/columns.tsx",
-          "line": 149,
+          "line": 151,
           "occurrences": 1,
           "pages": [
             {
@@ -1114,9 +1028,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "buttons-13",
+      "id": "buttons-11",
       "category": "buttons",
-      "name": "Button Type 13",
+      "name": "Button Type 11",
       "title": "Shared button · outline / sm",
       "description": "Shared Button with a page-specific style override.",
       "kind": "button",
@@ -1144,9 +1058,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "buttons-14",
+      "id": "buttons-12",
       "category": "buttons",
-      "name": "Button Type 14",
+      "name": "Button Type 12",
       "title": "Shared button · outline / sm",
       "description": "Shared Button with a page-specific style override.",
       "kind": "button",
@@ -1174,13 +1088,13 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "buttons-15",
+      "id": "buttons-13",
       "category": "buttons",
-      "name": "Button Type 15",
+      "name": "Button Type 13",
       "title": "Shared button · outline",
       "description": "Shared Button with a page-specific style override.",
       "kind": "button",
-      "className": "h-10 w-fit justify-start rounded-xl border-slate-200 bg-white px-4 font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950",
+      "className": "w-fit justify-start",
       "variant": "outline",
       "size": "default",
       "value": "",
@@ -1258,20 +1172,80 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 2
     },
     {
-      "id": "buttons-16",
+      "id": "buttons-14",
       "category": "buttons",
-      "name": "Button Type 16",
+      "name": "Button Type 14",
       "title": "Custom page button",
       "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
       "kind": "native-button",
-      "className": "bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700",
+      "className": "ui-button ui-button-primary bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90",
       "variant": "default",
       "size": "default",
       "value": "",
       "sources": [
         {
           "file": "resources/js/Components/Calendar.tsx",
-          "line": 75,
+          "line": 76,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "Admin/Calendar",
+              "role": "Admin",
+              "href": null
+            }
+          ]
+        }
+      ],
+      "roles": [
+        "Admin"
+      ],
+      "occurrences": 1
+    },
+    {
+      "id": "buttons-15",
+      "category": "buttons",
+      "name": "Button Type 15",
+      "title": "Custom page button",
+      "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
+      "kind": "native-button",
+      "className": "ui-button ui-button-outline rounded-lg border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50",
+      "variant": "default",
+      "size": "default",
+      "value": "",
+      "sources": [
+        {
+          "file": "resources/js/Components/Calendar.tsx",
+          "line": 177,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "Admin/Calendar",
+              "role": "Admin",
+              "href": null
+            }
+          ]
+        }
+      ],
+      "roles": [
+        "Admin"
+      ],
+      "occurrences": 1
+    },
+    {
+      "id": "buttons-16",
+      "category": "buttons",
+      "name": "Button Type 16",
+      "title": "Custom page button",
+      "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
+      "kind": "native-button",
+      "className": "ui-button ui-button-primary rounded-lg bg-primary px-4 py-2 text-white hover:bg-primary/90",
+      "variant": "default",
+      "size": "default",
+      "value": "",
+      "sources": [
+        {
+          "file": "resources/js/Components/Calendar.tsx",
+          "line": 183,
           "occurrences": 1,
           "pages": [
             {
@@ -1294,26 +1268,37 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Custom page button",
       "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
       "kind": "native-button",
-      "className": "rounded-lg border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50",
+      "className": "inline-flex items-center gap-1.5 text-sm font-medium text-primary",
       "variant": "default",
       "size": "default",
       "value": "",
       "sources": [
         {
-          "file": "resources/js/Components/Calendar.tsx",
-          "line": 176,
+          "file": "resources/js/Components/CompanyBranchEditor.tsx",
+          "line": 11,
           "occurrences": 1,
           "pages": [
             {
-              "name": "Admin/Calendar",
+              "name": "Admin/Companies",
               "role": "Admin",
+              "href": "/admin/companies"
+            },
+            {
+              "name": "Admin/CompanyRecord",
+              "role": "Admin",
+              "href": null
+            },
+            {
+              "name": "Company/Profile",
+              "role": "Company",
               "href": null
             }
           ]
         }
       ],
       "roles": [
-        "Admin"
+        "Admin",
+        "Company"
       ],
       "occurrences": 1
     },
@@ -1321,47 +1306,17 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "id": "buttons-18",
       "category": "buttons",
       "name": "Button Type 18",
-      "title": "Custom page button",
+      "title": "Custom danger action",
       "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
       "kind": "native-button",
-      "className": "rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Components/Calendar.tsx",
-          "line": 182,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Admin/Calendar",
-              "role": "Admin",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Admin"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "buttons-19",
-      "category": "buttons",
-      "name": "Button Type 19",
-      "title": "Custom page button",
-      "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
-      "kind": "native-button",
-      "className": "inline-flex items-center gap-1.5 text-sm font-medium text-blue-700",
+      "className": "rounded p-1 text-slate-400 hover:text-rose-600 disabled:opacity-30",
       "variant": "default",
       "size": "default",
       "value": "",
       "sources": [
         {
           "file": "resources/js/Components/CompanyBranchEditor.tsx",
-          "line": 10,
+          "line": 14,
           "occurrences": 1,
           "pages": [
             {
@@ -1392,71 +1347,6 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "id": "buttons-20",
       "category": "buttons",
       "name": "Button Type 20",
-      "title": "Custom danger action",
-      "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
-      "kind": "native-button",
-      "className": "rounded p-1 text-slate-400 hover:text-rose-600 disabled:opacity-30",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Components/CompanyBranchEditor.tsx",
-          "line": 13,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Admin/Companies",
-              "role": "Admin",
-              "href": "/admin/companies"
-            },
-            {
-              "name": "Admin/CompanyRecord",
-              "role": "Admin",
-              "href": null
-            },
-            {
-              "name": "Company/Profile",
-              "role": "Company",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Admin",
-        "Company"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "buttons-21",
-      "category": "buttons",
-      "name": "Button Type 21",
-      "title": "Custom page button",
-      "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
-      "kind": "native-button",
-      "className": "inline-flex items-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white transition duration-150 ease-in-out hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 active:bg-red-700 opacity-25",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Components/DangerButton.tsx",
-          "line": 10,
-          "occurrences": 1,
-          "pages": []
-        }
-      ],
-      "roles": [
-        "Shared"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "buttons-22",
-      "category": "buttons",
-      "name": "Button Type 22",
       "title": "Custom page button",
       "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
       "kind": "native-button",
@@ -1490,13 +1380,13 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 2
     },
     {
-      "id": "buttons-23",
+      "id": "buttons-21",
       "category": "buttons",
-      "name": "Button Type 23",
+      "name": "Button Type 21",
       "title": "Shared button · outline / sm",
       "description": "Shared Button with a page-specific style override.",
       "kind": "button",
-      "className": "shrink-0 text-primary border-none shadow-none hover:bg-primary/10 hover:text-primary",
+      "className": "shrink-0 text-primary border-none hover:bg-primary/10 hover:text-primary",
       "variant": "outline",
       "size": "sm",
       "value": "",
@@ -1526,13 +1416,13 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 2
     },
     {
-      "id": "buttons-24",
+      "id": "buttons-22",
       "category": "buttons",
-      "name": "Button Type 24",
+      "name": "Button Type 22",
       "title": "Custom page button",
       "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
       "kind": "native-button",
-      "className": "flex w-full items-center gap-3 px-4 py-3 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-indigo-500 sm:px-5 bg-slate-50",
+      "className": "flex w-full items-center gap-3 px-4 py-3 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary/25 sm:px-5 bg-slate-50",
       "variant": "default",
       "size": "default",
       "value": "",
@@ -1540,6 +1430,76 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         {
           "file": "resources/js/Components/Evaluations/GradingSection.tsx",
           "line": 56,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "FinalInternshipReport",
+              "role": "Shared",
+              "href": null
+            },
+            {
+              "name": "Supervisor/Evaluation",
+              "role": "Shared",
+              "href": null
+            }
+          ]
+        }
+      ],
+      "roles": [
+        "Shared"
+      ],
+      "occurrences": 1
+    },
+    {
+      "id": "buttons-23",
+      "category": "buttons",
+      "name": "Button Type 23",
+      "title": "Custom page button",
+      "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
+      "kind": "native-button",
+      "className": "flex w-full items-center gap-3 px-4 py-3 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary/25 sm:px-5 hover:bg-slate-50/70",
+      "variant": "default",
+      "size": "default",
+      "value": "",
+      "sources": [
+        {
+          "file": "resources/js/Components/Evaluations/GradingSection.tsx",
+          "line": 56,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "FinalInternshipReport",
+              "role": "Shared",
+              "href": null
+            },
+            {
+              "name": "Supervisor/Evaluation",
+              "role": "Shared",
+              "href": null
+            }
+          ]
+        }
+      ],
+      "roles": [
+        "Shared"
+      ],
+      "occurrences": 1
+    },
+    {
+      "id": "buttons-24",
+      "category": "buttons",
+      "name": "Button Type 24",
+      "title": "Custom page button",
+      "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
+      "kind": "native-button",
+      "className": "ui-tab flex w-full items-center gap-3 border-l-2 px-3 py-3 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary/25 border-l-blue-600 bg-blue-50/60",
+      "variant": "default",
+      "size": "default",
+      "value": "",
+      "sources": [
+        {
+          "file": "resources/js/Components/Evaluations/GradingSection.tsx",
+          "line": 62,
           "occurrences": 1,
           "pages": [
             {
@@ -1567,14 +1527,14 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Custom page button",
       "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
       "kind": "native-button",
-      "className": "flex w-full items-center gap-3 px-4 py-3 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-indigo-500 sm:px-5 hover:bg-slate-50/70",
+      "className": "ui-tab flex w-full items-center gap-3 border-l-2 px-3 py-3 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary/25 border-l-transparent hover:bg-slate-50",
       "variant": "default",
       "size": "default",
       "value": "",
       "sources": [
         {
           "file": "resources/js/Components/Evaluations/GradingSection.tsx",
-          "line": 56,
+          "line": 62,
           "occurrences": 1,
           "pages": [
             {
@@ -1602,16 +1562,21 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Custom page button",
       "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
       "kind": "native-button",
-      "className": "flex w-full items-center gap-3 border-l-2 px-3 py-3 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-indigo-500 border-l-indigo-600 bg-indigo-50/60",
+      "className": "flex min-w-0 flex-1 items-center gap-3 rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25",
       "variant": "default",
       "size": "default",
       "value": "",
       "sources": [
         {
-          "file": "resources/js/Components/Evaluations/GradingSection.tsx",
-          "line": 62,
+          "file": "resources/js/Components/Evaluations/RubricEditor.tsx",
+          "line": 136,
           "occurrences": 1,
           "pages": [
+            {
+              "name": "Admin/Evaluations",
+              "role": "Admin",
+              "href": "/admin/evaluations"
+            },
             {
               "name": "FinalInternshipReport",
               "role": "Shared",
@@ -1626,6 +1591,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         }
       ],
       "roles": [
+        "Admin",
         "Shared"
       ],
       "occurrences": 1
@@ -1637,16 +1603,21 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Custom page button",
       "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
       "kind": "native-button",
-      "className": "flex w-full items-center gap-3 border-l-2 px-3 py-3 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-indigo-500 border-l-transparent hover:bg-slate-50",
+      "className": "flex min-w-0 flex-1 items-center gap-3 rounded-lg py-1 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25",
       "variant": "default",
       "size": "default",
       "value": "",
       "sources": [
         {
-          "file": "resources/js/Components/Evaluations/GradingSection.tsx",
-          "line": 62,
+          "file": "resources/js/Components/Evaluations/RubricEditor.tsx",
+          "line": 177,
           "occurrences": 1,
           "pages": [
+            {
+              "name": "Admin/Evaluations",
+              "role": "Admin",
+              "href": "/admin/evaluations"
+            },
             {
               "name": "FinalInternshipReport",
               "role": "Shared",
@@ -1661,6 +1632,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         }
       ],
       "roles": [
+        "Admin",
         "Shared"
       ],
       "occurrences": 1
@@ -1672,14 +1644,14 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Custom page button",
       "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
       "kind": "native-button",
-      "className": "flex min-w-0 flex-1 items-center gap-3 rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500",
+      "className": "ui-button ui-button-ghost h-9 px-3 text-primary hover:bg-primary/5 hover:text-primary",
       "variant": "default",
       "size": "default",
       "value": "",
       "sources": [
         {
           "file": "resources/js/Components/Evaluations/RubricEditor.tsx",
-          "line": 135,
+          "line": 209,
           "occurrences": 1,
           "pages": [
             {
@@ -1710,17 +1682,17 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "id": "buttons-29",
       "category": "buttons",
       "name": "Button Type 29",
-      "title": "Custom page button",
+      "title": "Custom danger action",
       "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
       "kind": "native-button",
-      "className": "flex min-w-0 flex-1 items-center gap-3 rounded-lg py-1 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500",
+      "className": "flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-rose-50 hover:text-rose-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 disabled:cursor-not-allowed disabled:opacity-30",
       "variant": "default",
       "size": "default",
       "value": "",
       "sources": [
         {
           "file": "resources/js/Components/Evaluations/RubricEditor.tsx",
-          "line": 176,
+          "line": 215,
           "occurrences": 1,
           "pages": [
             {
@@ -1754,14 +1726,14 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Custom page button",
       "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
       "kind": "native-button",
-      "className": "inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-indigo-700 transition hover:bg-indigo-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500",
+      "className": "ui-button ui-button-ghost h-9 px-3 text-primary hover:bg-primary/5 hover:text-primary -ml-3 mt-1",
       "variant": "default",
       "size": "default",
       "value": "",
       "sources": [
         {
           "file": "resources/js/Components/Evaluations/RubricEditor.tsx",
-          "line": 208,
+          "line": 231,
           "occurrences": 1,
           "pages": [
             {
@@ -1792,17 +1764,17 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "id": "buttons-31",
       "category": "buttons",
       "name": "Button Type 31",
-      "title": "Custom danger action",
+      "title": "Custom page button",
       "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
       "kind": "native-button",
-      "className": "flex h-8 w-8 items-center justify-center rounded-md text-slate-400 hover:bg-rose-50 hover:text-rose-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 disabled:cursor-not-allowed disabled:opacity-30",
+      "className": "ui-button ui-button-outline inline-flex items-center gap-2 rounded-lg border border-dashed border-slate-300 px-4 py-3 text-sm font-semibold text-slate-600 transition hover:border-blue-300 hover:bg-blue-50 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25",
       "variant": "default",
       "size": "default",
       "value": "",
       "sources": [
         {
           "file": "resources/js/Components/Evaluations/RubricEditor.tsx",
-          "line": 214,
+          "line": 236,
           "occurrences": 1,
           "pages": [
             {
@@ -1833,17 +1805,17 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "id": "buttons-32",
       "category": "buttons",
       "name": "Button Type 32",
-      "title": "Custom page button",
+      "title": "Custom danger action",
       "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
       "kind": "native-button",
-      "className": "inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-indigo-700 transition hover:bg-indigo-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 -ml-3 mt-1",
+      "className": "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25 disabled:cursor-not-allowed disabled:opacity-40 text-rose-600 hover:bg-rose-50",
       "variant": "default",
       "size": "default",
       "value": "",
       "sources": [
         {
           "file": "resources/js/Components/Evaluations/RubricEditor.tsx",
-          "line": 230,
+          "line": 265,
           "occurrences": 1,
           "pages": [
             {
@@ -1877,14 +1849,14 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Custom page button",
       "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
       "kind": "native-button",
-      "className": "inline-flex items-center gap-2 rounded-lg border border-dashed border-slate-300 px-4 py-3 text-sm font-semibold text-slate-600 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500",
+      "className": "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25 disabled:cursor-not-allowed disabled:opacity-40 text-slate-700",
       "variant": "default",
       "size": "default",
       "value": "",
       "sources": [
         {
           "file": "resources/js/Components/Evaluations/RubricEditor.tsx",
-          "line": 235,
+          "line": 265,
           "occurrences": 1,
           "pages": [
             {
@@ -1915,138 +1887,6 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "id": "buttons-34",
       "category": "buttons",
       "name": "Button Type 34",
-      "title": "Custom danger action",
-      "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
-      "kind": "native-button",
-      "className": "flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 disabled:cursor-not-allowed disabled:opacity-40 text-rose-600 hover:bg-rose-50",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Components/Evaluations/RubricEditor.tsx",
-          "line": 264,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Admin/Evaluations",
-              "role": "Admin",
-              "href": "/admin/evaluations"
-            },
-            {
-              "name": "FinalInternshipReport",
-              "role": "Shared",
-              "href": null
-            },
-            {
-              "name": "Supervisor/Evaluation",
-              "role": "Shared",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Admin",
-        "Shared"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "buttons-35",
-      "category": "buttons",
-      "name": "Button Type 35",
-      "title": "Custom page button",
-      "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
-      "kind": "native-button",
-      "className": "flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 disabled:cursor-not-allowed disabled:opacity-40 text-slate-700",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Components/Evaluations/RubricEditor.tsx",
-          "line": 264,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Admin/Evaluations",
-              "role": "Admin",
-              "href": "/admin/evaluations"
-            },
-            {
-              "name": "FinalInternshipReport",
-              "role": "Shared",
-              "href": null
-            },
-            {
-              "name": "Supervisor/Evaluation",
-              "role": "Shared",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Admin",
-        "Shared"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "buttons-36",
-      "category": "buttons",
-      "name": "Button Type 36",
-      "title": "Custom page button",
-      "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
-      "kind": "native-button",
-      "className": "inline-flex items-center rounded-md border border-transparent bg-gray-800 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white transition duration-150 ease-in-out hover:bg-gray-700 focus:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 active:bg-gray-900 opacity-25",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Components/PrimaryButton.tsx",
-          "line": 10,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Auth/ConfirmPassword",
-              "role": "Public / sign-in",
-              "href": null
-            },
-            {
-              "name": "Auth/ForgotPassword",
-              "role": "Public / sign-in",
-              "href": null
-            },
-            {
-              "name": "Auth/Register",
-              "role": "Public / sign-in",
-              "href": null
-            },
-            {
-              "name": "Auth/ResetPassword",
-              "role": "Public / sign-in",
-              "href": null
-            },
-            {
-              "name": "Auth/VerifyEmail",
-              "role": "Public / sign-in",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Public / sign-in"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "buttons-37",
-      "category": "buttons",
-      "name": "Button Type 37",
       "title": "Shared button · outline",
       "description": "Shared Button with a page-specific style override.",
       "kind": "button",
@@ -2068,20 +1908,20 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "buttons-38",
+      "id": "buttons-35",
       "category": "buttons",
-      "name": "Button Type 38",
+      "name": "Button Type 35",
       "title": "Shared button · outline / sm",
       "description": "Shared Button with a page-specific style override.",
       "kind": "button",
-      "className": "h-8 w-full justify-center gap-1.5 bg-background px-2 text-xs shadow-sm",
+      "className": "h-8 w-full justify-center gap-1.5 bg-background px-2 text-xs",
       "variant": "outline",
       "size": "sm",
       "value": "",
       "sources": [
         {
           "file": "resources/js/Components/QuotaCard.tsx",
-          "line": 129,
+          "line": 136,
           "occurrences": 1,
           "pages": [
             {
@@ -2104,9 +1944,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "buttons-39",
+      "id": "buttons-36",
       "category": "buttons",
-      "name": "Button Type 39",
+      "name": "Button Type 36",
       "title": "Shared button · destructive / sm",
       "description": "Shared Button with a page-specific style override.",
       "kind": "button",
@@ -2117,7 +1957,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "sources": [
         {
           "file": "resources/js/Components/QuotaCard.tsx",
-          "line": 174,
+          "line": 181,
           "occurrences": 1,
           "pages": [
             {
@@ -2140,13 +1980,13 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "buttons-40",
+      "id": "buttons-37",
       "category": "buttons",
-      "name": "Button Type 40",
+      "name": "Button Type 37",
       "title": "Shared button · default",
       "description": "Shared Button with a page-specific style override.",
       "kind": "button",
-      "className": "border-input bg-background text-muted-foreground hover:bg-accent hover:text-foreground -ms-px flex aspect-square h-[inherit] items-center justify-center border text-sm transition-[color,box-shadow] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
+      "className": "border-input bg-background text-muted-foreground hover:bg-accent hover:text-foreground -ms-px flex aspect-square h-[inherit] items-center justify-center border text-sm transition-[color,box-] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
       "variant": "default",
       "size": "default",
       "value": "",
@@ -2176,13 +2016,13 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "buttons-41",
+      "id": "buttons-38",
       "category": "buttons",
-      "name": "Button Type 41",
+      "name": "Button Type 38",
       "title": "Shared button · default",
       "description": "Shared Button with a page-specific style override.",
       "kind": "button",
-      "className": "border-input bg-background text-muted-foreground hover:bg-accent hover:text-foreground -me-px flex aspect-square h-[inherit] items-center justify-center border text-sm transition-[color,box-shadow] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
+      "className": "border-input bg-background text-muted-foreground hover:bg-accent hover:text-foreground -me-px flex aspect-square h-[inherit] items-center justify-center border text-sm transition-[color,box-] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
       "variant": "default",
       "size": "default",
       "value": "",
@@ -2212,37 +2052,13 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "buttons-42",
+      "id": "buttons-39",
       "category": "buttons",
-      "name": "Button Type 42",
-      "title": "Custom page button",
-      "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
-      "kind": "native-button",
-      "className": "inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-widest text-gray-700 shadow-sm transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 opacity-25",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Components/SecondaryButton.tsx",
-          "line": 11,
-          "occurrences": 1,
-          "pages": []
-        }
-      ],
-      "roles": [
-        "Shared"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "buttons-43",
-      "category": "buttons",
-      "name": "Button Type 43",
+      "name": "Button Type 39",
       "title": "Shared button · default",
       "description": "Shared Button with a page-specific style override.",
       "kind": "button",
-      "className": "w-full bg-slate-900",
+      "className": "w-full bg-primary",
       "variant": "default",
       "size": "default",
       "value": "",
@@ -2260,9 +2076,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "buttons-44",
+      "id": "buttons-40",
       "category": "buttons",
-      "name": "Button Type 44",
+      "name": "Button Type 40",
       "title": "Shared button · ghost",
       "description": "Shared Button with a page-specific style override.",
       "kind": "button",
@@ -2273,7 +2089,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "sources": [
         {
           "file": "resources/js/Components/data-table.tsx",
-          "line": 99,
+          "line": 103,
           "occurrences": 1,
           "pages": []
         }
@@ -2284,9 +2100,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "buttons-45",
+      "id": "buttons-41",
       "category": "buttons",
-      "name": "Button Type 45",
+      "name": "Button Type 41",
       "title": "Shared button · outline / sm",
       "description": "Shared Button with a page-specific style override.",
       "kind": "button",
@@ -2309,7 +2125,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Admin/Companies.tsx",
-          "line": 230,
+          "line": 236,
           "occurrences": 1,
           "pages": [
             {
@@ -2326,9 +2142,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 2
     },
     {
-      "id": "buttons-46",
+      "id": "buttons-42",
       "category": "buttons",
-      "name": "Button Type 46",
+      "name": "Button Type 42",
       "title": "Shared button · default",
       "description": "Shared Button with a page-specific style override.",
       "kind": "button",
@@ -2360,17 +2176,30 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
               "href": "/admin/manage-users"
             }
           ]
+        },
+        {
+          "file": "resources/js/Pages/Auth/Login.tsx",
+          "line": 85,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "Auth/Login",
+              "role": "Public / sign-in",
+              "href": null
+            }
+          ]
         }
       ],
       "roles": [
-        "Admin"
+        "Admin",
+        "Public / sign-in"
       ],
-      "occurrences": 3
+      "occurrences": 4
     },
     {
-      "id": "buttons-47",
+      "id": "buttons-43",
       "category": "buttons",
-      "name": "Button Type 47",
+      "name": "Button Type 43",
       "title": "Custom page button",
       "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
       "kind": "native-button",
@@ -2398,9 +2227,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "buttons-48",
+      "id": "buttons-44",
       "category": "buttons",
-      "name": "Button Type 48",
+      "name": "Button Type 44",
       "title": "Shared button · ghost / icon",
       "description": "Shared Button with a page-specific style override.",
       "kind": "button",
@@ -2422,13 +2251,13 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "buttons-49",
+      "id": "buttons-45",
       "category": "buttons",
-      "name": "Button Type 49",
+      "name": "Button Type 45",
       "title": "Shared button · default / sm",
       "description": "Shared Button with a page-specific style override.",
       "kind": "button",
-      "className": "flex items-center gap-1.5 shadow-sm",
+      "className": "flex items-center gap-1.5",
       "variant": "default",
       "size": "sm",
       "value": "",
@@ -2446,8 +2275,20 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
           ]
         },
         {
+          "file": "resources/js/Pages/Admin/Companies.tsx",
+          "line": 277,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "Admin/Companies",
+              "role": "Admin",
+              "href": "/admin/companies"
+            }
+          ]
+        },
+        {
           "file": "resources/js/Pages/Company/Quotas.tsx",
-          "line": 222,
+          "line": 229,
           "occurrences": 1,
           "pages": [
             {
@@ -2462,12 +2303,12 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         "Admin",
         "Company"
       ],
-      "occurrences": 4
+      "occurrences": 5
     },
     {
-      "id": "buttons-50",
+      "id": "buttons-46",
       "category": "buttons",
-      "name": "Button Type 50",
+      "name": "Button Type 46",
       "title": "Custom page button",
       "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
       "kind": "native-button",
@@ -2495,140 +2336,140 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
+      "id": "buttons-47",
+      "category": "buttons",
+      "name": "Button Type 47",
+      "title": "Custom page button",
+      "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
+      "kind": "native-button",
+      "className": "ui-button ui-button-primary rounded-lg px-3 py-2 text-xs font-medium bg-primary text-white",
+      "variant": "default",
+      "size": "default",
+      "value": "",
+      "sources": [
+        {
+          "file": "resources/js/Pages/AcademicSupervisor/Logbook.tsx",
+          "line": 26,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "PB Supervisor/Logbook",
+              "role": "PB Supervisor",
+              "href": null
+            }
+          ]
+        }
+      ],
+      "roles": [
+        "PB Supervisor"
+      ],
+      "occurrences": 1
+    },
+    {
+      "id": "buttons-48",
+      "category": "buttons",
+      "name": "Button Type 48",
+      "title": "Custom page button",
+      "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
+      "kind": "native-button",
+      "className": "ui-button ui-button-primary rounded-lg px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50",
+      "variant": "default",
+      "size": "default",
+      "value": "",
+      "sources": [
+        {
+          "file": "resources/js/Pages/AcademicSupervisor/Logbook.tsx",
+          "line": 26,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "PB Supervisor/Logbook",
+              "role": "PB Supervisor",
+              "href": null
+            }
+          ]
+        }
+      ],
+      "roles": [
+        "PB Supervisor"
+      ],
+      "occurrences": 1
+    },
+    {
+      "id": "buttons-49",
+      "category": "buttons",
+      "name": "Button Type 49",
+      "title": "Custom danger action",
+      "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
+      "kind": "native-button",
+      "className": "ui-button ui-button-outline inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs border-rose-200 bg-rose-50 text-rose-700",
+      "variant": "default",
+      "size": "default",
+      "value": "",
+      "sources": [
+        {
+          "file": "resources/js/Pages/AcademicSupervisor/LogbookReview.tsx",
+          "line": 41,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "PB Supervisor/LogbookReview",
+              "role": "PB Supervisor",
+              "href": null
+            }
+          ]
+        }
+      ],
+      "roles": [
+        "PB Supervisor"
+      ],
+      "occurrences": 1
+    },
+    {
+      "id": "buttons-50",
+      "category": "buttons",
+      "name": "Button Type 50",
+      "title": "Custom page button",
+      "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
+      "kind": "native-button",
+      "className": "ui-button ui-button-outline inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs border-slate-200 text-slate-500",
+      "variant": "default",
+      "size": "default",
+      "value": "",
+      "sources": [
+        {
+          "file": "resources/js/Pages/AcademicSupervisor/LogbookReview.tsx",
+          "line": 41,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "PB Supervisor/LogbookReview",
+              "role": "PB Supervisor",
+              "href": null
+            }
+          ]
+        }
+      ],
+      "roles": [
+        "PB Supervisor"
+      ],
+      "occurrences": 1
+    },
+    {
       "id": "buttons-51",
       "category": "buttons",
       "name": "Button Type 51",
       "title": "Custom page button",
       "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
       "kind": "native-button",
-      "className": "rounded-md px-3 py-2 text-xs font-medium bg-slate-900 text-white",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/AcademicSupervisor/Logbook.tsx",
-          "line": 26,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "PB Supervisor/Logbook",
-              "role": "PB Supervisor",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "PB Supervisor"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "buttons-52",
-      "category": "buttons",
-      "name": "Button Type 52",
-      "title": "Custom page button",
-      "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
-      "kind": "native-button",
-      "className": "rounded-md px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/AcademicSupervisor/Logbook.tsx",
-          "line": 26,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "PB Supervisor/Logbook",
-              "role": "PB Supervisor",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "PB Supervisor"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "buttons-53",
-      "category": "buttons",
-      "name": "Button Type 53",
-      "title": "Custom danger action",
-      "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
-      "kind": "native-button",
-      "className": "inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs border-rose-200 bg-rose-50 text-rose-700",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/AcademicSupervisor/LogbookReview.tsx",
-          "line": 23,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "PB Supervisor/LogbookReview",
-              "role": "PB Supervisor",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "PB Supervisor"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "buttons-54",
-      "category": "buttons",
-      "name": "Button Type 54",
-      "title": "Custom page button",
-      "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
-      "kind": "native-button",
-      "className": "inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs border-slate-200 text-slate-500",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/AcademicSupervisor/LogbookReview.tsx",
-          "line": 23,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "PB Supervisor/LogbookReview",
-              "role": "PB Supervisor",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "PB Supervisor"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "buttons-55",
-      "category": "buttons",
-      "name": "Button Type 55",
-      "title": "Custom page button",
-      "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
-      "kind": "native-button",
-      "className": "inline-flex w-fit cursor-not-allowed items-center gap-2 rounded-xl bg-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-500",
+      "className": "inline-flex w-fit cursor-not-allowed items-center gap-2 rounded-lg bg-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-500",
       "variant": "default",
       "size": "default",
       "value": "",
       "sources": [
         {
           "file": "resources/js/Pages/AcademicSupervisor/StudentDetails.tsx",
-          "line": 366,
+          "line": 378,
           "occurrences": 1,
           "pages": [
             {
@@ -2640,7 +2481,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/IndustrySupervisor/StudentDetails.tsx",
-          "line": 244,
+          "line": 254,
           "occurrences": 1,
           "pages": [
             {
@@ -2658,20 +2499,106 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 2
     },
     {
-      "id": "buttons-56",
+      "id": "buttons-52",
       "category": "buttons",
-      "name": "Button Type 56",
+      "name": "Button Type 52",
       "title": "Custom page button",
       "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
       "kind": "native-button",
-      "className": "rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50",
+      "className": "ui-tab flex min-h-10 w-full items-center justify-center rounded-lg px-3 py-2.5 text-center text-sm font-semibold leading-5 transition bg-primary/10 text-primary",
       "variant": "default",
       "size": "default",
       "value": "",
       "sources": [
         {
           "file": "resources/js/Pages/AcademicSupervisor/StudentDetails.tsx",
-          "line": 506,
+          "line": 441,
+          "occurrences": 4,
+          "pages": [
+            {
+              "name": "PB Supervisor/StudentDetails",
+              "role": "PB Supervisor",
+              "href": null
+            }
+          ]
+        },
+        {
+          "file": "resources/js/Pages/IndustrySupervisor/StudentDetails.tsx",
+          "line": 319,
+          "occurrences": 4,
+          "pages": [
+            {
+              "name": "IndustrySupervisor/StudentDetails",
+              "role": "Industry Supervisor",
+              "href": null
+            }
+          ]
+        }
+      ],
+      "roles": [
+        "Industry Supervisor",
+        "PB Supervisor"
+      ],
+      "occurrences": 8
+    },
+    {
+      "id": "buttons-53",
+      "category": "buttons",
+      "name": "Button Type 53",
+      "title": "Custom page button",
+      "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
+      "kind": "native-button",
+      "className": "ui-tab flex min-h-10 w-full items-center justify-center rounded-lg px-3 py-2.5 text-center text-sm font-semibold leading-5 transition text-slate-600 hover:bg-slate-100 hover:text-slate-900",
+      "variant": "default",
+      "size": "default",
+      "value": "",
+      "sources": [
+        {
+          "file": "resources/js/Pages/AcademicSupervisor/StudentDetails.tsx",
+          "line": 441,
+          "occurrences": 4,
+          "pages": [
+            {
+              "name": "PB Supervisor/StudentDetails",
+              "role": "PB Supervisor",
+              "href": null
+            }
+          ]
+        },
+        {
+          "file": "resources/js/Pages/IndustrySupervisor/StudentDetails.tsx",
+          "line": 319,
+          "occurrences": 4,
+          "pages": [
+            {
+              "name": "IndustrySupervisor/StudentDetails",
+              "role": "Industry Supervisor",
+              "href": null
+            }
+          ]
+        }
+      ],
+      "roles": [
+        "Industry Supervisor",
+        "PB Supervisor"
+      ],
+      "occurrences": 8
+    },
+    {
+      "id": "buttons-54",
+      "category": "buttons",
+      "name": "Button Type 54",
+      "title": "Custom page button",
+      "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
+      "kind": "native-button",
+      "className": "ui-button ui-button-outline rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50",
+      "variant": "default",
+      "size": "default",
+      "value": "",
+      "sources": [
+        {
+          "file": "resources/js/Pages/AcademicSupervisor/StudentDetails.tsx",
+          "line": 518,
           "occurrences": 2,
           "pages": [
             {
@@ -2683,7 +2610,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/IndustrySupervisor/StudentDetails.tsx",
-          "line": 407,
+          "line": 417,
           "occurrences": 1,
           "pages": [
             {
@@ -2701,20 +2628,80 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 3
     },
     {
-      "id": "buttons-57",
+      "id": "buttons-55",
       "category": "buttons",
-      "name": "Button Type 57",
+      "name": "Button Type 55",
       "title": "Custom danger action",
       "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
       "kind": "native-button",
-      "className": "rounded-xl border border-rose-300 px-4 py-2.5 text-sm font-semibold text-rose-700 hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-50",
+      "className": "ui-button ui-button-outline rounded-lg border border-rose-300 px-4 py-2.5 text-sm font-semibold text-rose-700 hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-50",
       "variant": "default",
       "size": "default",
       "value": "",
       "sources": [
         {
           "file": "resources/js/Pages/AcademicSupervisor/StudentDetails.tsx",
-          "line": 521,
+          "line": 533,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "PB Supervisor/StudentDetails",
+              "role": "PB Supervisor",
+              "href": null
+            }
+          ]
+        }
+      ],
+      "roles": [
+        "PB Supervisor"
+      ],
+      "occurrences": 1
+    },
+    {
+      "id": "buttons-56",
+      "category": "buttons",
+      "name": "Button Type 56",
+      "title": "Custom page button",
+      "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
+      "kind": "native-button",
+      "className": "ui-button ui-button-primary rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50",
+      "variant": "default",
+      "size": "default",
+      "value": "",
+      "sources": [
+        {
+          "file": "resources/js/Pages/AcademicSupervisor/StudentDetails.tsx",
+          "line": 536,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "PB Supervisor/StudentDetails",
+              "role": "PB Supervisor",
+              "href": null
+            }
+          ]
+        }
+      ],
+      "roles": [
+        "PB Supervisor"
+      ],
+      "occurrences": 1
+    },
+    {
+      "id": "buttons-57",
+      "category": "buttons",
+      "name": "Button Type 57",
+      "title": "Custom page button",
+      "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
+      "kind": "native-button",
+      "className": "ui-button ui-button-primary inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:opacity-50",
+      "variant": "default",
+      "size": "default",
+      "value": "",
+      "sources": [
+        {
+          "file": "resources/js/Pages/AcademicSupervisor/StudentDetails.tsx",
+          "line": 613,
           "occurrences": 1,
           "pages": [
             {
@@ -2737,15 +2724,15 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Custom page button",
       "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
       "kind": "native-button",
-      "className": "rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50",
+      "className": "ui-button ui-button-primary rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60",
       "variant": "default",
       "size": "default",
       "value": "",
       "sources": [
         {
           "file": "resources/js/Pages/AcademicSupervisor/StudentDetails.tsx",
-          "line": 524,
-          "occurrences": 1,
+          "line": 864,
+          "occurrences": 2,
           "pages": [
             {
               "name": "PB Supervisor/StudentDetails",
@@ -2758,102 +2745,12 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "roles": [
         "PB Supervisor"
       ],
-      "occurrences": 1
+      "occurrences": 2
     },
     {
       "id": "buttons-59",
       "category": "buttons",
       "name": "Button Type 59",
-      "title": "Custom page button",
-      "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
-      "kind": "native-button",
-      "className": "inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/AcademicSupervisor/StudentDetails.tsx",
-          "line": 601,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "PB Supervisor/StudentDetails",
-              "role": "PB Supervisor",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "PB Supervisor"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "buttons-60",
-      "category": "buttons",
-      "name": "Button Type 60",
-      "title": "Custom page button",
-      "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
-      "kind": "native-button",
-      "className": "rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/AcademicSupervisor/StudentDetails.tsx",
-          "line": 852,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "PB Supervisor/StudentDetails",
-              "role": "PB Supervisor",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "PB Supervisor"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "buttons-61",
-      "category": "buttons",
-      "name": "Button Type 61",
-      "title": "Custom page button",
-      "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
-      "kind": "native-button",
-      "className": "rounded-xl bg-blue-700 px-5 py-2.5 text-sm font-semibold text-white shadow-sm shadow-blue-900/10 transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/AcademicSupervisor/StudentDetails.tsx",
-          "line": 926,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "PB Supervisor/StudentDetails",
-              "role": "PB Supervisor",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "PB Supervisor"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "buttons-62",
-      "category": "buttons",
-      "name": "Button Type 62",
       "title": "Shared button · outline",
       "description": "Shared Button with a page-specific style override.",
       "kind": "button",
@@ -2864,7 +2761,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "sources": [
         {
           "file": "resources/js/Pages/AcademicSupervisor/Students.tsx",
-          "line": 68,
+          "line": 69,
           "occurrences": 1,
           "pages": [
             {
@@ -2894,9 +2791,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 2
     },
     {
-      "id": "buttons-63",
+      "id": "buttons-60",
       "category": "buttons",
-      "name": "Button Type 63",
+      "name": "Button Type 60",
       "title": "Shared button · default",
       "description": "Shared Button with a page-specific style override.",
       "kind": "button",
@@ -2924,9 +2821,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "buttons-64",
+      "id": "buttons-61",
       "category": "buttons",
-      "name": "Button Type 64",
+      "name": "Button Type 61",
       "title": "Shared button · outline / sm",
       "description": "Shared Button with a page-specific style override.",
       "kind": "button",
@@ -2954,50 +2851,20 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "buttons-65",
+      "id": "buttons-62",
       "category": "buttons",
-      "name": "Button Type 65",
-      "title": "Shared button · default / sm",
+      "name": "Button Type 62",
+      "title": "Shared button · ghost",
       "description": "Shared Button with a page-specific style override.",
       "kind": "button",
-      "className": "flex items-center gap-1.5",
-      "variant": "default",
-      "size": "sm",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/Admin/Companies.tsx",
-          "line": 271,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Admin/Companies",
-              "role": "Admin",
-              "href": "/admin/companies"
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Admin"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "buttons-66",
-      "category": "buttons",
-      "name": "Button Type 66",
-      "title": "Shared button · ghost / sm",
-      "description": "Shared Button with a page-specific style override.",
-      "kind": "button",
-      "className": "text-gray-500 hover:text-red-600",
+      "className": "h-10 justify-self-start px-3 text-slate-500 hover:text-primary sm:col-span-2 xl:col-span-1",
       "variant": "ghost",
-      "size": "sm",
+      "size": "default",
       "value": "",
       "sources": [
         {
           "file": "resources/js/Pages/Admin/Companies.tsx",
-          "line": 383,
+          "line": 404,
           "occurrences": 1,
           "pages": [
             {
@@ -3014,39 +2881,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "buttons-67",
+      "id": "buttons-63",
       "category": "buttons",
-      "name": "Button Type 67",
-      "title": "Shared button · outline / sm",
-      "description": "Shared Button with a page-specific style override.",
-      "kind": "button",
-      "className": "gap-1.5",
-      "variant": "outline",
-      "size": "sm",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/Admin/CompanyRecord.tsx",
-          "line": 63,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Admin/CompanyRecord",
-              "role": "Admin",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Admin"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "buttons-68",
-      "category": "buttons",
-      "name": "Button Type 68",
+      "name": "Button Type 63",
       "title": "Shared button · outline / sm",
       "description": "The shared Button component without a page-specific style override.",
       "kind": "button",
@@ -3069,7 +2906,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Admin/StudentRecord.tsx",
-          "line": 79,
+          "line": 80,
           "occurrences": 3,
           "pages": [
             {
@@ -3086,9 +2923,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 5
     },
     {
-      "id": "buttons-69",
+      "id": "buttons-64",
       "category": "buttons",
-      "name": "Button Type 69",
+      "name": "Button Type 64",
       "title": "Shared button · secondary",
       "description": "The shared Button component without a page-specific style override.",
       "kind": "button",
@@ -3116,20 +2953,20 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "buttons-70",
+      "id": "buttons-65",
       "category": "buttons",
-      "name": "Button Type 70",
+      "name": "Button Type 65",
       "title": "Custom page button",
       "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
       "kind": "native-button",
-      "className": "min-w-0 rounded-xl px-3 py-3 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 bg-slate-900 text-white shadow-sm",
+      "className": "ui-tab min-w-0 rounded-lg px-3 py-3 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25 bg-primary/10 text-primary",
       "variant": "default",
       "size": "default",
       "value": "",
       "sources": [
         {
           "file": "resources/js/Pages/Admin/Evaluations.tsx",
-          "line": 266,
+          "line": 269,
           "occurrences": 3,
           "pages": [
             {
@@ -3144,6 +2981,156 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         "Admin"
       ],
       "occurrences": 3
+    },
+    {
+      "id": "buttons-66",
+      "category": "buttons",
+      "name": "Button Type 66",
+      "title": "Custom page button",
+      "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
+      "kind": "native-button",
+      "className": "ui-tab min-w-0 rounded-lg px-3 py-3 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25 text-slate-600 hover:bg-slate-50 hover:text-slate-900",
+      "variant": "default",
+      "size": "default",
+      "value": "",
+      "sources": [
+        {
+          "file": "resources/js/Pages/Admin/Evaluations.tsx",
+          "line": 269,
+          "occurrences": 3,
+          "pages": [
+            {
+              "name": "Admin/Evaluations",
+              "role": "Admin",
+              "href": "/admin/evaluations"
+            }
+          ]
+        }
+      ],
+      "roles": [
+        "Admin"
+      ],
+      "occurrences": 3
+    },
+    {
+      "id": "buttons-67",
+      "category": "buttons",
+      "name": "Button Type 67",
+      "title": "Custom page button",
+      "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
+      "kind": "native-button",
+      "className": "ui-button ui-button-outline inline-flex flex-1 items-center justify-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25 focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-60 sm:flex-none border-emerald-200 bg-emerald-50 text-emerald-700",
+      "variant": "default",
+      "size": "default",
+      "value": "",
+      "sources": [
+        {
+          "file": "resources/js/Pages/Admin/Evaluations.tsx",
+          "line": 324,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "Admin/Evaluations",
+              "role": "Admin",
+              "href": "/admin/evaluations"
+            }
+          ]
+        }
+      ],
+      "roles": [
+        "Admin"
+      ],
+      "occurrences": 1
+    },
+    {
+      "id": "buttons-68",
+      "category": "buttons",
+      "name": "Button Type 68",
+      "title": "Custom page button",
+      "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
+      "kind": "native-button",
+      "className": "ui-button ui-button-outline inline-flex flex-1 items-center justify-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25 focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-60 sm:flex-none border-slate-300 bg-white text-slate-700 hover:bg-slate-50",
+      "variant": "default",
+      "size": "default",
+      "value": "",
+      "sources": [
+        {
+          "file": "resources/js/Pages/Admin/Evaluations.tsx",
+          "line": 324,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "Admin/Evaluations",
+              "role": "Admin",
+              "href": "/admin/evaluations"
+            }
+          ]
+        }
+      ],
+      "roles": [
+        "Admin"
+      ],
+      "occurrences": 1
+    },
+    {
+      "id": "buttons-69",
+      "category": "buttons",
+      "name": "Button Type 69",
+      "title": "Custom page button",
+      "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
+      "kind": "native-button",
+      "className": "ui-button ui-button-primary inline-flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25 focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-60 sm:flex-none bg-primary",
+      "variant": "default",
+      "size": "default",
+      "value": "",
+      "sources": [
+        {
+          "file": "resources/js/Pages/Admin/Evaluations.tsx",
+          "line": 328,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "Admin/Evaluations",
+              "role": "Admin",
+              "href": "/admin/evaluations"
+            }
+          ]
+        }
+      ],
+      "roles": [
+        "Admin"
+      ],
+      "occurrences": 1
+    },
+    {
+      "id": "buttons-70",
+      "category": "buttons",
+      "name": "Button Type 70",
+      "title": "Custom page button",
+      "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
+      "kind": "native-button",
+      "className": "ui-button ui-button-primary inline-flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25 focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-60 sm:flex-none bg-primary hover:bg-primary/90",
+      "variant": "default",
+      "size": "default",
+      "value": "",
+      "sources": [
+        {
+          "file": "resources/js/Pages/Admin/Evaluations.tsx",
+          "line": 328,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "Admin/Evaluations",
+              "role": "Admin",
+              "href": "/admin/evaluations"
+            }
+          ]
+        }
+      ],
+      "roles": [
+        "Admin"
+      ],
+      "occurrences": 1
     },
     {
       "id": "buttons-71",
@@ -3152,157 +3139,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Custom page button",
       "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
       "kind": "native-button",
-      "className": "min-w-0 rounded-xl px-3 py-3 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 text-slate-600 hover:bg-slate-50 hover:text-slate-900",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/Admin/Evaluations.tsx",
-          "line": 266,
-          "occurrences": 3,
-          "pages": [
-            {
-              "name": "Admin/Evaluations",
-              "role": "Admin",
-              "href": "/admin/evaluations"
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Admin"
-      ],
-      "occurrences": 3
-    },
-    {
-      "id": "buttons-72",
-      "category": "buttons",
-      "name": "Button Type 72",
-      "title": "Custom page button",
-      "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
-      "kind": "native-button",
-      "className": "inline-flex flex-1 items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-60 sm:flex-none border-emerald-200 bg-emerald-50 text-emerald-700",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/Admin/Evaluations.tsx",
-          "line": 321,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Admin/Evaluations",
-              "role": "Admin",
-              "href": "/admin/evaluations"
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Admin"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "buttons-73",
-      "category": "buttons",
-      "name": "Button Type 73",
-      "title": "Custom page button",
-      "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
-      "kind": "native-button",
-      "className": "inline-flex flex-1 items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-60 sm:flex-none border-slate-300 bg-white text-slate-700 hover:bg-slate-50",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/Admin/Evaluations.tsx",
-          "line": 321,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Admin/Evaluations",
-              "role": "Admin",
-              "href": "/admin/evaluations"
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Admin"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "buttons-74",
-      "category": "buttons",
-      "name": "Button Type 74",
-      "title": "Custom page button",
-      "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
-      "kind": "native-button",
-      "className": "inline-flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-60 sm:flex-none bg-emerald-600",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/Admin/Evaluations.tsx",
-          "line": 325,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Admin/Evaluations",
-              "role": "Admin",
-              "href": "/admin/evaluations"
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Admin"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "buttons-75",
-      "category": "buttons",
-      "name": "Button Type 75",
-      "title": "Custom page button",
-      "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
-      "kind": "native-button",
-      "className": "inline-flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-60 sm:flex-none bg-indigo-600 hover:bg-indigo-700",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/Admin/Evaluations.tsx",
-          "line": 325,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Admin/Evaluations",
-              "role": "Admin",
-              "href": "/admin/evaluations"
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Admin"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "buttons-76",
-      "category": "buttons",
-      "name": "Button Type 76",
-      "title": "Custom page button",
-      "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
-      "kind": "native-button",
-      "className": "rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white",
+      "className": "ui-button ui-button-primary rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white",
       "variant": "default",
       "size": "default",
       "value": "",
@@ -3326,9 +3163,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "buttons-77",
+      "id": "buttons-72",
       "category": "buttons",
-      "name": "Button Type 77",
+      "name": "Button Type 72",
       "title": "Primary button",
       "description": "Uppercase, widely spaced lettering from the account and authentication forms.",
       "kind": "legacy-primary",
@@ -3416,39 +3253,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 7
     },
     {
-      "id": "buttons-78",
+      "id": "buttons-73",
       "category": "buttons",
-      "name": "Button Type 78",
-      "title": "Shared button · default",
-      "description": "Shared Button with a page-specific style override.",
-      "kind": "button",
-      "className": "w-full shadow-none",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/Auth/Login.tsx",
-          "line": 85,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Auth/Login",
-              "role": "Public / sign-in",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Public / sign-in"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "buttons-79",
-      "category": "buttons",
-      "name": "Button Type 79",
+      "name": "Button Type 73",
       "title": "Shared button · ghost / sm",
       "description": "The shared Button component without a page-specific style override.",
       "kind": "button",
@@ -3476,20 +3283,20 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "buttons-80",
+      "id": "buttons-74",
       "category": "buttons",
-      "name": "Button Type 80",
+      "name": "Button Type 74",
       "title": "Shared button · outline / sm",
       "description": "Shared Button with a page-specific style override.",
       "kind": "button",
-      "className": "shadow-sm border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700",
+      "className": "border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700",
       "variant": "outline",
       "size": "sm",
       "value": "",
       "sources": [
         {
           "file": "resources/js/Pages/Company/Applications/Show.tsx",
-          "line": 237,
+          "line": 239,
           "occurrences": 1,
           "pages": [
             {
@@ -3506,9 +3313,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "buttons-81",
+      "id": "buttons-75",
       "category": "buttons",
-      "name": "Button Type 81",
+      "name": "Button Type 75",
       "title": "Shared button · ghost / icon",
       "description": "Shared Button with a page-specific style override.",
       "kind": "button",
@@ -3519,7 +3326,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "sources": [
         {
           "file": "resources/js/Pages/Company/Applications/Show.tsx",
-          "line": 342,
+          "line": 344,
           "occurrences": 1,
           "pages": [
             {
@@ -3536,9 +3343,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "buttons-82",
+      "id": "buttons-76",
       "category": "buttons",
-      "name": "Button Type 82",
+      "name": "Button Type 76",
       "title": "Shared button · ghost / sm",
       "description": "Shared Button with a page-specific style override.",
       "kind": "button",
@@ -3549,7 +3356,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "sources": [
         {
           "file": "resources/js/Pages/Company/Applications/Show.tsx",
-          "line": 450,
+          "line": 452,
           "occurrences": 1,
           "pages": [
             {
@@ -3566,9 +3373,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "buttons-83",
+      "id": "buttons-77",
       "category": "buttons",
-      "name": "Button Type 83",
+      "name": "Button Type 77",
       "title": "Shared button · outline",
       "description": "Shared Button with a page-specific style override.",
       "kind": "button",
@@ -3579,7 +3386,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "sources": [
         {
           "file": "resources/js/Pages/Company/Applications/Show.tsx",
-          "line": 499,
+          "line": 501,
           "occurrences": 1,
           "pages": [
             {
@@ -3596,9 +3403,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "buttons-84",
+      "id": "buttons-78",
       "category": "buttons",
-      "name": "Button Type 84",
+      "name": "Button Type 78",
       "title": "Shared button · default",
       "description": "Shared Button with a page-specific style override.",
       "kind": "button",
@@ -3626,9 +3433,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "buttons-85",
+      "id": "buttons-79",
       "category": "buttons",
-      "name": "Button Type 85",
+      "name": "Button Type 79",
       "title": "Shared button · outline / sm",
       "description": "Shared Button with a page-specific style override.",
       "kind": "button",
@@ -3656,9 +3463,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "buttons-86",
+      "id": "buttons-80",
       "category": "buttons",
-      "name": "Button Type 86",
+      "name": "Button Type 80",
       "title": "Shared button · secondary",
       "description": "Shared Button with a page-specific style override.",
       "kind": "button",
@@ -3669,7 +3476,187 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "sources": [
         {
           "file": "resources/js/Pages/Company/Quotas.tsx",
-          "line": 313,
+          "line": 322,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "Company/Quotas",
+              "role": "Company",
+              "href": null
+            }
+          ]
+        }
+      ],
+      "roles": [
+        "Company"
+      ],
+      "occurrences": 1
+    },
+    {
+      "id": "buttons-81",
+      "category": "buttons",
+      "name": "Button Type 81",
+      "title": "Shared button · outline",
+      "description": "Shared Button with a page-specific style override.",
+      "kind": "button",
+      "className": "w-full justify-between",
+      "variant": "outline",
+      "size": "default",
+      "value": "",
+      "sources": [
+        {
+          "file": "resources/js/Pages/Company/Quotas.tsx",
+          "line": 365,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "Company/Quotas",
+              "role": "Company",
+              "href": null
+            }
+          ]
+        }
+      ],
+      "roles": [
+        "Company"
+      ],
+      "occurrences": 1
+    },
+    {
+      "id": "buttons-82",
+      "category": "buttons",
+      "name": "Button Type 82",
+      "title": "Custom page button",
+      "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
+      "kind": "native-button",
+      "className": "flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left transition bg-muted cursor-not-allowed opacity-40",
+      "variant": "default",
+      "size": "default",
+      "value": "",
+      "sources": [
+        {
+          "file": "resources/js/Pages/Company/Quotas.tsx",
+          "line": 414,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "Company/Quotas",
+              "role": "Company",
+              "href": null
+            }
+          ]
+        }
+      ],
+      "roles": [
+        "Company"
+      ],
+      "occurrences": 1
+    },
+    {
+      "id": "buttons-83",
+      "category": "buttons",
+      "name": "Button Type 83",
+      "title": "Custom page button",
+      "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
+      "kind": "native-button",
+      "className": "flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left transition bg-muted",
+      "variant": "default",
+      "size": "default",
+      "value": "",
+      "sources": [
+        {
+          "file": "resources/js/Pages/Company/Quotas.tsx",
+          "line": 414,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "Company/Quotas",
+              "role": "Company",
+              "href": null
+            }
+          ]
+        }
+      ],
+      "roles": [
+        "Company"
+      ],
+      "occurrences": 1
+    },
+    {
+      "id": "buttons-84",
+      "category": "buttons",
+      "name": "Button Type 84",
+      "title": "Custom page button",
+      "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
+      "kind": "native-button",
+      "className": "flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left transition hover:bg-muted cursor-not-allowed opacity-40",
+      "variant": "default",
+      "size": "default",
+      "value": "",
+      "sources": [
+        {
+          "file": "resources/js/Pages/Company/Quotas.tsx",
+          "line": 414,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "Company/Quotas",
+              "role": "Company",
+              "href": null
+            }
+          ]
+        }
+      ],
+      "roles": [
+        "Company"
+      ],
+      "occurrences": 1
+    },
+    {
+      "id": "buttons-85",
+      "category": "buttons",
+      "name": "Button Type 85",
+      "title": "Custom page button",
+      "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
+      "kind": "native-button",
+      "className": "flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left transition hover:bg-muted",
+      "variant": "default",
+      "size": "default",
+      "value": "",
+      "sources": [
+        {
+          "file": "resources/js/Pages/Company/Quotas.tsx",
+          "line": 414,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "Company/Quotas",
+              "role": "Company",
+              "href": null
+            }
+          ]
+        }
+      ],
+      "roles": [
+        "Company"
+      ],
+      "occurrences": 1
+    },
+    {
+      "id": "buttons-86",
+      "category": "buttons",
+      "name": "Button Type 86",
+      "title": "Shared button · destructive",
+      "description": "Shared Button with a page-specific style override.",
+      "kind": "button",
+      "className": "mr-auto",
+      "variant": "destructive",
+      "size": "default",
+      "value": "",
+      "sources": [
+        {
+          "file": "resources/js/Pages/Company/Quotas.tsx",
+          "line": 564,
           "occurrences": 1,
           "pages": [
             {
@@ -3689,17 +3676,17 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "id": "buttons-87",
       "category": "buttons",
       "name": "Button Type 87",
-      "title": "Shared button · outline",
-      "description": "Shared Button with a page-specific style override.",
+      "title": "Shared button · ghost",
+      "description": "The shared Button component without a page-specific style override.",
       "kind": "button",
-      "className": "w-full justify-between shadow-none",
-      "variant": "outline",
+      "className": "",
+      "variant": "ghost",
       "size": "default",
       "value": "",
       "sources": [
         {
           "file": "resources/js/Pages/Company/Quotas.tsx",
-          "line": 356,
+          "line": 595,
           "occurrences": 1,
           "pages": [
             {
@@ -3722,194 +3709,14 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Custom page button",
       "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
       "kind": "native-button",
-      "className": "flex w-full items-center justify-between rounded-md px-3 py-2.5 text-left transition bg-muted cursor-not-allowed opacity-40",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/Company/Quotas.tsx",
-          "line": 405,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Company/Quotas",
-              "role": "Company",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Company"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "buttons-89",
-      "category": "buttons",
-      "name": "Button Type 89",
-      "title": "Custom page button",
-      "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
-      "kind": "native-button",
-      "className": "flex w-full items-center justify-between rounded-md px-3 py-2.5 text-left transition bg-muted",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/Company/Quotas.tsx",
-          "line": 405,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Company/Quotas",
-              "role": "Company",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Company"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "buttons-90",
-      "category": "buttons",
-      "name": "Button Type 90",
-      "title": "Custom page button",
-      "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
-      "kind": "native-button",
-      "className": "flex w-full items-center justify-between rounded-md px-3 py-2.5 text-left transition hover:bg-muted cursor-not-allowed opacity-40",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/Company/Quotas.tsx",
-          "line": 405,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Company/Quotas",
-              "role": "Company",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Company"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "buttons-91",
-      "category": "buttons",
-      "name": "Button Type 91",
-      "title": "Custom page button",
-      "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
-      "kind": "native-button",
-      "className": "flex w-full items-center justify-between rounded-md px-3 py-2.5 text-left transition hover:bg-muted",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/Company/Quotas.tsx",
-          "line": 405,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Company/Quotas",
-              "role": "Company",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Company"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "buttons-92",
-      "category": "buttons",
-      "name": "Button Type 92",
-      "title": "Shared button · destructive",
-      "description": "Shared Button with a page-specific style override.",
-      "kind": "button",
-      "className": "mr-auto",
-      "variant": "destructive",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/Company/Quotas.tsx",
-          "line": 555,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Company/Quotas",
-              "role": "Company",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Company"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "buttons-93",
-      "category": "buttons",
-      "name": "Button Type 93",
-      "title": "Shared button · ghost",
-      "description": "The shared Button component without a page-specific style override.",
-      "kind": "button",
-      "className": "",
-      "variant": "ghost",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/Company/Quotas.tsx",
-          "line": 588,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Company/Quotas",
-              "role": "Company",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Company"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "buttons-94",
-      "category": "buttons",
-      "name": "Button Type 94",
-      "title": "Custom page button",
-      "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
-      "kind": "native-button",
-      "className": "rounded-lg bg-indigo-600 px-4 py-2 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60",
+      "className": "ui-button ui-button-primary rounded-lg bg-primary px-4 py-2 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60",
       "variant": "default",
       "size": "default",
       "value": "",
       "sources": [
         {
           "file": "resources/js/Pages/FinalInternshipReport.tsx",
-          "line": 128,
+          "line": 140,
           "occurrences": 1,
           "pages": [
             {
@@ -3926,20 +3733,20 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "buttons-95",
+      "id": "buttons-89",
       "category": "buttons",
-      "name": "Button Type 95",
+      "name": "Button Type 89",
       "title": "Custom page button",
       "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
       "kind": "native-button",
-      "className": "w-full rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 disabled:opacity-50 sm:w-auto",
+      "className": "ui-button ui-button-primary w-full rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25 focus-visible:ring-offset-2 disabled:opacity-50 sm:w-auto",
       "variant": "default",
       "size": "default",
       "value": "",
       "sources": [
         {
           "file": "resources/js/Pages/FinalInternshipReport.tsx",
-          "line": 139,
+          "line": 151,
           "occurrences": 1,
           "pages": [
             {
@@ -3951,7 +3758,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Supervisor/Evaluation.tsx",
-          "line": 39,
+          "line": 45,
           "occurrences": 1,
           "pages": [
             {
@@ -3968,13 +3775,13 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 2
     },
     {
-      "id": "buttons-96",
+      "id": "buttons-90",
       "category": "buttons",
-      "name": "Button Type 96",
+      "name": "Button Type 90",
       "title": "Custom page button",
       "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
       "kind": "native-button",
-      "className": "rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50",
+      "className": "ui-button ui-button-primary rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:opacity-50",
       "variant": "default",
       "size": "default",
       "value": "",
@@ -3998,13 +3805,13 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "buttons-97",
+      "id": "buttons-91",
       "category": "buttons",
-      "name": "Button Type 97",
+      "name": "Button Type 91",
       "title": "Custom page button",
       "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
       "kind": "native-button",
-      "className": "flex h-10 w-10 items-center justify-center rounded-lg border text-sm font-semibold transition border-blue-600 bg-blue-600 text-white",
+      "className": "ui-button ui-button-primary flex h-10 w-10 items-center justify-center rounded-lg border text-sm font-semibold transition border-primary bg-primary text-white",
       "variant": "default",
       "size": "default",
       "value": "",
@@ -4028,13 +3835,13 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "buttons-98",
+      "id": "buttons-92",
       "category": "buttons",
-      "name": "Button Type 98",
+      "name": "Button Type 92",
       "title": "Custom page button",
       "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
       "kind": "native-button",
-      "className": "flex h-10 w-10 items-center justify-center rounded-lg border text-sm font-semibold transition border-slate-200 text-slate-500 hover:border-blue-300",
+      "className": "ui-button ui-button-primary flex h-10 w-10 items-center justify-center rounded-lg border text-sm font-semibold transition border-slate-200 text-slate-500 hover:border-blue-300",
       "variant": "default",
       "size": "default",
       "value": "",
@@ -4058,20 +3865,20 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "buttons-99",
+      "id": "buttons-93",
       "category": "buttons",
-      "name": "Button Type 99",
+      "name": "Button Type 93",
       "title": "Custom page button",
       "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
       "kind": "native-button",
-      "className": "rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white",
+      "className": "ui-button ui-button-outline rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white",
       "variant": "default",
       "size": "default",
       "value": "",
       "sources": [
         {
           "file": "resources/js/Pages/IndustrySupervisor/StudentDetails.tsx",
-          "line": 388,
+          "line": 398,
           "occurrences": 1,
           "pages": [
             {
@@ -4088,20 +3895,20 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "buttons-100",
+      "id": "buttons-94",
       "category": "buttons",
-      "name": "Button Type 100",
+      "name": "Button Type 94",
       "title": "Custom page button",
       "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
       "kind": "native-button",
-      "className": "rounded-xl border border-amber-300 px-4 py-2.5 text-sm font-semibold text-amber-800 hover:bg-amber-50 disabled:opacity-60",
+      "className": "ui-button ui-button-outline rounded-lg border border-amber-300 px-4 py-2.5 text-sm font-semibold text-amber-800 hover:bg-amber-50 disabled:opacity-60",
       "variant": "default",
       "size": "default",
       "value": "",
       "sources": [
         {
           "file": "resources/js/Pages/IndustrySupervisor/StudentDetails.tsx",
-          "line": 411,
+          "line": 421,
           "occurrences": 1,
           "pages": [
             {
@@ -4118,20 +3925,20 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "buttons-101",
+      "id": "buttons-95",
       "category": "buttons",
-      "name": "Button Type 101",
+      "name": "Button Type 95",
       "title": "Custom page button",
       "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
       "kind": "native-button",
-      "className": "rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60",
+      "className": "ui-button ui-button-primary rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary/90 disabled:opacity-60",
       "variant": "default",
       "size": "default",
       "value": "",
       "sources": [
         {
           "file": "resources/js/Pages/IndustrySupervisor/StudentDetails.tsx",
-          "line": 414,
+          "line": 424,
           "occurrences": 1,
           "pages": [
             {
@@ -4148,9 +3955,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "buttons-102",
+      "id": "buttons-96",
       "category": "buttons",
-      "name": "Button Type 102",
+      "name": "Button Type 96",
       "title": "Danger button",
       "description": "Uppercase, widely spaced lettering from the account and authentication forms.",
       "kind": "legacy-danger",
@@ -4172,9 +3979,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 2
     },
     {
-      "id": "buttons-103",
+      "id": "buttons-97",
       "category": "buttons",
-      "name": "Button Type 103",
+      "name": "Button Type 97",
       "title": "Secondary button",
       "description": "Uppercase, widely spaced lettering from the account and authentication forms.",
       "kind": "legacy-secondary",
@@ -4196,9 +4003,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "buttons-104",
+      "id": "buttons-98",
       "category": "buttons",
-      "name": "Button Type 104",
+      "name": "Button Type 98",
       "title": "Shared button · outline / sm",
       "description": "Shared Button with a page-specific style override.",
       "kind": "button",
@@ -4209,7 +4016,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "sources": [
         {
           "file": "resources/js/Pages/Student/ApplicationTracking.tsx",
-          "line": 150,
+          "line": 151,
           "occurrences": 1,
           "pages": [
             {
@@ -4226,9 +4033,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "buttons-105",
+      "id": "buttons-99",
       "category": "buttons",
-      "name": "Button Type 105",
+      "name": "Button Type 99",
       "title": "Shared button · secondary",
       "description": "Shared Button with a page-specific style override.",
       "kind": "button",
@@ -4239,7 +4046,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "sources": [
         {
           "file": "resources/js/Pages/Student/ApplicationTracking.tsx",
-          "line": 249,
+          "line": 250,
           "occurrences": 1,
           "pages": [
             {
@@ -4256,13 +4063,13 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "buttons-106",
+      "id": "buttons-100",
       "category": "buttons",
-      "name": "Button Type 106",
+      "name": "Button Type 100",
       "title": "Custom page button",
       "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
       "kind": "native-button",
-      "className": "p-2 rounded-md border border-gray-200 hover:bg-gray-50",
+      "className": "p-2 rounded-lg border border-gray-200 hover:bg-gray-50",
       "variant": "default",
       "size": "default",
       "value": "",
@@ -4286,9 +4093,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 2
     },
     {
-      "id": "buttons-107",
+      "id": "buttons-101",
       "category": "buttons",
-      "name": "Button Type 107",
+      "name": "Button Type 101",
       "title": "Shared button · outline",
       "description": "Shared Button with a page-specific style override.",
       "kind": "button",
@@ -4316,9 +4123,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "buttons-108",
+      "id": "buttons-102",
       "category": "buttons",
-      "name": "Button Type 108",
+      "name": "Button Type 102",
       "title": "Custom danger action",
       "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
       "kind": "native-button",
@@ -4346,13 +4153,13 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "buttons-109",
+      "id": "buttons-103",
       "category": "buttons",
-      "name": "Button Type 109",
-      "title": "Custom pill button",
+      "name": "Button Type 103",
+      "title": "Custom page button",
       "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
       "kind": "native-button",
-      "className": "flex-shrink-0 p-1 rounded-full bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition",
+      "className": "flex-shrink-0 p-1 rounded-lg bg-blue-50 text-primary hover:bg-blue-100 transition",
       "variant": "default",
       "size": "default",
       "value": "",
@@ -4376,20 +4183,20 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "buttons-110",
+      "id": "buttons-104",
       "category": "buttons",
-      "name": "Button Type 110",
+      "name": "Button Type 104",
       "title": "Custom page button",
       "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
       "kind": "native-button",
-      "className": "inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50",
+      "className": "ui-button ui-button-outline",
       "variant": "default",
       "size": "default",
       "value": "",
       "sources": [
         {
           "file": "resources/js/Pages/Student/Logbook.tsx",
-          "line": 48,
+          "line": 49,
           "occurrences": 2,
           "pages": [
             {
@@ -4406,20 +4213,20 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 2
     },
     {
-      "id": "buttons-111",
+      "id": "buttons-105",
       "category": "buttons",
-      "name": "Button Type 111",
+      "name": "Button Type 105",
       "title": "Custom page button",
       "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
       "kind": "native-button",
-      "className": "flex-1 whitespace-nowrap border-b-2 px-5 py-3 text-sm border-blue-600 font-medium text-blue-600",
+      "className": "flex-1 whitespace-nowrap border-b-2 px-5 py-3 text-sm border-primary font-medium text-primary",
       "variant": "default",
       "size": "default",
       "value": "",
       "sources": [
         {
           "file": "resources/js/Pages/Student/Logbook.tsx",
-          "line": 48,
+          "line": 49,
           "occurrences": 1,
           "pages": [
             {
@@ -4436,9 +4243,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "buttons-112",
+      "id": "buttons-106",
       "category": "buttons",
-      "name": "Button Type 112",
+      "name": "Button Type 106",
       "title": "Custom page button",
       "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
       "kind": "native-button",
@@ -4449,7 +4256,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "sources": [
         {
           "file": "resources/js/Pages/Student/Logbook.tsx",
-          "line": 48,
+          "line": 49,
           "occurrences": 1,
           "pages": [
             {
@@ -4466,9 +4273,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "buttons-113",
+      "id": "buttons-107",
       "category": "buttons",
-      "name": "Button Type 113",
+      "name": "Button Type 107",
       "title": "Custom page button",
       "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
       "kind": "native-button",
@@ -4479,7 +4286,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "sources": [
         {
           "file": "resources/js/Pages/Student/LogbookSubmission.tsx",
-          "line": 32,
+          "line": 33,
           "occurrences": 1,
           "pages": [
             {
@@ -4496,13 +4303,13 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "buttons-114",
+      "id": "buttons-108",
       "category": "buttons",
-      "name": "Button Type 114",
+      "name": "Button Type 108",
       "title": "Custom page button",
       "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
       "kind": "native-button",
-      "className": "rounded-md bg-black px-6 py-2 text-sm text-white",
+      "className": "ui-button ui-button-primary rounded-lg bg-primary px-6 py-2 text-sm text-white",
       "variant": "default",
       "size": "default",
       "value": "",
@@ -4526,13 +4333,13 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "buttons-115",
+      "id": "buttons-109",
       "category": "buttons",
-      "name": "Button Type 115",
+      "name": "Button Type 109",
       "title": "Custom page button",
       "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
       "kind": "native-button",
-      "className": "rounded-md border border-black px-6 py-2 text-sm text-black",
+      "className": "rounded-lg border border-primary px-6 py-2 text-sm text-black",
       "variant": "default",
       "size": "default",
       "value": "",
@@ -4556,13 +4363,13 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "buttons-116",
+      "id": "buttons-110",
       "category": "buttons",
-      "name": "Button Type 116",
+      "name": "Button Type 110",
       "title": "Custom page button",
       "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
       "kind": "native-button",
-      "className": "rounded-md bg-black px-6 py-2 text-sm text-white disabled:opacity-50",
+      "className": "ui-button ui-button-primary rounded-lg bg-primary px-6 py-2 text-sm text-white disabled:opacity-50",
       "variant": "default",
       "size": "default",
       "value": "",
@@ -4586,9 +4393,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "buttons-117",
+      "id": "buttons-111",
       "category": "buttons",
-      "name": "Button Type 117",
+      "name": "Button Type 111",
       "title": "Shared button · destructive",
       "description": "The shared Button component without a page-specific style override.",
       "kind": "button",
@@ -4616,9 +4423,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "buttons-118",
+      "id": "buttons-112",
       "category": "buttons",
-      "name": "Button Type 118",
+      "name": "Button Type 112",
       "title": "Custom page button",
       "description": "A native button styled directly on its page. Compare its colour, corners, spacing and text with other button types.",
       "kind": "native-button",
@@ -4708,6 +4515,11 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
               "href": "/admin/unplaced-students"
             },
             {
+              "name": "Company/Quotas",
+              "role": "Company",
+              "href": null
+            },
+            {
               "name": "FinalInternshipReport",
               "role": "Shared",
               "href": null
@@ -4742,6 +4554,122 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
           ]
         },
         {
+          "file": "resources/js/Components/Calendar.tsx",
+          "line": 66,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "Admin/Calendar",
+              "role": "Admin",
+              "href": null
+            }
+          ]
+        },
+        {
+          "file": "resources/js/Components/CompanyBranchEditor.tsx",
+          "line": 14,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "Admin/Companies",
+              "role": "Admin",
+              "href": "/admin/companies"
+            },
+            {
+              "name": "Admin/CompanyRecord",
+              "role": "Admin",
+              "href": null
+            },
+            {
+              "name": "Company/Profile",
+              "role": "Company",
+              "href": null
+            }
+          ]
+        },
+        {
+          "file": "resources/js/Components/ConfirmationHost.tsx",
+          "line": 17,
+          "occurrences": 1,
+          "pages": []
+        },
+        {
+          "file": "resources/js/Components/Evaluations/RubricEditor.tsx",
+          "line": 89,
+          "occurrences": 3,
+          "pages": [
+            {
+              "name": "Admin/Evaluations",
+              "role": "Admin",
+              "href": "/admin/evaluations"
+            },
+            {
+              "name": "FinalInternshipReport",
+              "role": "Shared",
+              "href": null
+            },
+            {
+              "name": "Supervisor/Evaluation",
+              "role": "Shared",
+              "href": null
+            }
+          ]
+        },
+        {
+          "file": "resources/js/Components/data-table.tsx",
+          "line": 43,
+          "occurrences": 2,
+          "pages": []
+        },
+        {
+          "file": "resources/js/Pages/AcademicSupervisor/LogbookReview.tsx",
+          "line": 28,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "PB Supervisor/LogbookReview",
+              "role": "PB Supervisor",
+              "href": null
+            }
+          ]
+        },
+        {
+          "file": "resources/js/Pages/AcademicSupervisor/StudentDetails.tsx",
+          "line": 288,
+          "occurrences": 2,
+          "pages": [
+            {
+              "name": "PB Supervisor/StudentDetails",
+              "role": "PB Supervisor",
+              "href": null
+            }
+          ]
+        },
+        {
+          "file": "resources/js/Pages/AcademicSupervisor/Students.tsx",
+          "line": 69,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "PB Supervisor/Students",
+              "role": "PB Supervisor",
+              "href": null
+            }
+          ]
+        },
+        {
+          "file": "resources/js/Pages/Admin/Companies.tsx",
+          "line": 161,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "Admin/Companies",
+              "role": "Admin",
+              "href": "/admin/companies"
+            }
+          ]
+        },
+        {
           "file": "resources/js/Pages/Admin/CompanyRecord.tsx",
           "line": 63,
           "occurrences": 4,
@@ -4754,9 +4682,33 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
           ]
         },
         {
+          "file": "resources/js/Pages/Admin/Evaluations.tsx",
+          "line": 155,
+          "occurrences": 2,
+          "pages": [
+            {
+              "name": "Admin/Evaluations",
+              "role": "Admin",
+              "href": "/admin/evaluations"
+            }
+          ]
+        },
+        {
+          "file": "resources/js/Pages/Admin/Placements.tsx",
+          "line": 51,
+          "occurrences": 2,
+          "pages": [
+            {
+              "name": "Admin/Placements",
+              "role": "Admin",
+              "href": "/admin/placements"
+            }
+          ]
+        },
+        {
           "file": "resources/js/Pages/Admin/StudentRecord.tsx",
-          "line": 103,
-          "occurrences": 1,
+          "line": 104,
+          "occurrences": 3,
           "pages": [
             {
               "name": "Admin/StudentRecord",
@@ -4767,8 +4719,8 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Company/Applications/Show.tsx",
-          "line": 235,
-          "occurrences": 1,
+          "line": 123,
+          "occurrences": 3,
           "pages": [
             {
               "name": "Company/Applications/Show",
@@ -4778,9 +4730,21 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
           ]
         },
         {
-          "file": "resources/js/Pages/FinalInternshipReport.tsx",
-          "line": 95,
+          "file": "resources/js/Pages/Company/Quotas.tsx",
+          "line": 172,
           "occurrences": 2,
+          "pages": [
+            {
+              "name": "Company/Quotas",
+              "role": "Company",
+              "href": null
+            }
+          ]
+        },
+        {
+          "file": "resources/js/Pages/FinalInternshipReport.tsx",
+          "line": 84,
+          "occurrences": 3,
           "pages": [
             {
               "name": "FinalInternshipReport",
@@ -4790,12 +4754,60 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
           ]
         },
         {
-          "file": "resources/js/Pages/Student/LogbookSubmission.tsx",
-          "line": 36,
+          "file": "resources/js/Pages/IndustrySupervisor/StudentDetails.tsx",
+          "line": 210,
           "occurrences": 1,
           "pages": [
             {
+              "name": "IndustrySupervisor/StudentDetails",
+              "role": "Industry Supervisor",
+              "href": null
+            }
+          ]
+        },
+        {
+          "file": "resources/js/Pages/Student/ApplicationTracking.tsx",
+          "line": 151,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "Student/ApplicationTracking",
+              "role": "Student",
+              "href": null
+            }
+          ]
+        },
+        {
+          "file": "resources/js/Pages/Student/Logbook.tsx",
+          "line": 55,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "Student/Logbook",
+              "role": "Student",
+              "href": null
+            }
+          ]
+        },
+        {
+          "file": "resources/js/Pages/Student/LogbookSubmission.tsx",
+          "line": 24,
+          "occurrences": 2,
+          "pages": [
+            {
               "name": "Student/LogbookSubmission",
+              "role": "Student",
+              "href": null
+            }
+          ]
+        },
+        {
+          "file": "resources/js/Pages/Student/Profile.tsx",
+          "line": 542,
+          "occurrences": 9,
+          "pages": [
+            {
+              "name": "Student/Profile",
               "role": "Student",
               "href": null
             }
@@ -4809,6 +4821,18 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
             {
               "name": "Student/ViewCompany",
               "role": "Student",
+              "href": null
+            }
+          ]
+        },
+        {
+          "file": "resources/js/Pages/Supervisor/Evaluation.tsx",
+          "line": 24,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "Supervisor/Evaluation",
+              "role": "Shared",
               "href": null
             }
           ]
@@ -4829,11 +4853,12 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "roles": [
         "Admin",
         "Company",
+        "Industry Supervisor",
         "PB Supervisor",
         "Shared",
         "Student"
       ],
-      "occurrences": 15
+      "occurrences": 53
     },
     {
       "id": "confirmations-2",
@@ -4905,7 +4930,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Admin/Companies.tsx",
-          "line": 276,
+          "line": 282,
           "occurrences": 1,
           "pages": [
             {
@@ -4950,189 +4975,10 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "id": "confirmations-3",
       "category": "confirmations",
       "name": "Confirmation Type 3",
-      "title": "Browser confirmation",
-      "description": "The browser controls its appearance. Used for deletions, rejections and cancellation.",
-      "kind": "native-confirm",
-      "className": "",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Components/Calendar.tsx",
-          "line": 65,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Admin/Calendar",
-              "role": "Admin",
-              "href": null
-            }
-          ]
-        },
-        {
-          "file": "resources/js/Components/CompanyBranchEditor.tsx",
-          "line": 13,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Admin/Companies",
-              "role": "Admin",
-              "href": "/admin/companies"
-            },
-            {
-              "name": "Admin/CompanyRecord",
-              "role": "Admin",
-              "href": null
-            },
-            {
-              "name": "Company/Profile",
-              "role": "Company",
-              "href": null
-            }
-          ]
-        },
-        {
-          "file": "resources/js/Components/Evaluations/RubricEditor.tsx",
-          "line": 88,
-          "occurrences": 3,
-          "pages": [
-            {
-              "name": "Admin/Evaluations",
-              "role": "Admin",
-              "href": "/admin/evaluations"
-            },
-            {
-              "name": "FinalInternshipReport",
-              "role": "Shared",
-              "href": null
-            },
-            {
-              "name": "Supervisor/Evaluation",
-              "role": "Shared",
-              "href": null
-            }
-          ]
-        },
-        {
-          "file": "resources/js/Components/data-table.tsx",
-          "line": 42,
-          "occurrences": 2,
-          "pages": []
-        },
-        {
-          "file": "resources/js/Pages/Admin/Companies.tsx",
-          "line": 157,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Admin/Companies",
-              "role": "Admin",
-              "href": "/admin/companies"
-            }
-          ]
-        },
-        {
-          "file": "resources/js/Pages/Admin/Placements.tsx",
-          "line": 50,
-          "occurrences": 2,
-          "pages": [
-            {
-              "name": "Admin/Placements",
-              "role": "Admin",
-              "href": "/admin/placements"
-            }
-          ]
-        },
-        {
-          "file": "resources/js/Pages/Admin/StudentRecord.tsx",
-          "line": 125,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Admin/StudentRecord",
-              "role": "Admin",
-              "href": null
-            }
-          ]
-        },
-        {
-          "file": "resources/js/Pages/Company/Applications/Show.tsx",
-          "line": 122,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Company/Applications/Show",
-              "role": "Company",
-              "href": null
-            }
-          ]
-        },
-        {
-          "file": "resources/js/Pages/Company/Quotas.tsx",
-          "line": 169,
-          "occurrences": 2,
-          "pages": [
-            {
-              "name": "Company/Quotas",
-              "role": "Company",
-              "href": null
-            }
-          ]
-        },
-        {
-          "file": "resources/js/Pages/Student/ApplicationTracking.tsx",
-          "line": 150,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Student/ApplicationTracking",
-              "role": "Student",
-              "href": null
-            }
-          ]
-        },
-        {
-          "file": "resources/js/Pages/Student/LogbookSubmission.tsx",
-          "line": 23,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Student/LogbookSubmission",
-              "role": "Student",
-              "href": null
-            }
-          ]
-        },
-        {
-          "file": "resources/js/Pages/Student/Profile.tsx",
-          "line": 541,
-          "occurrences": 9,
-          "pages": [
-            {
-              "name": "Student/Profile",
-              "role": "Student",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Admin",
-        "Company",
-        "Shared",
-        "Student"
-      ],
-      "occurrences": 25
-    },
-    {
-      "id": "confirmations-4",
-      "category": "confirmations",
-      "name": "Confirmation Type 4",
       "title": "Form dialog",
       "description": "The shared Radix dialog used for editing records, setting dates and creating accounts.",
       "kind": "dialog",
-      "className": "sm:max-w-[500px] p-0 overflow-hidden border-none rounded-2xl shadow-2xl",
+      "className": "sm:max-w-[500px] p-0 overflow-hidden rounded-xl",
       "variant": "default",
       "size": "default",
       "value": "",
@@ -5150,13 +4996,13 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "confirmations-5",
+      "id": "confirmations-4",
       "category": "confirmations",
-      "name": "Confirmation Type 5",
+      "name": "Confirmation Type 4",
       "title": "Form dialog",
       "description": "The shared Radix dialog used for editing records, setting dates and creating accounts.",
       "kind": "dialog",
-      "className": "sm:max-w-[500px] p-0 overflow-hidden border-none shadow-2xl rounded-2xl [&>button]:text-white [&>button]:opacity-80 [&>button:hover]:opacity-100",
+      "className": "sm:max-w-[500px] p-0 overflow-hidden rounded-xl [&>button]:text-slate-500 [&>button]:opacity-80 [&>button:hover]:opacity-100",
       "variant": "default",
       "size": "default",
       "value": "",
@@ -5180,9 +5026,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "confirmations-6",
+      "id": "confirmations-5",
       "category": "confirmations",
-      "name": "Confirmation Type 6",
+      "name": "Confirmation Type 5",
       "title": "Form dialog",
       "description": "The shared Radix dialog used for editing records, setting dates and creating accounts.",
       "kind": "dialog",
@@ -5210,9 +5056,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "confirmations-7",
+      "id": "confirmations-6",
       "category": "confirmations",
-      "name": "Confirmation Type 7",
+      "name": "Confirmation Type 6",
       "title": "Form dialog",
       "description": "The shared Radix dialog used for editing records, setting dates and creating accounts.",
       "kind": "dialog",
@@ -5240,9 +5086,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "confirmations-8",
+      "id": "confirmations-7",
       "category": "confirmations",
-      "name": "Confirmation Type 8",
+      "name": "Confirmation Type 7",
       "title": "Form dialog",
       "description": "The shared Radix dialog used for editing records, setting dates and creating accounts.",
       "kind": "dialog",
@@ -5270,9 +5116,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "confirmations-9",
+      "id": "confirmations-8",
       "category": "confirmations",
-      "name": "Confirmation Type 9",
+      "name": "Confirmation Type 8",
       "title": "Form dialog",
       "description": "The shared Radix dialog used for editing records, setting dates and creating accounts.",
       "kind": "dialog",
@@ -5313,9 +5159,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 2
     },
     {
-      "id": "confirmations-10",
+      "id": "confirmations-9",
       "category": "confirmations",
-      "name": "Confirmation Type 10",
+      "name": "Confirmation Type 9",
       "title": "Form dialog",
       "description": "The shared Radix dialog used for editing records, setting dates and creating accounts.",
       "kind": "dialog",
@@ -5326,7 +5172,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "sources": [
         {
           "file": "resources/js/Pages/Admin/Companies.tsx",
-          "line": 235,
+          "line": 241,
           "occurrences": 1,
           "pages": [
             {
@@ -5343,9 +5189,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "confirmations-11",
+      "id": "confirmations-10",
       "category": "confirmations",
-      "name": "Confirmation Type 11",
+      "name": "Confirmation Type 10",
       "title": "Form dialog",
       "description": "The shared Radix dialog used for editing records, setting dates and creating accounts.",
       "kind": "dialog",
@@ -5356,7 +5202,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "sources": [
         {
           "file": "resources/js/Pages/Company/Applications/Show.tsx",
-          "line": 300,
+          "line": 302,
           "occurrences": 1,
           "pages": [
             {
@@ -5373,9 +5219,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "confirmations-12",
+      "id": "confirmations-11",
       "category": "confirmations",
-      "name": "Confirmation Type 12",
+      "name": "Confirmation Type 11",
       "title": "Form dialog",
       "description": "The shared Radix dialog used for editing records, setting dates and creating accounts.",
       "kind": "dialog",
@@ -5398,7 +5244,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Company/Quotas.tsx",
-          "line": 236,
+          "line": 243,
           "occurrences": 1,
           "pages": [
             {
@@ -5415,9 +5261,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 2
     },
     {
-      "id": "confirmations-13",
+      "id": "confirmations-12",
       "category": "confirmations",
-      "name": "Confirmation Type 13",
+      "name": "Confirmation Type 12",
       "title": "Account confirmation modal",
       "description": "The Headless UI modal used by the account deletion form, with a password field.",
       "kind": "legacy-modal",
@@ -5501,6 +5347,11 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
               "href": "/admin/unplaced-students"
             },
             {
+              "name": "Company/Quotas",
+              "role": "Company",
+              "href": null
+            },
+            {
               "name": "FinalInternshipReport",
               "role": "Shared",
               "href": null
@@ -5536,7 +5387,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Admin/Evaluations.tsx",
-          "line": 170,
+          "line": 172,
           "occurrences": 4,
           "pages": [
             {
@@ -5548,7 +5399,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Company/Applications/Show.tsx",
-          "line": 146,
+          "line": 148,
           "occurrences": 2,
           "pages": [
             {
@@ -5566,6 +5417,18 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
             {
               "name": "Company/Interns",
               "role": "Company",
+              "href": null
+            }
+          ]
+        },
+        {
+          "file": "resources/js/Pages/Profile/Edit.tsx",
+          "line": 25,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "Profile/Edit",
+              "role": "Shared",
               "href": null
             }
           ]
@@ -5590,7 +5453,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         "Shared",
         "Student"
       ],
-      "occurrences": 11
+      "occurrences": 12
     },
     {
       "id": "notifications-2",
@@ -5655,6 +5518,11 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
               "href": "/admin/unplaced-students"
             },
             {
+              "name": "Company/Quotas",
+              "role": "Company",
+              "href": null
+            },
+            {
               "name": "FinalInternshipReport",
               "role": "Shared",
               "href": null
@@ -5690,7 +5558,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Admin/Evaluations.tsx",
-          "line": 128,
+          "line": 129,
           "occurrences": 5,
           "pages": [
             {
@@ -5702,7 +5570,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Company/Applications/Show.tsx",
-          "line": 152,
+          "line": 154,
           "occurrences": 2,
           "pages": [
             {
@@ -5720,6 +5588,18 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
             {
               "name": "Company/Interns",
               "role": "Company",
+              "href": null
+            }
+          ]
+        },
+        {
+          "file": "resources/js/Pages/Profile/Edit.tsx",
+          "line": 27,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "Profile/Edit",
+              "role": "Shared",
               "href": null
             }
           ]
@@ -5744,7 +5624,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         "Shared",
         "Student"
       ],
-      "occurrences": 13
+      "occurrences": 14
     },
     {
       "id": "notifications-3",
@@ -5809,6 +5689,11 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
               "href": "/admin/unplaced-students"
             },
             {
+              "name": "Company/Quotas",
+              "role": "Company",
+              "href": null
+            },
+            {
               "name": "FinalInternshipReport",
               "role": "Shared",
               "href": null
@@ -5833,6 +5718,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       ],
       "roles": [
         "Admin",
+        "Company",
         "PB Supervisor",
         "Shared",
         "Student"
@@ -5900,6 +5786,11 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
               "name": "Admin/UnplacedStudents",
               "role": "Admin",
               "href": "/admin/unplaced-students"
+            },
+            {
+              "name": "Company/Quotas",
+              "role": "Company",
+              "href": null
             },
             {
               "name": "FinalInternshipReport",
@@ -5981,7 +5872,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/AcademicSupervisor/LogbookReview.tsx",
-          "line": 24,
+          "line": 42,
           "occurrences": 1,
           "pages": [
             {
@@ -5993,8 +5884,8 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Admin/Companies.tsx",
-          "line": 257,
-          "occurrences": 2,
+          "line": 227,
+          "occurrences": 3,
           "pages": [
             {
               "name": "Admin/Companies",
@@ -6017,7 +5908,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Admin/StudentRecord.tsx",
-          "line": 125,
+          "line": 126,
           "occurrences": 4,
           "pages": [
             {
@@ -6029,7 +5920,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Student/Logbook.tsx",
-          "line": 46,
+          "line": 47,
           "occurrences": 1,
           "pages": [
             {
@@ -6041,7 +5932,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Student/LogbookSubmission.tsx",
-          "line": 24,
+          "line": 25,
           "occurrences": 1,
           "pages": [
             {
@@ -6054,16 +5945,17 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       ],
       "roles": [
         "Admin",
+        "Company",
         "PB Supervisor",
         "Shared",
         "Student"
       ],
-      "occurrences": 19
+      "occurrences": 20
     },
     {
-      "id": "notifications-5",
+      "id": "notifications-6",
       "category": "notifications",
-      "name": "Notification Type 5",
+      "name": "Notification Type 6",
       "title": "Inline page message",
       "description": "A page-specific message panel, including validation, flash feedback and date-change notices.",
       "kind": "notice",
@@ -6091,7 +5983,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Admin/Evaluations.tsx",
-          "line": 276,
+          "line": 279,
           "occurrences": 4,
           "pages": [
             {
@@ -6103,7 +5995,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Supervisor/Evaluation.tsx",
-          "line": 37,
+          "line": 43,
           "occurrences": 1,
           "pages": [
             {
@@ -6121,9 +6013,304 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 6
     },
     {
-      "id": "notifications-6",
+      "id": "notifications-7",
       "category": "notifications",
-      "name": "Notification Type 6",
+      "name": "Notification Type 7",
+      "title": "Persistent status notice",
+      "description": "A page-specific message panel, including validation, flash feedback and date-change notices.",
+      "kind": "notice",
+      "className": "flex h-screen items-center justify-center gap-2 text-sm text-muted-foreground",
+      "variant": "default",
+      "size": "default",
+      "value": "",
+      "sources": [
+        {
+          "file": "resources/js/Layouts/AuthenticatedLayout.tsx",
+          "line": 29,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "PB Supervisor/Dashboard",
+              "role": "PB Supervisor",
+              "href": null
+            },
+            {
+              "name": "PB Supervisor/Logbook",
+              "role": "PB Supervisor",
+              "href": null
+            },
+            {
+              "name": "PB Supervisor/LogbookReview",
+              "role": "PB Supervisor",
+              "href": null
+            },
+            {
+              "name": "PB Supervisor/StudentDetails",
+              "role": "PB Supervisor",
+              "href": null
+            },
+            {
+              "name": "PB Supervisor/Students",
+              "role": "PB Supervisor",
+              "href": null
+            },
+            {
+              "name": "Admin/AcademicSemesters",
+              "role": "Admin",
+              "href": "/admin/academic-semesters"
+            },
+            {
+              "name": "Admin/ApplicationList",
+              "role": "Admin",
+              "href": null
+            },
+            {
+              "name": "Admin/Calendar",
+              "role": "Admin",
+              "href": null
+            },
+            {
+              "name": "Admin/Companies",
+              "role": "Admin",
+              "href": "/admin/companies"
+            },
+            {
+              "name": "Admin/CompanyRecord",
+              "role": "Admin",
+              "href": null
+            },
+            {
+              "name": "Admin/Dashboard",
+              "role": "Admin",
+              "href": "/admin/dashboard"
+            },
+            {
+              "name": "Admin/Evaluations",
+              "role": "Admin",
+              "href": "/admin/evaluations"
+            },
+            {
+              "name": "Admin/Interventions",
+              "role": "Admin",
+              "href": null
+            },
+            {
+              "name": "Admin/ManageUsers",
+              "role": "Admin",
+              "href": "/admin/manage-users"
+            },
+            {
+              "name": "Admin/Placements",
+              "role": "Admin",
+              "href": "/admin/placements"
+            },
+            {
+              "name": "Admin/Profile",
+              "role": "Admin",
+              "href": null
+            },
+            {
+              "name": "Admin/Reports",
+              "role": "Admin",
+              "href": null
+            },
+            {
+              "name": "Admin/StudentRecord",
+              "role": "Admin",
+              "href": null
+            },
+            {
+              "name": "Admin/StudentRecords",
+              "role": "Admin",
+              "href": "/admin/students"
+            },
+            {
+              "name": "Admin/Supervisors",
+              "role": "Admin",
+              "href": null
+            },
+            {
+              "name": "Admin/UnplacedStudents",
+              "role": "Admin",
+              "href": "/admin/unplaced-students"
+            },
+            {
+              "name": "CompaniesList",
+              "role": "Shared",
+              "href": null
+            },
+            {
+              "name": "Company/Applications/Index",
+              "role": "Company",
+              "href": null
+            },
+            {
+              "name": "Company/Applications/Show",
+              "role": "Company",
+              "href": null
+            },
+            {
+              "name": "Company/Dashboard",
+              "role": "Company",
+              "href": null
+            },
+            {
+              "name": "Company/Faqs",
+              "role": "Company",
+              "href": null
+            },
+            {
+              "name": "Company/Interns",
+              "role": "Company",
+              "href": null
+            },
+            {
+              "name": "Company/ManageUsers",
+              "role": "Company",
+              "href": null
+            },
+            {
+              "name": "Company/Profile",
+              "role": "Company",
+              "href": null
+            },
+            {
+              "name": "Company/Quotas",
+              "role": "Company",
+              "href": null
+            },
+            {
+              "name": "Company/Representatives",
+              "role": "Company",
+              "href": null
+            },
+            {
+              "name": "Company/Support",
+              "role": "Company",
+              "href": null
+            },
+            {
+              "name": "Dashboard",
+              "role": "Shared",
+              "href": null
+            },
+            {
+              "name": "FinalInternshipReport",
+              "role": "Shared",
+              "href": null
+            },
+            {
+              "name": "IndustrySupervisor/Dashboard",
+              "role": "Industry Supervisor",
+              "href": null
+            },
+            {
+              "name": "IndustrySupervisor/Evaluation",
+              "role": "Industry Supervisor",
+              "href": null
+            },
+            {
+              "name": "IndustrySupervisor/StudentDetails",
+              "role": "Industry Supervisor",
+              "href": null
+            },
+            {
+              "name": "IndustrySupervisor/Students",
+              "role": "Industry Supervisor",
+              "href": null
+            },
+            {
+              "name": "Profile/Edit",
+              "role": "Shared",
+              "href": null
+            },
+            {
+              "name": "Student/ApplicationTracking",
+              "role": "Student",
+              "href": null
+            },
+            {
+              "name": "Student/Calendar",
+              "role": "Student",
+              "href": null
+            },
+            {
+              "name": "Student/Companies",
+              "role": "Student",
+              "href": null
+            },
+            {
+              "name": "Student/Dashboard",
+              "role": "Student",
+              "href": null
+            },
+            {
+              "name": "Student/FAQs",
+              "role": "Student",
+              "href": null
+            },
+            {
+              "name": "Student/Logbook",
+              "role": "Student",
+              "href": null
+            },
+            {
+              "name": "Student/LogbookSubmission",
+              "role": "Student",
+              "href": null
+            },
+            {
+              "name": "Student/PastReports",
+              "role": "Student",
+              "href": null
+            },
+            {
+              "name": "Student/Profile",
+              "role": "Student",
+              "href": null
+            },
+            {
+              "name": "Student/ReportIssue",
+              "role": "Student",
+              "href": null
+            },
+            {
+              "name": "Student/ViewCompany",
+              "role": "Student",
+              "href": null
+            },
+            {
+              "name": "Student/generator_cv",
+              "role": "Student",
+              "href": null
+            },
+            {
+              "name": "Supervisor/Evaluation",
+              "role": "Shared",
+              "href": null
+            },
+            {
+              "name": "Supervisor/EvaluationResult",
+              "role": "Shared",
+              "href": null
+            }
+          ]
+        }
+      ],
+      "roles": [
+        "Admin",
+        "Company",
+        "Industry Supervisor",
+        "PB Supervisor",
+        "Shared",
+        "Student"
+      ],
+      "occurrences": 1
+    },
+    {
+      "id": "notifications-8",
+      "category": "notifications",
+      "name": "Notification Type 8",
       "title": "Persistent status notice",
       "description": "A page-specific message panel, including validation, flash feedback and date-change notices.",
       "kind": "notice",
@@ -6134,7 +6321,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "sources": [
         {
           "file": "resources/js/Pages/AcademicSupervisor/LogbookReview.tsx",
-          "line": 21,
+          "line": 39,
           "occurrences": 1,
           "pages": [
             {
@@ -6151,9 +6338,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "notifications-7",
+      "id": "notifications-9",
       "category": "notifications",
-      "name": "Notification Type 7",
+      "name": "Notification Type 9",
       "title": "Inline page message",
       "description": "A page-specific message panel, including validation, flash feedback and date-change notices.",
       "kind": "notice",
@@ -6164,7 +6351,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "sources": [
         {
           "file": "resources/js/Pages/AcademicSupervisor/Students.tsx",
-          "line": 45,
+          "line": 46,
           "occurrences": 1,
           "pages": [
             {
@@ -6181,9 +6368,39 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "notifications-8",
+      "id": "notifications-10",
       "category": "notifications",
-      "name": "Notification Type 8",
+      "name": "Notification Type 10",
+      "title": "Persistent status notice",
+      "description": "A page-specific message panel, including validation, flash feedback and date-change notices.",
+      "kind": "notice",
+      "className": "px-1 text-xs text-slate-500",
+      "variant": "default",
+      "size": "default",
+      "value": "",
+      "sources": [
+        {
+          "file": "resources/js/Pages/Admin/Companies.tsx",
+          "line": 409,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "Admin/Companies",
+              "role": "Admin",
+              "href": "/admin/companies"
+            }
+          ]
+        }
+      ],
+      "roles": [
+        "Admin"
+      ],
+      "occurrences": 1
+    },
+    {
+      "id": "notifications-11",
+      "category": "notifications",
+      "name": "Notification Type 11",
       "title": "Warning toast",
       "description": "A temporary Sonner notification using the existing site-wide toaster.",
       "kind": "toast",
@@ -6194,7 +6411,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "sources": [
         {
           "file": "resources/js/Pages/Admin/Evaluations.tsx",
-          "line": 134,
+          "line": 135,
           "occurrences": 9,
           "pages": [
             {
@@ -6211,9 +6428,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 9
     },
     {
-      "id": "notifications-9",
+      "id": "notifications-12",
       "category": "notifications",
-      "name": "Notification Type 9",
+      "name": "Notification Type 12",
       "title": "Field error message",
       "description": "An error directly beneath an individual field.",
       "kind": "field-error",
@@ -6307,9 +6524,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 18
     },
     {
-      "id": "notifications-10",
+      "id": "notifications-13",
       "category": "notifications",
-      "name": "Notification Type 10",
+      "name": "Notification Type 13",
       "title": "Inline page message",
       "description": "A page-specific message panel, including validation, flash feedback and date-change notices.",
       "kind": "notice",
@@ -6337,39 +6554,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 2
     },
     {
-      "id": "notifications-11",
+      "id": "notifications-14",
       "category": "notifications",
-      "name": "Notification Type 11",
-      "title": "Persistent status notice",
-      "description": "A page-specific message panel, including validation, flash feedback and date-change notices.",
-      "kind": "notice",
-      "className": "text-sm text-muted-foreground",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/Company/Profile.tsx",
-          "line": 339,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Company/Profile",
-              "role": "Company",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Company"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "notifications-12",
-      "category": "notifications",
-      "name": "Notification Type 12",
+      "name": "Notification Type 14",
       "title": "Saved confirmation text",
       "description": "A short Saved message that fades beside the account form action.",
       "kind": "saved",
@@ -6397,9 +6584,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 2
     },
     {
-      "id": "notifications-13",
+      "id": "notifications-15",
       "category": "notifications",
-      "name": "Notification Type 13",
+      "name": "Notification Type 15",
       "title": "Inline alert · destructive",
       "description": "The shared Alert component appears inside the page rather than in a toast.",
       "kind": "alert",
@@ -6427,9 +6614,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "notifications-14",
+      "id": "notifications-16",
       "category": "notifications",
-      "name": "Notification Type 14",
+      "name": "Notification Type 16",
       "title": "Warning toast with description",
       "description": "A temporary Sonner notification using the existing site-wide toaster.",
       "kind": "toast",
@@ -6457,9 +6644,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "notifications-15",
+      "id": "notifications-17",
       "category": "notifications",
-      "name": "Notification Type 15",
+      "name": "Notification Type 17",
       "title": "Persistent status notice",
       "description": "A page-specific message panel, including validation, flash feedback and date-change notices.",
       "kind": "notice",
@@ -6470,7 +6657,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "sources": [
         {
           "file": "resources/js/Pages/Student/Logbook.tsx",
-          "line": 52,
+          "line": 53,
           "occurrences": 1,
           "pages": [
             {
@@ -6487,9 +6674,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "notifications-16",
+      "id": "notifications-18",
       "category": "notifications",
-      "name": "Notification Type 16",
+      "name": "Notification Type 18",
       "title": "Persistent status notice",
       "description": "A page-specific message panel, including validation, flash feedback and date-change notices.",
       "kind": "notice",
@@ -6500,7 +6687,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "sources": [
         {
           "file": "resources/js/Pages/Student/LogbookSubmission.tsx",
-          "line": 35,
+          "line": 36,
           "occurrences": 1,
           "pages": [
             {
@@ -6517,9 +6704,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "notifications-17",
+      "id": "notifications-19",
       "category": "notifications",
-      "name": "Notification Type 17",
+      "name": "Notification Type 19",
       "title": "Error toast with description",
       "description": "A temporary Sonner notification using the existing site-wide toaster.",
       "kind": "toast",
@@ -6530,7 +6717,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "sources": [
         {
           "file": "resources/js/Pages/Student/Profile.tsx",
-          "line": 485,
+          "line": 486,
           "occurrences": 1,
           "pages": [
             {
@@ -6565,7 +6752,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Native select field",
       "description": "A form control styled directly on the page.",
       "kind": "native-select",
-      "className": "w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500",
+      "className": "ui-field",
       "variant": "default",
       "size": "default",
       "value": "select",
@@ -6621,6 +6808,11 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
               "href": "/admin/unplaced-students"
             },
             {
+              "name": "Company/Quotas",
+              "role": "Company",
+              "href": null
+            },
+            {
               "name": "FinalInternshipReport",
               "role": "Shared",
               "href": null
@@ -6665,8 +6857,30 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
           ]
         },
         {
+          "file": "resources/js/Components/CompanyBranchEditor.tsx",
+          "line": 15,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "Admin/Companies",
+              "role": "Admin",
+              "href": "/admin/companies"
+            },
+            {
+              "name": "Admin/CompanyRecord",
+              "role": "Admin",
+              "href": null
+            },
+            {
+              "name": "Company/Profile",
+              "role": "Company",
+              "href": null
+            }
+          ]
+        },
+        {
           "file": "resources/js/Pages/AcademicSupervisor/LogbookReview.tsx",
-          "line": 24,
+          "line": 42,
           "occurrences": 1,
           "pages": [
             {
@@ -6678,7 +6892,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Student/LogbookSubmission.tsx",
-          "line": 25,
+          "line": 26,
           "occurrences": 1,
           "pages": [
             {
@@ -6691,11 +6905,12 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       ],
       "roles": [
         "Admin",
+        "Company",
         "PB Supervisor",
         "Shared",
         "Student"
       ],
-      "occurrences": 4
+      "occurrences": 5
     },
     {
       "id": "fields-2",
@@ -6704,7 +6919,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Shared input",
       "description": "An existing shared form control. Page-specific overrides are listed separately.",
       "kind": "input",
-      "className": "pl-9 shadow-none",
+      "className": "pl-9",
       "variant": "default",
       "size": "default",
       "value": "",
@@ -6732,6 +6947,18 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
           ]
         },
         {
+          "file": "resources/js/Pages/AcademicSupervisor/Students.tsx",
+          "line": 39,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "PB Supervisor/Students",
+              "role": "PB Supervisor",
+              "href": null
+            }
+          ]
+        },
+        {
           "file": "resources/js/Pages/Admin/CompanyRecord.tsx",
           "line": 98,
           "occurrences": 1,
@@ -6742,12 +6969,25 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
               "href": null
             }
           ]
+        },
+        {
+          "file": "resources/js/Pages/Admin/StudentRecords.tsx",
+          "line": 16,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "Admin/StudentRecords",
+              "role": "Admin",
+              "href": "/admin/students"
+            }
+          ]
         }
       ],
       "roles": [
-        "Admin"
+        "Admin",
+        "PB Supervisor"
       ],
-      "occurrences": 2
+      "occurrences": 4
     },
     {
       "id": "fields-3",
@@ -6756,7 +6996,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Native select field",
       "description": "A form control styled directly on the page.",
       "kind": "native-select",
-      "className": "h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm shadow-sm",
+      "className": "ui-field h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm shadow-sm",
       "variant": "default",
       "size": "default",
       "value": "select",
@@ -6782,36 +7022,12 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
               "href": null
             }
           ]
-        },
-        {
-          "file": "resources/js/Components/user-tabs.tsx",
-          "line": 504,
-          "occurrences": 4,
-          "pages": [
-            {
-              "name": "Admin/ManageUsers",
-              "role": "Admin",
-              "href": "/admin/manage-users"
-            }
-          ]
-        },
-        {
-          "file": "resources/js/Pages/Admin/CompanyRecord.tsx",
-          "line": 129,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Admin/CompanyRecord",
-              "role": "Admin",
-              "href": null
-            }
-          ]
         }
       ],
       "roles": [
         "Admin"
       ],
-      "occurrences": 7
+      "occurrences": 2
     },
     {
       "id": "fields-4",
@@ -6882,8 +7098,8 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Components/user-tabs.tsx",
-          "line": 380,
-          "occurrences": 8,
+          "line": 255,
+          "occurrences": 12,
           "pages": [
             {
               "name": "Admin/ManageUsers",
@@ -6906,7 +7122,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Admin/Companies.tsx",
-          "line": 249,
+          "line": 255,
           "occurrences": 3,
           "pages": [
             {
@@ -6930,12 +7146,24 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Admin/StudentRecord.tsx",
-          "line": 125,
+          "line": 126,
           "occurrences": 4,
           "pages": [
             {
               "name": "Admin/StudentRecord",
               "role": "Admin",
+              "href": null
+            }
+          ]
+        },
+        {
+          "file": "resources/js/Pages/Auth/Login.tsx",
+          "line": 54,
+          "occurrences": 2,
+          "pages": [
+            {
+              "name": "Auth/Login",
+              "role": "Public / sign-in",
               "href": null
             }
           ]
@@ -6966,8 +7194,8 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Company/Profile.tsx",
-          "line": 206,
-          "occurrences": 9,
+          "line": 192,
+          "occurrences": 6,
           "pages": [
             {
               "name": "Company/Profile",
@@ -6977,8 +7205,20 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
           ]
         },
         {
+          "file": "resources/js/Pages/Company/Quotas.tsx",
+          "line": 267,
+          "occurrences": 2,
+          "pages": [
+            {
+              "name": "Company/Quotas",
+              "role": "Company",
+              "href": null
+            }
+          ]
+        },
+        {
           "file": "resources/js/Pages/Profile/Edit.tsx",
-          "line": 29,
+          "line": 38,
           "occurrences": 3,
           "pages": [
             {
@@ -6990,7 +7230,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Student/Profile.tsx",
-          "line": 874,
+          "line": 875,
           "occurrences": 41,
           "pages": [
             {
@@ -7004,10 +7244,11 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "roles": [
         "Admin",
         "Company",
+        "Public / sign-in",
         "Shared",
         "Student"
       ],
-      "occurrences": 96
+      "occurrences": 101
     },
     {
       "id": "fields-5",
@@ -7023,7 +7264,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "sources": [
         {
           "file": "resources/js/Components/Applications/columns.tsx",
-          "line": 109,
+          "line": 111,
           "occurrences": 1,
           "pages": [
             {
@@ -7053,7 +7294,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "sources": [
         {
           "file": "resources/js/Components/Applications/columns.tsx",
-          "line": 120,
+          "line": 122,
           "occurrences": 1,
           "pages": [
             {
@@ -7083,7 +7324,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "sources": [
         {
           "file": "resources/js/Components/Applications/columns.tsx",
-          "line": 164,
+          "line": 166,
           "occurrences": 1,
           "pages": [
             {
@@ -7106,14 +7347,14 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Native text field",
       "description": "A form control styled directly on the page.",
       "kind": "native-input",
-      "className": "w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500",
+      "className": "ui-field w-full px-3 py-2",
       "variant": "default",
       "size": "default",
       "value": "text",
       "sources": [
         {
           "file": "resources/js/Components/Calendar.tsx",
-          "line": 109,
+          "line": 110,
           "occurrences": 1,
           "pages": [
             {
@@ -7136,18 +7377,42 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Native textarea field",
       "description": "A form control styled directly on the page.",
       "kind": "textarea",
-      "className": "w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500",
+      "className": "ui-textarea w-full px-3 py-2",
       "variant": "default",
       "size": "default",
       "value": "textarea",
       "sources": [
         {
           "file": "resources/js/Components/Calendar.tsx",
-          "line": 124,
+          "line": 125,
           "occurrences": 1,
           "pages": [
             {
               "name": "Admin/Calendar",
+              "role": "Admin",
+              "href": null
+            }
+          ]
+        },
+        {
+          "file": "resources/js/Pages/Admin/CompanyRecord.tsx",
+          "line": 112,
+          "occurrences": 2,
+          "pages": [
+            {
+              "name": "Admin/CompanyRecord",
+              "role": "Admin",
+              "href": null
+            }
+          ]
+        },
+        {
+          "file": "resources/js/Pages/Admin/StudentRecord.tsx",
+          "line": 138,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "Admin/StudentRecord",
               "role": "Admin",
               "href": null
             }
@@ -7157,7 +7422,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "roles": [
         "Admin"
       ],
-      "occurrences": 1
+      "occurrences": 4
     },
     {
       "id": "fields-10",
@@ -7166,14 +7431,14 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Native date field",
       "description": "A form control styled directly on the page.",
       "kind": "native-input",
-      "className": "w-full rounded-lg border border-gray-300 px-3 py-2",
+      "className": "ui-field w-full px-3 py-2",
       "variant": "default",
       "size": "default",
       "value": "date",
       "sources": [
         {
           "file": "resources/js/Components/Calendar.tsx",
-          "line": 143,
+          "line": 144,
           "occurrences": 2,
           "pages": [
             {
@@ -7196,7 +7461,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Native checkbox field",
       "description": "A form control styled directly on the page.",
       "kind": "native-checkbox",
-      "className": "rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500",
+      "className": "rounded border-gray-300 text-primary shadow-sm focus-visible:ring-primary/25",
       "variant": "default",
       "size": "default",
       "value": "checkbox",
@@ -7220,56 +7485,15 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Native text field",
       "description": "A form control styled directly on the page.",
       "kind": "native-input",
-      "className": "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm",
+      "className": "ui-field",
       "variant": "default",
       "size": "default",
       "value": "text",
       "sources": [
         {
           "file": "resources/js/Components/CompanyBranchEditor.tsx",
-          "line": 14,
+          "line": 15,
           "occurrences": 2,
-          "pages": [
-            {
-              "name": "Admin/Companies",
-              "role": "Admin",
-              "href": "/admin/companies"
-            },
-            {
-              "name": "Admin/CompanyRecord",
-              "role": "Admin",
-              "href": null
-            },
-            {
-              "name": "Company/Profile",
-              "role": "Company",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Admin",
-        "Company"
-      ],
-      "occurrences": 2
-    },
-    {
-      "id": "fields-13",
-      "category": "fields",
-      "name": "Field Type 13",
-      "title": "Native select field",
-      "description": "A form control styled directly on the page.",
-      "kind": "native-select",
-      "className": "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm",
-      "variant": "default",
-      "size": "default",
-      "value": "select",
-      "sources": [
-        {
-          "file": "resources/js/Components/CompanyBranchEditor.tsx",
-          "line": 14,
-          "occurrences": 1,
           "pages": [
             {
               "name": "Admin/Companies",
@@ -7289,13 +7513,28 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
           ]
         },
         {
-          "file": "resources/js/Pages/Student/ViewCompany.tsx",
-          "line": 47,
+          "file": "resources/js/Components/TextInput.tsx",
+          "line": 31,
           "occurrences": 1,
           "pages": [
             {
-              "name": "Student/ViewCompany",
-              "role": "Student",
+              "name": "Auth/ConfirmPassword",
+              "role": "Public / sign-in",
+              "href": null
+            },
+            {
+              "name": "Auth/ForgotPassword",
+              "role": "Public / sign-in",
+              "href": null
+            },
+            {
+              "name": "Auth/Register",
+              "role": "Public / sign-in",
+              "href": null
+            },
+            {
+              "name": "Auth/ResetPassword",
+              "role": "Public / sign-in",
               "href": null
             }
           ]
@@ -7304,25 +7543,25 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "roles": [
         "Admin",
         "Company",
-        "Student"
+        "Public / sign-in"
       ],
-      "occurrences": 2
+      "occurrences": 3
     },
     {
-      "id": "fields-14",
+      "id": "fields-13",
       "category": "fields",
-      "name": "Field Type 14",
+      "name": "Field Type 13",
       "title": "Native text field",
       "description": "A form control styled directly on the page.",
       "kind": "native-input",
-      "className": "block w-full min-w-0 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm leading-6 text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/15",
+      "className": "ui-field block",
       "variant": "default",
       "size": "default",
       "value": "text",
       "sources": [
         {
           "file": "resources/js/Components/Evaluations/RubricEditor.tsx",
-          "line": 151,
+          "line": 152,
           "occurrences": 3,
           "pages": [
             {
@@ -7350,20 +7589,20 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 3
     },
     {
-      "id": "fields-15",
+      "id": "fields-14",
       "category": "fields",
-      "name": "Field Type 15",
+      "name": "Field Type 14",
       "title": "Native number field",
       "description": "A form control styled directly on the page.",
       "kind": "native-input",
-      "className": "block w-full min-w-0 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm leading-6 text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/15 pr-8",
+      "className": "ui-field block pr-8",
       "variant": "default",
       "size": "default",
       "value": "number",
       "sources": [
         {
           "file": "resources/js/Components/Evaluations/RubricEditor.tsx",
-          "line": 154,
+          "line": 155,
           "occurrences": 1,
           "pages": [
             {
@@ -7391,20 +7630,20 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "fields-16",
+      "id": "fields-15",
       "category": "fields",
-      "name": "Field Type 16",
+      "name": "Field Type 15",
       "title": "Native textarea field",
       "description": "A form control styled directly on the page.",
       "kind": "textarea",
-      "className": "block w-full min-w-0 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm leading-6 text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/15 resize-y",
+      "className": "ui-textarea ui-field block resize-y",
       "variant": "default",
       "size": "default",
       "value": "textarea",
       "sources": [
         {
           "file": "resources/js/Components/Evaluations/RubricEditor.tsx",
-          "line": 158,
+          "line": 159,
           "occurrences": 3,
           "pages": [
             {
@@ -7432,20 +7671,20 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 3
     },
     {
-      "id": "fields-17",
+      "id": "fields-16",
       "category": "fields",
-      "name": "Field Type 17",
+      "name": "Field Type 16",
       "title": "Native number field",
       "description": "A form control styled directly on the page.",
       "kind": "native-input",
-      "className": "block w-full min-w-0 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm leading-6 text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/15",
+      "className": "ui-field block",
       "variant": "default",
       "size": "default",
       "value": "number",
       "sources": [
         {
           "file": "resources/js/Components/Evaluations/RubricEditor.tsx",
-          "line": 217,
+          "line": 218,
           "occurrences": 1,
           "pages": [
             {
@@ -7473,9 +7712,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "fields-18",
+      "id": "fields-17",
       "category": "fields",
-      "name": "Field Type 18",
+      "name": "Field Type 17",
       "title": "Shared calendar",
       "description": "An existing shared form control. Page-specific overrides are listed separately.",
       "kind": "calendar",
@@ -7497,9 +7736,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "fields-19",
+      "id": "fields-18",
       "category": "fields",
-      "name": "Field Type 19",
+      "name": "Field Type 18",
       "title": "Shared input",
       "description": "An existing shared form control. Page-specific overrides are listed separately.",
       "kind": "input",
@@ -7521,13 +7760,13 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "fields-20",
+      "id": "fields-19",
       "category": "fields",
-      "name": "Field Type 20",
+      "name": "Field Type 19",
       "title": "Shared input",
       "description": "An existing shared form control. Page-specific overrides are listed separately.",
       "kind": "input",
-      "className": "selection:bg-primary selection:text-primary-foreground w-full grow px-3 py-2 text-center tabular-nums outline-none bg-transparent font-mono",
+      "className": "selection:bg-primary selection:text-primary-foreground w-full grow px-3 py-2 text-center tabular-nums outline-none font-mono",
       "variant": "default",
       "size": "default",
       "value": "",
@@ -7557,9 +7796,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "fields-21",
+      "id": "fields-20",
       "category": "fields",
-      "name": "Field Type 21",
+      "name": "Field Type 20",
       "title": "Shared select",
       "description": "An existing shared form control. Page-specific overrides are listed separately.",
       "kind": "select",
@@ -7575,8 +7814,32 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
           "pages": []
         },
         {
+          "file": "resources/js/Components/user-tabs.tsx",
+          "line": 316,
+          "occurrences": 3,
+          "pages": [
+            {
+              "name": "Admin/ManageUsers",
+              "role": "Admin",
+              "href": "/admin/manage-users"
+            }
+          ]
+        },
+        {
+          "file": "resources/js/Pages/Admin/Companies.tsx",
+          "line": 300,
+          "occurrences": 2,
+          "pages": [
+            {
+              "name": "Admin/Companies",
+              "role": "Admin",
+              "href": "/admin/companies"
+            }
+          ]
+        },
+        {
           "file": "resources/js/Pages/Student/Profile.tsx",
-          "line": 934,
+          "line": 935,
           "occurrences": 3,
           "pages": [
             {
@@ -7588,14 +7851,15 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         }
       ],
       "roles": [
+        "Admin",
         "Student"
       ],
-      "occurrences": 4
+      "occurrences": 9
     },
     {
-      "id": "fields-22",
+      "id": "fields-21",
       "category": "fields",
-      "name": "Field Type 22",
+      "name": "Field Type 21",
       "title": "Native checkbox field",
       "description": "A form control styled directly on the page.",
       "kind": "native-checkbox",
@@ -7639,58 +7903,13 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "fields-23",
+      "id": "fields-22",
       "category": "fields",
-      "name": "Field Type 23",
-      "title": "Native text field",
-      "description": "A form control styled directly on the page.",
-      "kind": "native-input",
-      "className": "rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500",
-      "variant": "default",
-      "size": "default",
-      "value": "text",
-      "sources": [
-        {
-          "file": "resources/js/Components/TextInput.tsx",
-          "line": 31,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Auth/ConfirmPassword",
-              "role": "Public / sign-in",
-              "href": null
-            },
-            {
-              "name": "Auth/ForgotPassword",
-              "role": "Public / sign-in",
-              "href": null
-            },
-            {
-              "name": "Auth/Register",
-              "role": "Public / sign-in",
-              "href": null
-            },
-            {
-              "name": "Auth/ResetPassword",
-              "role": "Public / sign-in",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Public / sign-in"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "fields-24",
-      "category": "fields",
-      "name": "Field Type 24",
+      "name": "Field Type 22",
       "title": "Native select field",
       "description": "A form control styled directly on the page.",
       "kind": "native-select",
-      "className": "h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm",
+      "className": "ui-field h-10 w-full px-3",
       "variant": "default",
       "size": "default",
       "value": "select",
@@ -7714,13 +7933,13 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "fields-25",
+      "id": "fields-23",
       "category": "fields",
-      "name": "Field Type 25",
+      "name": "Field Type 23",
       "title": "Native file field",
       "description": "A form control styled directly on the page.",
       "kind": "file",
-      "className": "hidden",
+      "className": "ui-field hidden",
       "variant": "default",
       "size": "default",
       "value": "file",
@@ -7744,13 +7963,13 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "fields-26",
+      "id": "fields-24",
       "category": "fields",
-      "name": "Field Type 26",
+      "name": "Field Type 24",
       "title": "Shared input",
       "description": "An existing shared form control. Page-specific overrides are listed separately.",
       "kind": "input",
-      "className": "h-9 w-[250px] pl-8 text-sm rounded-full bg-muted shadow-none border-none",
+      "className": "h-9 w-[250px] pl-8 bg-muted border-none",
       "variant": "default",
       "size": "default",
       "value": "",
@@ -7766,28 +7985,54 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
               "href": "/admin/manage-users"
             }
           ]
+        },
+        {
+          "file": "resources/js/Pages/Company/Quotas.tsx",
+          "line": 642,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "Company/Quotas",
+              "role": "Company",
+              "href": null
+            }
+          ]
+        },
+        {
+          "file": "resources/js/Pages/Student/Companies.tsx",
+          "line": 153,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "Student/Companies",
+              "role": "Student",
+              "href": null
+            }
+          ]
         }
       ],
       "roles": [
-        "Admin"
+        "Admin",
+        "Company",
+        "Student"
       ],
-      "occurrences": 1
+      "occurrences": 3
     },
     {
-      "id": "fields-27",
+      "id": "fields-25",
       "category": "fields",
-      "name": "Field Type 27",
-      "title": "Shared input",
-      "description": "An existing shared form control. Page-specific overrides are listed separately.",
-      "kind": "input",
-      "className": "shadow-none",
+      "name": "Field Type 25",
+      "title": "Native select field",
+      "description": "A form control styled directly on the page.",
+      "kind": "native-select",
+      "className": "ui-field h-9 w-full px-3 py-1",
       "variant": "default",
       "size": "default",
-      "value": "",
+      "value": "select",
       "sources": [
         {
           "file": "resources/js/Components/user-tabs.tsx",
-          "line": 255,
+          "line": 504,
           "occurrences": 4,
           "pages": [
             {
@@ -7798,70 +8043,14 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
           ]
         },
         {
-          "file": "resources/js/Pages/Auth/Login.tsx",
-          "line": 54,
-          "occurrences": 2,
+          "file": "resources/js/Pages/Admin/CompanyRecord.tsx",
+          "line": 129,
+          "occurrences": 1,
           "pages": [
             {
-              "name": "Auth/Login",
-              "role": "Public / sign-in",
-              "href": null
-            }
-          ]
-        },
-        {
-          "file": "resources/js/Pages/Company/Quotas.tsx",
-          "line": 260,
-          "occurrences": 2,
-          "pages": [
-            {
-              "name": "Company/Quotas",
-              "role": "Company",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Admin",
-        "Company",
-        "Public / sign-in"
-      ],
-      "occurrences": 8
-    },
-    {
-      "id": "fields-28",
-      "category": "fields",
-      "name": "Field Type 28",
-      "title": "Shared select",
-      "description": "An existing shared form control. Page-specific overrides are listed separately.",
-      "kind": "select",
-      "className": "shadow-none",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Components/user-tabs.tsx",
-          "line": 316,
-          "occurrences": 3,
-          "pages": [
-            {
-              "name": "Admin/ManageUsers",
+              "name": "Admin/CompanyRecord",
               "role": "Admin",
-              "href": "/admin/manage-users"
-            }
-          ]
-        },
-        {
-          "file": "resources/js/Pages/Admin/Companies.tsx",
-          "line": 294,
-          "occurrences": 2,
-          "pages": [
-            {
-              "name": "Admin/Companies",
-              "role": "Admin",
-              "href": "/admin/companies"
+              "href": null
             }
           ]
         }
@@ -7872,9 +8061,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 5
     },
     {
-      "id": "fields-29",
+      "id": "fields-26",
       "category": "fields",
-      "name": "Field Type 29",
+      "name": "Field Type 26",
       "title": "Native email field",
       "description": "A form control styled directly on the page.",
       "kind": "native-input",
@@ -7902,13 +8091,13 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "fields-30",
+      "id": "fields-27",
       "category": "fields",
-      "name": "Field Type 30",
+      "name": "Field Type 27",
       "title": "Native text field",
       "description": "A form control styled directly on the page.",
       "kind": "native-input",
-      "className": "w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500 pl-9",
+      "className": "ui-field pl-9",
       "variant": "default",
       "size": "default",
       "value": "text",
@@ -7932,20 +8121,20 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "fields-31",
+      "id": "fields-28",
       "category": "fields",
-      "name": "Field Type 31",
+      "name": "Field Type 28",
       "title": "Native textarea field",
       "description": "A form control styled directly on the page.",
       "kind": "textarea",
-      "className": "w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500",
+      "className": "ui-textarea ui-field",
       "variant": "default",
       "size": "default",
       "value": "textarea",
       "sources": [
         {
           "file": "resources/js/Pages/AcademicSupervisor/LogbookReview.tsx",
-          "line": 24,
+          "line": 42,
           "occurrences": 1,
           "pages": [
             {
@@ -7957,7 +8146,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Student/LogbookSubmission.tsx",
-          "line": 27,
+          "line": 28,
           "occurrences": 3,
           "pages": [
             {
@@ -7975,24 +8164,152 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 4
     },
     {
-      "id": "fields-32",
+      "id": "fields-29",
       "category": "fields",
-      "name": "Field Type 32",
+      "name": "Field Type 29",
       "title": "Native select field",
       "description": "A form control styled directly on the page.",
       "kind": "native-select",
-      "className": "w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500",
+      "className": "ui-field w-full px-3 py-2",
       "variant": "default",
       "size": "default",
       "value": "select",
       "sources": [
         {
           "file": "resources/js/Pages/AcademicSupervisor/StudentDetails.tsx",
-          "line": 830,
+          "line": 842,
           "occurrences": 1,
           "pages": [
             {
               "name": "PB Supervisor/StudentDetails",
+              "role": "PB Supervisor",
+              "href": null
+            }
+          ]
+        },
+        {
+          "file": "resources/js/Pages/Admin/CompanyRecord.tsx",
+          "line": 111,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "Admin/CompanyRecord",
+              "role": "Admin",
+              "href": null
+            }
+          ]
+        },
+        {
+          "file": "resources/js/Pages/Admin/StudentRecord.tsx",
+          "line": 126,
+          "occurrences": 2,
+          "pages": [
+            {
+              "name": "Admin/StudentRecord",
+              "role": "Admin",
+              "href": null
+            }
+          ]
+        },
+        {
+          "file": "resources/js/Pages/Student/ViewCompany.tsx",
+          "line": 47,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "Student/ViewCompany",
+              "role": "Student",
+              "href": null
+            }
+          ]
+        }
+      ],
+      "roles": [
+        "Admin",
+        "PB Supervisor",
+        "Student"
+      ],
+      "occurrences": 5
+    },
+    {
+      "id": "fields-30",
+      "category": "fields",
+      "name": "Field Type 30",
+      "title": "Native date field",
+      "description": "A form control styled directly on the page.",
+      "kind": "native-input",
+      "className": "ui-field w-full px-3 py-2.5 transition",
+      "variant": "default",
+      "size": "default",
+      "value": "date",
+      "sources": [
+        {
+          "file": "resources/js/Pages/AcademicSupervisor/StudentDetails.tsx",
+          "line": 890,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "PB Supervisor/StudentDetails",
+              "role": "PB Supervisor",
+              "href": null
+            }
+          ]
+        }
+      ],
+      "roles": [
+        "PB Supervisor"
+      ],
+      "occurrences": 1
+    },
+    {
+      "id": "fields-31",
+      "category": "fields",
+      "name": "Field Type 31",
+      "title": "Native textarea field",
+      "description": "A form control styled directly on the page.",
+      "kind": "textarea",
+      "className": "ui-textarea w-full px-3 py-2.5 transition",
+      "variant": "default",
+      "size": "default",
+      "value": "textarea",
+      "sources": [
+        {
+          "file": "resources/js/Pages/AcademicSupervisor/StudentDetails.tsx",
+          "line": 919,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "PB Supervisor/StudentDetails",
+              "role": "PB Supervisor",
+              "href": null
+            }
+          ]
+        }
+      ],
+      "roles": [
+        "PB Supervisor"
+      ],
+      "occurrences": 1
+    },
+    {
+      "id": "fields-32",
+      "category": "fields",
+      "name": "Field Type 32",
+      "title": "Native select field",
+      "description": "A form control styled directly on the page.",
+      "kind": "native-select",
+      "className": "ui-field h-10 px-3 sm:max-w-xs",
+      "variant": "default",
+      "size": "default",
+      "value": "select",
+      "sources": [
+        {
+          "file": "resources/js/Pages/AcademicSupervisor/Students.tsx",
+          "line": 40,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "PB Supervisor/Students",
               "role": "PB Supervisor",
               "href": null
             }
@@ -8008,29 +8325,29 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "id": "fields-33",
       "category": "fields",
       "name": "Field Type 33",
-      "title": "Native date field",
-      "description": "A form control styled directly on the page.",
-      "kind": "native-input",
-      "className": "w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm shadow-sm transition focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-600/10",
+      "title": "Shared input",
+      "description": "An existing shared form control. Page-specific overrides are listed separately.",
+      "kind": "input",
+      "className": "h-10 pl-9",
       "variant": "default",
       "size": "default",
-      "value": "date",
+      "value": "",
       "sources": [
         {
-          "file": "resources/js/Pages/AcademicSupervisor/StudentDetails.tsx",
-          "line": 878,
+          "file": "resources/js/Pages/Admin/Companies.tsx",
+          "line": 380,
           "occurrences": 1,
           "pages": [
             {
-              "name": "PB Supervisor/StudentDetails",
-              "role": "PB Supervisor",
-              "href": null
+              "name": "Admin/Companies",
+              "role": "Admin",
+              "href": "/admin/companies"
             }
           ]
         }
       ],
       "roles": [
-        "PB Supervisor"
+        "Admin"
       ],
       "occurrences": 1
     },
@@ -8038,185 +8355,40 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "id": "fields-34",
       "category": "fields",
       "name": "Field Type 34",
-      "title": "Native textarea field",
+      "title": "Native select field",
       "description": "A form control styled directly on the page.",
-      "kind": "textarea",
-      "className": "w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm shadow-sm transition focus:border-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-600/10",
+      "kind": "native-select",
+      "className": "ui-field h-10 w-full",
       "variant": "default",
       "size": "default",
-      "value": "textarea",
+      "value": "select",
       "sources": [
         {
-          "file": "resources/js/Pages/AcademicSupervisor/StudentDetails.tsx",
-          "line": 907,
-          "occurrences": 1,
+          "file": "resources/js/Pages/Admin/Companies.tsx",
+          "line": 392,
+          "occurrences": 2,
           "pages": [
             {
-              "name": "PB Supervisor/StudentDetails",
-              "role": "PB Supervisor",
-              "href": null
+              "name": "Admin/Companies",
+              "role": "Admin",
+              "href": "/admin/companies"
             }
           ]
         }
       ],
       "roles": [
-        "PB Supervisor"
+        "Admin"
       ],
-      "occurrences": 1
+      "occurrences": 2
     },
     {
       "id": "fields-35",
       "category": "fields",
       "name": "Field Type 35",
-      "title": "Shared input",
-      "description": "An existing shared form control. Page-specific overrides are listed separately.",
-      "kind": "input",
-      "className": "bg-white pl-9",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/AcademicSupervisor/Students.tsx",
-          "line": 38,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "PB Supervisor/Students",
-              "role": "PB Supervisor",
-              "href": null
-            }
-          ]
-        },
-        {
-          "file": "resources/js/Pages/Admin/StudentRecords.tsx",
-          "line": 16,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Admin/StudentRecords",
-              "role": "Admin",
-              "href": "/admin/students"
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Admin",
-        "PB Supervisor"
-      ],
-      "occurrences": 2
-    },
-    {
-      "id": "fields-36",
-      "category": "fields",
-      "name": "Field Type 36",
-      "title": "Native select field",
-      "description": "A form control styled directly on the page.",
-      "kind": "native-select",
-      "className": "h-10 rounded-md border bg-white px-3 text-sm sm:max-w-xs",
-      "variant": "default",
-      "size": "default",
-      "value": "select",
-      "sources": [
-        {
-          "file": "resources/js/Pages/AcademicSupervisor/Students.tsx",
-          "line": 39,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "PB Supervisor/Students",
-              "role": "PB Supervisor",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "PB Supervisor"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "fields-37",
-      "category": "fields",
-      "name": "Field Type 37",
-      "title": "Shared input",
-      "description": "An existing shared form control. Page-specific overrides are listed separately.",
-      "kind": "input",
-      "className": "pl-9 pr-9 shadow-none focus-visible:ring-transparent",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/Admin/Companies.tsx",
-          "line": 373,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Admin/Companies",
-              "role": "Admin",
-              "href": "/admin/companies"
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Admin"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "fields-38",
-      "category": "fields",
-      "name": "Field Type 38",
-      "title": "Native select field",
-      "description": "A form control styled directly on the page.",
-      "kind": "native-select",
-      "className": "rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm",
-      "variant": "default",
-      "size": "default",
-      "value": "select",
-      "sources": [
-        {
-          "file": "resources/js/Pages/Admin/Companies.tsx",
-          "line": 381,
-          "occurrences": 2,
-          "pages": [
-            {
-              "name": "Admin/Companies",
-              "role": "Admin",
-              "href": "/admin/companies"
-            }
-          ]
-        },
-        {
-          "file": "resources/js/Pages/Admin/UnplacedStudents.tsx",
-          "line": 17,
-          "occurrences": 2,
-          "pages": [
-            {
-              "name": "Admin/UnplacedStudents",
-              "role": "Admin",
-              "href": "/admin/unplaced-students"
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Admin"
-      ],
-      "occurrences": 4
-    },
-    {
-      "id": "fields-39",
-      "category": "fields",
-      "name": "Field Type 39",
       "title": "Native textarea field",
       "description": "A form control styled directly on the page.",
       "kind": "textarea",
-      "className": "min-h-[100px] w-full rounded-md border px-3 py-2 text-sm",
+      "className": "ui-textarea min-h-[100px] w-full px-3 py-2",
       "variant": "default",
       "size": "default",
       "value": "textarea",
@@ -8240,93 +8412,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 2
     },
     {
-      "id": "fields-40",
+      "id": "fields-36",
       "category": "fields",
-      "name": "Field Type 40",
-      "title": "Native select field",
-      "description": "A form control styled directly on the page.",
-      "kind": "native-select",
-      "className": "w-full rounded-md border px-3 py-2 text-sm",
-      "variant": "default",
-      "size": "default",
-      "value": "select",
-      "sources": [
-        {
-          "file": "resources/js/Pages/Admin/CompanyRecord.tsx",
-          "line": 111,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Admin/CompanyRecord",
-              "role": "Admin",
-              "href": null
-            }
-          ]
-        },
-        {
-          "file": "resources/js/Pages/Admin/StudentRecord.tsx",
-          "line": 125,
-          "occurrences": 2,
-          "pages": [
-            {
-              "name": "Admin/StudentRecord",
-              "role": "Admin",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Admin"
-      ],
-      "occurrences": 3
-    },
-    {
-      "id": "fields-41",
-      "category": "fields",
-      "name": "Field Type 41",
-      "title": "Native textarea field",
-      "description": "A form control styled directly on the page.",
-      "kind": "textarea",
-      "className": "w-full rounded-md border px-3 py-2 text-sm",
-      "variant": "default",
-      "size": "default",
-      "value": "textarea",
-      "sources": [
-        {
-          "file": "resources/js/Pages/Admin/CompanyRecord.tsx",
-          "line": 112,
-          "occurrences": 2,
-          "pages": [
-            {
-              "name": "Admin/CompanyRecord",
-              "role": "Admin",
-              "href": null
-            }
-          ]
-        },
-        {
-          "file": "resources/js/Pages/Admin/StudentRecord.tsx",
-          "line": 137,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Admin/StudentRecord",
-              "role": "Admin",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Admin"
-      ],
-      "occurrences": 3
-    },
-    {
-      "id": "fields-42",
-      "category": "fields",
-      "name": "Field Type 42",
+      "name": "Field Type 36",
       "title": "Native checkbox field",
       "description": "A form control styled directly on the page.",
       "kind": "native-checkbox",
@@ -8361,7 +8449,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Company/Quotas.tsx",
-          "line": 295,
+          "line": 304,
           "occurrences": 1,
           "pages": [
             {
@@ -8373,7 +8461,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Student/LogbookSubmission.tsx",
-          "line": 30,
+          "line": 31,
           "occurrences": 1,
           "pages": [
             {
@@ -8393,9 +8481,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 8
     },
     {
-      "id": "fields-43",
+      "id": "fields-37",
       "category": "fields",
-      "name": "Field Type 43",
+      "name": "Field Type 37",
       "title": "Shared switch",
       "description": "An existing shared form control. Page-specific overrides are listed separately.",
       "kind": "switch",
@@ -8418,7 +8506,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Company/Quotas.tsx",
-          "line": 537,
+          "line": 546,
           "occurrences": 1,
           "pages": [
             {
@@ -8436,13 +8524,13 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 2
     },
     {
-      "id": "fields-44",
+      "id": "fields-38",
       "category": "fields",
-      "name": "Field Type 44",
+      "name": "Field Type 38",
       "title": "Native select field",
       "description": "A form control styled directly on the page.",
       "kind": "native-select",
-      "className": "h-10 min-w-[190px] rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-800 shadow-sm outline-none transition focus:border-blue-300 focus:ring-2 focus:ring-blue-100",
+      "className": "ui-field h-10 min-w-[190px] px-3 text-slate-800 outline-none transition",
       "variant": "default",
       "size": "default",
       "value": "select",
@@ -8466,20 +8554,20 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "fields-45",
+      "id": "fields-39",
       "category": "fields",
-      "name": "Field Type 45",
+      "name": "Field Type 39",
       "title": "Native number field",
       "description": "A form control styled directly on the page.",
       "kind": "native-input",
-      "className": "w-20 rounded-md border border-indigo-200 bg-indigo-50/50 px-2 py-1.5 text-right text-sm font-semibold tabular-nums text-slate-800 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/15",
+      "className": "ui-field w-20 bg-blue-50/50 px-2 py-1.5 text-right font-semibold tabular-nums text-slate-800",
       "variant": "default",
       "size": "default",
       "value": "number",
       "sources": [
         {
           "file": "resources/js/Pages/Admin/Evaluations.tsx",
-          "line": 308,
+          "line": 311,
           "occurrences": 1,
           "pages": [
             {
@@ -8496,20 +8584,20 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "fields-46",
+      "id": "fields-40",
       "category": "fields",
-      "name": "Field Type 46",
+      "name": "Field Type 40",
       "title": "Shared input",
       "description": "An existing shared form control. Page-specific overrides are listed separately.",
       "kind": "input",
-      "className": "h-9 w-[250px] pl-8 bg-muted text-sm focus-visible:ring-0 shadow-none border-none rounded-full mb-4",
+      "className": "h-9 w-[250px] pl-8 bg-muted border-none mb-4",
       "variant": "default",
       "size": "default",
       "value": "",
       "sources": [
         {
           "file": "resources/js/Pages/Admin/Placements.tsx",
-          "line": 92,
+          "line": 93,
           "occurrences": 1,
           "pages": [
             {
@@ -8526,13 +8614,13 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "fields-47",
+      "id": "fields-41",
       "category": "fields",
-      "name": "Field Type 47",
+      "name": "Field Type 41",
       "title": "Shared input",
       "description": "An existing shared form control. Page-specific overrides are listed separately.",
       "kind": "input",
-      "className": "bg-muted/50 focus-visible:ring-0 focus-visible:ring-offset-0",
+      "className": "bg-muted/50",
       "variant": "default",
       "size": "default",
       "value": "",
@@ -8556,13 +8644,13 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 3
     },
     {
-      "id": "fields-48",
+      "id": "fields-42",
       "category": "fields",
-      "name": "Field Type 48",
+      "name": "Field Type 42",
       "title": "Native text field",
       "description": "A form control styled directly on the page.",
       "kind": "native-input",
-      "className": "w-full min-w-48 rounded-lg border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm",
+      "className": "ui-field w-full min-w-48 py-2 pl-9 pr-3",
       "variant": "default",
       "size": "default",
       "value": "text",
@@ -8586,9 +8674,52 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "fields-49",
+      "id": "fields-43",
       "category": "fields",
-      "name": "Field Type 49",
+      "name": "Field Type 43",
+      "title": "Native select field",
+      "description": "A form control styled directly on the page.",
+      "kind": "native-select",
+      "className": "ui-field px-3 py-2",
+      "variant": "default",
+      "size": "default",
+      "value": "select",
+      "sources": [
+        {
+          "file": "resources/js/Pages/Admin/UnplacedStudents.tsx",
+          "line": 17,
+          "occurrences": 2,
+          "pages": [
+            {
+              "name": "Admin/UnplacedStudents",
+              "role": "Admin",
+              "href": "/admin/unplaced-students"
+            }
+          ]
+        },
+        {
+          "file": "resources/js/Pages/Company/Profile.tsx",
+          "line": 249,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "Company/Profile",
+              "role": "Company",
+              "href": null
+            }
+          ]
+        }
+      ],
+      "roles": [
+        "Admin",
+        "Company"
+      ],
+      "occurrences": 3
+    },
+    {
+      "id": "fields-44",
+      "category": "fields",
+      "name": "Field Type 44",
       "title": "Account text input",
       "description": "An existing shared form control. Page-specific overrides are listed separately.",
       "kind": "text-input",
@@ -8658,13 +8789,13 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 12
     },
     {
-      "id": "fields-50",
+      "id": "fields-45",
       "category": "fields",
-      "name": "Field Type 50",
+      "name": "Field Type 45",
       "title": "Native select field",
       "description": "A form control styled directly on the page.",
       "kind": "native-select",
-      "className": "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500",
+      "className": "ui-field mt-1 block w-full",
       "variant": "default",
       "size": "default",
       "value": "select",
@@ -8688,13 +8819,13 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "fields-51",
+      "id": "fields-46",
       "category": "fields",
-      "name": "Field Type 51",
+      "name": "Field Type 46",
       "title": "Native text field",
       "description": "A form control styled directly on the page.",
       "kind": "native-input",
-      "className": "mt-2 w-full rounded-md border px-3 py-2 text-sm",
+      "className": "ui-field mt-2 w-full px-3 py-2",
       "variant": "default",
       "size": "default",
       "value": "text",
@@ -8731,20 +8862,20 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 2
     },
     {
-      "id": "fields-52",
+      "id": "fields-47",
       "category": "fields",
-      "name": "Field Type 52",
+      "name": "Field Type 47",
       "title": "Native datetime-local field",
       "description": "A form control styled directly on the page.",
       "kind": "native-input",
-      "className": "w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring",
+      "className": "ui-field w-full bg-background px-3 py-2",
       "variant": "default",
       "size": "default",
       "value": "datetime-local",
       "sources": [
         {
           "file": "resources/js/Pages/Company/Applications/Show.tsx",
-          "line": 313,
+          "line": 315,
           "occurrences": 1,
           "pages": [
             {
@@ -8761,9 +8892,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "fields-53",
+      "id": "fields-48",
       "category": "fields",
-      "name": "Field Type 53",
+      "name": "Field Type 48",
       "title": "Shared calendar",
       "description": "An existing shared form control. Page-specific overrides are listed separately.",
       "kind": "calendar",
@@ -8774,7 +8905,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "sources": [
         {
           "file": "resources/js/Pages/Company/Applications/Show.tsx",
-          "line": 447,
+          "line": 449,
           "occurrences": 1,
           "pages": [
             {
@@ -8791,20 +8922,20 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "fields-54",
+      "id": "fields-49",
       "category": "fields",
-      "name": "Field Type 54",
+      "name": "Field Type 49",
       "title": "Native textarea field",
       "description": "A form control styled directly on the page.",
       "kind": "textarea",
-      "className": "min-h-[100px] rounded-md border px-3 py-2 text-sm",
+      "className": "ui-textarea min-h-[100px] px-3 py-2",
       "variant": "default",
       "size": "default",
       "value": "textarea",
       "sources": [
         {
           "file": "resources/js/Pages/Company/Profile.tsx",
-          "line": 255,
+          "line": 241,
           "occurrences": 2,
           "pages": [
             {
@@ -8821,50 +8952,20 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 2
     },
     {
-      "id": "fields-55",
+      "id": "fields-50",
       "category": "fields",
-      "name": "Field Type 55",
+      "name": "Field Type 50",
       "title": "Native select field",
       "description": "A form control styled directly on the page.",
       "kind": "native-select",
-      "className": "rounded-md border px-3 py-2",
-      "variant": "default",
-      "size": "default",
-      "value": "select",
-      "sources": [
-        {
-          "file": "resources/js/Pages/Company/Profile.tsx",
-          "line": 263,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Company/Profile",
-              "role": "Company",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Company"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "fields-56",
-      "category": "fields",
-      "name": "Field Type 56",
-      "title": "Native select field",
-      "description": "A form control styled directly on the page.",
-      "kind": "native-select",
-      "className": "h-10 w-full rounded-md border border-input bg-background px-3 text-sm shadow-none disabled:opacity-60",
+      "className": "ui-field h-10 w-full bg-background px-3 disabled:opacity-60",
       "variant": "default",
       "size": "default",
       "value": "select",
       "sources": [
         {
           "file": "resources/js/Pages/Company/Quotas.tsx",
-          "line": 281,
+          "line": 288,
           "occurrences": 1,
           "pages": [
             {
@@ -8881,63 +8982,20 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "fields-57",
+      "id": "fields-51",
       "category": "fields",
-      "name": "Field Type 57",
-      "title": "Shared input",
-      "description": "An existing shared form control. Page-specific overrides are listed separately.",
-      "kind": "input",
-      "className": "h-9 w-[250px] pl-8 shadow-none text-sm rounded-full bg-muted border-none focus-visible:ring-transparent",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/Company/Quotas.tsx",
-          "line": 635,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Company/Quotas",
-              "role": "Company",
-              "href": null
-            }
-          ]
-        },
-        {
-          "file": "resources/js/Pages/Student/Companies.tsx",
-          "line": 153,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Student/Companies",
-              "role": "Student",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Company",
-        "Student"
-      ],
-      "occurrences": 2
-    },
-    {
-      "id": "fields-58",
-      "category": "fields",
-      "name": "Field Type 58",
+      "name": "Field Type 51",
       "title": "Native text field",
       "description": "A form control styled directly on the page.",
       "kind": "native-input",
-      "className": "w-full rounded-lg border px-3 py-2 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:opacity-60",
+      "className": "ui-field w-full px-3 py-2 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:opacity-60",
       "variant": "default",
       "size": "default",
       "value": "text",
       "sources": [
         {
           "file": "resources/js/Pages/FinalInternshipReport.tsx",
-          "line": 122,
+          "line": 134,
           "occurrences": 1,
           "pages": [
             {
@@ -8954,20 +9012,20 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "fields-59",
+      "id": "fields-52",
       "category": "fields",
-      "name": "Field Type 59",
+      "name": "Field Type 52",
       "title": "Native file field",
       "description": "A form control styled directly on the page.",
       "kind": "file",
-      "className": "w-full rounded-lg border px-3 py-2 file:mr-3 file:rounded-md file:border-0 file:bg-indigo-50 file:px-3 file:py-2 file:font-semibold file:text-indigo-700 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:opacity-60",
+      "className": "ui-field w-full px-3 py-2 file:mr-3 file:rounded-md file:border-0 file:bg-blue-50 file:px-3 file:py-2 file:font-semibold file:text-primary disabled:cursor-not-allowed disabled:bg-slate-100 disabled:opacity-60",
       "variant": "default",
       "size": "default",
       "value": "file",
       "sources": [
         {
           "file": "resources/js/Pages/FinalInternshipReport.tsx",
-          "line": 123,
+          "line": 135,
           "occurrences": 1,
           "pages": [
             {
@@ -8984,20 +9042,20 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "fields-60",
+      "id": "fields-53",
       "category": "fields",
-      "name": "Field Type 60",
+      "name": "Field Type 53",
       "title": "Native select field",
       "description": "A form control styled directly on the page.",
       "kind": "native-select",
-      "className": "block w-full min-w-0 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm leading-6 text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/15 mt-3",
+      "className": "ui-field block mt-3",
       "variant": "default",
       "size": "default",
       "value": "select",
       "sources": [
         {
           "file": "resources/js/Pages/FinalInternshipReport.tsx",
-          "line": 138,
+          "line": 150,
           "occurrences": 1,
           "pages": [
             {
@@ -9014,20 +9072,20 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "fields-61",
+      "id": "fields-54",
       "category": "fields",
-      "name": "Field Type 61",
+      "name": "Field Type 54",
       "title": "Native textarea field",
       "description": "A form control styled directly on the page.",
       "kind": "textarea",
-      "className": "block w-full min-w-0 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm leading-6 text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/15 mt-3 resize-y",
+      "className": "ui-textarea ui-field block mt-3 resize-y",
       "variant": "default",
       "size": "default",
       "value": "textarea",
       "sources": [
         {
           "file": "resources/js/Pages/FinalInternshipReport.tsx",
-          "line": 138,
+          "line": 150,
           "occurrences": 1,
           "pages": [
             {
@@ -9039,7 +9097,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Supervisor/Evaluation.tsx",
-          "line": 38,
+          "line": 44,
           "occurrences": 1,
           "pages": [
             {
@@ -9056,9 +9114,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 2
     },
     {
-      "id": "fields-62",
+      "id": "fields-55",
       "category": "fields",
-      "name": "Field Type 62",
+      "name": "Field Type 55",
       "title": "Native radio field",
       "description": "A form control styled directly on the page.",
       "kind": "native-input",
@@ -9086,13 +9144,13 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "fields-63",
+      "id": "fields-56",
       "category": "fields",
-      "name": "Field Type 63",
+      "name": "Field Type 56",
       "title": "Native textarea field",
       "description": "A form control styled directly on the page.",
       "kind": "textarea",
-      "className": "w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-700 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500",
+      "className": "ui-textarea w-full px-4 py-3 text-slate-700",
       "variant": "default",
       "size": "default",
       "value": "textarea",
@@ -9116,9 +9174,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "fields-64",
+      "id": "fields-57",
       "category": "fields",
-      "name": "Field Type 64",
+      "name": "Field Type 57",
       "title": "Account text input",
       "description": "An existing shared form control. Page-specific overrides are listed separately.",
       "kind": "text-input",
@@ -9140,9 +9198,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "fields-65",
+      "id": "fields-58",
       "category": "fields",
-      "name": "Field Type 65",
+      "name": "Field Type 58",
       "title": "Account text input",
       "description": "An existing shared form control. Page-specific overrides are listed separately.",
       "kind": "text-input",
@@ -9164,9 +9222,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 2
     },
     {
-      "id": "fields-66",
+      "id": "fields-59",
       "category": "fields",
-      "name": "Field Type 66",
+      "name": "Field Type 59",
       "title": "Shared calendar",
       "description": "An existing shared form control. Page-specific overrides are listed separately.",
       "kind": "calendar",
@@ -9177,7 +9235,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "sources": [
         {
           "file": "resources/js/Pages/Student/ApplicationTracking.tsx",
-          "line": 87,
+          "line": 88,
           "occurrences": 1,
           "pages": [
             {
@@ -9194,13 +9252,13 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "fields-67",
+      "id": "fields-60",
       "category": "fields",
-      "name": "Field Type 67",
+      "name": "Field Type 60",
       "title": "Native checkbox field",
       "description": "A form control styled directly on the page.",
       "kind": "native-checkbox",
-      "className": "text-blue-600 border-gray-300 rounded focus:ring-blue-500",
+      "className": "text-blue-600 border-gray-300 rounded focus-visible:ring-primary/25",
       "variant": "default",
       "size": "default",
       "value": "checkbox",
@@ -9224,20 +9282,20 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 2
     },
     {
-      "id": "fields-68",
+      "id": "fields-61",
       "category": "fields",
-      "name": "Field Type 68",
+      "name": "Field Type 61",
       "title": "Native file field",
       "description": "A form control styled directly on the page.",
       "kind": "file",
-      "className": "block w-full rounded-lg border border-slate-300 p-3 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-sm",
+      "className": "ui-field block w-full p-3 file:mr-3 file:rounded-md file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-sm",
       "variant": "default",
       "size": "default",
       "value": "file",
       "sources": [
         {
           "file": "resources/js/Pages/Student/LogbookSubmission.tsx",
-          "line": 31,
+          "line": 32,
           "occurrences": 1,
           "pages": [
             {
@@ -9254,20 +9312,20 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "fields-69",
+      "id": "fields-62",
       "category": "fields",
-      "name": "Field Type 69",
+      "name": "Field Type 62",
       "title": "Shared input",
       "description": "An existing shared form control. Page-specific overrides are listed separately.",
       "kind": "input",
-      "className": "shadow-none pt-1.5",
+      "className": "pt-1.5",
       "variant": "default",
       "size": "default",
       "value": "",
       "sources": [
         {
           "file": "resources/js/Pages/Student/Profile.tsx",
-          "line": 839,
+          "line": 840,
           "occurrences": 4,
           "pages": [
             {
@@ -9284,9 +9342,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 4
     },
     {
-      "id": "fields-70",
+      "id": "fields-63",
       "category": "fields",
-      "name": "Field Type 70",
+      "name": "Field Type 63",
       "title": "Shared textarea",
       "description": "An existing shared form control. Page-specific overrides are listed separately.",
       "kind": "textarea",
@@ -9297,7 +9355,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "sources": [
         {
           "file": "resources/js/Pages/Student/Profile.tsx",
-          "line": 1134,
+          "line": 1135,
           "occurrences": 8,
           "pages": [
             {
@@ -9314,20 +9372,20 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 8
     },
     {
-      "id": "fields-71",
+      "id": "fields-64",
       "category": "fields",
-      "name": "Field Type 71",
+      "name": "Field Type 64",
       "title": "Native select field",
       "description": "A form control styled directly on the page.",
       "kind": "native-select",
-      "className": "h-10 w-full rounded-md border border-input bg-background px-3 text-sm",
+      "className": "ui-field h-10 w-full bg-background px-3",
       "variant": "default",
       "size": "default",
       "value": "select",
       "sources": [
         {
           "file": "resources/js/Pages/Student/Profile.tsx",
-          "line": 1174,
+          "line": 1175,
           "occurrences": 1,
           "pages": [
             {
@@ -9344,9 +9402,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "fields-72",
+      "id": "fields-65",
       "category": "fields",
-      "name": "Field Type 72",
+      "name": "Field Type 65",
       "title": "Shared input",
       "description": "An existing shared form control. Page-specific overrides are listed separately.",
       "kind": "input",
@@ -9357,7 +9415,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "sources": [
         {
           "file": "resources/js/Pages/Student/Profile.tsx",
-          "line": 3028,
+          "line": 3029,
           "occurrences": 1,
           "pages": [
             {
@@ -9374,13 +9432,13 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "fields-73",
+      "id": "fields-66",
       "category": "fields",
-      "name": "Field Type 73",
+      "name": "Field Type 66",
       "title": "Native textarea field",
       "description": "A form control styled directly on the page.",
       "kind": "textarea",
-      "className": "mt-2 h-[150px] w-full rounded-md border px-3 py-2 text-sm",
+      "className": "ui-textarea mt-2 h-[150px] w-full px-3 py-2",
       "variant": "default",
       "size": "default",
       "value": "textarea",
@@ -9404,9 +9462,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "fields-74",
+      "id": "fields-67",
       "category": "fields",
-      "name": "Field Type 74",
+      "name": "Field Type 67",
       "title": "Native radio field",
       "description": "A form control styled directly on the page.",
       "kind": "native-input",
@@ -9434,13 +9492,13 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "fields-75",
+      "id": "fields-68",
       "category": "fields",
-      "name": "Field Type 75",
+      "name": "Field Type 68",
       "title": "Native text field",
       "description": "A form control styled directly on the page.",
       "kind": "native-input",
-      "className": "mt-3 w-full rounded-md border px-3 py-2 text-sm",
+      "className": "ui-field mt-3 w-full px-3 py-2",
       "variant": "default",
       "size": "default",
       "value": "text",
@@ -9464,13 +9522,13 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "fields-76",
+      "id": "fields-69",
       "category": "fields",
-      "name": "Field Type 76",
+      "name": "Field Type 69",
       "title": "Native select field",
       "description": "A form control styled directly on the page.",
       "kind": "native-select",
-      "className": "w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500 mt-2",
+      "className": "ui-field mt-2",
       "variant": "default",
       "size": "default",
       "value": "select",
@@ -9507,7 +9565,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "sources": [
         {
           "file": "resources/js/Components/Applications/columns.tsx",
-          "line": 47,
+          "line": 48,
           "occurrences": 1,
           "pages": [
             {
@@ -9537,7 +9595,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "sources": [
         {
           "file": "resources/js/Components/Applications/columns.tsx",
-          "line": 53,
+          "line": 54,
           "occurrences": 1,
           "pages": [
             {
@@ -9554,102 +9612,20 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "badges-3",
-      "category": "badges",
-      "name": "Badge Type 3",
-      "title": "Custom status badge",
-      "description": "A page-specific pill or label. Colours and corner styles are taken from its source.",
-      "kind": "native-badge",
-      "className": "inline-flex shrink-0 items-center rounded-md border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold uppercase tracking-wide tabular-nums text-slate-500",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Components/Evaluations/RubricEditor.tsx",
-          "line": 136,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Admin/Evaluations",
-              "role": "Admin",
-              "href": "/admin/evaluations"
-            },
-            {
-              "name": "FinalInternshipReport",
-              "role": "Shared",
-              "href": null
-            },
-            {
-              "name": "Supervisor/Evaluation",
-              "role": "Shared",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Admin",
-        "Shared"
-      ],
-      "occurrences": 1
-    },
-    {
       "id": "badges-4",
       "category": "badges",
       "name": "Badge Type 4",
-      "title": "Custom status badge",
-      "description": "A page-specific pill or label. Colours and corner styles are taken from its source.",
-      "kind": "native-badge",
-      "className": "ml-auto rounded-md bg-slate-100 px-2.5 py-1.5 text-xs font-semibold tabular-nums text-slate-600",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Components/Evaluations/RubricEditor.tsx",
-          "line": 140,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Admin/Evaluations",
-              "role": "Admin",
-              "href": "/admin/evaluations"
-            },
-            {
-              "name": "FinalInternshipReport",
-              "role": "Shared",
-              "href": null
-            },
-            {
-              "name": "Supervisor/Evaluation",
-              "role": "Shared",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Admin",
-        "Shared"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "badges-5",
-      "category": "badges",
-      "name": "Badge Type 5",
       "title": "Shared badge · secondary",
       "description": "The shared badge primitive, including any page-specific colour overrides.",
       "kind": "badge",
-      "className": "text-[11px] font-normal px-2 py-0.5",
+      "className": "text-[11px]",
       "variant": "secondary",
       "size": "default",
       "value": "",
       "sources": [
         {
           "file": "resources/js/Components/QuotaCard.tsx",
-          "line": 88,
+          "line": 95,
           "occurrences": 1,
           "pages": [
             {
@@ -9672,459 +9648,13 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "badges-6",
+      "id": "badges-5",
       "category": "badges",
-      "name": "Badge Type 6",
-      "title": "Custom status badge",
-      "description": "A page-specific pill or label. Colours and corner styles are taken from its source.",
-      "kind": "native-badge",
-      "className": "px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-50 text-red-700",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Components/company-data-table.tsx",
-          "line": 97,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Admin/Companies",
-              "role": "Admin",
-              "href": "/admin/companies"
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Admin"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "badges-7",
-      "category": "badges",
-      "name": "Badge Type 7",
-      "title": "Custom status badge",
-      "description": "A page-specific pill or label. Colours and corner styles are taken from its source.",
-      "kind": "native-badge",
-      "className": "px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Components/company-data-table.tsx",
-          "line": 97,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Admin/Companies",
-              "role": "Admin",
-              "href": "/admin/companies"
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Admin"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "badges-8",
-      "category": "badges",
-      "name": "Badge Type 8",
-      "title": "Custom status badge",
-      "description": "A page-specific pill or label. Colours and corner styles are taken from its source.",
-      "kind": "native-badge",
-      "className": "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-tight bg-red-100 text-red-800",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Components/company-data-table.tsx",
-          "line": 103,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Admin/Companies",
-              "role": "Admin",
-              "href": "/admin/companies"
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Admin"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "badges-9",
-      "category": "badges",
-      "name": "Badge Type 9",
-      "title": "Custom status badge",
-      "description": "A page-specific pill or label. Colours and corner styles are taken from its source.",
-      "kind": "native-badge",
-      "className": "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-tight bg-emerald-100 text-emerald-800",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Components/company-data-table.tsx",
-          "line": 103,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Admin/Companies",
-              "role": "Admin",
-              "href": "/admin/companies"
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Admin"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "badges-10",
-      "category": "badges",
-      "name": "Badge Type 10",
-      "title": "Custom status badge",
-      "description": "A page-specific pill or label. Colours and corner styles are taken from its source.",
-      "kind": "native-badge",
-      "className": "mt-3 inline-flex rounded-full px-2.5 py-1 text-xs font-semibold bg-amber-50 text-amber-800",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/AcademicSupervisor/Dashboard.tsx",
-          "line": 63,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "PB Supervisor/Dashboard",
-              "role": "PB Supervisor",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "PB Supervisor"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "badges-11",
-      "category": "badges",
-      "name": "Badge Type 11",
-      "title": "Custom status badge",
-      "description": "A page-specific pill or label. Colours and corner styles are taken from its source.",
-      "kind": "native-badge",
-      "className": "mt-3 inline-flex rounded-full px-2.5 py-1 text-xs font-semibold bg-emerald-50 text-emerald-700",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/AcademicSupervisor/Dashboard.tsx",
-          "line": 63,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "PB Supervisor/Dashboard",
-              "role": "PB Supervisor",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "PB Supervisor"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "badges-12",
-      "category": "badges",
-      "name": "Badge Type 12",
-      "title": "Custom status badge",
-      "description": "A page-specific pill or label. Colours and corner styles are taken from its source.",
-      "kind": "native-badge",
-      "className": "rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/AcademicSupervisor/Dashboard.tsx",
-          "line": 89,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "PB Supervisor/Dashboard",
-              "role": "PB Supervisor",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "PB Supervisor"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "badges-13",
-      "category": "badges",
-      "name": "Badge Type 13",
-      "title": "Custom status badge",
-      "description": "A page-specific pill or label. Colours and corner styles are taken from its source.",
-      "kind": "native-badge",
-      "className": "w-fit rounded-full px-2.5 py-1 text-xs font-medium bg-amber-50 text-amber-700",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/AcademicSupervisor/Logbook.tsx",
-          "line": 28,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "PB Supervisor/Logbook",
-              "role": "PB Supervisor",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "PB Supervisor"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "badges-14",
-      "category": "badges",
-      "name": "Badge Type 14",
-      "title": "Custom status badge",
-      "description": "A page-specific pill or label. Colours and corner styles are taken from its source.",
-      "kind": "native-badge",
-      "className": "w-fit rounded-full px-2.5 py-1 text-xs font-medium bg-emerald-50 text-emerald-700",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/AcademicSupervisor/Logbook.tsx",
-          "line": 28,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "PB Supervisor/Logbook",
-              "role": "PB Supervisor",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "PB Supervisor"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "badges-15",
-      "category": "badges",
-      "name": "Badge Type 15",
-      "title": "Custom status badge",
-      "description": "A page-specific pill or label. Colours and corner styles are taken from its source.",
-      "kind": "native-badge",
-      "className": "w-fit rounded-full px-2.5 py-1 text-xs font-medium bg-rose-50 text-rose-700",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/AcademicSupervisor/Logbook.tsx",
-          "line": 28,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "PB Supervisor/Logbook",
-              "role": "PB Supervisor",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "PB Supervisor"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "badges-16",
-      "category": "badges",
-      "name": "Badge Type 16",
-      "title": "Custom status badge",
-      "description": "A page-specific pill or label. Colours and corner styles are taken from its source.",
-      "kind": "native-badge",
-      "className": "rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/AcademicSupervisor/LogbookReview.tsx",
-          "line": 19,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "PB Supervisor/LogbookReview",
-              "role": "PB Supervisor",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "PB Supervisor"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "badges-17",
-      "category": "badges",
-      "name": "Badge Type 17",
-      "title": "Custom status badge",
-      "description": "A page-specific pill or label. Colours and corner styles are taken from its source.",
-      "kind": "native-badge",
-      "className": "inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-medium text-white/90",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/AcademicSupervisor/StudentDetails.tsx",
-          "line": 397,
-          "occurrences": 3,
-          "pages": [
-            {
-              "name": "PB Supervisor/StudentDetails",
-              "role": "PB Supervisor",
-              "href": null
-            }
-          ]
-        },
-        {
-          "file": "resources/js/Pages/Admin/StudentRecord.tsx",
-          "line": 65,
-          "occurrences": 3,
-          "pages": [
-            {
-              "name": "Admin/StudentRecord",
-              "role": "Admin",
-              "href": null
-            }
-          ]
-        },
-        {
-          "file": "resources/js/Pages/IndustrySupervisor/StudentDetails.tsx",
-          "line": 268,
-          "occurrences": 3,
-          "pages": [
-            {
-              "name": "IndustrySupervisor/StudentDetails",
-              "role": "Industry Supervisor",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Admin",
-        "Industry Supervisor",
-        "PB Supervisor"
-      ],
-      "occurrences": 9
-    },
-    {
-      "id": "badges-18",
-      "category": "badges",
-      "name": "Badge Type 18",
-      "title": "Custom status badge",
-      "description": "A page-specific pill or label. Colours and corner styles are taken from its source.",
-      "kind": "native-badge",
-      "className": "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ring-1 bg-emerald-50 text-emerald-700 ring-emerald-200",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/AcademicSupervisor/StudentDetails.tsx",
-          "line": 583,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "PB Supervisor/StudentDetails",
-              "role": "PB Supervisor",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "PB Supervisor"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "badges-19",
-      "category": "badges",
-      "name": "Badge Type 19",
-      "title": "Custom status badge",
-      "description": "A page-specific pill or label. Colours and corner styles are taken from its source.",
-      "kind": "native-badge",
-      "className": "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ring-1 bg-amber-50 text-amber-700 ring-amber-200",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/AcademicSupervisor/StudentDetails.tsx",
-          "line": 583,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "PB Supervisor/StudentDetails",
-              "role": "PB Supervisor",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "PB Supervisor"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "badges-20",
-      "category": "badges",
-      "name": "Badge Type 20",
+      "name": "Badge Type 5",
       "title": "Shared badge · outline",
       "description": "The shared badge primitive, including any page-specific colour overrides.",
       "kind": "badge",
-      "className": "text-[10px] uppercase tracking-tighter font-semibold",
+      "className": "text-[10px] uppercase tracking-tighter",
       "variant": "outline",
       "size": "default",
       "value": "",
@@ -10148,9 +9678,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "badges-21",
+      "id": "badges-6",
       "category": "badges",
-      "name": "Badge Type 21",
+      "name": "Badge Type 6",
       "title": "Shared badge · secondary",
       "description": "The shared badge primitive, including any page-specific colour overrides.",
       "kind": "badge",
@@ -10184,6 +9714,18 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
           ]
         },
         {
+          "file": "resources/js/Pages/Student/ApplicationTracking.tsx",
+          "line": 154,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "Student/ApplicationTracking",
+              "role": "Student",
+              "href": null
+            }
+          ]
+        },
+        {
           "file": "resources/js/Pages/Student/ViewCompany.tsx",
           "line": 38,
           "occurrences": 3,
@@ -10201,16 +9743,16 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         "Company",
         "Student"
       ],
-      "occurrences": 6
+      "occurrences": 7
     },
     {
-      "id": "badges-22",
+      "id": "badges-7",
       "category": "badges",
-      "name": "Badge Type 22",
+      "name": "Badge Type 7",
       "title": "Shared badge · outline",
       "description": "The shared badge primitive, including any page-specific colour overrides.",
       "kind": "badge",
-      "className": "border-emerald-200 bg-emerald-50 text-emerald-700",
+      "className": "ui-badge-success",
       "variant": "outline",
       "size": "default",
       "value": "",
@@ -10234,13 +9776,13 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "badges-23",
+      "id": "badges-8",
       "category": "badges",
-      "name": "Badge Type 23",
+      "name": "Badge Type 8",
       "title": "Shared badge · outline",
       "description": "The shared badge primitive, including any page-specific colour overrides.",
       "kind": "badge",
-      "className": "gap-1 py-1",
+      "className": "gap-1",
       "variant": "outline",
       "size": "default",
       "value": "",
@@ -10264,9 +9806,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "badges-24",
+      "id": "badges-9",
       "category": "badges",
-      "name": "Badge Type 24",
+      "name": "Badge Type 9",
       "title": "Custom status badge",
       "description": "A page-specific pill or label. Colours and corner styles are taken from its source.",
       "kind": "native-badge",
@@ -10294,309 +9836,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "badges-25",
+      "id": "badges-10",
       "category": "badges",
-      "name": "Badge Type 25",
-      "title": "Custom status badge",
-      "description": "A page-specific pill or label. Colours and corner styles are taken from its source.",
-      "kind": "native-badge",
-      "className": "inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/Admin/Dashboard.tsx",
-          "line": 203,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Admin/Dashboard",
-              "role": "Admin",
-              "href": "/admin/dashboard"
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Admin"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "badges-26",
-      "category": "badges",
-      "name": "Badge Type 26",
-      "title": "Custom status badge",
-      "description": "A page-specific pill or label. Colours and corner styles are taken from its source.",
-      "kind": "native-badge",
-      "className": "rounded-full px-2 py-0.5 text-xs font-medium bg-rose-50 text-rose-700",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/Admin/Dashboard.tsx",
-          "line": 310,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Admin/Dashboard",
-              "role": "Admin",
-              "href": "/admin/dashboard"
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Admin"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "badges-27",
-      "category": "badges",
-      "name": "Badge Type 27",
-      "title": "Custom status badge",
-      "description": "A page-specific pill or label. Colours and corner styles are taken from its source.",
-      "kind": "native-badge",
-      "className": "rounded-full px-2 py-0.5 text-xs font-medium bg-amber-50 text-amber-800",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/Admin/Dashboard.tsx",
-          "line": 310,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Admin/Dashboard",
-              "role": "Admin",
-              "href": "/admin/dashboard"
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Admin"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "badges-28",
-      "category": "badges",
-      "name": "Badge Type 28",
-      "title": "Custom status badge",
-      "description": "A page-specific pill or label. Colours and corner styles are taken from its source.",
-      "kind": "native-badge",
-      "className": "rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/Admin/Evaluations.tsx",
-          "line": 273,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Admin/Evaluations",
-              "role": "Admin",
-              "href": "/admin/evaluations"
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Admin"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "badges-29",
-      "category": "badges",
-      "name": "Badge Type 29",
-      "title": "Custom status badge",
-      "description": "A page-specific pill or label. Colours and corner styles are taken from its source.",
-      "kind": "native-badge",
-      "className": "rounded-lg border px-3 py-2 text-xs font-semibold border-emerald-200 bg-emerald-50 text-emerald-700",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/Admin/Evaluations.tsx",
-          "line": 281,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Admin/Evaluations",
-              "role": "Admin",
-              "href": "/admin/evaluations"
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Admin"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "badges-30",
-      "category": "badges",
-      "name": "Badge Type 30",
-      "title": "Custom status badge",
-      "description": "A page-specific pill or label. Colours and corner styles are taken from its source.",
-      "kind": "native-badge",
-      "className": "rounded-lg border px-3 py-2 text-xs font-semibold border-amber-200 bg-amber-50 text-amber-700",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/Admin/Evaluations.tsx",
-          "line": 281,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Admin/Evaluations",
-              "role": "Admin",
-              "href": "/admin/evaluations"
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Admin"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "badges-31",
-      "category": "badges",
-      "name": "Badge Type 31",
-      "title": "Custom status badge",
-      "description": "A page-specific pill or label. Colours and corner styles are taken from its source.",
-      "kind": "native-badge",
-      "className": "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-semibold tabular-nums bg-emerald-50 text-emerald-700",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/Admin/Evaluations.tsx",
-          "line": 300,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Admin/Evaluations",
-              "role": "Admin",
-              "href": "/admin/evaluations"
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Admin"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "badges-32",
-      "category": "badges",
-      "name": "Badge Type 32",
-      "title": "Custom status badge",
-      "description": "A page-specific pill or label. Colours and corner styles are taken from its source.",
-      "kind": "native-badge",
-      "className": "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-semibold tabular-nums bg-amber-50 text-amber-700",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/Admin/Evaluations.tsx",
-          "line": 300,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Admin/Evaluations",
-              "role": "Admin",
-              "href": "/admin/evaluations"
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Admin"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "badges-33",
-      "category": "badges",
-      "name": "Badge Type 33",
-      "title": "Custom status badge",
-      "description": "A page-specific pill or label. Colours and corner styles are taken from its source.",
-      "kind": "native-badge",
-      "className": "inline-flex rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/Admin/Interventions.tsx",
-          "line": 133,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Admin/Interventions",
-              "role": "Admin",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Admin"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "badges-34",
-      "category": "badges",
-      "name": "Badge Type 34",
-      "title": "Custom status badge",
-      "description": "A page-specific pill or label. Colours and corner styles are taken from its source.",
-      "kind": "native-badge",
-      "className": "inline-flex rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/Admin/Interventions.tsx",
-          "line": 137,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Admin/Interventions",
-              "role": "Admin",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Admin"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "badges-35",
-      "category": "badges",
-      "name": "Badge Type 35",
+      "name": "Badge Type 10",
       "title": "Shared badge · default",
       "description": "The shared badge primitive, including any page-specific colour overrides.",
       "kind": "badge",
@@ -10624,159 +9866,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "badges-36",
+      "id": "badges-11",
       "category": "badges",
-      "name": "Badge Type 36",
-      "title": "Custom status badge",
-      "description": "A page-specific pill or label. Colours and corner styles are taken from its source.",
-      "kind": "native-badge",
-      "className": "rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-800",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/Company/Dashboard.tsx",
-          "line": 115,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Company/Dashboard",
-              "role": "Company",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Company"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "badges-37",
-      "category": "badges",
-      "name": "Badge Type 37",
-      "title": "Custom status badge",
-      "description": "A page-specific pill or label. Colours and corner styles are taken from its source.",
-      "kind": "native-badge",
-      "className": "rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/Company/Dashboard.tsx",
-          "line": 116,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Company/Dashboard",
-              "role": "Company",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Company"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "badges-38",
-      "category": "badges",
-      "name": "Badge Type 38",
-      "title": "Custom status badge",
-      "description": "A page-specific pill or label. Colours and corner styles are taken from its source.",
-      "kind": "native-badge",
-      "className": "shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold bg-emerald-50 text-emerald-700",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/Company/Dashboard.tsx",
-          "line": 187,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Company/Dashboard",
-              "role": "Company",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Company"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "badges-39",
-      "category": "badges",
-      "name": "Badge Type 39",
-      "title": "Custom status badge",
-      "description": "A page-specific pill or label. Colours and corner styles are taken from its source.",
-      "kind": "native-badge",
-      "className": "shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold bg-rose-50 text-rose-700",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/Company/Dashboard.tsx",
-          "line": 187,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Company/Dashboard",
-              "role": "Company",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Company"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "badges-40",
-      "category": "badges",
-      "name": "Badge Type 40",
-      "title": "Custom status badge",
-      "description": "A page-specific pill or label. Colours and corner styles are taken from its source.",
-      "kind": "native-badge",
-      "className": "shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold bg-amber-50 text-amber-700",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/Company/Dashboard.tsx",
-          "line": 187,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Company/Dashboard",
-              "role": "Company",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Company"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "badges-41",
-      "category": "badges",
-      "name": "Badge Type 41",
+      "name": "Badge Type 11",
       "title": "Shared badge · outline",
       "description": "The shared badge primitive, including any page-specific colour overrides.",
       "kind": "badge",
@@ -10804,9 +9896,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "badges-42",
+      "id": "badges-12",
       "category": "badges",
-      "name": "Badge Type 42",
+      "name": "Badge Type 12",
       "title": "Shared badge · secondary",
       "description": "The shared badge primitive, including any page-specific colour overrides.",
       "kind": "badge",
@@ -10834,20 +9926,20 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "badges-43",
+      "id": "badges-13",
       "category": "badges",
-      "name": "Badge Type 43",
+      "name": "Badge Type 13",
       "title": "Shared badge · outline",
       "description": "The shared badge primitive, including any page-specific colour overrides.",
       "kind": "badge",
-      "className": "flex items-center gap-1 py-1 px-2.5 text-xs font-medium",
+      "className": "flex items-center gap-1 text-xs font-medium",
       "variant": "outline",
       "size": "default",
       "value": "",
       "sources": [
         {
           "file": "resources/js/Pages/Company/Quotas.tsx",
-          "line": 327,
+          "line": 336,
           "occurrences": 1,
           "pages": [
             {
@@ -10864,463 +9956,13 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "badges-44",
-      "category": "badges",
-      "name": "Badge Type 44",
-      "title": "Custom status badge",
-      "description": "A page-specific pill or label. Colours and corner styles are taken from its source.",
-      "kind": "native-badge",
-      "className": "rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-800 ring-1 ring-inset ring-amber-200",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/IndustrySupervisor/Dashboard.tsx",
-          "line": 96,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "IndustrySupervisor/Dashboard",
-              "role": "Industry Supervisor",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Industry Supervisor"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "badges-45",
-      "category": "badges",
-      "name": "Badge Type 45",
-      "title": "Custom status badge",
-      "description": "A page-specific pill or label. Colours and corner styles are taken from its source.",
-      "kind": "native-badge",
-      "className": "rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700 ring-1 ring-inset ring-blue-200",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/IndustrySupervisor/Dashboard.tsx",
-          "line": 101,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "IndustrySupervisor/Dashboard",
-              "role": "Industry Supervisor",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Industry Supervisor"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "badges-46",
-      "category": "badges",
-      "name": "Badge Type 46",
-      "title": "Custom status badge",
-      "description": "A page-specific pill or label. Colours and corner styles are taken from its source.",
-      "kind": "native-badge",
-      "className": "rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600 ring-1 ring-inset ring-slate-200",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/IndustrySupervisor/Dashboard.tsx",
-          "line": 106,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "IndustrySupervisor/Dashboard",
-              "role": "Industry Supervisor",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Industry Supervisor"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "badges-47",
-      "category": "badges",
-      "name": "Badge Type 47",
-      "title": "Custom status badge",
-      "description": "A page-specific pill or label. Colours and corner styles are taken from its source.",
-      "kind": "native-badge",
-      "className": "inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold border-emerald-200 bg-emerald-100 text-emerald-800",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/IndustrySupervisor/StudentDetails.tsx",
-          "line": 284,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "IndustrySupervisor/StudentDetails",
-              "role": "Industry Supervisor",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Industry Supervisor"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "badges-48",
-      "category": "badges",
-      "name": "Badge Type 48",
-      "title": "Custom status badge",
-      "description": "A page-specific pill or label. Colours and corner styles are taken from its source.",
-      "kind": "native-badge",
-      "className": "inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold border-rose-200 bg-rose-100 text-rose-800",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/IndustrySupervisor/StudentDetails.tsx",
-          "line": 284,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "IndustrySupervisor/StudentDetails",
-              "role": "Industry Supervisor",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Industry Supervisor"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "badges-49",
-      "category": "badges",
-      "name": "Badge Type 49",
-      "title": "Custom status badge",
-      "description": "A page-specific pill or label. Colours and corner styles are taken from its source.",
-      "kind": "native-badge",
-      "className": "inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold border-amber-200 bg-amber-100 text-amber-800",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/IndustrySupervisor/StudentDetails.tsx",
-          "line": 284,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "IndustrySupervisor/StudentDetails",
-              "role": "Industry Supervisor",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Industry Supervisor"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "badges-50",
-      "category": "badges",
-      "name": "Badge Type 50",
-      "title": "Custom status badge",
-      "description": "A page-specific pill or label. Colours and corner styles are taken from its source.",
-      "kind": "native-badge",
-      "className": "inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white/90",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/IndustrySupervisor/StudentDetails.tsx",
-          "line": 289,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "IndustrySupervisor/StudentDetails",
-              "role": "Industry Supervisor",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Industry Supervisor"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "badges-51",
-      "category": "badges",
-      "name": "Badge Type 51",
-      "title": "Shared badge · secondary",
-      "description": "The shared badge primitive, including any page-specific colour overrides.",
-      "kind": "badge",
-      "className": "px-3 py-1",
-      "variant": "secondary",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/Student/ApplicationTracking.tsx",
-          "line": 153,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Student/ApplicationTracking",
-              "role": "Student",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Student"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "badges-52",
-      "category": "badges",
-      "name": "Badge Type 52",
-      "title": "Custom status badge",
-      "description": "A page-specific pill or label. Colours and corner styles are taken from its source.",
-      "kind": "native-badge",
-      "className": "inline-flex items-center rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/Student/Companies.tsx",
-          "line": 49,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Student/Companies",
-              "role": "Student",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Student"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "badges-53",
-      "category": "badges",
-      "name": "Badge Type 53",
-      "title": "Custom status badge",
-      "description": "A page-specific pill or label. Colours and corner styles are taken from its source.",
-      "kind": "native-badge",
-      "className": "inline-flex items-center rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/Student/Companies.tsx",
-          "line": 53,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Student/Companies",
-              "role": "Student",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Student"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "badges-54",
-      "category": "badges",
-      "name": "Badge Type 54",
-      "title": "Custom status badge",
-      "description": "A page-specific pill or label. Colours and corner styles are taken from its source.",
-      "kind": "native-badge",
-      "className": "w-fit shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ring-inset",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/Student/Dashboard.tsx",
-          "line": 352,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Student/Dashboard",
-              "role": "Student",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Student"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "badges-55",
-      "category": "badges",
-      "name": "Badge Type 55",
-      "title": "Custom status badge",
-      "description": "A page-specific pill or label. Colours and corner styles are taken from its source.",
-      "kind": "native-badge",
-      "className": "rounded-full px-3 py-1 text-xs font-medium bg-emerald-50 text-emerald-700",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/Student/Logbook.tsx",
-          "line": 49,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Student/Logbook",
-              "role": "Student",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Student"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "badges-56",
-      "category": "badges",
-      "name": "Badge Type 56",
-      "title": "Custom status badge",
-      "description": "A page-specific pill or label. Colours and corner styles are taken from its source.",
-      "kind": "native-badge",
-      "className": "rounded-full px-3 py-1 text-xs font-medium bg-amber-50 text-amber-700",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/Student/Logbook.tsx",
-          "line": 49,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Student/Logbook",
-              "role": "Student",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Student"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "badges-57",
-      "category": "badges",
-      "name": "Badge Type 57",
-      "title": "Custom status badge",
-      "description": "A page-specific pill or label. Colours and corner styles are taken from its source.",
-      "kind": "native-badge",
-      "className": "rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-600",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/Supervisor/Evaluation.tsx",
-          "line": 32,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Supervisor/Evaluation",
-              "role": "Shared",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Shared"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "badges-58",
-      "category": "badges",
-      "name": "Badge Type 58",
-      "title": "Custom status badge",
-      "description": "A page-specific pill or label. Colours and corner styles are taken from its source.",
-      "kind": "native-badge",
-      "className": "rounded-lg bg-indigo-50 px-3 py-1.5 text-xs font-semibold text-indigo-700",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/Supervisor/Evaluation.tsx",
-          "line": 32,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Supervisor/Evaluation",
-              "role": "Shared",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Shared"
-      ],
-      "occurrences": 1
-    },
-    {
       "id": "cards-1",
       "category": "cards",
       "name": "Card Type 1",
       "title": "Custom content panel",
       "description": "A native section with its own border, corners and spacing.",
       "kind": "native-card",
-      "className": "rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6",
+      "className": "ui-card rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6",
       "variant": "default",
       "size": "default",
       "value": "",
@@ -11376,6 +10018,11 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
               "href": "/admin/unplaced-students"
             },
             {
+              "name": "Company/Quotas",
+              "role": "Company",
+              "href": null
+            },
+            {
               "name": "FinalInternshipReport",
               "role": "Shared",
               "href": null
@@ -11411,7 +10058,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Supervisor/Evaluation.tsx",
-          "line": 38,
+          "line": 44,
           "occurrences": 1,
           "pages": [
             {
@@ -11424,6 +10071,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       ],
       "roles": [
         "Admin",
+        "Company",
         "PB Supervisor",
         "Shared",
         "Student"
@@ -11437,7 +10085,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Custom content panel",
       "description": "A native section with its own border, corners and spacing.",
       "kind": "native-card",
-      "className": "overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-900/[0.03] sm:p-6",
+      "className": "ui-card overflow-hidden rounded-xl border border-border bg-white p-5 shadow-sm sm:p-6",
       "variant": "default",
       "size": "default",
       "value": "",
@@ -11466,7 +10114,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/AcademicSupervisor/StudentDetails.tsx",
-          "line": 1360,
+          "line": 1372,
           "occurrences": 1,
           "pages": [
             {
@@ -11478,7 +10126,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/IndustrySupervisor/StudentDetails.tsx",
-          "line": 926,
+          "line": 936,
           "occurrences": 1,
           "pages": [
             {
@@ -11522,7 +10170,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Admin/StudentRecord.tsx",
-          "line": 75,
+          "line": 76,
           "occurrences": 10,
           "pages": [
             {
@@ -11575,7 +10223,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Custom content panel",
       "description": "A native section with its own border, corners and spacing.",
       "kind": "native-card",
-      "className": "rounded-2xl border border-slate-200 bg-white p-5 shadow-sm",
+      "className": "rounded-xl border border-slate-200 bg-white p-5 shadow-sm",
       "variant": "default",
       "size": "default",
       "value": "",
@@ -11608,18 +10256,6 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
           ]
         },
         {
-          "file": "resources/js/Pages/FinalInternshipReport.tsx",
-          "line": 97,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "FinalInternshipReport",
-              "role": "Shared",
-              "href": null
-            }
-          ]
-        },
-        {
           "file": "resources/js/Pages/Student/Dashboard.tsx",
           "line": 306,
           "occurrences": 1,
@@ -11637,10 +10273,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         "Company",
         "Industry Supervisor",
         "PB Supervisor",
-        "Shared",
         "Student"
       ],
-      "occurrences": 3
+      "occurrences": 2
     },
     {
       "id": "cards-6",
@@ -11649,7 +10284,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Custom content panel",
       "description": "A native section with its own border, corners and spacing.",
       "kind": "native-card",
-      "className": "overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm",
+      "className": "overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm",
       "variant": "default",
       "size": "default",
       "value": "",
@@ -11683,7 +10318,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/AcademicSupervisor/LogbookReview.tsx",
-          "line": 23,
+          "line": 41,
           "occurrences": 1,
           "pages": [
             {
@@ -11695,7 +10330,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/AcademicSupervisor/Students.tsx",
-          "line": 50,
+          "line": 51,
           "occurrences": 1,
           "pages": [
             {
@@ -11848,7 +10483,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "sources": [
         {
           "file": "resources/js/Components/Evaluations/RubricEditor.tsx",
-          "line": 133,
+          "line": 134,
           "occurrences": 1,
           "pages": [
             {
@@ -11889,7 +10524,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "sources": [
         {
           "file": "resources/js/Components/Evaluations/RubricEditor.tsx",
-          "line": 174,
+          "line": 175,
           "occurrences": 1,
           "pages": [
             {
@@ -11930,7 +10565,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "sources": [
         {
           "file": "resources/js/Components/QuotaCard.tsx",
-          "line": 56,
+          "line": 61,
           "occurrences": 1,
           "pages": [
             {
@@ -11959,7 +10594,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Custom content panel",
       "description": "A native section with its own border, corners and spacing.",
       "kind": "native-card",
-      "className": "flex flex-col gap-4 rounded-2xl border border-blue-100 bg-gradient-to-r from-blue-50 to-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-6",
+      "className": "flex flex-col gap-4 rounded-xl border border-blue-100 bg-blue-50/40 p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-6",
       "variant": "default",
       "size": "default",
       "value": "",
@@ -12014,14 +10649,14 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Custom content panel",
       "description": "A native section with its own border, corners and spacing.",
       "kind": "native-card",
-      "className": "rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-600",
+      "className": "ui-card rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-600",
       "variant": "default",
       "size": "default",
       "value": "",
       "sources": [
         {
           "file": "resources/js/Pages/AcademicSupervisor/LogbookReview.tsx",
-          "line": 20,
+          "line": 38,
           "occurrences": 1,
           "pages": [
             {
@@ -12044,14 +10679,14 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Custom content panel",
       "description": "A native section with its own border, corners and spacing.",
       "kind": "native-card",
-      "className": "rounded-xl border border-slate-200 bg-white p-5",
+      "className": "ui-card rounded-xl border border-slate-200 bg-white p-5",
       "variant": "default",
       "size": "default",
       "value": "",
       "sources": [
         {
           "file": "resources/js/Pages/AcademicSupervisor/LogbookReview.tsx",
-          "line": 24,
+          "line": 42,
           "occurrences": 1,
           "pages": [
             {
@@ -12074,14 +10709,14 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Custom content panel",
       "description": "A native section with its own border, corners and spacing.",
       "kind": "native-card",
-      "className": "rounded-2xl border border-slate-200 bg-white p-6 shadow-sm",
+      "className": "ui-card rounded-xl border border-slate-200 bg-white p-6 shadow-sm",
       "variant": "default",
       "size": "default",
       "value": "",
       "sources": [
         {
           "file": "resources/js/Pages/AcademicSupervisor/StudentDetails.tsx",
-          "line": 462,
+          "line": 474,
           "occurrences": 1,
           "pages": [
             {
@@ -12093,7 +10728,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Admin/StudentRecord.tsx",
-          "line": 95,
+          "line": 96,
           "occurrences": 1,
           "pages": [
             {
@@ -12105,7 +10740,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/FinalInternshipReport.tsx",
-          "line": 130,
+          "line": 142,
           "occurrences": 1,
           "pages": [
             {
@@ -12143,14 +10778,14 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Student detail section",
       "description": "An existing card family used to divide page content.",
       "kind": "native-card",
-      "className": "overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-900/[0.03] sm:p-6",
+      "className": "ui-card overflow-hidden rounded-xl border border-border bg-white p-5 shadow-sm sm:p-6",
       "variant": "default",
       "size": "default",
       "value": "",
       "sources": [
         {
           "file": "resources/js/Pages/AcademicSupervisor/StudentDetails.tsx",
-          "line": 483,
+          "line": 495,
           "occurrences": 16,
           "pages": [
             {
@@ -12162,7 +10797,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/IndustrySupervisor/StudentDetails.tsx",
-          "line": 342,
+          "line": 352,
           "occurrences": 14,
           "pages": [
             {
@@ -12213,6 +10848,36 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "id": "cards-18",
       "category": "cards",
       "name": "Card Type 18",
+      "title": "Custom content panel",
+      "description": "A native section with its own border, corners and spacing.",
+      "kind": "native-card",
+      "className": "rounded-xl border border-slate-200 bg-white p-4",
+      "variant": "default",
+      "size": "default",
+      "value": "",
+      "sources": [
+        {
+          "file": "resources/js/Pages/Admin/Companies.tsx",
+          "line": 374,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "Admin/Companies",
+              "role": "Admin",
+              "href": "/admin/companies"
+            }
+          ]
+        }
+      ],
+      "roles": [
+        "Admin"
+      ],
+      "occurrences": 1
+    },
+    {
+      "id": "cards-19",
+      "category": "cards",
+      "name": "Card Type 19",
       "title": "Shared card",
       "description": "An existing card family used to divide page content.",
       "kind": "card",
@@ -12240,9 +10905,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "cards-19",
+      "id": "cards-20",
       "category": "cards",
-      "name": "Card Type 19",
+      "name": "Card Type 20",
       "title": "Shared card",
       "description": "An existing card family used to divide page content.",
       "kind": "card",
@@ -12270,9 +10935,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "cards-20",
+      "id": "cards-21",
       "category": "cards",
-      "name": "Card Type 20",
+      "name": "Card Type 21",
       "title": "Shared card",
       "description": "An existing card family used to divide page content.",
       "kind": "card",
@@ -12319,7 +10984,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Student/ApplicationTracking.tsx",
-          "line": 136,
+          "line": 137,
           "occurrences": 2,
           "pages": [
             {
@@ -12331,7 +10996,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Student/Profile.tsx",
-          "line": 794,
+          "line": 795,
           "occurrences": 12,
           "pages": [
             {
@@ -12350,9 +11015,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 18
     },
     {
-      "id": "cards-21",
+      "id": "cards-22",
       "category": "cards",
-      "name": "Card Type 21",
+      "name": "Card Type 22",
       "title": "Shared card",
       "description": "An existing card family used to divide page content.",
       "kind": "card",
@@ -12393,9 +11058,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 8
     },
     {
-      "id": "cards-22",
+      "id": "cards-23",
       "category": "cards",
-      "name": "Card Type 22",
+      "name": "Card Type 23",
       "title": "Custom content panel",
       "description": "A native section with its own border, corners and spacing.",
       "kind": "native-card",
@@ -12406,37 +11071,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "sources": [
         {
           "file": "resources/js/Pages/Admin/Evaluations.tsx",
-          "line": 299,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "Admin/Evaluations",
-              "role": "Admin",
-              "href": "/admin/evaluations"
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Admin"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "cards-23",
-      "category": "cards",
-      "name": "Card Type 23",
-      "title": "Custom content panel",
-      "description": "A native section with its own border, corners and spacing.",
-      "kind": "native-card",
-      "className": "overflow-hidden rounded-2xl border bg-white shadow-sm",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/Admin/Evaluations.tsx",
-          "line": 336,
+          "line": 302,
           "occurrences": 1,
           "pages": [
             {
@@ -12456,6 +11091,36 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "id": "cards-24",
       "category": "cards",
       "name": "Card Type 24",
+      "title": "Custom content panel",
+      "description": "A native section with its own border, corners and spacing.",
+      "kind": "native-card",
+      "className": "overflow-hidden rounded-xl border bg-white shadow-sm",
+      "variant": "default",
+      "size": "default",
+      "value": "",
+      "sources": [
+        {
+          "file": "resources/js/Pages/Admin/Evaluations.tsx",
+          "line": 339,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "Admin/Evaluations",
+              "role": "Admin",
+              "href": "/admin/evaluations"
+            }
+          ]
+        }
+      ],
+      "roles": [
+        "Admin"
+      ],
+      "occurrences": 1
+    },
+    {
+      "id": "cards-25",
+      "category": "cards",
+      "name": "Card Type 25",
       "title": "Shared card",
       "description": "An existing card family used to divide page content.",
       "kind": "card",
@@ -12483,13 +11148,13 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 2
     },
     {
-      "id": "cards-25",
+      "id": "cards-26",
       "category": "cards",
-      "name": "Card Type 25",
+      "name": "Card Type 26",
       "title": "Custom content panel",
       "description": "A native section with its own border, corners and spacing.",
       "kind": "native-card",
-      "className": "divide-y divide-slate-100 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm",
+      "className": "divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm",
       "variant": "default",
       "size": "default",
       "value": "",
@@ -12513,9 +11178,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "cards-26",
+      "id": "cards-27",
       "category": "cards",
-      "name": "Card Type 26",
+      "name": "Card Type 27",
       "title": "Shared card",
       "description": "An existing card family used to divide page content.",
       "kind": "card",
@@ -12526,7 +11191,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "sources": [
         {
           "file": "resources/js/Pages/Company/Profile.tsx",
-          "line": 175,
+          "line": 161,
           "occurrences": 1,
           "pages": [
             {
@@ -12543,9 +11208,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "cards-27",
+      "id": "cards-28",
       "category": "cards",
-      "name": "Card Type 27",
+      "name": "Card Type 28",
       "title": "Shared card",
       "description": "An existing card family used to divide page content.",
       "kind": "card",
@@ -12556,8 +11221,8 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "sources": [
         {
           "file": "resources/js/Pages/Company/Profile.tsx",
-          "line": 191,
-          "occurrences": 2,
+          "line": 177,
+          "occurrences": 1,
           "pages": [
             {
               "name": "Company/Profile",
@@ -12570,12 +11235,12 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "roles": [
         "Company"
       ],
-      "occurrences": 2
+      "occurrences": 1
     },
     {
-      "id": "cards-28",
+      "id": "cards-29",
       "category": "cards",
-      "name": "Card Type 28",
+      "name": "Card Type 29",
       "title": "Record panel",
       "description": "An existing card family used to divide page content.",
       "kind": "record-panel",
@@ -12586,7 +11251,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "sources": [
         {
           "file": "resources/js/Pages/FinalInternshipReport.tsx",
-          "line": 95,
+          "line": 107,
           "occurrences": 3,
           "pages": [
             {
@@ -12603,50 +11268,20 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 3
     },
     {
-      "id": "cards-29",
-      "category": "cards",
-      "name": "Card Type 29",
-      "title": "Custom content panel",
-      "description": "A native section with its own border, corners and spacing.",
-      "kind": "native-card",
-      "className": "rounded-2xl border border-indigo-100 bg-white p-6 shadow-sm",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Pages/FinalInternshipReport.tsx",
-          "line": 111,
-          "occurrences": 1,
-          "pages": [
-            {
-              "name": "FinalInternshipReport",
-              "role": "Shared",
-              "href": null
-            }
-          ]
-        }
-      ],
-      "roles": [
-        "Shared"
-      ],
-      "occurrences": 1
-    },
-    {
       "id": "cards-30",
       "category": "cards",
       "name": "Card Type 30",
       "title": "Custom content panel",
       "description": "A native section with its own border, corners and spacing.",
       "kind": "native-card",
-      "className": "space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm",
+      "className": "ui-card rounded-xl border border-slate-200 bg-white p-5 shadow-sm",
       "variant": "default",
       "size": "default",
       "value": "",
       "sources": [
         {
           "file": "resources/js/Pages/FinalInternshipReport.tsx",
-          "line": 119,
+          "line": 109,
           "occurrences": 1,
           "pages": [
             {
@@ -12669,14 +11304,14 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Custom content panel",
       "description": "A native section with its own border, corners and spacing.",
       "kind": "native-card",
-      "className": "rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center text-slate-500",
+      "className": "ui-card rounded-xl border border-blue-100 bg-white p-6 shadow-sm",
       "variant": "default",
       "size": "default",
       "value": "",
       "sources": [
         {
           "file": "resources/js/Pages/FinalInternshipReport.tsx",
-          "line": 129,
+          "line": 123,
           "occurrences": 1,
           "pages": [
             {
@@ -12699,14 +11334,14 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Custom content panel",
       "description": "A native section with its own border, corners and spacing.",
       "kind": "native-card",
-      "className": "rounded-2xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-800",
+      "className": "ui-card space-y-5 rounded-xl border border-slate-200 bg-white p-6 shadow-sm",
       "variant": "default",
       "size": "default",
       "value": "",
       "sources": [
         {
           "file": "resources/js/Pages/FinalInternshipReport.tsx",
-          "line": 136,
+          "line": 131,
           "occurrences": 1,
           "pages": [
             {
@@ -12729,14 +11364,14 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Custom content panel",
       "description": "A native section with its own border, corners and spacing.",
       "kind": "native-card",
-      "className": "space-y-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6",
+      "className": "rounded-xl border border-dashed border-slate-300 bg-white p-10 text-center text-slate-500",
       "variant": "default",
       "size": "default",
       "value": "",
       "sources": [
         {
           "file": "resources/js/Pages/FinalInternshipReport.tsx",
-          "line": 138,
+          "line": 141,
           "occurrences": 1,
           "pages": [
             {
@@ -12759,14 +11394,74 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Custom content panel",
       "description": "A native section with its own border, corners and spacing.",
       "kind": "native-card",
-      "className": "divide-y divide-slate-200 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm",
+      "className": "rounded-xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-800",
+      "variant": "default",
+      "size": "default",
+      "value": "",
+      "sources": [
+        {
+          "file": "resources/js/Pages/FinalInternshipReport.tsx",
+          "line": 148,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "FinalInternshipReport",
+              "role": "Shared",
+              "href": null
+            }
+          ]
+        }
+      ],
+      "roles": [
+        "Shared"
+      ],
+      "occurrences": 1
+    },
+    {
+      "id": "cards-35",
+      "category": "cards",
+      "name": "Card Type 35",
+      "title": "Custom content panel",
+      "description": "A native section with its own border, corners and spacing.",
+      "kind": "native-card",
+      "className": "ui-card space-y-5 rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6",
+      "variant": "default",
+      "size": "default",
+      "value": "",
+      "sources": [
+        {
+          "file": "resources/js/Pages/FinalInternshipReport.tsx",
+          "line": 150,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "FinalInternshipReport",
+              "role": "Shared",
+              "href": null
+            }
+          ]
+        }
+      ],
+      "roles": [
+        "Shared"
+      ],
+      "occurrences": 1
+    },
+    {
+      "id": "cards-36",
+      "category": "cards",
+      "name": "Card Type 36",
+      "title": "Custom content panel",
+      "description": "A native section with its own border, corners and spacing.",
+      "kind": "native-card",
+      "className": "divide-y divide-slate-200 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm",
       "variant": "default",
       "size": "default",
       "value": "",
       "sources": [
         {
           "file": "resources/js/Pages/Student/Logbook.tsx",
-          "line": 53,
+          "line": 54,
           "occurrences": 1,
           "pages": [
             {
@@ -12783,13 +11478,13 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "cards-35",
+      "id": "cards-37",
       "category": "cards",
-      "name": "Card Type 35",
+      "name": "Card Type 37",
       "title": "Custom content panel",
       "description": "A native section with its own border, corners and spacing.",
       "kind": "native-card",
-      "className": "rounded-xl border border-slate-200 bg-white p-6",
+      "className": "ui-card rounded-xl border border-slate-200 bg-white p-6",
       "variant": "default",
       "size": "default",
       "value": "",
@@ -12813,9 +11508,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "cards-36",
+      "id": "cards-38",
       "category": "cards",
-      "name": "Card Type 36",
+      "name": "Card Type 38",
       "title": "Custom content panel",
       "description": "A native section with its own border, corners and spacing.",
       "kind": "native-card",
@@ -12856,7 +11551,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "sources": [
         {
           "file": "resources/js/Components/Applications/columns.tsx",
-          "line": 60,
+          "line": 61,
           "occurrences": 2,
           "pages": [
             {
@@ -12868,7 +11563,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Company/Applications/Show.tsx",
-          "line": 351,
+          "line": 353,
           "occurrences": 1,
           "pages": [
             {
@@ -12885,9 +11580,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 3
     },
     {
-      "id": "navigation-2",
+      "id": "navigation-3",
       "category": "navigation",
-      "name": "Navigation Type 2",
+      "name": "Navigation Type 3",
       "title": "Popover",
       "description": "An existing navigation or contextual menu pattern.",
       "kind": "popover",
@@ -12909,9 +11604,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "navigation-3",
+      "id": "navigation-4",
       "category": "navigation",
-      "name": "Navigation Type 3",
+      "name": "Navigation Type 4",
       "title": "Sidebar Menu Button",
       "description": "An existing navigation or contextual menu pattern.",
       "kind": "sidebar",
@@ -12920,550 +11615,6 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "size": "default",
       "value": "",
       "sources": [
-        {
-          "file": "resources/js/Components/Sidebars/AcademicSupervisorSidebar.tsx",
-          "line": 93,
-          "occurrences": 3,
-          "pages": [
-            {
-              "name": "PB Supervisor/Dashboard",
-              "role": "PB Supervisor",
-              "href": null
-            },
-            {
-              "name": "PB Supervisor/Logbook",
-              "role": "PB Supervisor",
-              "href": null
-            },
-            {
-              "name": "PB Supervisor/LogbookReview",
-              "role": "PB Supervisor",
-              "href": null
-            },
-            {
-              "name": "PB Supervisor/StudentDetails",
-              "role": "PB Supervisor",
-              "href": null
-            },
-            {
-              "name": "PB Supervisor/Students",
-              "role": "PB Supervisor",
-              "href": null
-            },
-            {
-              "name": "Admin/AcademicSemesters",
-              "role": "Admin",
-              "href": "/admin/academic-semesters"
-            },
-            {
-              "name": "Admin/ApplicationList",
-              "role": "Admin",
-              "href": null
-            },
-            {
-              "name": "Admin/Calendar",
-              "role": "Admin",
-              "href": null
-            },
-            {
-              "name": "Admin/Companies",
-              "role": "Admin",
-              "href": "/admin/companies"
-            },
-            {
-              "name": "Admin/CompanyRecord",
-              "role": "Admin",
-              "href": null
-            },
-            {
-              "name": "Admin/Dashboard",
-              "role": "Admin",
-              "href": "/admin/dashboard"
-            },
-            {
-              "name": "Admin/Evaluations",
-              "role": "Admin",
-              "href": "/admin/evaluations"
-            },
-            {
-              "name": "Admin/Interventions",
-              "role": "Admin",
-              "href": null
-            },
-            {
-              "name": "Admin/ManageUsers",
-              "role": "Admin",
-              "href": "/admin/manage-users"
-            },
-            {
-              "name": "Admin/Placements",
-              "role": "Admin",
-              "href": "/admin/placements"
-            },
-            {
-              "name": "Admin/Profile",
-              "role": "Admin",
-              "href": null
-            },
-            {
-              "name": "Admin/Reports",
-              "role": "Admin",
-              "href": null
-            },
-            {
-              "name": "Admin/StudentRecord",
-              "role": "Admin",
-              "href": null
-            },
-            {
-              "name": "Admin/StudentRecords",
-              "role": "Admin",
-              "href": "/admin/students"
-            },
-            {
-              "name": "Admin/Supervisors",
-              "role": "Admin",
-              "href": null
-            },
-            {
-              "name": "Admin/UnplacedStudents",
-              "role": "Admin",
-              "href": "/admin/unplaced-students"
-            },
-            {
-              "name": "CompaniesList",
-              "role": "Shared",
-              "href": null
-            },
-            {
-              "name": "Company/Applications/Index",
-              "role": "Company",
-              "href": null
-            },
-            {
-              "name": "Company/Applications/Show",
-              "role": "Company",
-              "href": null
-            },
-            {
-              "name": "Company/Dashboard",
-              "role": "Company",
-              "href": null
-            },
-            {
-              "name": "Company/Faqs",
-              "role": "Company",
-              "href": null
-            },
-            {
-              "name": "Company/Interns",
-              "role": "Company",
-              "href": null
-            },
-            {
-              "name": "Company/ManageUsers",
-              "role": "Company",
-              "href": null
-            },
-            {
-              "name": "Company/Profile",
-              "role": "Company",
-              "href": null
-            },
-            {
-              "name": "Company/Quotas",
-              "role": "Company",
-              "href": null
-            },
-            {
-              "name": "Company/Representatives",
-              "role": "Company",
-              "href": null
-            },
-            {
-              "name": "Company/Support",
-              "role": "Company",
-              "href": null
-            },
-            {
-              "name": "Dashboard",
-              "role": "Shared",
-              "href": null
-            },
-            {
-              "name": "FinalInternshipReport",
-              "role": "Shared",
-              "href": null
-            },
-            {
-              "name": "IndustrySupervisor/Dashboard",
-              "role": "Industry Supervisor",
-              "href": null
-            },
-            {
-              "name": "IndustrySupervisor/Evaluation",
-              "role": "Industry Supervisor",
-              "href": null
-            },
-            {
-              "name": "IndustrySupervisor/StudentDetails",
-              "role": "Industry Supervisor",
-              "href": null
-            },
-            {
-              "name": "IndustrySupervisor/Students",
-              "role": "Industry Supervisor",
-              "href": null
-            },
-            {
-              "name": "Profile/Edit",
-              "role": "Shared",
-              "href": null
-            },
-            {
-              "name": "Student/ApplicationTracking",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Student/Calendar",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Student/Companies",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Student/Dashboard",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Student/FAQs",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Student/Logbook",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Student/LogbookSubmission",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Student/PastReports",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Student/Profile",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Student/ReportIssue",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Student/ViewCompany",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Student/generator_cv",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Supervisor/Evaluation",
-              "role": "Shared",
-              "href": null
-            },
-            {
-              "name": "Supervisor/EvaluationResult",
-              "role": "Shared",
-              "href": null
-            }
-          ]
-        },
-        {
-          "file": "resources/js/Components/Sidebars/IndustrySupervisorSidebar.tsx",
-          "line": 87,
-          "occurrences": 3,
-          "pages": [
-            {
-              "name": "PB Supervisor/Dashboard",
-              "role": "PB Supervisor",
-              "href": null
-            },
-            {
-              "name": "PB Supervisor/Logbook",
-              "role": "PB Supervisor",
-              "href": null
-            },
-            {
-              "name": "PB Supervisor/LogbookReview",
-              "role": "PB Supervisor",
-              "href": null
-            },
-            {
-              "name": "PB Supervisor/StudentDetails",
-              "role": "PB Supervisor",
-              "href": null
-            },
-            {
-              "name": "PB Supervisor/Students",
-              "role": "PB Supervisor",
-              "href": null
-            },
-            {
-              "name": "Admin/AcademicSemesters",
-              "role": "Admin",
-              "href": "/admin/academic-semesters"
-            },
-            {
-              "name": "Admin/ApplicationList",
-              "role": "Admin",
-              "href": null
-            },
-            {
-              "name": "Admin/Calendar",
-              "role": "Admin",
-              "href": null
-            },
-            {
-              "name": "Admin/Companies",
-              "role": "Admin",
-              "href": "/admin/companies"
-            },
-            {
-              "name": "Admin/CompanyRecord",
-              "role": "Admin",
-              "href": null
-            },
-            {
-              "name": "Admin/Dashboard",
-              "role": "Admin",
-              "href": "/admin/dashboard"
-            },
-            {
-              "name": "Admin/Evaluations",
-              "role": "Admin",
-              "href": "/admin/evaluations"
-            },
-            {
-              "name": "Admin/Interventions",
-              "role": "Admin",
-              "href": null
-            },
-            {
-              "name": "Admin/ManageUsers",
-              "role": "Admin",
-              "href": "/admin/manage-users"
-            },
-            {
-              "name": "Admin/Placements",
-              "role": "Admin",
-              "href": "/admin/placements"
-            },
-            {
-              "name": "Admin/Profile",
-              "role": "Admin",
-              "href": null
-            },
-            {
-              "name": "Admin/Reports",
-              "role": "Admin",
-              "href": null
-            },
-            {
-              "name": "Admin/StudentRecord",
-              "role": "Admin",
-              "href": null
-            },
-            {
-              "name": "Admin/StudentRecords",
-              "role": "Admin",
-              "href": "/admin/students"
-            },
-            {
-              "name": "Admin/Supervisors",
-              "role": "Admin",
-              "href": null
-            },
-            {
-              "name": "Admin/UnplacedStudents",
-              "role": "Admin",
-              "href": "/admin/unplaced-students"
-            },
-            {
-              "name": "CompaniesList",
-              "role": "Shared",
-              "href": null
-            },
-            {
-              "name": "Company/Applications/Index",
-              "role": "Company",
-              "href": null
-            },
-            {
-              "name": "Company/Applications/Show",
-              "role": "Company",
-              "href": null
-            },
-            {
-              "name": "Company/Dashboard",
-              "role": "Company",
-              "href": null
-            },
-            {
-              "name": "Company/Faqs",
-              "role": "Company",
-              "href": null
-            },
-            {
-              "name": "Company/Interns",
-              "role": "Company",
-              "href": null
-            },
-            {
-              "name": "Company/ManageUsers",
-              "role": "Company",
-              "href": null
-            },
-            {
-              "name": "Company/Profile",
-              "role": "Company",
-              "href": null
-            },
-            {
-              "name": "Company/Quotas",
-              "role": "Company",
-              "href": null
-            },
-            {
-              "name": "Company/Representatives",
-              "role": "Company",
-              "href": null
-            },
-            {
-              "name": "Company/Support",
-              "role": "Company",
-              "href": null
-            },
-            {
-              "name": "Dashboard",
-              "role": "Shared",
-              "href": null
-            },
-            {
-              "name": "FinalInternshipReport",
-              "role": "Shared",
-              "href": null
-            },
-            {
-              "name": "IndustrySupervisor/Dashboard",
-              "role": "Industry Supervisor",
-              "href": null
-            },
-            {
-              "name": "IndustrySupervisor/Evaluation",
-              "role": "Industry Supervisor",
-              "href": null
-            },
-            {
-              "name": "IndustrySupervisor/StudentDetails",
-              "role": "Industry Supervisor",
-              "href": null
-            },
-            {
-              "name": "IndustrySupervisor/Students",
-              "role": "Industry Supervisor",
-              "href": null
-            },
-            {
-              "name": "Profile/Edit",
-              "role": "Shared",
-              "href": null
-            },
-            {
-              "name": "Student/ApplicationTracking",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Student/Calendar",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Student/Companies",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Student/Dashboard",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Student/FAQs",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Student/Logbook",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Student/LogbookSubmission",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Student/PastReports",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Student/Profile",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Student/ReportIssue",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Student/ViewCompany",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Student/generator_cv",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Supervisor/Evaluation",
-              "role": "Shared",
-              "href": null
-            },
-            {
-              "name": "Supervisor/EvaluationResult",
-              "role": "Shared",
-              "href": null
-            }
-          ]
-        },
         {
           "file": "resources/js/Components/app-sidebar.tsx",
           "line": 113,
@@ -13478,19 +11629,14 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         }
       ],
       "roles": [
-        "Admin",
-        "Company",
-        "Industry Supervisor",
-        "PB Supervisor",
-        "Shared",
-        "Student"
+        "Shared"
       ],
-      "occurrences": 9
+      "occurrences": 3
     },
     {
-      "id": "navigation-4",
+      "id": "navigation-5",
       "category": "navigation",
-      "name": "Navigation Type 4",
+      "name": "Navigation Type 5",
       "title": "Pagination",
       "description": "An existing navigation or contextual menu pattern.",
       "kind": "pagination",
@@ -13530,9 +11676,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 2
     },
     {
-      "id": "navigation-5",
+      "id": "navigation-6",
       "category": "navigation",
-      "name": "Navigation Type 5",
+      "name": "Navigation Type 6",
       "title": "Dropdown Menu",
       "description": "An existing navigation or contextual menu pattern.",
       "kind": "dropdown",
@@ -13543,31 +11689,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "sources": [
         {
           "file": "resources/js/Components/data-table.tsx",
-          "line": 103,
-          "occurrences": 1,
-          "pages": []
-        }
-      ],
-      "roles": [
-        "Shared"
-      ],
-      "occurrences": 1
-    },
-    {
-      "id": "navigation-6",
-      "category": "navigation",
-      "name": "Navigation Type 6",
-      "title": "Pagination",
-      "description": "An existing navigation or contextual menu pattern.",
-      "kind": "pagination",
-      "className": "mt-4",
-      "variant": "default",
-      "size": "default",
-      "value": "",
-      "sources": [
-        {
-          "file": "resources/js/Components/data-table.tsx",
-          "line": 160,
+          "line": 107,
           "occurrences": 1,
           "pages": []
         }
@@ -13581,6 +11703,30 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "id": "navigation-7",
       "category": "navigation",
       "name": "Navigation Type 7",
+      "title": "Pagination",
+      "description": "An existing navigation or contextual menu pattern.",
+      "kind": "pagination",
+      "className": "mt-4",
+      "variant": "default",
+      "size": "default",
+      "value": "",
+      "sources": [
+        {
+          "file": "resources/js/Components/data-table.tsx",
+          "line": 164,
+          "occurrences": 1,
+          "pages": []
+        }
+      ],
+      "roles": [
+        "Shared"
+      ],
+      "occurrences": 1
+    },
+    {
+      "id": "navigation-8",
+      "category": "navigation",
+      "name": "Navigation Type 8",
       "title": "Sidebar Menu Button",
       "description": "An existing navigation or contextual menu pattern.",
       "kind": "sidebar",
@@ -13873,9 +12019,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "navigation-8",
+      "id": "navigation-9",
       "category": "navigation",
-      "name": "Navigation Type 8",
+      "name": "Navigation Type 9",
       "title": "Dropdown Menu",
       "description": "An existing navigation or contextual menu pattern.",
       "kind": "dropdown",
@@ -13897,9 +12043,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "navigation-9",
+      "id": "navigation-10",
       "category": "navigation",
-      "name": "Navigation Type 9",
+      "name": "Navigation Type 10",
       "title": "Sidebar Menu Button",
       "description": "An existing navigation or contextual menu pattern.",
       "kind": "sidebar",
@@ -14192,9 +12338,9 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "occurrences": 1
     },
     {
-      "id": "navigation-10",
+      "id": "navigation-11",
       "category": "navigation",
-      "name": "Navigation Type 10",
+      "name": "Navigation Type 11",
       "title": "Dropdown Menu",
       "description": "An existing navigation or contextual menu pattern.",
       "kind": "dropdown",
@@ -14546,7 +12692,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Admin/Companies.tsx",
-          "line": 390,
+          "line": 413,
           "occurrences": 3,
           "pages": [
             {
@@ -14582,7 +12728,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Company/Applications/Show.tsx",
-          "line": 293,
+          "line": 295,
           "occurrences": 1,
           "pages": [
             {
@@ -14668,7 +12814,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "sources": [
         {
           "file": "resources/js/Components/data-table.tsx",
-          "line": 56,
+          "line": 57,
           "occurrences": 1,
           "pages": []
         }
@@ -14685,7 +12831,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Native HTML table",
       "description": "An existing tabular layout; example rows contain demo data.",
       "kind": "table",
-      "className": "w-full text-sm text-left",
+      "className": "ui-table w-full text-sm text-left",
       "variant": "default",
       "size": "default",
       "value": "",
@@ -14715,7 +12861,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Native HTML table",
       "description": "An existing tabular layout; example rows contain demo data.",
       "kind": "table",
-      "className": "min-w-full divide-y divide-slate-200",
+      "className": "ui-table min-w-full divide-y divide-slate-200",
       "variant": "default",
       "size": "default",
       "value": "",
@@ -14745,7 +12891,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Native HTML table",
       "description": "An existing tabular layout; example rows contain demo data.",
       "kind": "table",
-      "className": "min-w-full border-collapse",
+      "className": "ui-table min-w-full border-collapse",
       "variant": "default",
       "size": "default",
       "value": "",
@@ -14775,7 +12921,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Native HTML table",
       "description": "An existing tabular layout; example rows contain demo data.",
       "kind": "table",
-      "className": "min-w-full border border-gray-200 rounded-lg",
+      "className": "ui-table min-w-full border border-gray-200 rounded-lg",
       "variant": "default",
       "size": "default",
       "value": "",
@@ -14824,7 +12970,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/AcademicSupervisor/StudentDetails.tsx",
-          "line": 967,
+          "line": 979,
           "occurrences": 11,
           "pages": [
             {
@@ -14836,7 +12982,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Admin/StudentRecord.tsx",
-          "line": 84,
+          "line": 85,
           "occurrences": 3,
           "pages": [
             {
@@ -14848,7 +12994,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/IndustrySupervisor/StudentDetails.tsx",
-          "line": 569,
+          "line": 579,
           "occurrences": 10,
           "pages": [
             {
@@ -14891,8 +13037,280 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
           ]
         },
         {
+          "file": "resources/js/Layouts/AuthenticatedLayout.tsx",
+          "line": 29,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "PB Supervisor/Dashboard",
+              "role": "PB Supervisor",
+              "href": null
+            },
+            {
+              "name": "PB Supervisor/Logbook",
+              "role": "PB Supervisor",
+              "href": null
+            },
+            {
+              "name": "PB Supervisor/LogbookReview",
+              "role": "PB Supervisor",
+              "href": null
+            },
+            {
+              "name": "PB Supervisor/StudentDetails",
+              "role": "PB Supervisor",
+              "href": null
+            },
+            {
+              "name": "PB Supervisor/Students",
+              "role": "PB Supervisor",
+              "href": null
+            },
+            {
+              "name": "Admin/AcademicSemesters",
+              "role": "Admin",
+              "href": "/admin/academic-semesters"
+            },
+            {
+              "name": "Admin/ApplicationList",
+              "role": "Admin",
+              "href": null
+            },
+            {
+              "name": "Admin/Calendar",
+              "role": "Admin",
+              "href": null
+            },
+            {
+              "name": "Admin/Companies",
+              "role": "Admin",
+              "href": "/admin/companies"
+            },
+            {
+              "name": "Admin/CompanyRecord",
+              "role": "Admin",
+              "href": null
+            },
+            {
+              "name": "Admin/Dashboard",
+              "role": "Admin",
+              "href": "/admin/dashboard"
+            },
+            {
+              "name": "Admin/Evaluations",
+              "role": "Admin",
+              "href": "/admin/evaluations"
+            },
+            {
+              "name": "Admin/Interventions",
+              "role": "Admin",
+              "href": null
+            },
+            {
+              "name": "Admin/ManageUsers",
+              "role": "Admin",
+              "href": "/admin/manage-users"
+            },
+            {
+              "name": "Admin/Placements",
+              "role": "Admin",
+              "href": "/admin/placements"
+            },
+            {
+              "name": "Admin/Profile",
+              "role": "Admin",
+              "href": null
+            },
+            {
+              "name": "Admin/Reports",
+              "role": "Admin",
+              "href": null
+            },
+            {
+              "name": "Admin/StudentRecord",
+              "role": "Admin",
+              "href": null
+            },
+            {
+              "name": "Admin/StudentRecords",
+              "role": "Admin",
+              "href": "/admin/students"
+            },
+            {
+              "name": "Admin/Supervisors",
+              "role": "Admin",
+              "href": null
+            },
+            {
+              "name": "Admin/UnplacedStudents",
+              "role": "Admin",
+              "href": "/admin/unplaced-students"
+            },
+            {
+              "name": "CompaniesList",
+              "role": "Shared",
+              "href": null
+            },
+            {
+              "name": "Company/Applications/Index",
+              "role": "Company",
+              "href": null
+            },
+            {
+              "name": "Company/Applications/Show",
+              "role": "Company",
+              "href": null
+            },
+            {
+              "name": "Company/Dashboard",
+              "role": "Company",
+              "href": null
+            },
+            {
+              "name": "Company/Faqs",
+              "role": "Company",
+              "href": null
+            },
+            {
+              "name": "Company/Interns",
+              "role": "Company",
+              "href": null
+            },
+            {
+              "name": "Company/ManageUsers",
+              "role": "Company",
+              "href": null
+            },
+            {
+              "name": "Company/Profile",
+              "role": "Company",
+              "href": null
+            },
+            {
+              "name": "Company/Quotas",
+              "role": "Company",
+              "href": null
+            },
+            {
+              "name": "Company/Representatives",
+              "role": "Company",
+              "href": null
+            },
+            {
+              "name": "Company/Support",
+              "role": "Company",
+              "href": null
+            },
+            {
+              "name": "Dashboard",
+              "role": "Shared",
+              "href": null
+            },
+            {
+              "name": "FinalInternshipReport",
+              "role": "Shared",
+              "href": null
+            },
+            {
+              "name": "IndustrySupervisor/Dashboard",
+              "role": "Industry Supervisor",
+              "href": null
+            },
+            {
+              "name": "IndustrySupervisor/Evaluation",
+              "role": "Industry Supervisor",
+              "href": null
+            },
+            {
+              "name": "IndustrySupervisor/StudentDetails",
+              "role": "Industry Supervisor",
+              "href": null
+            },
+            {
+              "name": "IndustrySupervisor/Students",
+              "role": "Industry Supervisor",
+              "href": null
+            },
+            {
+              "name": "Profile/Edit",
+              "role": "Shared",
+              "href": null
+            },
+            {
+              "name": "Student/ApplicationTracking",
+              "role": "Student",
+              "href": null
+            },
+            {
+              "name": "Student/Calendar",
+              "role": "Student",
+              "href": null
+            },
+            {
+              "name": "Student/Companies",
+              "role": "Student",
+              "href": null
+            },
+            {
+              "name": "Student/Dashboard",
+              "role": "Student",
+              "href": null
+            },
+            {
+              "name": "Student/FAQs",
+              "role": "Student",
+              "href": null
+            },
+            {
+              "name": "Student/Logbook",
+              "role": "Student",
+              "href": null
+            },
+            {
+              "name": "Student/LogbookSubmission",
+              "role": "Student",
+              "href": null
+            },
+            {
+              "name": "Student/PastReports",
+              "role": "Student",
+              "href": null
+            },
+            {
+              "name": "Student/Profile",
+              "role": "Student",
+              "href": null
+            },
+            {
+              "name": "Student/ReportIssue",
+              "role": "Student",
+              "href": null
+            },
+            {
+              "name": "Student/ViewCompany",
+              "role": "Student",
+              "href": null
+            },
+            {
+              "name": "Student/generator_cv",
+              "role": "Student",
+              "href": null
+            },
+            {
+              "name": "Supervisor/Evaluation",
+              "role": "Shared",
+              "href": null
+            },
+            {
+              "name": "Supervisor/EvaluationResult",
+              "role": "Shared",
+              "href": null
+            }
+          ]
+        },
+        {
           "file": "resources/js/Pages/AcademicSupervisor/StudentDetails.tsx",
-          "line": 608,
+          "line": 620,
           "occurrences": 1,
           "pages": [
             {
@@ -14904,7 +13322,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Admin/Evaluations.tsx",
-          "line": 322,
+          "line": 325,
           "occurrences": 2,
           "pages": [
             {
@@ -14942,10 +13360,13 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "roles": [
         "Admin",
         "Company",
+        "Industry Supervisor",
         "PB Supervisor",
-        "Public / sign-in"
+        "Public / sign-in",
+        "Shared",
+        "Student"
       ],
-      "occurrences": 6
+      "occurrences": 7
     },
     {
       "id": "charts-1",
@@ -15075,6 +13496,11 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
               "href": "/admin/unplaced-students"
             },
             {
+              "name": "Company/Quotas",
+              "role": "Company",
+              "href": null
+            },
+            {
               "name": "FinalInternshipReport",
               "role": "Shared",
               "href": null
@@ -15154,7 +13580,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Components/Applications/columns.tsx",
-          "line": 109,
+          "line": 111,
           "occurrences": 5,
           "pages": [
             {
@@ -15240,7 +13666,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Components/CompanyBranchEditor.tsx",
-          "line": 10,
+          "line": 11,
           "occurrences": 2,
           "pages": [
             {
@@ -15297,7 +13723,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Components/Evaluations/RubricEditor.tsx",
-          "line": 138,
+          "line": 139,
           "occurrences": 13,
           "pages": [
             {
@@ -15325,7 +13751,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Components/QuotaCard.tsx",
-          "line": 106,
+          "line": 113,
           "occurrences": 5,
           "pages": [
             {
@@ -15358,550 +13784,6 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
           ]
         },
         {
-          "file": "resources/js/Components/Sidebars/AcademicSupervisorSidebar.tsx",
-          "line": 98,
-          "occurrences": 3,
-          "pages": [
-            {
-              "name": "PB Supervisor/Dashboard",
-              "role": "PB Supervisor",
-              "href": null
-            },
-            {
-              "name": "PB Supervisor/Logbook",
-              "role": "PB Supervisor",
-              "href": null
-            },
-            {
-              "name": "PB Supervisor/LogbookReview",
-              "role": "PB Supervisor",
-              "href": null
-            },
-            {
-              "name": "PB Supervisor/StudentDetails",
-              "role": "PB Supervisor",
-              "href": null
-            },
-            {
-              "name": "PB Supervisor/Students",
-              "role": "PB Supervisor",
-              "href": null
-            },
-            {
-              "name": "Admin/AcademicSemesters",
-              "role": "Admin",
-              "href": "/admin/academic-semesters"
-            },
-            {
-              "name": "Admin/ApplicationList",
-              "role": "Admin",
-              "href": null
-            },
-            {
-              "name": "Admin/Calendar",
-              "role": "Admin",
-              "href": null
-            },
-            {
-              "name": "Admin/Companies",
-              "role": "Admin",
-              "href": "/admin/companies"
-            },
-            {
-              "name": "Admin/CompanyRecord",
-              "role": "Admin",
-              "href": null
-            },
-            {
-              "name": "Admin/Dashboard",
-              "role": "Admin",
-              "href": "/admin/dashboard"
-            },
-            {
-              "name": "Admin/Evaluations",
-              "role": "Admin",
-              "href": "/admin/evaluations"
-            },
-            {
-              "name": "Admin/Interventions",
-              "role": "Admin",
-              "href": null
-            },
-            {
-              "name": "Admin/ManageUsers",
-              "role": "Admin",
-              "href": "/admin/manage-users"
-            },
-            {
-              "name": "Admin/Placements",
-              "role": "Admin",
-              "href": "/admin/placements"
-            },
-            {
-              "name": "Admin/Profile",
-              "role": "Admin",
-              "href": null
-            },
-            {
-              "name": "Admin/Reports",
-              "role": "Admin",
-              "href": null
-            },
-            {
-              "name": "Admin/StudentRecord",
-              "role": "Admin",
-              "href": null
-            },
-            {
-              "name": "Admin/StudentRecords",
-              "role": "Admin",
-              "href": "/admin/students"
-            },
-            {
-              "name": "Admin/Supervisors",
-              "role": "Admin",
-              "href": null
-            },
-            {
-              "name": "Admin/UnplacedStudents",
-              "role": "Admin",
-              "href": "/admin/unplaced-students"
-            },
-            {
-              "name": "CompaniesList",
-              "role": "Shared",
-              "href": null
-            },
-            {
-              "name": "Company/Applications/Index",
-              "role": "Company",
-              "href": null
-            },
-            {
-              "name": "Company/Applications/Show",
-              "role": "Company",
-              "href": null
-            },
-            {
-              "name": "Company/Dashboard",
-              "role": "Company",
-              "href": null
-            },
-            {
-              "name": "Company/Faqs",
-              "role": "Company",
-              "href": null
-            },
-            {
-              "name": "Company/Interns",
-              "role": "Company",
-              "href": null
-            },
-            {
-              "name": "Company/ManageUsers",
-              "role": "Company",
-              "href": null
-            },
-            {
-              "name": "Company/Profile",
-              "role": "Company",
-              "href": null
-            },
-            {
-              "name": "Company/Quotas",
-              "role": "Company",
-              "href": null
-            },
-            {
-              "name": "Company/Representatives",
-              "role": "Company",
-              "href": null
-            },
-            {
-              "name": "Company/Support",
-              "role": "Company",
-              "href": null
-            },
-            {
-              "name": "Dashboard",
-              "role": "Shared",
-              "href": null
-            },
-            {
-              "name": "FinalInternshipReport",
-              "role": "Shared",
-              "href": null
-            },
-            {
-              "name": "IndustrySupervisor/Dashboard",
-              "role": "Industry Supervisor",
-              "href": null
-            },
-            {
-              "name": "IndustrySupervisor/Evaluation",
-              "role": "Industry Supervisor",
-              "href": null
-            },
-            {
-              "name": "IndustrySupervisor/StudentDetails",
-              "role": "Industry Supervisor",
-              "href": null
-            },
-            {
-              "name": "IndustrySupervisor/Students",
-              "role": "Industry Supervisor",
-              "href": null
-            },
-            {
-              "name": "Profile/Edit",
-              "role": "Shared",
-              "href": null
-            },
-            {
-              "name": "Student/ApplicationTracking",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Student/Calendar",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Student/Companies",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Student/Dashboard",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Student/FAQs",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Student/Logbook",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Student/LogbookSubmission",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Student/PastReports",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Student/Profile",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Student/ReportIssue",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Student/ViewCompany",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Student/generator_cv",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Supervisor/Evaluation",
-              "role": "Shared",
-              "href": null
-            },
-            {
-              "name": "Supervisor/EvaluationResult",
-              "role": "Shared",
-              "href": null
-            }
-          ]
-        },
-        {
-          "file": "resources/js/Components/Sidebars/IndustrySupervisorSidebar.tsx",
-          "line": 92,
-          "occurrences": 3,
-          "pages": [
-            {
-              "name": "PB Supervisor/Dashboard",
-              "role": "PB Supervisor",
-              "href": null
-            },
-            {
-              "name": "PB Supervisor/Logbook",
-              "role": "PB Supervisor",
-              "href": null
-            },
-            {
-              "name": "PB Supervisor/LogbookReview",
-              "role": "PB Supervisor",
-              "href": null
-            },
-            {
-              "name": "PB Supervisor/StudentDetails",
-              "role": "PB Supervisor",
-              "href": null
-            },
-            {
-              "name": "PB Supervisor/Students",
-              "role": "PB Supervisor",
-              "href": null
-            },
-            {
-              "name": "Admin/AcademicSemesters",
-              "role": "Admin",
-              "href": "/admin/academic-semesters"
-            },
-            {
-              "name": "Admin/ApplicationList",
-              "role": "Admin",
-              "href": null
-            },
-            {
-              "name": "Admin/Calendar",
-              "role": "Admin",
-              "href": null
-            },
-            {
-              "name": "Admin/Companies",
-              "role": "Admin",
-              "href": "/admin/companies"
-            },
-            {
-              "name": "Admin/CompanyRecord",
-              "role": "Admin",
-              "href": null
-            },
-            {
-              "name": "Admin/Dashboard",
-              "role": "Admin",
-              "href": "/admin/dashboard"
-            },
-            {
-              "name": "Admin/Evaluations",
-              "role": "Admin",
-              "href": "/admin/evaluations"
-            },
-            {
-              "name": "Admin/Interventions",
-              "role": "Admin",
-              "href": null
-            },
-            {
-              "name": "Admin/ManageUsers",
-              "role": "Admin",
-              "href": "/admin/manage-users"
-            },
-            {
-              "name": "Admin/Placements",
-              "role": "Admin",
-              "href": "/admin/placements"
-            },
-            {
-              "name": "Admin/Profile",
-              "role": "Admin",
-              "href": null
-            },
-            {
-              "name": "Admin/Reports",
-              "role": "Admin",
-              "href": null
-            },
-            {
-              "name": "Admin/StudentRecord",
-              "role": "Admin",
-              "href": null
-            },
-            {
-              "name": "Admin/StudentRecords",
-              "role": "Admin",
-              "href": "/admin/students"
-            },
-            {
-              "name": "Admin/Supervisors",
-              "role": "Admin",
-              "href": null
-            },
-            {
-              "name": "Admin/UnplacedStudents",
-              "role": "Admin",
-              "href": "/admin/unplaced-students"
-            },
-            {
-              "name": "CompaniesList",
-              "role": "Shared",
-              "href": null
-            },
-            {
-              "name": "Company/Applications/Index",
-              "role": "Company",
-              "href": null
-            },
-            {
-              "name": "Company/Applications/Show",
-              "role": "Company",
-              "href": null
-            },
-            {
-              "name": "Company/Dashboard",
-              "role": "Company",
-              "href": null
-            },
-            {
-              "name": "Company/Faqs",
-              "role": "Company",
-              "href": null
-            },
-            {
-              "name": "Company/Interns",
-              "role": "Company",
-              "href": null
-            },
-            {
-              "name": "Company/ManageUsers",
-              "role": "Company",
-              "href": null
-            },
-            {
-              "name": "Company/Profile",
-              "role": "Company",
-              "href": null
-            },
-            {
-              "name": "Company/Quotas",
-              "role": "Company",
-              "href": null
-            },
-            {
-              "name": "Company/Representatives",
-              "role": "Company",
-              "href": null
-            },
-            {
-              "name": "Company/Support",
-              "role": "Company",
-              "href": null
-            },
-            {
-              "name": "Dashboard",
-              "role": "Shared",
-              "href": null
-            },
-            {
-              "name": "FinalInternshipReport",
-              "role": "Shared",
-              "href": null
-            },
-            {
-              "name": "IndustrySupervisor/Dashboard",
-              "role": "Industry Supervisor",
-              "href": null
-            },
-            {
-              "name": "IndustrySupervisor/Evaluation",
-              "role": "Industry Supervisor",
-              "href": null
-            },
-            {
-              "name": "IndustrySupervisor/StudentDetails",
-              "role": "Industry Supervisor",
-              "href": null
-            },
-            {
-              "name": "IndustrySupervisor/Students",
-              "role": "Industry Supervisor",
-              "href": null
-            },
-            {
-              "name": "Profile/Edit",
-              "role": "Shared",
-              "href": null
-            },
-            {
-              "name": "Student/ApplicationTracking",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Student/Calendar",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Student/Companies",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Student/Dashboard",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Student/FAQs",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Student/Logbook",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Student/LogbookSubmission",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Student/PastReports",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Student/Profile",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Student/ReportIssue",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Student/ViewCompany",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Student/generator_cv",
-              "role": "Student",
-              "href": null
-            },
-            {
-              "name": "Supervisor/Evaluation",
-              "role": "Shared",
-              "href": null
-            },
-            {
-              "name": "Supervisor/EvaluationResult",
-              "role": "Shared",
-              "href": null
-            }
-          ]
-        },
-        {
           "file": "resources/js/Components/app-sidebar.tsx",
           "line": 116,
           "occurrences": 1,
@@ -15921,7 +13803,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Components/data-table.tsx",
-          "line": 100,
+          "line": 104,
           "occurrences": 5,
           "pages": []
         },
@@ -16524,6 +14406,278 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
           ]
         },
         {
+          "file": "resources/js/Layouts/AuthenticatedLayout.tsx",
+          "line": 29,
+          "occurrences": 1,
+          "pages": [
+            {
+              "name": "PB Supervisor/Dashboard",
+              "role": "PB Supervisor",
+              "href": null
+            },
+            {
+              "name": "PB Supervisor/Logbook",
+              "role": "PB Supervisor",
+              "href": null
+            },
+            {
+              "name": "PB Supervisor/LogbookReview",
+              "role": "PB Supervisor",
+              "href": null
+            },
+            {
+              "name": "PB Supervisor/StudentDetails",
+              "role": "PB Supervisor",
+              "href": null
+            },
+            {
+              "name": "PB Supervisor/Students",
+              "role": "PB Supervisor",
+              "href": null
+            },
+            {
+              "name": "Admin/AcademicSemesters",
+              "role": "Admin",
+              "href": "/admin/academic-semesters"
+            },
+            {
+              "name": "Admin/ApplicationList",
+              "role": "Admin",
+              "href": null
+            },
+            {
+              "name": "Admin/Calendar",
+              "role": "Admin",
+              "href": null
+            },
+            {
+              "name": "Admin/Companies",
+              "role": "Admin",
+              "href": "/admin/companies"
+            },
+            {
+              "name": "Admin/CompanyRecord",
+              "role": "Admin",
+              "href": null
+            },
+            {
+              "name": "Admin/Dashboard",
+              "role": "Admin",
+              "href": "/admin/dashboard"
+            },
+            {
+              "name": "Admin/Evaluations",
+              "role": "Admin",
+              "href": "/admin/evaluations"
+            },
+            {
+              "name": "Admin/Interventions",
+              "role": "Admin",
+              "href": null
+            },
+            {
+              "name": "Admin/ManageUsers",
+              "role": "Admin",
+              "href": "/admin/manage-users"
+            },
+            {
+              "name": "Admin/Placements",
+              "role": "Admin",
+              "href": "/admin/placements"
+            },
+            {
+              "name": "Admin/Profile",
+              "role": "Admin",
+              "href": null
+            },
+            {
+              "name": "Admin/Reports",
+              "role": "Admin",
+              "href": null
+            },
+            {
+              "name": "Admin/StudentRecord",
+              "role": "Admin",
+              "href": null
+            },
+            {
+              "name": "Admin/StudentRecords",
+              "role": "Admin",
+              "href": "/admin/students"
+            },
+            {
+              "name": "Admin/Supervisors",
+              "role": "Admin",
+              "href": null
+            },
+            {
+              "name": "Admin/UnplacedStudents",
+              "role": "Admin",
+              "href": "/admin/unplaced-students"
+            },
+            {
+              "name": "CompaniesList",
+              "role": "Shared",
+              "href": null
+            },
+            {
+              "name": "Company/Applications/Index",
+              "role": "Company",
+              "href": null
+            },
+            {
+              "name": "Company/Applications/Show",
+              "role": "Company",
+              "href": null
+            },
+            {
+              "name": "Company/Dashboard",
+              "role": "Company",
+              "href": null
+            },
+            {
+              "name": "Company/Faqs",
+              "role": "Company",
+              "href": null
+            },
+            {
+              "name": "Company/Interns",
+              "role": "Company",
+              "href": null
+            },
+            {
+              "name": "Company/ManageUsers",
+              "role": "Company",
+              "href": null
+            },
+            {
+              "name": "Company/Profile",
+              "role": "Company",
+              "href": null
+            },
+            {
+              "name": "Company/Quotas",
+              "role": "Company",
+              "href": null
+            },
+            {
+              "name": "Company/Representatives",
+              "role": "Company",
+              "href": null
+            },
+            {
+              "name": "Company/Support",
+              "role": "Company",
+              "href": null
+            },
+            {
+              "name": "Dashboard",
+              "role": "Shared",
+              "href": null
+            },
+            {
+              "name": "FinalInternshipReport",
+              "role": "Shared",
+              "href": null
+            },
+            {
+              "name": "IndustrySupervisor/Dashboard",
+              "role": "Industry Supervisor",
+              "href": null
+            },
+            {
+              "name": "IndustrySupervisor/Evaluation",
+              "role": "Industry Supervisor",
+              "href": null
+            },
+            {
+              "name": "IndustrySupervisor/StudentDetails",
+              "role": "Industry Supervisor",
+              "href": null
+            },
+            {
+              "name": "IndustrySupervisor/Students",
+              "role": "Industry Supervisor",
+              "href": null
+            },
+            {
+              "name": "Profile/Edit",
+              "role": "Shared",
+              "href": null
+            },
+            {
+              "name": "Student/ApplicationTracking",
+              "role": "Student",
+              "href": null
+            },
+            {
+              "name": "Student/Calendar",
+              "role": "Student",
+              "href": null
+            },
+            {
+              "name": "Student/Companies",
+              "role": "Student",
+              "href": null
+            },
+            {
+              "name": "Student/Dashboard",
+              "role": "Student",
+              "href": null
+            },
+            {
+              "name": "Student/FAQs",
+              "role": "Student",
+              "href": null
+            },
+            {
+              "name": "Student/Logbook",
+              "role": "Student",
+              "href": null
+            },
+            {
+              "name": "Student/LogbookSubmission",
+              "role": "Student",
+              "href": null
+            },
+            {
+              "name": "Student/PastReports",
+              "role": "Student",
+              "href": null
+            },
+            {
+              "name": "Student/Profile",
+              "role": "Student",
+              "href": null
+            },
+            {
+              "name": "Student/ReportIssue",
+              "role": "Student",
+              "href": null
+            },
+            {
+              "name": "Student/ViewCompany",
+              "role": "Student",
+              "href": null
+            },
+            {
+              "name": "Student/generator_cv",
+              "role": "Student",
+              "href": null
+            },
+            {
+              "name": "Supervisor/Evaluation",
+              "role": "Shared",
+              "href": null
+            },
+            {
+              "name": "Supervisor/EvaluationResult",
+              "role": "Shared",
+              "href": null
+            }
+          ]
+        },
+        {
           "file": "resources/js/Pages/AcademicSupervisor/Dashboard.tsx",
           "line": 71,
           "occurrences": 2,
@@ -16549,7 +14703,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/AcademicSupervisor/LogbookReview.tsx",
-          "line": 19,
+          "line": 37,
           "occurrences": 5,
           "pages": [
             {
@@ -16561,7 +14715,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/AcademicSupervisor/StudentDetails.tsx",
-          "line": 362,
+          "line": 374,
           "occurrences": 36,
           "pages": [
             {
@@ -16573,7 +14727,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/AcademicSupervisor/Students.tsx",
-          "line": 34,
+          "line": 35,
           "occurrences": 5,
           "pages": [
             {
@@ -16597,7 +14751,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Admin/Companies.tsx",
-          "line": 231,
+          "line": 237,
           "occurrences": 8,
           "pages": [
             {
@@ -16633,7 +14787,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Admin/Evaluations.tsx",
-          "line": 261,
+          "line": 264,
           "occurrences": 7,
           "pages": [
             {
@@ -16645,7 +14799,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Admin/Placements.tsx",
-          "line": 91,
+          "line": 92,
           "occurrences": 1,
           "pages": [
             {
@@ -16657,7 +14811,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Admin/StudentRecord.tsx",
-          "line": 57,
+          "line": 58,
           "occurrences": 15,
           "pages": [
             {
@@ -16717,7 +14871,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Company/Applications/Show.tsx",
-          "line": 347,
+          "line": 349,
           "occurrences": 4,
           "pages": [
             {
@@ -16765,7 +14919,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Company/Quotas.tsx",
-          "line": 231,
+          "line": 238,
           "occurrences": 7,
           "pages": [
             {
@@ -16789,7 +14943,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/FinalInternshipReport.tsx",
-          "line": 89,
+          "line": 101,
           "occurrences": 3,
           "pages": [
             {
@@ -16825,7 +14979,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/IndustrySupervisor/StudentDetails.tsx",
-          "line": 242,
+          "line": 252,
           "occurrences": 30,
           "pages": [
             {
@@ -16849,7 +15003,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Student/ApplicationTracking.tsx",
-          "line": 87,
+          "line": 88,
           "occurrences": 5,
           "pages": [
             {
@@ -16909,7 +15063,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Student/Logbook.tsx",
-          "line": 45,
+          "line": 46,
           "occurrences": 7,
           "pages": [
             {
@@ -16921,7 +15075,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Student/LogbookSubmission.tsx",
-          "line": 21,
+          "line": 22,
           "occurrences": 3,
           "pages": [
             {
@@ -16957,7 +15111,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Supervisor/Evaluation.tsx",
-          "line": 32,
+          "line": 38,
           "occurrences": 1,
           "pages": [
             {
@@ -16989,7 +15143,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         "Shared",
         "Student"
       ],
-      "occurrences": 341
+      "occurrences": 336
     },
     {
       "id": "identity-2",
@@ -16998,7 +15152,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Page heading",
       "description": "An existing page-title style. Compare font size, weight and family.",
       "kind": "heading",
-      "className": "font-sato text-3xl font-bold",
+      "className": "font-sans text-3xl font-semibold",
       "variant": "default",
       "size": "default",
       "value": "",
@@ -17075,7 +15229,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Company/Applications/Show.tsx",
-          "line": 225,
+          "line": 227,
           "occurrences": 1,
           "pages": [
             {
@@ -17099,7 +15253,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Company/Quotas.tsx",
-          "line": 201,
+          "line": 208,
           "occurrences": 1,
           "pages": [
             {
@@ -17135,7 +15289,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Student/Profile.tsx",
-          "line": 751,
+          "line": 752,
           "occurrences": 1,
           "pages": [
             {
@@ -17160,7 +15314,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Page heading",
       "description": "An existing page-title style. Compare font size, weight and family.",
       "kind": "heading",
-      "className": "mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl",
+      "className": "mt-1 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl",
       "variant": "default",
       "size": "default",
       "value": "",
@@ -17194,7 +15348,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/AcademicSupervisor/Students.tsx",
-          "line": 30,
+          "line": 31,
           "occurrences": 1,
           "pages": [
             {
@@ -17264,7 +15418,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "sources": [
         {
           "file": "resources/js/Components/Sidebars/AcademicSupervisorSidebar.tsx",
-          "line": 57,
+          "line": 20,
           "occurrences": 1,
           "pages": [
             {
@@ -18080,7 +16234,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Components/Sidebars/IndustrySupervisorSidebar.tsx",
-          "line": 52,
+          "line": 20,
           "occurrences": 1,
           "pages": [
             {
@@ -18976,7 +17130,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Company/Profile.tsx",
-          "line": 177,
+          "line": 163,
           "occurrences": 1,
           "pages": [
             {
@@ -19004,7 +17158,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Page heading",
       "description": "An existing page-title style. Compare font size, weight and family.",
       "kind": "heading",
-      "className": "text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl",
+      "className": "text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl",
       "variant": "default",
       "size": "default",
       "value": "",
@@ -19023,7 +17177,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/AcademicSupervisor/LogbookReview.tsx",
-          "line": 19,
+          "line": 37,
           "occurrences": 1,
           "pages": [
             {
@@ -19035,7 +17189,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Profile/Edit.tsx",
-          "line": 25,
+          "line": 34,
           "occurrences": 1,
           "pages": [
             {
@@ -19047,7 +17201,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Student/Logbook.tsx",
-          "line": 45,
+          "line": 46,
           "occurrences": 1,
           "pages": [
             {
@@ -19059,7 +17213,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Student/LogbookSubmission.tsx",
-          "line": 21,
+          "line": 22,
           "occurrences": 1,
           "pages": [
             {
@@ -19084,14 +17238,14 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Page heading",
       "description": "An existing page-title style. Compare font size, weight and family.",
       "kind": "heading",
-      "className": "mt-2 text-2xl font-bold tracking-tight text-white sm:text-3xl",
+      "className": "mt-2 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl",
       "variant": "default",
       "size": "default",
       "value": "",
       "sources": [
         {
           "file": "resources/js/Pages/AcademicSupervisor/StudentDetails.tsx",
-          "line": 392,
+          "line": 404,
           "occurrences": 1,
           "pages": [
             {
@@ -19103,7 +17257,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Admin/StudentRecord.tsx",
-          "line": 64,
+          "line": 65,
           "occurrences": 1,
           "pages": [
             {
@@ -19115,7 +17269,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/IndustrySupervisor/StudentDetails.tsx",
-          "line": 263,
+          "line": 273,
           "occurrences": 1,
           "pages": [
             {
@@ -19140,7 +17294,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Page heading",
       "description": "An existing page-title style. Compare font size, weight and family.",
       "kind": "heading",
-      "className": "font-sato text-3xl font-bold text-slate-900",
+      "className": "font-sans text-3xl font-semibold text-slate-900",
       "variant": "default",
       "size": "default",
       "value": "",
@@ -19159,7 +17313,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Admin/Evaluations.tsx",
-          "line": 262,
+          "line": 265,
           "occurrences": 1,
           "pages": [
             {
@@ -19182,14 +17336,14 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Page heading",
       "description": "An existing page-title style. Compare font size, weight and family.",
       "kind": "heading",
-      "className": "text-3xl font-sato font-bold",
+      "className": "text-3xl font-sans font-semibold",
       "variant": "default",
       "size": "default",
       "value": "",
       "sources": [
         {
           "file": "resources/js/Pages/Admin/Companies.tsx",
-          "line": 224,
+          "line": 230,
           "occurrences": 1,
           "pages": [
             {
@@ -19213,7 +17367,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Company/Profile.tsx",
-          "line": 173,
+          "line": 159,
           "occurrences": 1,
           "pages": [
             {
@@ -19237,7 +17391,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Page heading",
       "description": "An existing page-title style. Compare font size, weight and family.",
       "kind": "heading",
-      "className": "text-3xl font-bold text-slate-900",
+      "className": "text-3xl font-semibold text-slate-900",
       "variant": "default",
       "size": "default",
       "value": "",
@@ -19267,7 +17421,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Page heading",
       "description": "An existing page-title style. Compare font size, weight and family.",
       "kind": "heading",
-      "className": "text-2xl font-bold text-slate-900",
+      "className": "text-2xl font-semibold text-slate-900",
       "variant": "default",
       "size": "default",
       "value": "",
@@ -19297,14 +17451,14 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Page heading",
       "description": "An existing page-title style. Compare font size, weight and family.",
       "kind": "heading",
-      "className": "text-3xl font-sato font-bold mb-6",
+      "className": "text-3xl font-sans font-semibold mb-6",
       "variant": "default",
       "size": "default",
       "value": "",
       "sources": [
         {
           "file": "resources/js/Pages/Admin/Placements.tsx",
-          "line": 85,
+          "line": 86,
           "occurrences": 1,
           "pages": [
             {
@@ -19327,7 +17481,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Page heading",
       "description": "An existing page-title style. Compare font size, weight and family.",
       "kind": "heading",
-      "className": "text-2xl font-bold mb-6",
+      "className": "text-2xl font-semibold mb-6",
       "variant": "default",
       "size": "default",
       "value": "",
@@ -19357,7 +17511,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Page heading",
       "description": "An existing page-title style. Compare font size, weight and family.",
       "kind": "heading",
-      "className": "text-3xl font-bold",
+      "className": "text-3xl font-semibold",
       "variant": "default",
       "size": "default",
       "value": "",
@@ -19430,7 +17584,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Page heading",
       "description": "An existing page-title style. Compare font size, weight and family.",
       "kind": "heading",
-      "className": "text-2xl font-bold font-sato",
+      "className": "text-2xl font-semibold font-sans",
       "variant": "default",
       "size": "default",
       "value": "",
@@ -19460,7 +17614,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Page heading",
       "description": "An existing page-title style. Compare font size, weight and family.",
       "kind": "heading",
-      "className": "text-2xl font-bold",
+      "className": "text-2xl font-semibold",
       "variant": "default",
       "size": "default",
       "value": "",
@@ -19534,7 +17688,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "sources": [
         {
           "file": "resources/js/Pages/Company/Applications/Show.tsx",
-          "line": 389,
+          "line": 391,
           "occurrences": 1,
           "pages": [
             {
@@ -19546,7 +17700,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
         },
         {
           "file": "resources/js/Pages/Student/Profile.tsx",
-          "line": 820,
+          "line": 821,
           "occurrences": 1,
           "pages": [
             {
@@ -19637,7 +17791,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Page heading",
       "description": "An existing page-title style. Compare font size, weight and family.",
       "kind": "heading",
-      "className": "mt-1 text-3xl font-bold tracking-tight text-slate-900",
+      "className": "mt-1 text-3xl font-semibold tracking-tight text-slate-900",
       "variant": "default",
       "size": "default",
       "value": "",
@@ -19667,14 +17821,14 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Page heading",
       "description": "An existing page-title style. Compare font size, weight and family.",
       "kind": "heading",
-      "className": "font-sato text-2xl font-bold text-slate-900 sm:text-3xl",
+      "className": "font-sans text-2xl font-semibold text-slate-900 sm:text-3xl",
       "variant": "default",
       "size": "default",
       "value": "",
       "sources": [
         {
           "file": "resources/js/Pages/FinalInternshipReport.tsx",
-          "line": 89,
+          "line": 101,
           "occurrences": 1,
           "pages": [
             {
@@ -19697,7 +17851,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Page heading",
       "description": "An existing page-title style. Compare font size, weight and family.",
       "kind": "heading",
-      "className": "mt-1 text-2xl font-bold text-slate-900 sm:text-3xl",
+      "className": "mt-1 text-2xl font-semibold text-slate-900 sm:text-3xl",
       "variant": "default",
       "size": "default",
       "value": "",
@@ -19727,14 +17881,14 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Page heading",
       "description": "An existing page-title style. Compare font size, weight and family.",
       "kind": "heading",
-      "className": "text-3xl font-bold font-sato mb-6",
+      "className": "text-3xl font-semibold font-sans mb-6",
       "variant": "default",
       "size": "default",
       "value": "",
       "sources": [
         {
           "file": "resources/js/Pages/Student/ApplicationTracking.tsx",
-          "line": 130,
+          "line": 131,
           "occurrences": 1,
           "pages": [
             {
@@ -19757,7 +17911,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Page heading",
       "description": "An existing page-title style. Compare font size, weight and family.",
       "kind": "heading",
-      "className": "text-3xl font-sato font-extrabold text-gray-900",
+      "className": "text-3xl font-sans font-extrabold text-gray-900",
       "variant": "default",
       "size": "default",
       "value": "",
@@ -19847,14 +18001,14 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Page heading",
       "description": "An existing page-title style. Compare font size, weight and family.",
       "kind": "heading",
-      "className": "mt-1 font-sato text-2xl font-bold text-slate-900 sm:text-3xl",
+      "className": "mt-1 font-sans text-2xl font-semibold text-slate-900 sm:text-3xl",
       "variant": "default",
       "size": "default",
       "value": "",
       "sources": [
         {
           "file": "resources/js/Pages/Supervisor/Evaluation.tsx",
-          "line": 32,
+          "line": 38,
           "occurrences": 1,
           "pages": [
             {
@@ -19877,7 +18031,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Page heading",
       "description": "An existing page-title style. Compare font size, weight and family.",
       "kind": "heading",
-      "className": "mt-1 break-words font-sato text-2xl font-bold text-slate-900 sm:text-3xl",
+      "className": "mt-1 break-words font-sans text-2xl font-semibold text-slate-900 sm:text-3xl",
       "variant": "default",
       "size": "default",
       "value": "",
@@ -19937,7 +18091,7 @@ export const uiInventory: { scannedAt: string; scannedFiles: number; categories:
       "title": "Page heading",
       "description": "An existing page-title style. Compare font size, weight and family.",
       "kind": "heading",
-      "className": "text-4xl sm:text-5xl md:text-6xl font-sato font-bold text-white",
+      "className": "text-4xl sm:text-5xl md:text-6xl font-sans font-semibold text-white",
       "variant": "default",
       "size": "default",
       "value": "",

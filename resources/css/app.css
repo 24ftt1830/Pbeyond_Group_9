@@ -5,36 +5,36 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
+    --foreground: 222 47% 11%;
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
+    --card-foreground: 222 47% 11%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
+    --popover-foreground: 222 47% 11%;
     --primary: 228 88% 54%;
     --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
-    --destructive: 0 84.2% 60.2%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 215 25% 27%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 44%;
+    --accent: 228 100% 97%;
+    --accent-foreground: 228 88% 45%;
+    --destructive: 350 78% 46%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
+    --border: 214 32% 91%;
+    --input: 213 27% 84%;
+    --ring: 228 88% 54%;
+    --chart-1: 228 88% 54%;
+    --chart-2: 224 76% 66%;
+    --chart-3: 217 72% 76%;
+    --chart-4: 235 59% 44%;
+    --chart-5: 210 70% 85%;
     --radius: 0.5rem;
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 215 25% 27%;
+    --sidebar-primary: 228 88% 54%;
     --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-accent: 228 100% 97%;
+    --sidebar-accent-foreground: 228 88% 45%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%
   }
@@ -46,8 +46,8 @@
     --card-foreground: 0 0% 98%;
     --popover: 0 0% 3.9%;
     --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
+    --primary: 228 90% 68%;
+    --primary-foreground: 0 0% 100%;
     --secondary: 0 0% 14.9%;
     --secondary-foreground: 0 0% 98%;
     --muted: 0 0% 14.9%;
@@ -90,7 +90,7 @@ html {
 }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background font-sans text-sm text-foreground antialiased;
   }
 
 
@@ -136,6 +136,106 @@ html {
   .main-scroll::-webkit-scrollbar-thumb:hover {
     background: hsl(var(--muted-foreground) / 0.4);
   }
+}
+
+/* Shared interface vocabulary. Page utilities can still supply layout and size. */
+@layer components {
+  .ui-button {
+    @apply inline-flex h-10 items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-transparent px-4 py-2 text-sm font-semibold transition-colors;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
+  }
+
+  .ui-button-primary {
+    @apply border-primary bg-primary text-primary-foreground hover:border-primary/90 hover:bg-primary/90;
+  }
+
+  .ui-button-outline {
+    @apply border-input bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50;
+  }
+
+  .ui-button-secondary {
+    @apply border-transparent bg-slate-100 text-slate-700 hover:bg-slate-200;
+  }
+
+  .ui-button-danger {
+    @apply border-destructive bg-destructive text-white hover:bg-destructive/90;
+  }
+
+  .ui-button-ghost {
+    @apply border-transparent bg-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-900;
+  }
+
+  .ui-field {
+    @apply h-10 w-full min-w-0 rounded-lg border border-input bg-white px-3 py-2 text-sm text-foreground shadow-none transition-colors;
+    @apply placeholder:text-slate-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:opacity-60;
+    color-scheme: light;
+    accent-color: hsl(var(--primary));
+  }
+
+  .ui-textarea {
+    @apply ui-field h-auto min-h-24 resize-y leading-6;
+  }
+
+  textarea.ui-field { @apply h-auto min-h-24 leading-6; }
+
+  .ui-tab {
+    @apply inline-flex min-h-9 items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition-colors;
+    @apply hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25 disabled:pointer-events-none disabled:opacity-50;
+  }
+  .ui-tab[aria-pressed='true'] { @apply bg-primary/10 text-primary; }
+
+  .ui-card {
+    @apply rounded-xl border border-border bg-card text-card-foreground shadow-sm;
+  }
+
+  .ui-badge {
+    @apply inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium leading-5;
+  }
+
+  .ui-badge-info { @apply border-blue-200 bg-blue-50 text-blue-700; }
+  .ui-badge-success { @apply border-emerald-200 bg-emerald-50 text-emerald-700; }
+  .ui-badge-warning { @apply border-amber-200 bg-amber-50 text-amber-800; }
+  .ui-badge-danger { @apply border-rose-200 bg-rose-50 text-rose-700; }
+  .ui-badge-neutral { @apply border-slate-200 bg-slate-100 text-slate-600; }
+
+  @keyframes company-row-flash {
+    0%, 100% { background-color: transparent; }
+    50% { background-color: hsl(var(--primary) / 0.14); }
+  }
+
+  .company-row-highlight {
+    animation: company-row-flash 650ms ease-in-out 4;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .company-row-highlight {
+      animation: none;
+      background-color: hsl(var(--primary) / 0.12);
+    }
+  }
+
+  .ui-table { @apply w-full border-collapse text-left text-sm; }
+  .ui-table thead { @apply border-b border-border bg-slate-50; }
+  .ui-table th { @apply px-4 py-3 text-xs font-semibold text-slate-500; }
+  .ui-table td { @apply border-b border-slate-100 px-4 py-3.5 align-middle; }
+  .ui-table tbody tr:last-child td { @apply border-b-0; }
+  .ui-table tbody tr { @apply transition-colors hover:bg-slate-50/70; }
+
+  .ui-empty { @apply rounded-lg bg-slate-50 px-5 py-8 text-center text-sm leading-6 text-muted-foreground; }
+
+  /* Native controls keep their browser behaviour, including the date picker. */
+  input[type='checkbox']:not([role]), input[type='radio']:not([role]) {
+    @apply size-4 border-input text-primary focus:ring-primary/25;
+    accent-color: hsl(var(--primary));
+  }
+  input[type='checkbox']:not([role]) { @apply rounded; }
+
+  input[type='file']::file-selector-button {
+    @apply mr-3 cursor-pointer rounded-md border-0 bg-slate-100 px-3 py-1.5 text-sm font-medium text-slate-700;
+  }
+  input[type='file'].ui-field { @apply h-auto min-h-10; }
+
+  .ui-button svg { @apply size-4 shrink-0; }
 }
 
 /* Give every authenticated role page the same outer width and page gutter. */

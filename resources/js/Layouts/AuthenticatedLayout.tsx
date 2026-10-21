@@ -3,6 +3,7 @@ import { usePage, router } from '@inertiajs/react'
 import { PageProps, UserRole } from '@/types'
 import { CommandMenu } from "@/Components/ui/command-menu"
 import { Toaster } from "@/Components/ui/sonner";
+import { LoaderCircle } from 'lucide-react';
 
 import { AdminSidebar } from "@/Components/Sidebars/AdminSidebar"
 import { CompanySidebar } from "@/Components/Sidebars/CompanySidebar"
@@ -10,7 +11,7 @@ import { UserSidebar } from "@/Components/Sidebars/UserSidebar"
 import { AcademicSupervisorSidebar } from "@/Components/Sidebars/AcademicSupervisorSidebar"
 import { IndustrySupervisorSidebar } from "@/Components/Sidebars/IndustrySupervisorSidebar"
 
-import { SidebarInset, SidebarProvider } from "@/Components/ui/sidebar"
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/Components/ui/sidebar"
 
 export default function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
     const { auth } = usePage<PageProps>().props
@@ -24,7 +25,7 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
     )
 
     if (!auth?.user) {
-        return <div className="flex h-screen items-center justify-center">Loading...</div>
+        return <div role="status" className="flex h-screen items-center justify-center gap-2 text-sm text-muted-foreground"><LoaderCircle className="size-4 animate-spin text-primary" />Loading…</div>
     }
 
     const Sidebars: Record<UserRole, React.ComponentType> = {
@@ -58,8 +59,11 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
             <SelectedSidebar />
 
             <SidebarInset className="min-w-0 h-screen flex flex-col">
-                <header className="flex h-16 shrink-0 items-center justify-between border-b px-10">
+                <header className="flex h-16 shrink-0 items-center justify-between border-b bg-white px-4 sm:px-6">
+                    <div className="flex min-w-0 items-center gap-3">
+                        <SidebarTrigger className="md:hidden" />
                         <CommandMenu />
+                    </div>
                     {/*
                     hello dear juniors, before you start coding, uncomment the <div> section below to enable role preview buttons.
                     you don't have to login/out multiple times to test diff views. just switch the toggles
@@ -78,7 +82,7 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
                             </Button>
                         ))}
                     </div>
-                    
+
                     // LOGOUT BUTTON
                     <Button
                         variant="destructive"

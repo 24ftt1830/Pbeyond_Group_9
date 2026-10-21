@@ -1,12 +1,10 @@
 import { Link } from '@inertiajs/react';
 import { User } from '@/types';
 import {
-  BadgeCheck,
-  Bell,
   ChevronsUpDown,
   LogOut,
-  CircleUserRound
 } from "lucide-react"
+import { navigationIcons } from '@/lib/navigation-icons';
 
 import {
   Avatar,
@@ -36,6 +34,8 @@ export function NavUser({ user }: { user: User }) {
     Admin: 'admin.profile',
     Student: 'student.profile',
     Company: 'company.profile',
+    'Academic Supervisor': 'academic-supervisor.profile',
+    'Industry Supervisor': 'industry-supervisor.profile',
   };
 
   const profileRoute = profileRouteMap[user.role] ?? 'profile.edit';
@@ -86,15 +86,11 @@ export function NavUser({ user }: { user: User }) {
             <DropdownMenuGroup>
               <DropdownMenuItem asChild>
                 <Link href={route(profileRoute)}>
-                  <CircleUserRound className="h-4 w-4" />
+                  <navigationIcons.profile className="size-4" strokeWidth={1.75} aria-hidden="true" />
                   Profile
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild><Link href={route('profile.edit')}><BadgeCheck />Account settings</Link></DropdownMenuItem>
-              <DropdownMenuItem>
-                <Bell />
-                Notifications
-              </DropdownMenuItem>
+              <DropdownMenuItem asChild><Link href={route('profile.edit')}><navigationIcons.accountSettings className="size-4" strokeWidth={1.75} aria-hidden="true" />Account settings</Link></DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
@@ -104,7 +100,7 @@ export function NavUser({ user }: { user: User }) {
                 as="button"
                 className="flex items-center w-full text-destructive"
               >
-                <LogOut className="size-4 text-destructive" />
+                <LogOut className="size-4 text-destructive" strokeWidth={1.75} aria-hidden="true" />
                 Log out
               </Link>
             </DropdownMenuItem>

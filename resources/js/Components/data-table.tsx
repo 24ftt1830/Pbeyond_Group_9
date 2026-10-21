@@ -1,3 +1,4 @@
+import { confirmAction } from '@/lib/confirm-action';
 import { router } from '@inertiajs/react'
 import { EllipsisVertical, Link2Off, Trash2, UserRoundPen, Link } from 'lucide-react'
 import {
@@ -38,14 +39,14 @@ interface UserTableProps {
 
 const UserTable = ({ data = [], columns = [] }: UserTableProps) => {
 
-  const handleDelete = (id: number) => {
-    if (confirm('Are you sure you want to permanently delete this user?')) {
+  const handleDelete = async (id: number) => {
+    if ((await confirmAction('Are you sure you want to permanently delete this user?'))) {
       router.delete(route('admin.manage-users.destroy', id));
     }
   };
 
-  const handleUnassign = (id: number) => {
-    if (confirm('Remove this user from their assigned company?')) {
+  const handleUnassign = async (id: number) => {
+    if ((await confirmAction('Remove this user from their assigned company?'))) {
       router.post(route('admin.manage-users.unassign', id));
     }
   };
@@ -53,7 +54,7 @@ const UserTable = ({ data = [], columns = [] }: UserTableProps) => {
   return (
     <div className='w-full'>
       <div className='w-full'>
-        <Table className="border-separate border-spacing-0"> 
+        <Table className="border-separate border-spacing-0">
           <TableHeader>
             <TableRow className="hover:bg-transparent">
               {columns.map((col, index) => (
@@ -61,8 +62,11 @@ const UserTable = ({ data = [], columns = [] }: UserTableProps) => {
                   key={col.key}
                   className={`text-xs font-medium text-slate-700 bg-[#f9f9f9]
             ${col.key === 'actions' ? 'w-[60px] text-right' : 'text-left'}
-            ${index === 0 ? 'rounded-l-lg' : ''} 
+
+            ${index === 0 ? 'rounded-l-lg' : ''}
+
             ${index === columns.length - 1 ? 'rounded-r-lg' : ''}
+
           `}
                 >
                   {col.header}

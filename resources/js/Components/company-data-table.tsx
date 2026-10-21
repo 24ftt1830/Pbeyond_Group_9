@@ -34,7 +34,7 @@ export interface CompanyData {
 }
 
 interface CompanyDataTableProps {
-  data: any[]; 
+  data: any[];
 }
 
 const CompanyDataTable = ({ data }: CompanyDataTableProps) => {
@@ -94,13 +94,13 @@ const CompanyDataTable = ({ data }: CompanyDataTableProps) => {
                   <TableCell className="px-6 py-4 text-gray-600 text-sm">{item.office_address}</TableCell>
                   <TableCell className="text-center px-6 py-4 text-gray-600">{item.total_quota}</TableCell>
                   <TableCell className="text-center px-6 py-4">
-                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${item.filled >= item.total_quota ? 'bg-red-50 text-red-700' : 'bg-blue-50 text-blue-700'}`}>
+                    <span className={'ui-badge ' + (` text-xs font-medium ${item.filled >= item.total_quota ? 'ui-badge-danger ' : 'ui-badge-info '}`)}>
                       {item.filled}
                     </span>
                   </TableCell>
                   <TableCell className="text-center px-6 py-4 font-mono font-medium text-slate-600">{item.available}</TableCell>
                   <TableCell className="text-right px-6 py-4">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-tight ${item.available === 0 ? 'bg-red-100 text-red-800' : 'bg-emerald-100 text-emerald-800'}`}>
+                    <span className={'ui-badge ' + (`inline-flex items-center text-xs font-medium uppercase tracking-tight ${item.available === 0 ? 'ui-badge-danger ' : 'ui-badge-success '}`)}>
                       {item.available === 0 ? 'Full' : 'Available'}
                     </span>
                   </TableCell>
@@ -116,27 +116,27 @@ const CompanyDataTable = ({ data }: CompanyDataTableProps) => {
       </div>
 
       <Dialog open={!!selectedCompany} onOpenChange={() => setSelectedCompany(null)}>
-        <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden border-none shadow-2xl rounded-2xl [&>button]:text-white [&>button]:opacity-80 [&>button:hover]:opacity-100">
+        <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden rounded-xl [&>button]:text-slate-500 [&>button]:opacity-80 [&>button:hover]:opacity-100">
           {selectedCompany && (
             <>
-              <div className="bg-slate-900 p-8 text-white relative">
-                <h2 className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-1">Company Profile</h2>
-                <DialogTitle className="text-2xl font-black text-white">{selectedCompany.company_name}</DialogTitle>
+              <div className="border-b border-border bg-slate-50 p-6 relative">
+                <h2 className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400 mb-1">Company Profile</h2>
+                <DialogTitle className="text-2xl font-semibold text-slate-900">{selectedCompany.company_name}</DialogTitle>
               </div>
-              <div className="p-8 space-y-6 bg-white">
+              <div className="p-6 space-y-6 bg-white">
                 <div className="grid grid-cols-2 gap-8">
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold uppercase text-slate-400 flex items-center gap-1.5"><MapPin size={12} /> Location</label>
+                    <label className="text-sm font-medium text-slate-600 flex items-center gap-1.5"><MapPin size={12} /> Location</label>
                     <p className="text-sm font-bold text-slate-700">{selectedCompany.office_address}</p>
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold uppercase text-slate-400 flex items-center gap-1.5"><Tag size={12} /> Industry</label>
+                    <label className="text-sm font-medium text-slate-600 flex items-center gap-1.5"><Tag size={12} /> Industry</label>
                     <p className="text-sm font-bold text-slate-700">{selectedCompany.industry_sector || 'N/A'}</p>
                   </div>
                 </div>
                 <hr className="border-slate-100" />
                 <div className="space-y-4">
-                  <label className="text-[10px] font-bold uppercase text-slate-400 flex items-center gap-1.5"><Users size={12} /> Quota Distribution</label>
+                  <label className="text-sm font-medium text-slate-600 flex items-center gap-1.5"><Users size={12} /> Quota Distribution</label>
                   <div className="grid grid-cols-3 gap-3">
                     <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
                       <p className="text-[10px] uppercase font-bold text-slate-400 mb-1">Total</p>

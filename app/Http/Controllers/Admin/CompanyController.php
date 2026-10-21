@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use Inertia\Inertia;
 use App\Imports\CompaniesImport;
+use App\Services\QuotaTermWindow;
 
 class CompanyController extends Controller
 {
@@ -58,7 +59,7 @@ class CompanyController extends Controller
             'available_slots' => $companiesData->sum('available'),
         ];
 
-        $quotas = PlacementQuota::with(['company', 'programme'])
+        $quotas = PlacementQuota::with(['company', 'programme', 'academicSemester'])
             ->latest()
             ->get();
 
@@ -71,12 +72,12 @@ class CompanyController extends Controller
 
     public function toggleRelease($id)
     {
-        $quota = PlacementQuota::findOrFail($id);
-        
-        $quota->update([
-            'quota_status' => 'Approved',
-            'is_released' => !$quota->is_released
-        ]);
+        $quota = DB::transaction(function () use ($id) {
+            $quota = PlacementQuota::whereKey($id)->lockForUpdate()->firstOrFail();
+            app(QuotaTermWindow::class)->ensureApprovable($quota);
+            $quota->update(['quota_status' => 'Approved', 'is_released' => !$quota->is_released]);
+            return $quota;
+        });
 
         $status = $quota->is_released ? 'released to students' : 'hidden from students';
 
@@ -118,7 +119,6 @@ class CompanyController extends Controller
             'student_id' => $student->student_id,
             'quota_id'   => $quota->quota_id,
             'app_status' => 'Pending_ILD',
-            'apply_date' => now(),
         ]);
 
         return back()->with('success', 'Application submitted successfully. It will be reviewed by ILD.');

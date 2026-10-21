@@ -68,7 +68,7 @@ export default function Register() {
                         id="role"
                         name="role"
                         value={data.role}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                        className="ui-field mt-1 block w-full"
                         onChange={(e) => setData('role', e.target.value)}
                         required
                     >
@@ -125,7 +125,7 @@ export default function Register() {
                 <div className="mt-4 flex items-center justify-end">
                     <Link
                         href={route('login')}
-                        className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                        className="rounded-lg text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus-visible:ring-primary/25 focus:ring-offset-2"
                     >
                         Already registered?
                     </Link>

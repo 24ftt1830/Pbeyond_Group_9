@@ -1,3 +1,4 @@
+import { confirmAction } from '@/lib/confirm-action';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { ArrowRight, GraduationCap, Search, Users, UserPlus } from 'lucide-react';
@@ -27,7 +28,7 @@ export default function Students({ students = [], availableStudents = [], school
                 <div className="mx-auto max-w-6xl space-y-6">
                     <header className="flex flex-wrap items-end justify-between gap-4">
                         <div>
-                            <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">My Students</h1>
+                            <h1 className="mt-1 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">My Students</h1>
                             <p className="mt-2 text-sm text-slate-500">Manage your students and choose students to supervise.</p>
                         </div>
                         <span className="inline-flex items-center gap-2 rounded-xl border bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm">
@@ -35,8 +36,8 @@ export default function Students({ students = [], availableStudents = [], school
                         </span>
                     </header>
                     <form className="flex flex-col gap-3 sm:flex-row" onSubmit={(event) => { event.preventDefault(); filter.get(route('academic-supervisor.students'), { preserveState: true, preserveScroll: true }); }}>
-                        <div className="relative flex-1"><Search className="pointer-events-none absolute left-3 top-3 size-4 text-slate-400" /><Input className="bg-white pl-9" placeholder="Search student name or ID" value={filter.data.search} onChange={(event) => filter.setData('search', event.target.value)} /></div>
-                        <select aria-label="Filter by school" className="h-10 rounded-md border bg-white px-3 text-sm sm:max-w-xs" value={filter.data.school_id} onChange={(event) => filter.setData('school_id', event.target.value)}>
+                        <div className="relative flex-1"><Search className="pointer-events-none absolute left-3 top-3 size-4 text-slate-400" /><Input className="pl-9" placeholder="Search student name or ID" value={filter.data.search} onChange={(event) => filter.setData('search', event.target.value)} /></div>
+                        <select aria-label="Filter by school" className="ui-field h-10 px-3 sm:max-w-xs" value={filter.data.school_id} onChange={(event) => filter.setData('school_id', event.target.value)}>
                             <option value="">All schools</option>
                             {schools.map((school) => <option key={school.school_id} value={school.school_id}>{school.school_code} — {school.school_name}</option>)}
                         </select>
@@ -47,7 +48,7 @@ export default function Students({ students = [], availableStudents = [], school
                         { title: 'Your students', description: 'View student details, attendance, visits and progress.', list: students, available: false },
                         { title: 'Available students', description: 'Choose an unassigned student to become their PB Supervisor.', list: availableStudents, available: true },
                     ]).map((section) => (
-                        <section key={section.title} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                        <section key={section.title} className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
                             <div className="border-b border-slate-100 px-5 py-4 sm:px-6">
                                 <h2 className="font-semibold text-slate-900">{section.title} <span className="ml-2 text-xs font-normal text-slate-500">{section.list.length}</span></h2>
                                 <p className="mt-1 text-sm text-slate-500">{section.description}</p>
@@ -65,8 +66,8 @@ export default function Students({ students = [], availableStudents = [], school
                                             </div>
                                         </div>
                                     </div>
-                                    {section.available ? <Button type="button" variant="outline" className="gap-2" disabled={claim.processing} onClick={() => { claim.transform(() => ({ student_id: student.student_id })); claim.post(route('academic-supervisor.students.assign'), { preserveScroll: true }); }}><UserPlus className="size-4" />Supervise student</Button> :
-                                        <Link href={route('academic-supervisor.student.show', student.student_id)} className="inline-flex items-center justify-center gap-2 rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700">View details<ArrowRight className="size-4" /></Link>}
+                                    {section.available ? <Button type="button" variant="outline" className="gap-2" disabled={claim.processing} onClick={async () => { if (claim.processing) return; if (!(await confirmAction(`Become the PB Supervisor for ${student.full_name}? The assignment takes effect immediately. Admin will need to correct a wrong assignment.`, { title: 'Supervise this student?', confirmLabel: 'Confirm assignment' }))) return; claim.transform(() => ({ student_id: student.student_id })); claim.post(route('academic-supervisor.students.assign'), { preserveScroll: true }); }}><UserPlus className="size-4" />Supervise student</Button> :
+                                        <Link href={route('academic-supervisor.student.show', student.student_id)} className="ui-button ui-button-primary inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary/90">View details<ArrowRight className="size-4" /></Link>}
                                 </div>)}
                             </div>}
                         </section>

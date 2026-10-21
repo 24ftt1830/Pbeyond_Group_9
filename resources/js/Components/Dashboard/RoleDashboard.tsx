@@ -30,7 +30,7 @@ export function RoleDashboard({
                 <div className="mx-auto max-w-7xl space-y-6">
                     <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                         <div>
-                            <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+                            <h1 className="mt-1 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
                                 Dashboard
                             </h1>
                             <p className="mt-2 text-sm text-slate-500">{description}</p>
@@ -46,14 +46,14 @@ export function RoleDashboard({
                                 <>
                                     <div className="flex items-start justify-between gap-3">
                                         <div>
-                                            <p className="text-sm font-medium text-slate-500">{stat.label}</p>
-                                            <p className="mt-2 text-3xl font-bold tracking-tight text-slate-900">{stat.value}</p>
+                                            <p className="min-h-10 text-sm font-medium text-slate-500">{stat.label}</p>
+                                            <p className="mt-2 text-2xl font-bold tracking-tight text-slate-900">{stat.value}</p>
                                         </div>
                                         <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-700 ring-1 ring-blue-100">
                                             <Icon className="size-5" />
                                         </span>
                                     </div>
-                                    <p className="mt-3 text-xs leading-5 text-slate-500">{stat.detail}</p>
+                                    <p className="mt-2 text-xs leading-5 text-slate-500">{stat.detail}</p>
                                 </>
                             );
 
@@ -61,14 +61,14 @@ export function RoleDashboard({
                                 <Link
                                     key={stat.label}
                                     href={stat.href}
-                                    className="block rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-blue-200 hover:shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                                    className="ui-card block p-5 transition hover:border-blue-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25"
                                 >
                                     {content}
                                 </Link>
                             ) : (
                                 <article
                                     key={stat.label}
-                                    className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+                                    className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
                                 >
                                     {content}
                                 </article>
@@ -95,13 +95,13 @@ export function DashboardPanel({
     children: ReactNode;
 }) {
     return (
-        <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
             <div className="flex flex-col gap-3 border-b border-slate-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-                <div>
+                <div className="min-w-0 flex-1">
                     <h2 className="font-semibold text-slate-900">{title}</h2>
                     {description && <p className="mt-1 text-sm text-slate-500">{description}</p>}
                 </div>
-                {action}
+                {action && <div className="shrink-0 whitespace-nowrap">{action}</div>}
             </div>
             {children}
         </section>

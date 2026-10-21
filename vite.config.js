@@ -12,8 +12,13 @@ export default defineConfig({
         react(),
     ],
     resolve: {
+        dedupe: ['react', 'react-dom'],
         alias: {
             '@': path.resolve(__dirname, './resources/js'),
         },
+    },
+    optimizeDeps: {
+        // Prebundle the dashboard's lazy-loaded scroll area with the shared React runtime.
+        include: ['react', 'react-dom', 'react/jsx-runtime', 'react/jsx-dev-runtime', '@radix-ui/react-scroll-area'],
     },
 });

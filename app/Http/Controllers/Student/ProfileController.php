@@ -295,6 +295,10 @@ class ProfileController extends Controller
             'work_experience'  => 'nullable|string',
             'emergency_no'     => 'nullable|string|max:20',
             'emergency_no_2'   => 'nullable|string|max:20|different:emergency_no',
+            'emergency_contact_name' => 'nullable|string|max:150',
+            'emergency_contact_relationship' => 'nullable|string|max:100',
+            'emergency_contact_name_2' => 'nullable|string|max:150',
+            'emergency_contact_relationship_2' => 'nullable|string|max:100',
 
             // Photo & Document uploads (PDF only for documents)
             'passport_photo'    => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
@@ -414,6 +418,11 @@ class ProfileController extends Controller
             $student->work_experience = $request->work_experience;
             $student->emergency_no    = $request->emergency_no;
             $student->emergency_no_2  = $validated['emergency_no_2'] ?? null;
+            foreach (['emergency_contact_name', 'emergency_contact_relationship', 'emergency_contact_name_2', 'emergency_contact_relationship_2'] as $field) {
+                if (array_key_exists($field, $validated)) {
+                    $student->{$field} = $validated[$field];
+                }
+            }
 
             if ($request->hasFile('insurance_document')) {
                 $previousInsurance = $student->insurance_document_path;

@@ -15,7 +15,7 @@ interface Programme {
 interface Quota {
     quota_id: number;
     job_title: string;
-    programme: Programme | null; 
+    programme: Programme | null;
     is_live: boolean;
     status: boolean;
     applications_count: number;
@@ -23,7 +23,7 @@ interface Quota {
 }
 
 export default function Applications({ quotas = [] }: { quotas: Quota[] }) {
-    
+
     const columns = useMemo<ColumnDef<Quota>[]>(() => [
         {
             accessorKey: 'job_title',
@@ -69,7 +69,7 @@ export default function Applications({ quotas = [] }: { quotas: Quota[] }) {
 
             <div className="p-6">
                 <div className="flex items-center justify-between mb-6">
-                    <h1 className="font-sato text-3xl font-bold">Applications</h1>
+                    <h1 className="font-sans text-3xl font-semibold">Applications</h1>
                 </div>
 
                 {quotas.length > 0 ? (

@@ -8,16 +8,16 @@ export default function PastReports() {
     return (
         <div className="p-6">
             <div className="mb-6 flex items-center justify-between">
-                <h1 className="text-2xl font-bold">Past Reports</h1>
+                <h1 className="text-2xl font-semibold">Past Reports</h1>
                 <button
                     onClick={() => (window.location.href = route('student.report-issue'))}
-                    className="rounded-md bg-black px-6 py-2 text-sm text-white"
+                    className="ui-button ui-button-primary rounded-lg bg-primary px-6 py-2 text-sm text-white"
                 >
                     Add
                 </button>
             </div>
             <div className="overflow-x-auto">
-                <table className="min-w-full border border-gray-200 rounded-lg">
+                <table className="ui-table min-w-full border border-gray-200 rounded-lg">
                     <thead className="bg-gray-50">
                         <tr>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Report ID</th>

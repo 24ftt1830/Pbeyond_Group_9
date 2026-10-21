@@ -48,11 +48,11 @@ interface Props {
 }
 
 const statusClass = (status: string) => {
-    if (status === 'Recruited') return 'bg-emerald-50 text-emerald-700 ring-emerald-100';
-    if (status === 'Declined') return 'bg-slate-100 text-slate-600 ring-slate-200';
-    if (status === 'Interviewing') return 'bg-blue-50 text-blue-700 ring-blue-100';
-    if (status === 'Waitlisted') return 'bg-violet-50 text-violet-700 ring-violet-100';
-    return 'bg-amber-50 text-amber-700 ring-amber-100';
+    if (status === 'Recruited') return 'ui-badge-success';
+    if (status === 'Declined') return 'ui-badge-danger';
+    if (status === 'Interviewing') return 'ui-badge-info';
+    if (status === 'Waitlisted') return 'ui-badge-warning';
+    return 'ui-badge-warning';
 };
 
 const formatDate = (value: string) => {
@@ -84,14 +84,14 @@ export default function Dashboard({
 
         toast.warning(`${missingLogbookWeeks.length} missing weekly logbook${missingLogbookWeeks.length === 1 ? '' : 's'}`, {
             id: 'student-missing-logbooks',
-            duration: 10000,
+            duration: 3000,
             description: (
                 <span className="font-semibold text-slate-900">
                     Submit your completed internship weeks:{' '}
                     {missingLogbookWeeks.slice(0, 4).map((week, index) => (
                         <span key={week.week_start}>
                             {index > 0 && ', '}
-                            <Link href={route('student.logbook', { week: week.week_start })} className="font-bold text-blue-700 underline hover:text-blue-900">
+                            <Link href={route('student.logbook', { week: week.week_start })} className="font-semibold text-primary underline hover:text-primary">
                                 Week of {formatDate(week.week_start)}
                             </Link>
                         </span>
@@ -99,7 +99,7 @@ export default function Dashboard({
                     {missingLogbookWeeks.length > 4 && (
                         <>
                             {' '}and {missingLogbookWeeks.length - 4} more.{' '}
-                            <Link href={route('student.logbook')} className="font-bold text-blue-700 underline hover:text-blue-900">
+                            <Link href={route('student.logbook')} className="font-semibold text-primary underline hover:text-primary">
                                 Open Logbook
                             </Link>
                         </>
@@ -270,13 +270,13 @@ export default function Dashboard({
             <main className="min-h-full bg-slate-50 px-4 py-7 sm:px-6 lg:px-8">
                 <div className="mx-auto max-w-7xl space-y-6">
                     <header>
-                        <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Dashboard</h1>
+                        <h1 className="mt-1 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">Dashboard</h1>
                         <p className="mt-2 text-sm text-slate-500">
                             Welcome back, {studentName}. Here is your internship progress and next step.
                         </p>
                     </header>
 
-                    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+                    <section className="ui-card rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
                         <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
                             <div className="flex min-w-0 items-start gap-4">
                                 <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-700 ring-1 ring-blue-100">
@@ -290,7 +290,7 @@ export default function Dashboard({
                             </div>
                             <Link
                                 href={nextStep.href}
-                                className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-lg bg-blue-700 px-4 text-sm font-semibold text-white transition hover:bg-blue-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+                                className="ui-button ui-button-primary inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-white transition hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25 focus-visible:ring-offset-2"
                             >
                                 {nextStep.action}
                                 <ArrowRight className="size-4" />
@@ -303,13 +303,13 @@ export default function Dashboard({
                             const Icon = card.icon;
 
                             return (
-                                <article key={card.label} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                                <article key={card.label} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
                                     <div className="flex items-start justify-between gap-3">
                                         <div className="min-w-0">
                                             <p className="text-sm font-medium text-slate-500">{card.label}</p>
                                             <p className="mt-2 truncate text-2xl font-bold tracking-tight text-slate-900">{card.value}</p>
                                         </div>
-                                        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
+                                        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-700 ring-1 ring-blue-100">
                                             <Icon className="size-5" />
                                         </span>
                                     </div>
@@ -319,13 +319,13 @@ export default function Dashboard({
                         })}
                     </section>
 
-                    <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                    <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
                         <div className="flex flex-col gap-3 border-b border-slate-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
                             <div>
                                 <h2 className="font-semibold text-slate-900">Recent applications</h2>
                                 <p className="mt-1 text-sm text-slate-500">A quick view of your latest application activity.</p>
                             </div>
-                            <Link href={route('student.application-tracking')} className="inline-flex items-center gap-1 text-sm font-semibold text-blue-700 hover:text-blue-800">
+                            <Link href={route('student.application-tracking')} className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:text-primary">
                                 View all applications
                                 <ArrowRight className="size-4" />
                             </Link>
@@ -334,7 +334,7 @@ export default function Dashboard({
                         {recentApplications.length === 0 ? (
                             <div className="px-6 py-10 text-center">
                                 <p className="text-sm text-slate-600">Your applications will appear here once you apply.</p>
-                                <Link href={route('student.companies')} className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-blue-700 hover:text-blue-800">
+                                <Link href={route('student.companies')} className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-primary hover:text-primary">
                                     Browse positions
                                     <ArrowRight className="size-4" />
                                 </Link>
@@ -349,7 +349,7 @@ export default function Dashboard({
                                                 {application.company_name ?? 'Company'} · Applied {formatDate(application.created_at)}
                                             </p>
                                         </div>
-                                        <span className={`w-fit shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ring-inset ${statusClass(application.app_status)}`}>
+                                        <span className={'ui-badge ' + (`w-fit shrink-0 text-xs ${statusClass(application.app_status)}`)}>
                                             {application.app_status}
                                         </span>
                                     </div>

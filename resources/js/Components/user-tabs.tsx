@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { DataTable } from '@/Components/ui/data-table';
 import type { ColumnDef } from '@tanstack/react-table';
-import { useForm, usePage } from '@inertiajs/react'
+import { Link, router, useForm, usePage } from '@inertiajs/react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/Components/ui/tabs'
 import { Button } from '@/Components/ui/button'
 import { AnimatedTabsList } from '@/Components/ui/animated-tabs'
@@ -32,6 +32,9 @@ import {
 import { ImportStudentsDialog } from '@/Components/import-csv'
 import SupervisorAccounts, { SupervisorForm, type Supervisor } from '@/Components/Admin/SupervisorAccounts'
 import { Errors, Field } from '@/Components/Admin/RecordControls'
+import PasswordResetLinkButton from '@/Components/Admin/PasswordResetLinkButton'
+import { StudentAccessBadge, StudentAccountAction, StudentInvitationButton, type InvitationStudent } from '@/Components/Admin/StudentInvitations'
+import { currentConfirmation } from '@/lib/confirm-action'
 
 type EditableUserRow = {
   full_name?: string;
@@ -40,6 +43,8 @@ type EditableUserRow = {
   programme_name?: string;
   intake_semester_name?: string;
   company_name?: string;
+  company_id?: number;
+  student_account?: InvitationStudent;
   onEdit: () => void;
 };
 
@@ -47,8 +52,9 @@ const editColumn: ColumnDef<EditableUserRow> = {
   id: 'actions',
   header: () => <span className="sr-only">Actions</span>,
   cell: ({ row }) => (
-    <div className="flex justify-end">
-      <Button type="button" size="sm" variant="outline" className="gap-1.5 shadow-sm"
+    <div className="flex flex-wrap justify-end gap-2">
+      {row.original.student_account && <StudentAccountAction student={row.original.student_account} />}
+      <Button type="button" size="sm" variant="outline" className="gap-1.5"
         aria-label={`Edit ${row.original.full_name ?? row.original.display_name ?? 'user'}`}
         onClick={row.original.onEdit}>
         <Pencil className="size-3.5" />
@@ -63,49 +69,81 @@ const studentColumns: ColumnDef<EditableUserRow>[] = [
   { id: 'email', header: 'Email Address', accessorKey: 'email' },
   { id: 'programme_name', header: 'Academic Programme', accessorKey: 'programme_name' },
   { id: 'intake_semester_name', header: 'Intake Semester', accessorKey: 'intake_semester_name' },
+  { id: 'account_status', header: 'Account access', cell: ({ row }) => row.original.student_account && <StudentAccessBadge status={row.original.student_account.student_invitation_status} /> },
   editColumn,
 ];
 
 const repColumns: ColumnDef<EditableUserRow>[] = [
   { id: 'display_name', header: 'Focal Person', accessorKey: 'display_name' },
   { id: 'email', header: 'Email Address', accessorKey: 'email' },
-  { id: 'company_name', header: 'Assigned Company', accessorKey: 'company_name' },
+  { id: 'company_name', header: 'Assigned Company', accessorKey: 'company_name', cell: ({ row }) => <span id={row.original.company_id ? `company-account-${row.original.company_id}` : undefined}>{row.original.company_name}</span> },
   editColumn,
 ];
 
 const UserTabs = () => {
-  const { students, companyUsers, companies, programmes, supervisors, quotas, academicSemesters } = usePage<any>().props;
-
-  const [activeTab, setActiveTab] = useState('students');
-  const [supervisorOpen, setSupervisorOpen] = useState(false);
-  const [supervisorType, setSupervisorType] = useState<Supervisor['type']>('industry');
-  const [studentOpen, setStudentOpen] = useState(false);
-  const [companyOpen, setCompanyOpen] = useState(false);
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-
-  // Filter logic
-  const filteredStudents = students?.filter((s: any) =>
-    s.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    s.email?.toLowerCase().includes(searchQuery.toLowerCase())
-  ) || [];
-
-  const filteredCompanyUsers = companyUsers?.filter((u: any) =>
-    u.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    u.email?.toLowerCase().includes(searchQuery.toLowerCase())
-  ) || [];
-
+  const page = usePage<any>();
+  const { students, companyUsers, companies, programmes, supervisors, quotas, academicSemesters } = page.props;
+  const params = new URLSearchParams(page.url.split('?')[1] ?? '');
+  const requestedCompanyId = Number(params.get('company_id')) || null;
   const companiesWithoutHrAccount = (companies || []).filter((company: any) =>
     !companyUsers?.some((user: any) =>
       String(user.company_id ?? user.company?.company_id) === String(company.company_id)
     )
   );
+  const requestedCompanyCanHaveHr = companiesWithoutHrAccount.some((company: any) => Number(company.company_id) === requestedCompanyId);
+
+  const [activeTab, setActiveTab] = useState(params.get('tab') === 'reps' ? 'reps' : 'students');
+  const [supervisorOpen, setSupervisorOpen] = useState(false);
+  const [supervisorType, setSupervisorType] = useState<Supervisor['type']>('industry');
+  const [studentOpen, setStudentOpen] = useState(false);
+  const [companyOpen, setCompanyOpen] = useState(params.get('action') === 'create' && requestedCompanyCanHaveHr);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Filter logic
+  const filteredStudents = students?.filter((s: any) =>
+    s.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    s.student?.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    s.email?.toLowerCase().includes(searchQuery.toLowerCase())
+  ) || [];
+  const uninvitedStudents = filteredStudents.filter((student: InvitationStudent) => student.student_invitation_status === 'not_invited');
+
+  useEffect(() => {
+    if (activeTab !== 'students' || studentOpen || editModalOpen || !students?.some((student: InvitationStudent) => student.student_invitation_status === 'queued')) return;
+    const timer = window.setInterval(() => {
+      if (!currentConfirmation()) router.reload({ only: ['students'] });
+    }, 5000);
+    return () => window.clearInterval(timer);
+  }, [activeTab, students, studentOpen, editModalOpen]);
+
+  const filteredCompanyUsers = companyUsers?.filter((u: any) =>
+    u.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    u.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    u.company?.company_name?.toLowerCase().includes(searchQuery.toLowerCase())
+  ) || [];
+  const requestedCompanyIndex = filteredCompanyUsers.findIndex((user: any) => Number(user.company_id ?? user.company?.company_id) === requestedCompanyId);
+  const requestedCompanyPageIndex = requestedCompanyIndex >= 0 ? Math.floor(requestedCompanyIndex / 10) : 0;
+
+  useEffect(() => {
+    if (activeTab !== 'reps' || !requestedCompanyId) return;
+
+    const companyLabel = document.getElementById(`company-account-${requestedCompanyId}`);
+    const row = companyLabel?.closest('tr');
+    if (!row) return;
+
+    row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    row.classList.remove('company-row-highlight');
+    void row.getBoundingClientRect();
+    row.classList.add('company-row-highlight');
+
+    const timeout = window.setTimeout(() => row.classList.remove('company-row-highlight'), 2600);
+    return () => window.clearTimeout(timeout);
+  }, [activeTab, requestedCompanyId]);
 
   const studentForm = useForm({
     username: '',
     full_name: '',
     email: '',
-    password: '',
     programme_id: '',
     pb_student_code: '',
     intake_semester_id: '',
@@ -117,7 +155,7 @@ const UserTabs = () => {
     email: '',
     password: '',
     role: 'Company',
-    company_id: '',
+    company_id: requestedCompanyCanHaveHr ? String(requestedCompanyId) : '',
   });
 
   const updateForm = useForm({
@@ -132,6 +170,9 @@ const UserTabs = () => {
     intake_semester_id: '',
     company_id: '',
   });
+
+  const editingCompanyUser = companyUsers?.find((user: any) => String(user.user_id) === String(updateForm.data.id));
+  const editingStudent = students?.find((user: any) => String(user.user_id) === String(updateForm.data.id));
 
   const openEditModal = (user: any, role: 'Student' | 'Company') => {
     if (!user) return;
@@ -192,24 +233,31 @@ const UserTabs = () => {
   return (
     <div className="p-6">
       <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-        <h1 className="font-sato text-3xl font-bold">Manage Users</h1>
+        <h1 className="font-sans text-3xl font-semibold">Manage Users</h1>
 
         <div className="flex items-center gap-2">
-          {activeTab === 'supervisors' && <Button size="sm" className="flex items-center gap-1.5 shadow-sm" onClick={() => setSupervisorOpen(true)}>
+          {activeTab === 'supervisors' && <Button size="sm" className="flex items-center gap-1.5" onClick={() => setSupervisorOpen(true)}>
             <Plus className="size-3.5" />
             Add supervisor
           </Button>}
           {activeTab === 'students' && <>
+            <StudentInvitationButton bulk recipients={uninvitedStudents.slice(0, 500)} />
             <ImportStudentsDialog programmes={programmes} academicSemesters={academicSemesters} />
-            <Button size="sm" className="flex items-center gap-1.5 shadow-sm" onClick={() => setStudentOpen(true)}>
+            <Button size="sm" className="flex items-center gap-1.5" onClick={() => setStudentOpen(true)}>
               <Plus className="size-3.5" />
               Add Student
             </Button>
           </>}
-          {activeTab === 'reps' && <Button size="sm" className="flex items-center gap-1.5 shadow-sm" onClick={() => setCompanyOpen(true)} disabled={!companiesWithoutHrAccount.length} title={!companiesWithoutHrAccount.length ? 'All companies already have an HR account.' : undefined}>
-            <Plus className="size-3.5" />
-            Add HR account
-          </Button>}
+          {activeTab === 'reps' && (companies?.length ? (
+            <Button size="sm" className="flex items-center gap-1.5" onClick={() => setCompanyOpen(true)} disabled={!companiesWithoutHrAccount.length} title={!companiesWithoutHrAccount.length ? 'Every company already has an HR account.' : undefined}>
+              <Plus className="size-3.5" />
+              Add HR account
+            </Button>
+          ) : (
+            <Button asChild size="sm" className="flex items-center gap-1.5">
+              <Link href={route('admin.companies')}><Plus className="size-3.5" />Add company first</Link>
+            </Button>
+          ))}
         </div>
       </div>
 
@@ -235,7 +283,7 @@ const UserTabs = () => {
                 placeholder="Search..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-9 w-[250px] pl-8 text-sm rounded-full bg-muted shadow-none border-none"
+                className="h-9 w-[250px] pl-8 bg-muted border-none"
               />
               <ListFilter className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
             </div>
@@ -246,7 +294,7 @@ const UserTabs = () => {
                 <form onSubmit={submitStudent}>
                   <DialogHeader>
                     <DialogTitle>Register Student</DialogTitle>
-                    <DialogDescription>Create a student account and assign their academic programme and intake.</DialogDescription>
+                    <DialogDescription>Add student details now. Access stays closed until you send an account invitation and the student sets their password.</DialogDescription>
                   </DialogHeader>
 
                   <div className="grid gap-4 py-4">
@@ -254,9 +302,9 @@ const UserTabs = () => {
                       <Label>Student ID</Label>
                       <Input
                         placeholder="e.g., 24FTB1001"
-                        className="shadow-none"
+                        className=""
                         value={studentForm.data.pb_student_code}
-                        onChange={e => studentForm.setData('pb_student_code', e.target.value)}
+                        onChange={e => { studentForm.setData('pb_student_code', e.target.value); studentForm.setData('username', e.target.value); }}
                         required
                       />
                       {studentForm.errors.pb_student_code && <p className="text-xs text-red-500">{studentForm.errors.pb_student_code}</p>}
@@ -275,11 +323,10 @@ const UserTabs = () => {
                     <div className="grid gap-2">
                       <Label>Full Name</Label>
                       <Input
-                        className="shadow-none"
+                        className=""
                         value={studentForm.data.full_name}
                         onChange={(e) => {
                           studentForm.setData('full_name', e.target.value);
-                          studentForm.setData('username', e.target.value);
                         }}
                         required
                       />
@@ -289,23 +336,14 @@ const UserTabs = () => {
                       <Label>Institutional Email</Label>
                       <Input
                         type="email"
-                        className="shadow-none"
+                        className=""
                         value={studentForm.data.email}
                         onChange={e => studentForm.setData('email', e.target.value)}
                         required
                       />
                     </div>
 
-                    <div className="grid gap-2">
-                      <Label>Password</Label>
-                      <Input
-                        type="password"
-                        className="shadow-none"
-                        value={studentForm.data.password}
-                        onChange={e => studentForm.setData('password', e.target.value)}
-                        required
-                      />
-                    </div>
+                    <p className="rounded-lg bg-slate-50 p-3 text-sm text-slate-500">No email is sent when you add this student. Send their account invitation from the student list when ready.</p>
 
                     <div className="grid gap-2">
                       <Label>Academic Programme</Label>
@@ -313,7 +351,7 @@ const UserTabs = () => {
                         value={studentForm.data.programme_id?.toString()}
                         onValueChange={(val) => studentForm.setData('programme_id', val)}
                       >
-                        <SelectTrigger className="shadow-none">
+                        <SelectTrigger className="">
                           <SelectValue placeholder="Select Programme" />
                         </SelectTrigger>
                         <SelectContent className="max-h-[250px] overflow-y-auto">
@@ -335,7 +373,7 @@ const UserTabs = () => {
                     <div className="grid gap-2">
                       <Label>Intake Semester</Label>
                       <Select value={studentForm.data.intake_semester_id} onValueChange={(value) => studentForm.setData('intake_semester_id', value)}>
-                        <SelectTrigger className="shadow-none"><SelectValue placeholder="Select intake semester" /></SelectTrigger>
+                        <SelectTrigger className=""><SelectValue placeholder="Select intake semester" /></SelectTrigger>
                         <SelectContent className="max-h-[250px] overflow-y-auto">
                           {academicSemesters?.map((semester: any) => <SelectItem key={semester.id} value={String(semester.id)}>{semester.name}</SelectItem>)}
                         </SelectContent>
@@ -354,7 +392,6 @@ const UserTabs = () => {
                         !studentForm.data.pb_student_code ||
                         !studentForm.data.username ||
                         !studentForm.data.email ||
-                        !studentForm.data.password ||
                         !studentForm.data.programme_id ||
                         !studentForm.data.intake_semester_id
                       }
@@ -390,7 +427,7 @@ const UserTabs = () => {
                     <div className="grid gap-2">
                       <Label htmlFor="hr-company">Company</Label>
                       <Select value={companyAccountForm.data.company_id} onValueChange={(value) => companyAccountForm.setData('company_id', value)}>
-                        <SelectTrigger id="hr-company" className="shadow-none">
+                        <SelectTrigger id="hr-company" className="">
                           <SelectValue placeholder="Select a company" />
                         </SelectTrigger>
                         <SelectContent>
@@ -415,21 +452,23 @@ const UserTabs = () => {
             </Dialog>
           </div>
 
-                      
+
 <TabsContent value="students" className="mt-4">
+    <p className="mb-4 text-sm text-slate-500">Add records first, then send invitations when access is ready. The main invitation button includes only students marked “Not invited”{searchQuery.trim() ? ' matching your search' : ''}. {uninvitedStudents.length > 500 && 'Send in batches of up to 500 students.'}</p>
     <div className="rounded-xl bg-white">
         {filteredStudents.length > 0 ? (
-            <DataTable 
-                columns={studentColumns} 
+            <DataTable
+                columns={studentColumns}
                 data={filteredStudents.map((s: any) => ({
                     ...s,
                     id: s.user_id,
                     role: 'Student',
+                    student_account: s,
                     full_name: s.student?.full_name || 'N/A',
                     programme_name: s.student?.programme?.programme_name || 'Not Assigned',
                     intake_semester_name: s.student?.intake_semester?.name || s.student?.intake_session || 'Not Assigned',
                     onEdit: () => openEditModal(s, 'Student')
-                }))} 
+                }))}
             />
         ) : (
             <p className="text-center py-10 text-slate-500">No students found.</p>
@@ -438,10 +477,20 @@ const UserTabs = () => {
 </TabsContent>
 
 <TabsContent value="reps" className="mt-4">
+    <div className="mb-4 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600">
+        {!companies?.length ? (
+            <p>Add a company before creating its HR login. <Link href={route('admin.companies')} className="font-medium text-primary underline-offset-4 hover:underline">Go to Companies</Link>.</p>
+        ) : companiesWithoutHrAccount.length ? (
+            <p>Create login access for a company already added. Each company can have one HR account.</p>
+        ) : (
+            <p>Every company already has an HR account. Add another company before creating another representative account.</p>
+        )}
+    </div>
     <div className="rounded-xl bg-white">
         {filteredCompanyUsers.length > 0 ? (
-            <DataTable 
-                columns={repColumns} 
+            <DataTable
+                columns={repColumns}
+                initialPageIndex={requestedCompanyPageIndex}
                 data={filteredCompanyUsers.map((u: any) => ({
                     ...u,
                     id: u.user_id,
@@ -449,13 +498,16 @@ const UserTabs = () => {
                     display_name: u.username,
                     email: u.email,
                     assigned_company_id: u.company?.company_id || null,
+                    company_id: u.company_id ?? u.company?.company_id,
                     company_name: u.company?.company_name || 'Unassigned',
                     onEdit: () => openEditModal(u, 'Company'),
 
-                }))} 
+                }))}
             />
         ) : (
-            <p className="text-center py-10 text-slate-500">No representatives found.</p>
+            <div className="py-10 text-center text-slate-500">
+                {searchQuery.trim() ? <p>No HR accounts match “{searchQuery}”.</p> : !companies?.length ? <p>No HR accounts can be created yet because no companies have been added.</p> : companiesWithoutHrAccount.length === companies.length ? <p>No HR accounts have been created yet. Use “Add HR account” to create the first one.</p> : <p>No representatives found.</p>}
+            </div>
         )}
     </div>
 </TabsContent>
@@ -501,7 +553,7 @@ const UserTabs = () => {
             </DialogHeader>
             <form className="space-y-4" onSubmit={submitUpdate}>
               <Field label="Account role">
-                <select disabled className="h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm shadow-sm" value={updateForm.data.role}>
+                <select disabled className="ui-field h-9 w-full px-3 py-1" value={updateForm.data.role}>
                   <option value="Student">Student</option>
                   <option value="Company">Representative</option>
                 </select>
@@ -520,22 +572,34 @@ const UserTabs = () => {
                   <Input required value={updateForm.data.pb_student_code} onChange={(event) => updateForm.setData('pb_student_code', event.target.value)} />
                 </Field>}
               </div>
-              <Field label="New Password (optional)">
-                <Input type="password" autoComplete="new-password" minLength={8} value={updateForm.data.password} onChange={(event) => updateForm.setData('password', event.target.value)} />
-              </Field>
+              {updateForm.data.role === 'Student' ? editingStudent && <div className="space-y-3 rounded-lg border bg-slate-50 p-4">
+                <StudentAccessBadge status={editingStudent.student_invitation_status} />
+                {editingStudent.student_invitation_status === 'active' ? <PasswordResetLinkButton userId={editingStudent.user_id} name={editingStudent.student?.full_name ?? editingStudent.username} email={editingStudent.email} emailChanged={updateForm.data.email !== editingStudent.email} /> : <>
+                  <p className="text-sm text-slate-500">The student must receive an invitation and set their own password before logging in.</p>
+                  {editingStudent.student_invitation_error && <p role="alert" className="text-sm text-red-600">{editingStudent.student_invitation_error}</p>}
+                  {updateForm.data.email !== editingStudent.email && <p className="text-sm text-amber-700">Save the email change before sending an invitation. Previous setup links will be cancelled.</p>}
+                  <StudentAccountAction student={editingStudent} disabled={updateForm.data.email !== editingStudent.email} />
+                </>}
+              </div> : editingCompanyUser && <PasswordResetLinkButton
+                key={editingCompanyUser.user_id}
+                userId={editingCompanyUser.user_id}
+                name={editingCompanyUser.username}
+                email={editingCompanyUser.email}
+                emailChanged={updateForm.data.email !== editingCompanyUser.email}
+              />}
               {updateForm.data.role === 'Student' ? <Field label="Academic Programme">
-                <select required className="h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm shadow-sm" value={updateForm.data.programme_id} onChange={(event) => updateForm.setData('programme_id', event.target.value)}>
+                <select required className="ui-field h-9 w-full px-3 py-1" value={updateForm.data.programme_id} onChange={(event) => updateForm.setData('programme_id', event.target.value)}>
                   <option value="" disabled>Select Programme</option>
                   {programmes?.map((programme: any) => <option key={programme.programme_id} value={programme.programme_id}>{programme.programme_name}</option>)}
                 </select>
               </Field> : <Field label="Company">
-                <select required className="h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm shadow-sm" value={updateForm.data.company_id} onChange={(event) => updateForm.setData('company_id', event.target.value)}>
+                <select required className="ui-field h-9 w-full px-3 py-1" value={updateForm.data.company_id} onChange={(event) => updateForm.setData('company_id', event.target.value)}>
                   <option value="" disabled>Select Company</option>
                   {companies?.filter((company: any) => !companyUsers?.some((other: any) => String(other.user_id) !== String(updateForm.data.id) && String(other.company_id ?? other.company?.company_id) === String(company.company_id))).map((company: any) => <option key={company.company_id} value={String(company.company_id)}>{company.company_name}</option>)}
                 </select>
               </Field>}
               {updateForm.data.role === 'Student' && <Field label="Intake Semester">
-                <select required className="h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm shadow-sm" value={updateForm.data.intake_semester_id} onChange={(event) => updateForm.setData('intake_semester_id', event.target.value)}>
+                <select required className="ui-field h-9 w-full px-3 py-1" value={updateForm.data.intake_semester_id} onChange={(event) => updateForm.setData('intake_semester_id', event.target.value)}>
                   <option value="" disabled>Select intake semester</option>
                   {academicSemesters?.map((semester: any) => <option key={semester.id} value={String(semester.id)}>{semester.name}</option>)}
                 </select>

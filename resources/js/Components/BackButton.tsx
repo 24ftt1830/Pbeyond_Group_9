@@ -10,7 +10,7 @@ type BackButtonProps = {
 };
 
 export default function BackButton({ href, onClick, children, className = '' }: BackButtonProps) {
-    const buttonClassName = `h-10 w-fit justify-start rounded-xl border-slate-200 bg-white px-4 font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950 ${className}`;
+    const buttonClassName = `w-fit justify-start ${className}`;
 
     if (href) {
         return (

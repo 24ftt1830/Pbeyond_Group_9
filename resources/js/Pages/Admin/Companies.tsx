@@ -1,9 +1,11 @@
+import { confirmAction } from '@/lib/confirm-action';
+import QuotaDeadlineNotice from '@/Components/QuotaDeadlineNotice';
 import { useState, useMemo, useEffect } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, router, useForm } from '@inertiajs/react';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import CompanyDataTable from '@/Components/company-data-table';
 import DashboardCard from '@/Components/DashboardCards';
-import { Building2, LayoutGrid, User, UserCheck, SearchIcon, RotateCcw, Plus, FileUp } from 'lucide-react';
+import { ArrowRight, Building2, LayoutGrid, User, UserCheck, SearchIcon, RotateCcw, Plus, FileUp } from 'lucide-react';
 import { Input } from '@/Components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select";
 import { Button } from "@/Components/ui/button";
@@ -61,6 +63,7 @@ interface Props {
 }
 
 export default function Companies({ stats, companies, quotas = [] }: Props) {
+    const { errors: pageErrors } = usePage().props;
     const pendingQuotas = useMemo(() => quotas.filter(q => q.quota_status === 'Pending'), [quotas]);
     const approvedQuotas = useMemo(() => quotas.filter(q => q.quota_status === 'Approved'), [quotas]);
 
@@ -96,6 +99,7 @@ export default function Companies({ stats, companies, quotas = [] }: Props) {
     const columns = useMemo(() => [
         { accessorKey: "job_title", header: "Job Title" },
         { accessorKey: "company.company_name", header: "Company" },
+        { id: 'term', header: 'Internship term', cell: ({ row }: any) => <div className="space-y-1"><p>{row.original.academic_semester?.name ?? 'Not assigned'}</p><QuotaDeadlineNotice term={row.original.academic_semester} compact /></div> },
         { accessorKey: "total_slots", header: "Slots" },
         {
             id: "actions",
@@ -121,7 +125,7 @@ export default function Companies({ stats, companies, quotas = [] }: Props) {
         {
             id: "manage",
             header: "Actions",
-            cell: ({ row }: any) => <Link href={route('admin.companies.manage', row.original.company_id)} className="inline-flex rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Manage company</Link>,
+            cell: ({ row }: any) => <Link href={route('admin.companies.manage', row.original.company_id)} aria-label={`Manage ${row.original.company_name}`} className="ui-button ui-button-primary h-9 gap-2 rounded-lg px-3.5 text-sm font-semibold shadow-sm hover:shadow">Manage<ArrowRight aria-hidden="true" className="size-4" /></Link>,
         },
     ], []);
 
@@ -153,8 +157,8 @@ export default function Companies({ stats, companies, quotas = [] }: Props) {
     });
     };
 
-    const handleReject = (id: number) => {
-        if (!window.confirm('Reject this quota request and hide it from students?')) return;
+    const handleReject = async (id: number) => {
+        if (!(await confirmAction('Reject this quota request and hide it from students?'))) return;
         router.post(route('admin.placements.reject', { quota: id }), {}, {
         preserveScroll: true,
     });
@@ -185,6 +189,7 @@ export default function Companies({ stats, companies, quotas = [] }: Props) {
         setFilterDistrict('');
         setFilterSchool('');
     };
+    const hasActiveFilters = Boolean(searchTerm || filterSchool || filterDistrict || filterCategory !== 'all' || filterStatus !== 'all');
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(e.target.value);
@@ -219,9 +224,10 @@ export default function Companies({ stats, companies, quotas = [] }: Props) {
     return (
         <div className="p-6">
             <RecordFeedback />
+            <Errors errors={pageErrors as Record<string, string>} />
             <div className="flex items-center justify-between mb-6">
                 <header>
-                    <h1 className="text-3xl font-sato font-bold">Company and Quota</h1>
+                    <h1 className="text-3xl font-sans font-semibold">Company and Quota</h1>
                 </header>
 
                 <div className="flex items-center gap-2">
@@ -291,7 +297,7 @@ export default function Companies({ stats, companies, quotas = [] }: Props) {
                                         value={companyForm.data.industry_sector}
                                         onValueChange={(value) => companyForm.setData('industry_sector', value)}
                                     >
-                                        <SelectTrigger id="co-category" className="shadow-none">
+                                        <SelectTrigger id="co-category" className="">
                                             <SelectValue placeholder="Select category" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -311,7 +317,7 @@ export default function Companies({ stats, companies, quotas = [] }: Props) {
                                         value={companyForm.data.district}
                                         onValueChange={(value) => companyForm.setData('district', value)}
                                     >
-                                        <SelectTrigger id="co-location" className="shadow-none">
+                                        <SelectTrigger id="co-location" className="">
                                             <SelectValue placeholder="Select District" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -365,25 +371,42 @@ export default function Companies({ stats, companies, quotas = [] }: Props) {
             <div className="mt-4">
                 {activeTab === 'all_companies' && (
                     <div className="space-y-4">
-                        <div className="flex flex-wrap items-end gap-4 bg-white rounded-xl py-2">
-                            <div className="flex-1 min-w-[240px] space-y-2">
-                                <label className="ml-1 text-xs font-semibold text-gray-500 uppercase">Search Company</label>
-                                <div className="relative">
-                                    <SearchIcon className="absolute text-gray-400 -translate-y-1/2 left-3 top-1/2 size-4" />
-                                    <Input
-                                        placeholder="Type company name or district..."
-                                        value={searchTerm}
-                                        onChange={handleSearchChange}
-                                        className="pl-9 pr-9 shadow-none focus-visible:ring-transparent"
-                                    />
+                        <section aria-label="Company filters" className="rounded-xl border border-slate-200 bg-white p-4">
+                            <div className="grid items-end gap-3 sm:grid-cols-2 xl:grid-cols-[minmax(14rem,1fr)_minmax(12rem,16rem)_minmax(10rem,12rem)_auto]">
+                                <div className="min-w-0 space-y-2 sm:col-span-2 xl:col-span-1">
+                                    <Label htmlFor="company-search" className="text-xs font-medium text-slate-500">Search</Label>
+                                    <div className="relative">
+                                        <SearchIcon aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+                                        <Input
+                                            id="company-search"
+                                            type="search"
+                                            placeholder="Search companies..."
+                                            value={searchTerm}
+                                            onChange={handleSearchChange}
+                                            className="h-10 pl-9"
+                                        />
+                                    </div>
                                 </div>
+                                <div className="min-w-0 space-y-2">
+                                    <Label htmlFor="company-school" className="text-xs font-medium text-slate-500">School</Label>
+                                    <select id="company-school" value={filterSchool} onChange={(event) => setFilterSchool(event.target.value)} className="ui-field h-10 w-full">
+                                        <option value="">All schools</option>
+                                        {schoolNames.map((school) => <option key={school}>{school}</option>)}
+                                    </select>
+                                </div>
+                                <div className="min-w-0 space-y-2">
+                                    <Label htmlFor="company-district" className="text-xs font-medium text-slate-500">District</Label>
+                                    <select id="company-district" value={filterDistrict} onChange={(event) => setFilterDistrict(event.target.value)} className="ui-field h-10 w-full">
+                                        <option value="">All districts</option>
+                                        {districts.map((district) => <option key={district}>{district}</option>)}
+                                    </select>
+                                </div>
+                                {hasActiveFilters && <Button type="button" variant="ghost" onClick={resetFilters} className="h-10 justify-self-start px-3 text-slate-500 hover:text-primary sm:col-span-2 xl:col-span-1">
+                                    <RotateCcw aria-hidden="true" className="size-4" />Clear filters
+                                </Button>}
                             </div>
-                            <select aria-label="Filter by school" value={filterSchool} onChange={(event) => setFilterSchool(event.target.value)} className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm"><option value="">All schools</option>{schoolNames.map((school) => <option key={school}>{school}</option>)}</select>
-                            <select aria-label="Filter by district" value={filterDistrict} onChange={(event) => setFilterDistrict(event.target.value)} className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm"><option value="">All districts</option>{districts.map((district) => <option key={district}>{district}</option>)}</select>
-                            <Button variant="ghost" size="sm" onClick={resetFilters} className="text-gray-500 hover:text-red-600">
-                                <RotateCcw className="size-3.5" /> Reset
-                            </Button>
-                        </div>
+                        </section>
+                        <p role="status" aria-live="polite" className="px-1 text-xs text-slate-500">{processedCompanies.length} {processedCompanies.length === 1 ? 'company' : 'companies'}{hasActiveFilters ? ` found · ${companies.length} total` : ' total'}</p>
 
                         <div className="rounded-xl bg-white">
                             {processedCompanies.length > 0 ? (

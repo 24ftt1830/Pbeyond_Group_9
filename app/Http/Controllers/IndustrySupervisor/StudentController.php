@@ -77,6 +77,7 @@ class StudentController extends Controller
                 ->where('is_active', true)->exists(),
             'completionStatus' => app(InternshipCompletionStatus::class)->for($student),
             'overallScore' => app(InternshipCompletionStatus::class)->overallScore($student),
+            'pendingLogbookCorrections' => app(InternshipCompletionStatus::class)->pendingLogbookCorrections($student),
         ]);
     }
 

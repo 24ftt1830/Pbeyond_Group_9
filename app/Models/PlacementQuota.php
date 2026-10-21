@@ -28,6 +28,7 @@ class PlacementQuota extends Model
     ];
 
     protected $casts = [
+        'auto_rejected_at' => 'datetime',
         'skills' => 'array',
         'is_released' => 'boolean',
         'min_cgpa' => 'decimal:2',

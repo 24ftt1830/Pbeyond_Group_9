@@ -1,3 +1,4 @@
+import { confirmAction } from '@/lib/confirm-action';
 import { useEffect, useId, useRef, useState } from 'react';
 import { ArrowDown, ArrowUp, ChevronDown, MoreHorizontal, Plus, Trash2 } from 'lucide-react';
 import type { ReactNode } from 'react';
@@ -22,9 +23,9 @@ export const emptySection = (): RubricSection => ({
     criteria: [emptyCriterion()],
 });
 
-export const evaluationInputClass = 'block w-full min-w-0 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm leading-6 text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/15';
-const secondaryButtonClass = 'inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-indigo-700 transition hover:bg-indigo-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500';
-const iconButtonClass = 'inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 disabled:cursor-not-allowed disabled:opacity-30';
+export const evaluationInputClass = 'ui-field block';
+const secondaryButtonClass = 'ui-button ui-button-ghost h-9 px-3 text-primary hover:bg-primary/5 hover:text-primary';
+const iconButtonClass = 'ui-button ui-button-ghost size-9 shrink-0 p-0';
 
 type Props = {
     sections: RubricSection[];
@@ -83,9 +84,9 @@ export default function RubricEditor({ sections, onChange, errors = {}, fixedSec
         setOpenCriteria((current) => Object.fromEntries(Object.entries(current).map(([index, value]) => [swapped(Number(index)), value])));
     }
 
-    function removeSection(si: number) {
+    async function removeSection(si: number) {
         if (sections.length <= 1) return;
-        if (!window.confirm('Delete this section and its assessment criteria?')) return;
+        if (!(await confirmAction('Delete this section and its assessment criteria?'))) return;
         onChange(sections.filter((_, index) => index !== si));
         setOpenSections((current) => new Set([...current].filter((index) => index !== si).map((index) => index > si ? index - 1 : index)));
         setOpenCriteria((current) => Object.fromEntries(Object.entries(current).filter(([index]) => Number(index) !== si).map(([index, value]) => [Number(index) > si ? Number(index) - 1 : Number(index), value])));
@@ -100,9 +101,9 @@ export default function RubricEditor({ sections, onChange, errors = {}, fixedSec
         setOpenCriteria((current) => ({ ...current, [si]: current[si] === ci ? target : current[si] === target ? ci : current[si] ?? null }));
     }
 
-    function removeCriterion(si: number, ci: number) {
+    async function removeCriterion(si: number, ci: number) {
         if (sections[si].criteria.length <= 1) return;
-        if (!window.confirm('Delete this assessment criterion and its grading levels?')) return;
+        if (!(await confirmAction('Delete this assessment criterion and its grading levels?'))) return;
         updateSection(si, { criteria: sections[si].criteria.filter((_, index) => index !== ci) });
         setOpenCriteria((current) => {
             const open = current[si];
@@ -130,14 +131,14 @@ export default function RubricEditor({ sections, onChange, errors = {}, fixedSec
             const sectionPath = `sections.${si}`;
             const expanded = openSections.has(si);
             const panelId = `${id}-section-${si}`;
-            return <section key={si} className={`rounded-xl border bg-white shadow-sm ${hasErrors(sectionPath) ? 'border-rose-200' : 'border-slate-200'}`}>
-                <div className="flex flex-wrap items-center gap-2 rounded-t-xl border-b border-slate-200 bg-slate-50/80 px-4 py-3 sm:px-5">
-                    <button type="button" aria-expanded={expanded} aria-controls={panelId} onClick={() => toggleSection(si)} className="flex min-w-0 flex-1 items-center gap-3 rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500">
-                        <span className="inline-flex shrink-0 items-center rounded-md border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold uppercase tracking-wide tabular-nums text-slate-500">Section {String(si + 1).padStart(2, '0')}</span>
-                        <span className="min-w-0 flex-1 break-words text-sm font-semibold text-slate-900">{section.title || 'Untitled section'}</span>
-                        <ChevronDown size={17} className={`shrink-0 text-slate-400 transition-transform ${expanded ? 'rotate-180' : ''}`} />
+            return <section key={si} className={`rounded-xl border bg-white shadow-sm ${hasErrors(sectionPath) ? 'border-rose-200' : 'border-blue-200'}`}>
+                <div className={`flex flex-wrap items-center gap-2 bg-blue-50 px-4 py-4 sm:px-5 ${expanded ? 'rounded-t-xl border-b border-blue-200' : 'rounded-xl'}`}>
+                    <button type="button" aria-expanded={expanded} aria-controls={panelId} onClick={() => toggleSection(si)} className="flex min-w-0 flex-1 items-center gap-3 rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25">
+                        <span className="ui-badge inline-flex shrink-0 items-center border border-blue-200 bg-white text-[11px] font-semibold uppercase tracking-wide tabular-nums text-primary">Section {String(si + 1).padStart(2, '0')}</span>
+                        <span className="min-w-0 flex-1 break-words text-base font-semibold text-slate-900">{section.title || 'Untitled section'}</span>
+                        <ChevronDown size={17} className={`shrink-0 text-primary transition-transform ${expanded ? 'rotate-180' : ''}`} />
                     </button>
-                    <span className="ml-auto rounded-md bg-slate-100 px-2.5 py-1.5 text-xs font-semibold tabular-nums text-slate-600">{fixedSectionWeight !== undefined ? `${fixedSectionWeight}% report mark` : `${Number(section.weight) || 0}%`}</span>
+                    <span className="ui-badge ml-auto border border-blue-200 bg-white text-xs font-semibold tabular-nums text-primary">{fixedSectionWeight !== undefined ? `${fixedSectionWeight}% report mark` : `${Number(section.weight) || 0}%`}</span>
                     {canManageSections && <ActionMenu label={`More actions for section ${si + 1}`} actions={[
                         { label: 'Move up', icon: <ArrowUp size={15} />, disabled: si === 0, run: () => moveSection(si, -1) },
                         { label: 'Move down', icon: <ArrowDown size={15} />, disabled: si === sections.length - 1, run: () => moveSection(si, 1) },
@@ -145,17 +146,17 @@ export default function RubricEditor({ sections, onChange, errors = {}, fixedSec
                     ]} />}
                 </div>
 
-                {expanded && <div id={panelId} className="border-t border-slate-100 px-4 pb-5 pt-4 sm:px-5">
+                {expanded && <div id={panelId} className="px-4 pb-5 pt-4 sm:px-5">
                     <div className="grid gap-x-5 gap-y-4 sm:grid-cols-[minmax(0,1fr)_150px]">
                         <Field label="Section name" id={fieldId(`${sectionPath}.title`)} error={fieldError(`${sectionPath}.title`)}>
-                            <input id={fieldId(`${sectionPath}.title`)} value={section.title} onChange={(event) => updateSection(si, { title: event.target.value, ...(fixedSectionWeight !== undefined ? { weight: fixedSectionWeight } : {}) })} placeholder="Enter section name" className={evaluationInputClass} aria-invalid={!!fieldError(`${sectionPath}.title`)} />
+                            <input id={fieldId(`${sectionPath}.title`)} value={section.title} onChange={(event) => updateSection(si, { title: event.target.value, ...(fixedSectionWeight !== undefined ? { weight: fixedSectionWeight } : {}) })} placeholder="Enter section name" className={'ui-field ' + (evaluationInputClass)}  aria-invalid={!!fieldError(`${sectionPath}.title`)} />
                         </Field>
                         {canManageSections && <Field label="Weight" id={fieldId(`${sectionPath}.weight`)} error={fieldError(`${sectionPath}.weight`)}>
-                            <div className="relative"><input id={fieldId(`${sectionPath}.weight`)} type="number" min="0" max="100" step="0.01" value={section.weight ?? ''} onChange={(event) => updateSection(si, { weight: event.target.value })} className={`${evaluationInputClass} pr-8`} aria-invalid={!!fieldError(`${sectionPath}.weight`)} /><span className="pointer-events-none absolute right-3 top-2.5 text-sm text-slate-500">%</span></div>
+                            <div className="relative"><input id={fieldId(`${sectionPath}.weight`)} type="number" min="0" max="100" step="0.01" value={section.weight ?? ''} onChange={(event) => updateSection(si, { weight: event.target.value })} className={'ui-field ' + (`${evaluationInputClass} pr-8`)}  aria-invalid={!!fieldError(`${sectionPath}.weight`)} /><span className="pointer-events-none absolute right-3 top-2.5 text-sm text-slate-500">%</span></div>
                         </Field>}
                         <div className={canManageSections ? 'sm:col-span-2' : ''}>
                             <Field label="Section description" optional id={fieldId(`${sectionPath}.description`)} error={fieldError(`${sectionPath}.description`)}>
-                                <textarea id={fieldId(`${sectionPath}.description`)} value={section.description ?? ''} onChange={(event) => updateSection(si, { description: event.target.value })} placeholder="Describe what this section covers" rows={2} className={`${evaluationInputClass} resize-y`} />
+                                <textarea id={fieldId(`${sectionPath}.description`)} value={section.description ?? ''} onChange={(event) => updateSection(si, { description: event.target.value })} placeholder="Describe what this section covers" rows={2} className={'ui-textarea ' + (`${evaluationInputClass} resize-y`)}  />
                             </Field>
                         </div>
                     </div>
@@ -165,25 +166,25 @@ export default function RubricEditor({ sections, onChange, errors = {}, fixedSec
                             <h3 className="text-sm font-semibold text-slate-800">Assessment criteria</h3>
                             <span className="text-xs tabular-nums text-slate-500">{section.criteria.length} {section.criteria.length === 1 ? 'criterion' : 'criteria'}</span>
                         </div>
-                        <div className="mt-3 space-y-2">
+                        <div className="mt-3 space-y-3">
                         {section.criteria.map((criterion, ci) => {
                             const path = `${sectionPath}.criteria.${ci}`;
                             const criterionExpanded = openCriteria[si] === ci;
                             const criterionPanel = `${id}-criterion-${si}-${ci}`;
                             const maxPoints = Math.max(0, ...criterion.levels.map((level) => Number(level.points) || 0));
-                            return <article key={ci} className={`relative rounded-lg border bg-white ${hasErrors(path) ? 'border-rose-200' : 'border-slate-200'}`}>
-                                <div className={`flex flex-wrap items-center gap-2 rounded-t-lg px-3 py-2 ${criterionExpanded ? 'bg-slate-50' : 'rounded-b-lg bg-white'}`}>
+                            return <article key={ci} className={`relative rounded-lg border bg-white transition-colors ${hasErrors(path) ? 'border-rose-300' : criterionExpanded ? 'border-blue-300' : 'border-blue-100'}`}>
+                                <div className={`flex flex-wrap items-center gap-2 rounded-t-lg px-3 py-3 ${criterionExpanded ? 'bg-blue-50' : 'rounded-b-lg bg-blue-50/40'}`}>
                                     <button type="button" aria-expanded={criterionExpanded} aria-controls={criterionPanel} onClick={() => {
                                         if (criterionExpanded) {
                                             const menu = criterionMenus.current.get(`${si}-${ci}`);
                                             if (menu) menu.open = false;
                                         }
                                         setOpenCriteria((current) => ({ ...current, [si]: criterionExpanded ? null : ci }));
-                                    }} className="flex min-w-0 flex-1 items-center gap-3 rounded-lg py-1 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500">
-                                        <span className="w-7 shrink-0 text-xs font-semibold tabular-nums text-slate-400">{String(ci + 1).padStart(2, '0')}</span>
-                                        <span className="min-w-0 flex-1"><span className="block break-words text-sm font-medium text-slate-900">{criterion.title || 'Untitled criterion'}</span><span className={`mt-0.5 block text-xs ${hasErrors(path) ? 'text-rose-600' : 'text-slate-500'}`}>{hasErrors(path) ? 'Review highlighted fields' : `${criterion.levels.length} levels · ${maxPoints} max points`}</span></span>
-                                        <span className="hidden text-xs font-medium text-indigo-700 sm:block">{criterionExpanded ? 'Close' : 'Edit'}</span>
-                                        <ChevronDown size={16} className={`shrink-0 text-slate-400 transition-transform ${criterionExpanded ? 'rotate-180' : ''}`} />
+                                    }} className="flex min-w-0 flex-1 items-center gap-3 rounded-lg py-1 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25">
+                                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-blue-200 bg-white text-xs font-semibold tabular-nums text-primary">{String(ci + 1).padStart(2, '0')}</span>
+                                        <span className="min-w-0 flex-1"><span className="block break-words text-sm font-semibold text-slate-900">{criterion.title || 'Untitled criterion'}</span><span className={`mt-1 block text-xs ${hasErrors(path) ? 'text-rose-600' : 'text-slate-500'}`}>{hasErrors(path) ? 'Review highlighted fields' : `${criterion.levels.length} levels · ${maxPoints} max points`}</span></span>
+                                        <span className="hidden text-xs font-medium text-primary sm:block">{criterionExpanded ? 'Close' : 'Edit'}</span>
+                                        <ChevronDown size={16} className={`shrink-0 text-primary transition-transform ${criterionExpanded ? 'rotate-180' : ''}`} />
                                     </button>
                                     <ActionMenu label={`More actions for criterion ${ci + 1}`} detailsRef={(node) => {
                                         const key = `${si}-${ci}`;
@@ -195,14 +196,14 @@ export default function RubricEditor({ sections, onChange, errors = {}, fixedSec
                                         { label: 'Delete criterion', icon: <Trash2 size={15} />, disabled: section.criteria.length <= 1, destructive: true, run: () => removeCriterion(si, ci) },
                                     ]} />
                                 </div>
-                                {criterionExpanded && <div id={criterionPanel} className="space-y-4 rounded-b-lg border-t border-slate-200 bg-slate-50/50 px-3 pb-4 pt-4 sm:pl-[3.25rem] sm:pr-4">
+                                {criterionExpanded && <div id={criterionPanel} className="space-y-4 rounded-b-lg border-t border-blue-100 bg-white px-3 pb-4 pt-4 sm:pl-16 sm:pr-4">
                                     <Field label="Criterion name" id={fieldId(`${path}.title`)} error={fieldError(`${path}.title`)}>
-                                        <input id={fieldId(`${path}.title`)} value={criterion.title} onChange={(event) => updateCriterion(si, ci, { title: event.target.value })} placeholder="Enter criterion name" className={evaluationInputClass} aria-invalid={!!fieldError(`${path}.title`)} />
+                                        <input id={fieldId(`${path}.title`)} value={criterion.title} onChange={(event) => updateCriterion(si, ci, { title: event.target.value })} placeholder="Enter criterion name" className={'ui-field ' + (evaluationInputClass)}  aria-invalid={!!fieldError(`${path}.title`)} />
                                     </Field>
                                     <Field label="Criterion description" optional id={fieldId(`${path}.description`)} error={fieldError(`${path}.description`)}>
-                                        <textarea id={fieldId(`${path}.description`)} value={criterion.description ?? ''} onChange={(event) => updateCriterion(si, ci, { description: event.target.value })} placeholder="Describe what this criterion assesses" rows={2} className={`${evaluationInputClass} resize-y`} />
+                                        <textarea id={fieldId(`${path}.description`)} value={criterion.description ?? ''} onChange={(event) => updateCriterion(si, ci, { description: event.target.value })} placeholder="Describe what this criterion assesses" rows={2} className={'ui-textarea ' + (`${evaluationInputClass} resize-y`)}  />
                                     </Field>
-                                    <div className="rounded-lg border border-slate-200 bg-white p-3 sm:p-4">
+                                    <div className="ui-card rounded-lg border border-slate-200 bg-white p-3 sm:p-4">
                                         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                                             <div><h4 className="text-sm font-medium text-slate-800">Grading levels</h4><p className="mt-0.5 text-xs text-slate-500">Set each level’s name, points and description.</p></div>
                                             <button type="button" onClick={() => updateCriterion(si, ci, { levels: [...criterion.levels, { title: '', description: '', points: '' }] })} className={secondaryButtonClass}><Plus size={15} /> Add level</button>
@@ -211,11 +212,11 @@ export default function RubricEditor({ sections, onChange, errors = {}, fixedSec
                                         {criterion.levels.map((level, li) => {
                                             const levelPath = `${path}.levels.${li}`;
                                             return <div key={li} className="py-3 first:pt-3 last:pb-3">
-                                                <div className="mb-2 flex items-center justify-between"><span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Level {String(li + 1).padStart(2, '0')}</span><button type="button" aria-label={`Delete grading level ${li + 1}`} title={`Delete grading level ${li + 1}`} disabled={criterion.levels.length <= 1} onClick={() => { if (window.confirm('Delete this grading level?')) updateCriterion(si, ci, { levels: criterion.levels.filter((_, index) => index !== li) }); }} className="flex h-8 w-8 items-center justify-center rounded-md text-slate-400 hover:bg-rose-50 hover:text-rose-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 disabled:cursor-not-allowed disabled:opacity-30"><Trash2 size={15} /></button></div>
+                                                <div className="mb-2 flex items-center justify-between"><span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Level {String(li + 1).padStart(2, '0')}</span><button type="button" aria-label={`Delete grading level ${li + 1}`} title={`Delete grading level ${li + 1}`} disabled={criterion.levels.length <= 1} onClick={async () => { if ((await confirmAction('Delete this grading level?'))) updateCriterion(si, ci, { levels: criterion.levels.filter((_, index) => index !== li) }); }} className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-rose-50 hover:text-rose-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 disabled:cursor-not-allowed disabled:opacity-30"><Trash2 size={15} /></button></div>
                                                 <div className="grid gap-x-4 gap-y-3 sm:grid-cols-[minmax(0,1fr)_100px]">
-                                                    <Field label="Level name" id={fieldId(`${levelPath}.title`)} error={fieldError(`${levelPath}.title`)}><input id={fieldId(`${levelPath}.title`)} value={level.title} onChange={(event) => updateLevel(si, ci, li, { title: event.target.value })} placeholder="Enter level name" className={evaluationInputClass} aria-invalid={!!fieldError(`${levelPath}.title`)} /></Field>
-                                                    <Field label="Points" id={fieldId(`${levelPath}.points`)} error={fieldError(`${levelPath}.points`)}><input id={fieldId(`${levelPath}.points`)} type="number" min="0" value={level.points ?? ''} onChange={(event) => updateLevel(si, ci, li, { points: event.target.value })} className={evaluationInputClass} aria-invalid={!!fieldError(`${levelPath}.points`)} /></Field>
-                                                    <div className="sm:col-span-2"><Field label="Performance description" id={fieldId(`${levelPath}.description`)} error={fieldError(`${levelPath}.description`)}><textarea id={fieldId(`${levelPath}.description`)} value={level.description ?? ''} onChange={(event) => updateLevel(si, ci, li, { description: event.target.value })} placeholder="Describe performance at this level" rows={2} className={`${evaluationInputClass} resize-y`} aria-invalid={!!fieldError(`${levelPath}.description`)} /></Field></div>
+                                                    <Field label="Level name" id={fieldId(`${levelPath}.title`)} error={fieldError(`${levelPath}.title`)}><input id={fieldId(`${levelPath}.title`)} value={level.title} onChange={(event) => updateLevel(si, ci, li, { title: event.target.value })} placeholder="Enter level name" className={'ui-field ' + (evaluationInputClass)}  aria-invalid={!!fieldError(`${levelPath}.title`)} /></Field>
+                                                    <Field label="Points" id={fieldId(`${levelPath}.points`)} error={fieldError(`${levelPath}.points`)}><input id={fieldId(`${levelPath}.points`)} type="number" min="0" value={level.points ?? ''} onChange={(event) => updateLevel(si, ci, li, { points: event.target.value })} className={'ui-field ' + (evaluationInputClass)}  aria-invalid={!!fieldError(`${levelPath}.points`)} /></Field>
+                                                    <div className="sm:col-span-2"><Field label="Performance description" id={fieldId(`${levelPath}.description`)} error={fieldError(`${levelPath}.description`)}><textarea id={fieldId(`${levelPath}.description`)} value={level.description ?? ''} onChange={(event) => updateLevel(si, ci, li, { description: event.target.value })} placeholder="Describe performance at this level" rows={2} className={'ui-textarea ' + (`${evaluationInputClass} resize-y`)}  aria-invalid={!!fieldError(`${levelPath}.description`)} /></Field></div>
                                                 </div>
                                             </div>;
                                         })}
@@ -237,7 +238,7 @@ export default function RubricEditor({ sections, onChange, errors = {}, fixedSec
             onChange([...sections, emptySection()]);
             setOpenSections((current) => new Set([...current, si]));
             setOpenCriteria((current) => ({ ...current, [si]: 0 }));
-        }} className="inline-flex items-center gap-2 rounded-lg border border-dashed border-slate-300 px-4 py-3 text-sm font-semibold text-slate-600 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"><Plus size={16} /> Add section</button>}
+        }} className="ui-button ui-button-outline inline-flex items-center gap-2 rounded-lg border border-dashed border-slate-300 px-4 py-3 text-sm font-semibold text-slate-600 transition hover:border-blue-300 hover:bg-blue-50 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25"><Plus size={16} /> Add section</button>}
     </div>;
 }
 
@@ -261,7 +262,7 @@ function ActionMenu({ label, actions, detailsRef }: { label: string; detailsRef?
     return <details ref={(node) => { menu.current.element = node; detailsRef?.(node); }} onToggle={(event) => { if (event.currentTarget.open) positionMenu(); }} className="relative shrink-0">
         <summary aria-label={label} title={label} onClick={() => { if (!menu.current.element?.open) positionMenu(); }} className={`${iconButtonClass} list-none cursor-pointer [&::-webkit-details-marker]:hidden`}><MoreHorizontal size={18} /></summary>
         <div className={`absolute right-0 z-20 max-h-[calc(100vh-1rem)] min-w-40 overflow-y-auto rounded-lg border border-slate-200 bg-white p-1 shadow-lg shadow-slate-900/10 ${openAbove ? 'bottom-full mb-1' : 'top-full mt-1'}`}>
-            {actions.map((action) => <button key={action.label} type="button" disabled={action.disabled} onClick={() => { action.run(); if (menu.current.element) menu.current.element.open = false; }} className={`flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 disabled:cursor-not-allowed disabled:opacity-40 ${action.destructive ? 'text-rose-600 hover:bg-rose-50' : 'text-slate-700'}`}>
+            {actions.map((action) => <button key={action.label} type="button" disabled={action.disabled} onClick={() => { action.run(); if (menu.current.element) menu.current.element.open = false; }} className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25 disabled:cursor-not-allowed disabled:opacity-40 ${action.destructive ? 'text-rose-600 hover:bg-rose-50' : 'text-slate-700'}`}>
                 {action.icon}{action.label}
             </button>)}
         </div>

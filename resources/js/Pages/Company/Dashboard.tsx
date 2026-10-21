@@ -48,10 +48,10 @@ interface Props {
 }
 
 const statusClass = (status: string) => {
-    if (status === 'Recruited') return 'bg-emerald-50 text-emerald-700';
-    if (status === 'Declined') return 'bg-rose-50 text-rose-700';
-    if (status === 'Interviewing') return 'bg-violet-50 text-violet-700';
-    return 'bg-amber-50 text-amber-700';
+    if (status === 'Recruited') return 'ui-badge-success';
+    if (status === 'Declined') return 'ui-badge-danger';
+    if (status === 'Interviewing') return 'ui-badge-info';
+    return 'ui-badge-warning';
 };
 
 const formatDate = (value: string) => {
@@ -112,18 +112,18 @@ export default function Dashboard({
                                         {intern.positions.length > 0 ? ` · ${intern.positions.join(', ')}` : ''}
                                     </p>
                                     <div className="mt-2 flex flex-wrap gap-2">
-                                        {intern.needs_dates && <span className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-800">Dates needed</span>}
-                                        {intern.needs_supervisor && <span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700">Industry Supervisor needed</span>}
+                                        {intern.needs_dates && <span className="ui-badge-warning ui-badge text-xs ">Dates needed</span>}
+                                        {intern.needs_supervisor && <span className="ui-badge-info ui-badge text-xs ">Industry Supervisor needed</span>}
                                     </div>
                                 </div>
                                 <div className="flex shrink-0 flex-wrap gap-2">
                                     {intern.needs_dates && (
-                                        <Link href={route('company.interns')} className="inline-flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-50">
+                                        <Link href={route('company.interns')} className="inline-flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-semibold text-primary transition hover:bg-blue-50">
                                             Set dates <ArrowRight className="size-4" />
                                         </Link>
                                     )}
                                     {intern.needs_supervisor && (
-                                        <Link href={route('company.manage-users')} className="inline-flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-50">
+                                        <Link href={route('company.manage-users')} className="inline-flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-semibold text-primary transition hover:bg-blue-50">
                                             Assign supervisor <ArrowRight className="size-4" />
                                         </Link>
                                     )}
@@ -143,7 +143,7 @@ export default function Dashboard({
                 <DashboardPanel
                     title="Recent applications"
                     description="The latest students who applied to your positions."
-                    action={<Link href={route('company.applications')} className="text-sm font-semibold text-blue-700 hover:text-blue-800">View all</Link>}
+                    action={<Link href={route('company.applications')} className="text-sm font-semibold text-primary hover:text-primary">View all</Link>}
                 >
                     {applications.length === 0 ? (
                         <DashboardEmptyState message="No applications have been received yet." />
@@ -158,8 +158,8 @@ export default function Dashboard({
                                         </p>
                                     </div>
                                     <div className="flex shrink-0 items-center gap-2">
-                                        <span className={`hidden rounded-full px-2.5 py-1 text-xs font-semibold sm:inline-flex ${statusClass(application.app_status)}`}>{application.app_status}</span>
-                                        <Link href={route('company.applications.view', application.id)} aria-label={`Review ${application.student?.full_name ?? 'application'}`} className="rounded-lg p-2 text-slate-500 transition hover:bg-slate-100 hover:text-blue-700">
+                                        <span className={'ui-badge ' + (`hidden text-xs sm:inline-flex ${statusClass(application.app_status)}`)}>{application.app_status}</span>
+                                        <Link href={route('company.applications.details', application.id)} aria-label={`Review ${application.student?.full_name ?? 'application'}`} className="rounded-lg p-2 text-slate-500 transition hover:bg-slate-100 hover:text-primary">
                                             <ArrowRight className="size-4" />
                                         </Link>
                                     </div>
@@ -172,7 +172,7 @@ export default function Dashboard({
                 <DashboardPanel
                     title="Your job positions"
                     description="Check approval and release status for your quotas."
-                    action={<Link href={route('company.quotas')} className="text-sm font-semibold text-blue-700 hover:text-blue-800">Manage positions</Link>}
+                    action={<Link href={route('company.quotas')} className="text-sm font-semibold text-primary hover:text-primary">Manage positions</Link>}
                 >
                     {quotas.length === 0 ? (
                         <DashboardEmptyState message="You have not created any job positions yet." />
@@ -184,7 +184,7 @@ export default function Dashboard({
                                         <p className="truncate font-semibold text-slate-900">{quota.job_title}</p>
                                         <p className="mt-1 text-sm text-slate-500">{quota.application_count} {quota.application_count === 1 ? 'application' : 'applications'} · {quota.total_slots} {quota.total_slots === 1 ? 'slot' : 'slots'}</p>
                                     </div>
-                                    <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${quota.quota_status === 'Approved' && quota.is_released ? 'bg-emerald-50 text-emerald-700' : quota.quota_status === 'Rejected' ? 'bg-rose-50 text-rose-700' : 'bg-amber-50 text-amber-700'}`}>
+                                    <span className={'ui-badge ' + (`shrink-0 text-xs ${quota.quota_status === 'Approved' && quota.is_released ? 'ui-badge-success ' : quota.quota_status === 'Rejected' ? 'ui-badge-danger ' : 'ui-badge-warning '}`)}>
                                         {quota.is_released && quota.quota_status === 'Approved' ? 'Live' : quota.quota_status}
                                     </span>
                                 </div>

@@ -1,3 +1,4 @@
+import { confirmAction } from '@/lib/confirm-action';
 import { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router, useForm } from '@inertiajs/react';
@@ -28,6 +29,8 @@ import {
 
 import QuotaCard from '@/Components/QuotaCard';
 import QuotaNumberInput from '@/Components/QuotaNumberInput';
+import QuotaDeadlineNotice from '@/Components/QuotaDeadlineNotice';
+import { RecordFeedback } from '@/Components/Admin/RecordControls';
 
 export default function Quotas({ quotas = [], programmes = [], company, academicSemesters = [], branches = [] }: any) {
 
@@ -35,7 +38,7 @@ export default function Quotas({ quotas = [], programmes = [], company, academic
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [editingQuota, setEditingQuota] = useState<any | null>(null);
     const [programmeDropdownOpen, setProgrammeDropdownOpen] = useState(false);
-    
+
     // Skill Input State
     const [skillInput, setSkillInput] = useState('');
 
@@ -164,11 +167,9 @@ export default function Quotas({ quotas = [], programmes = [], company, academic
         }
     };
 
-    const handleDelete = (id: number) => {
+    const handleDelete = async (id: number) => {
         if (
-            confirm(
-                'Are you sure you want to delete this quota request?'
-            )
+            (await confirmAction('Are you sure you want to delete this quota request?'))
         ) {
             router.delete(
                 route('company.quotas.destroy', id),
@@ -191,14 +192,20 @@ export default function Quotas({ quotas = [], programmes = [], company, academic
         data.programme_ids.length >= 3 &&
         data.programme_ids.length <= 5;
 
+    const selectedTerm = academicSemesters.find((term: any) => String(term.id) === data.academic_semester_id);
+    const termOptions = editingQuota?.academic_semester && !academicSemesters.some((term: any) => term.id === editingQuota.academic_semester.id)
+        ? [editingQuota.academic_semester, ...academicSemesters]
+        : academicSemesters;
+
     return (
         <div className="p-6">
             <Head title="Placement Quotas" />
+            <RecordFeedback />
 
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
                 <div>
-                    <h1 className="font-sato text-3xl font-bold">
+                    <h1 className="font-sans text-3xl font-semibold">
                         Placement Quotas
                     </h1>
 
@@ -222,7 +229,7 @@ export default function Quotas({ quotas = [], programmes = [], company, academic
                             <Button
                                 size="sm"
                                 disabled={!company}
-                                className="flex items-center gap-1.5 shadow-sm"
+                                className="flex items-center gap-1.5"
                                 onClick={() => {
                                     setEditingQuota(null);
                                     resetForm();
@@ -265,7 +272,7 @@ export default function Quotas({ quotas = [], programmes = [], company, academic
                                                     e.target.value
                                                 )
                                             }
-                                            className="shadow-none"
+                                            className=""
                                             placeholder="e.g. Software Developer Intern"
                                         />
 
@@ -283,11 +290,13 @@ export default function Quotas({ quotas = [], programmes = [], company, academic
                                             disabled={Boolean(editingQuota?.applications_count || editingQuota?.applications?.length)}
                                             value={data.academic_semester_id}
                                             onChange={(event) => setData('academic_semester_id', event.target.value)}
-                                            className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm shadow-none disabled:opacity-60"
+                                            className="ui-field h-10 w-full bg-background px-3 disabled:opacity-60"
                                         >
                                             <option value="">Select semester</option>
-                                            {academicSemesters.map((semester: any) => <option key={semester.id} value={String(semester.id)}>{semester.name}</option>)}
+                                            {termOptions.map((semester: any) => <option key={semester.id} value={String(semester.id)} disabled={!academicSemesters.some((term: any) => term.id === semester.id) && editingQuota?.quota_status !== 'Approved'}>{semester.company_label ?? semester.name.split(' · ')[0]}</option>)}
                                         </select>
+                                        <QuotaDeadlineNotice term={selectedTerm} />
+                                        {academicSemesters.length === 0 && <p className="text-xs text-muted-foreground">No upcoming terms are configured. Contact Admin.</p>}
                                         {errors.academic_semester_id && <p className="text-sm text-red-500">{errors.academic_semester_id}</p>}
                                         {Boolean(editingQuota?.applications_count || editingQuota?.applications?.length) && <p className="text-xs text-muted-foreground">The term is locked after a student applies.</p>}
                                     </div>
@@ -307,7 +316,7 @@ export default function Quotas({ quotas = [], programmes = [], company, academic
                                                     setSkillInput(e.target.value)
                                                 }
                                                 onKeyDown={handleKeyDownSkill}
-                                                className="shadow-none"
+                                                className=""
                                                 placeholder="e.g. React, PHP, Figma"
                                             />
                                             <Button
@@ -327,7 +336,7 @@ export default function Quotas({ quotas = [], programmes = [], company, academic
                                                     <Badge
                                                         key={index}
                                                         variant="outline"
-                                                        className="flex items-center gap-1 py-1 px-2.5 text-xs font-medium"
+                                                        className="flex items-center gap-1 text-xs font-medium"
                                                     >
                                                         {skill}
                                                         <X
@@ -356,7 +365,7 @@ export default function Quotas({ quotas = [], programmes = [], company, academic
                                             <Button
                                                 type="button"
                                                 variant="outline"
-                                                className="w-full justify-between shadow-none"
+                                                className="w-full justify-between "
                                                 onClick={() =>
                                                     setProgrammeDropdownOpen(
                                                         !programmeDropdownOpen
@@ -415,7 +424,7 @@ export default function Quotas({ quotas = [], programmes = [], company, academic
                                                                                     programmeId
                                                                                 )
                                                                             }
-                                                                            className={`flex w-full items-center justify-between rounded-md px-3 py-2.5 text-left transition ${
+                                                                            className={`flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left transition ${
                                                                                 isSelected
                                                                                     ? 'bg-muted'
                                                                                     : 'hover:bg-muted'
@@ -557,11 +566,9 @@ export default function Quotas({ quotas = [], programmes = [], company, academic
                                                 variant="destructive"
                                                 className="mr-auto"
                                                 disabled={processing}
-                                                onClick={() => {
+                                                onClick={async () => {
                                                     if (
-                                                        confirm(
-                                                            'Are you sure you want to remove this quota request? This action cannot be undone.'
-                                                        )
+                                                        (await confirmAction('Are you sure you want to remove this quota request? This action cannot be undone.'))
                                                     ) {
                                                         router.delete(
                                                             route(
@@ -634,7 +641,7 @@ export default function Quotas({ quotas = [], programmes = [], company, academic
 
                 <Input
                     placeholder="Search by job title..."
-                    className="h-9 w-[250px] pl-8 shadow-none text-sm rounded-full bg-muted border-none focus-visible:ring-transparent"
+                    className="h-9 w-[250px] pl-8 bg-muted border-none"
                     value={searchTerm}
                     onChange={(e) =>
                         setSearchTerm(e.target.value)
@@ -659,6 +666,7 @@ export default function Quotas({ quotas = [], programmes = [], company, academic
                                 className="relative group py-4"
                             >
                                 <QuotaCard
+                                    companyView
                                     quota={quota}
                                     isEditMode={false}
                                     onDelete={handleDelete}

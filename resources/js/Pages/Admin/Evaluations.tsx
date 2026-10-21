@@ -1,5 +1,6 @@
 import { roleLabel } from '@/lib/role-labels';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { confirmAction } from '@/lib/confirm-action';
 import React, { useEffect } from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import { ClipboardCheck, Save, CheckCircle2, LoaderCircle } from 'lucide-react';
@@ -120,7 +121,7 @@ export default function Evaluations({ templates, writtenReportTemplate, reports,
     }
     useEffect(() => { loadTemplate('Academic Supervisor'); }, []);
 
-    function submit(event: FormEvent, activate: boolean) {
+    async function submit(event: FormEvent, activate: boolean) {
         event.preventDefault();
         if (activate && Math.abs(combinedWeightTotal - 100) > 0.001) {
             setDraftFeedback('idle');
@@ -151,6 +152,7 @@ export default function Evaluations({ templates, writtenReportTemplate, reports,
             }
         }
 
+        if (activate && !(await confirmAction('Activate the evaluation components with these templates and weights? Supervisors will be able to use the activated templates.', { title: 'Activate evaluations?', confirmLabel: 'Activate evaluations' }))) return;
         const current = templates.filter((item) => item.supervisor_type === activeType).sort((a, b) => b.version - a.version)[0];
         transform((formData) => ({ ...formData, is_active: activate, weights: componentWeights }));
         const requestOptions = {
@@ -220,7 +222,7 @@ export default function Evaluations({ templates, writtenReportTemplate, reports,
         feedbackTimer.current = window.setTimeout(() => setDraftFeedback('idle'), 2500);
     }
 
-    function activateComponents() {
+    async function activateComponents() {
         if (Math.abs(combinedWeightTotal - 100) > 0.001) {
             toast.warning(activationWeightWarning(combinedWeightTotal));
             return;
@@ -237,6 +239,7 @@ export default function Evaluations({ templates, writtenReportTemplate, reports,
                 : `Student Written Report rubric: ${reportIssues.join(' ')}`);
             return;
         }
+        if (!(await confirmAction('Activate all evaluation components with the saved templates and these weights? Supervisors will be able to use the activated templates.', { title: 'Activate evaluations?', confirmLabel: 'Activate evaluations' }))) return;
         writtenReportForm.transform((formData) => ({ ...formData, weights: componentWeights }));
         writtenReportForm.post(route('admin.evaluations.activate'), {
             onStart: () => setActivationFeedback('saving'),
@@ -258,19 +261,19 @@ export default function Evaluations({ templates, writtenReportTemplate, reports,
         <Head title="Evaluation templates" />
         <div className="mx-auto w-full max-w-6xl space-y-7 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
             <header className="flex items-start gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-indigo-100 bg-indigo-50 text-indigo-600"><ClipboardCheck size={23} /></div>
-                <div><h1 className="font-sato text-3xl font-bold text-slate-900">Evaluation templates</h1><p className="mt-2 text-sm leading-6 text-slate-500">Manage assessment rubrics and their share of the final score.</p></div>
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-blue-100 bg-blue-50 text-primary"><ClipboardCheck size={23} /></div>
+                <div><h1 className="font-sans text-3xl font-semibold text-slate-900">Evaluation templates</h1><p className="mt-2 text-sm leading-6 text-slate-500">Manage assessment rubrics and their share of the final score.</p></div>
             </header>
 
-            <nav aria-label="Evaluation types" className="grid grid-cols-2 gap-1.5 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-sm lg:grid-cols-4">
-                {componentTypes.map((type) => <button type="button" key={type} aria-pressed={!showReports && !showWrittenReport && type === activeType} onClick={() => edit(type)} className={`min-w-0 rounded-xl px-3 py-3 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${!showReports && !showWrittenReport && type === activeType ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}`}>{roleLabel(type)}</button>)}
-                <button type="button" aria-pressed={showWrittenReport} onClick={openWrittenReport} className={`min-w-0 rounded-xl px-3 py-3 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${showWrittenReport ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}`}>Written Report</button>
-                <button type="button" aria-pressed={showReports} onClick={() => { setShowWrittenReport(false); setShowReports(true); }} className={`min-w-0 rounded-xl px-3 py-3 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${showReports ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}`}>Report submissions</button>
+            <nav aria-label="Evaluation types" className="grid grid-cols-2 gap-1.5 rounded-xl border border-slate-200 bg-white p-1.5 shadow-sm lg:grid-cols-4">
+                {componentTypes.map((type) => <button type="button" key={type} aria-pressed={!showReports && !showWrittenReport && type === activeType} onClick={() => edit(type)} className={'ui-tab ' + (`min-w-0 rounded-lg px-3 py-3 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25 ${!showReports && !showWrittenReport && type === activeType ? 'bg-primary/10 text-primary' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}`)} >{roleLabel(type)}</button>)}
+                <button type="button" aria-pressed={showWrittenReport} onClick={openWrittenReport} className={'ui-tab ' + (`min-w-0 rounded-lg px-3 py-3 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25 ${showWrittenReport ? 'bg-primary/10 text-primary' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}`)} >Written Report</button>
+                <button type="button" aria-pressed={showReports} onClick={() => { setShowWrittenReport(false); setShowReports(true); }} className={'ui-tab ' + (`min-w-0 rounded-lg px-3 py-3 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25 ${showReports ? 'bg-primary/10 text-primary' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}`)} >Report submissions</button>
             </nav>
 
             {showWrittenReport ? <div className="space-y-7">
                 {weightPanel}
-                <div className="flex flex-wrap items-end justify-between gap-3"><div><h2 className="text-lg font-bold text-slate-900">Written Report rubric</h2><p className="mt-1 text-sm text-slate-500">Open a criterion to edit its grading levels.</p></div><span className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600">One section · 100% of report mark</span></div>
+                <div className="flex flex-wrap items-end justify-between gap-3"><div><h2 className="text-lg font-semibold text-slate-900">Written Report rubric</h2><p className="mt-1 text-sm text-slate-500">Open a criterion to edit its grading levels.</p></div><span className="ui-badge border border-slate-200 bg-white text-xs text-slate-600">One section · 100% of report mark</span></div>
                 <RubricEditor key="written-report" sections={reportRubricForm.data.sections} onChange={(sections) => { reportRubricForm.setData('sections', sections); setReportRubricDirty(true); }} fixedSectionWeight={100} errors={reportRubricForm.errors as Record<string, string>} />
                 <p className="text-sm leading-6 text-slate-500">The rubric determines the report mark. Its contribution to the final score uses the Written Report component weight above.</p>
                 {reportRubricForm.errors.sections && <p role="alert" className="text-sm text-rose-600">{reportRubricForm.errors.sections}</p>}
@@ -278,7 +281,7 @@ export default function Evaluations({ templates, writtenReportTemplate, reports,
                 <EvaluationActions processing={writtenReportForm.processing || reportRubricForm.processing} draftState={draftFeedback} activationState={activationFeedback} onSave={saveWrittenReportRubricDraft} onActivate={activateComponents} />
             </div> : !showReports ? <form className="space-y-7" onSubmit={(event) => submit(event, false)}>
                 {weightPanel}
-                <div className="flex flex-wrap items-end justify-between gap-3"><div><h2 className="text-lg font-bold text-slate-900">{roleLabel(activeType)} rubric</h2><p className="mt-1 text-sm text-slate-500">Open a criterion to edit its grading levels.</p></div><span className={`rounded-lg border px-3 py-2 text-xs font-semibold ${Math.abs(sectionWeightTotal - (Number(data.component_weight) || 0)) <= 0.001 ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-amber-200 bg-amber-50 text-amber-700'}`}>Sections: {formatPercent(sectionWeightTotal)}% / {formatPercent(Number(data.component_weight) || 0)}%</span></div>
+                <div className="flex flex-wrap items-end justify-between gap-3"><div><h2 className="text-lg font-semibold text-slate-900">{roleLabel(activeType)} rubric</h2><p className="mt-1 text-sm text-slate-500">Open a criterion to edit its grading levels.</p></div><span className={'ui-badge ' + (` border text-xs ${Math.abs(sectionWeightTotal - (Number(data.component_weight) || 0)) <= 0.001 ? 'ui-badge-success ' : 'ui-badge-warning '}`)}>Sections: {formatPercent(sectionWeightTotal)}% / {formatPercent(Number(data.component_weight) || 0)}%</span></div>
                 <RubricEditor key={activeType} sections={data.sections} onChange={(sections) => setData('sections', sections)} errors={errors as Record<string, string>} />
                 <p className="text-sm leading-6 text-slate-500">Section weights must add up to this assessment’s {formatPercent(Number(data.component_weight) || 0)}% component weight.</p>
                 {errors.sections && <p role="alert" className="text-sm text-rose-600">{errors.sections}</p>}
@@ -297,15 +300,15 @@ function ComponentWeightPanel({ weights, total, selected, onChange, errors }: { 
     ];
     const complete = Math.abs(total - 100) <= 0.001;
     return <section className="rounded-xl border border-slate-200 bg-white px-4 py-4 sm:px-5">
-        <div className="flex flex-wrap items-center justify-between gap-2"><div><h2 className="text-sm font-semibold text-slate-800">Assessment weights</h2><p className="mt-0.5 text-xs text-slate-500">Set the share for each assessment. Total must be 100%.</p></div><span className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-semibold tabular-nums ${complete ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>{complete && <CheckCircle2 size={13} />}{formatPercent(total)}% / 100%</span></div>
+        <div className="flex flex-wrap items-center justify-between gap-2"><div><h2 className="text-sm font-semibold text-slate-800">Assessment weights</h2><p className="mt-0.5 text-xs text-slate-500">Set the share for each assessment. Total must be 100%.</p></div><span className={'ui-badge ' + (`inline-flex items-center gap-1.5 text-xs tabular-nums ${complete ? 'ui-badge-success ' : 'ui-badge-warning '}`)}>{complete && <CheckCircle2 size={13} />}{formatPercent(total)}% / 100%</span></div>
         <div className="mt-3 grid divide-y divide-slate-100 border-t border-slate-100 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
             {items.map(({ key, label }) => {
                 const editable = key === selected;
                 const error = errors[`weights.${key}`] || (editable ? errors.component_weight || errors.weight : undefined);
                 return <div key={key} className="flex min-w-0 items-center justify-between gap-3 py-2.5 sm:px-4 sm:first:pl-0 sm:last:pr-0">
-                    <span className="text-sm text-slate-600">{label}{editable && <span className="ml-1.5 text-xs text-indigo-600">Editing</span>}</span>
+                    <span className="text-sm text-slate-600">{label}{editable && <span className="ml-1.5 text-xs text-primary">Editing</span>}</span>
                     <div className="shrink-0">
-                        {editable ? <div className="flex items-center gap-1.5"><input id={`component-${key}`} aria-label={`${label} component weight`} aria-invalid={!!error} type="number" min="0" max="100" step="0.01" value={weights[key]} onChange={(event) => onChange(key, event.target.value)} placeholder="0" className="w-20 rounded-md border border-indigo-200 bg-indigo-50/50 px-2 py-1.5 text-right text-sm font-semibold tabular-nums text-slate-800 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/15" /><span className="text-sm text-slate-500">%</span></div> : <span className="text-sm font-semibold tabular-nums text-slate-800">{formatPercent(Number(weights[key]) || 0)}%</span>}
+                        {editable ? <div className="flex items-center gap-1.5"><input id={`component-${key}`} aria-label={`${label} component weight`} aria-invalid={!!error} type="number" min="0" max="100" step="0.01" value={weights[key]} onChange={(event) => onChange(key, event.target.value)} placeholder="0" className="ui-field w-20 bg-blue-50/50 px-2 py-1.5 text-right font-semibold tabular-nums text-slate-800" /><span className="text-sm text-slate-500">%</span></div> : <span className="text-sm font-semibold tabular-nums text-slate-800">{formatPercent(Number(weights[key]) || 0)}%</span>}
                         {error && <p className="mt-1 text-xs text-rose-600">{error}</p>}
                     </div>
                 </div>;
@@ -315,14 +318,14 @@ function ComponentWeightPanel({ weights, total, selected, onChange, errors }: { 
 }
 
 function EvaluationActions({ processing, draftState, activationState, onSave, onActivate }: { processing: boolean; draftState: 'idle' | 'saving' | 'saved'; activationState: 'idle' | 'saving' | 'active'; onSave?: () => void; onActivate: (event: React.MouseEvent<HTMLButtonElement>) => void }) {
-    return <div className="sticky bottom-4 z-10 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white/95 px-5 py-4 shadow-lg shadow-slate-200/50 backdrop-blur-sm">
+    return <div className="sticky bottom-4 z-10 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white/95 px-5 py-4 shadow-lg shadow-slate-200/50 backdrop-blur-sm">
         <p className="text-sm text-slate-500">Save your draft before activating all assessments.</p>
         <div className="flex w-full flex-wrap gap-3 sm:w-auto">
-            <button type={onSave ? 'button' : 'submit'} onClick={onSave} disabled={processing} aria-live="polite" className={`inline-flex flex-1 items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-60 sm:flex-none ${draftState === 'saved' ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50'}`}>
+            <button type={onSave ? 'button' : 'submit'} onClick={onSave} disabled={processing} aria-live="polite" className={'ui-button ui-button-outline ' + (`inline-flex flex-1 items-center justify-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25 focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-60 sm:flex-none ${draftState === 'saved' ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50'}`)} >
                 {draftState === 'saving' ? <LoaderCircle size={16} className="animate-spin" /> : draftState === 'saved' ? <CheckCircle2 size={16} /> : <Save size={16} />}
                 {draftState === 'saving' ? 'Saving draft…' : draftState === 'saved' ? 'Draft saved' : 'Save draft'}
             </button>
-            <button type="button" onClick={onActivate} disabled={processing} aria-live="polite" className={`inline-flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-60 sm:flex-none ${activationState === 'active' ? 'bg-emerald-600' : 'bg-indigo-600 hover:bg-indigo-700'}`}>
+            <button type="button" onClick={onActivate} disabled={processing} aria-live="polite" className={'ui-button ui-button-primary ' + (`inline-flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25 focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-60 sm:flex-none ${activationState === 'active' ? 'bg-primary' : 'bg-primary hover:bg-primary/90'}`)} >
                 {activationState === 'saving' ? <LoaderCircle size={16} className="animate-spin" /> : activationState === 'active' ? <CheckCircle2 size={16} /> : null}
                 {activationState === 'saving' ? 'Activating all…' : activationState === 'active' ? 'All assessments active' : 'Activate all'}
             </button>
@@ -333,5 +336,5 @@ function EvaluationActions({ processing, draftState, activationState, onSave, on
 
 function ReportList({ reports }: { reports: FinalReportSummary[] }) {
     const tone = (status: string) => status === 'Completed' || status === 'Approved' || status === 'Confirmed' ? 'bg-emerald-100 text-emerald-800' : status === 'Incomplete' || status === 'Changes Required' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800';
-    return <section className="overflow-hidden rounded-2xl border bg-white shadow-sm"><div className="border-b p-5"><h2 className="text-lg font-bold text-slate-900">Student final reports</h2><p className="mt-1 text-sm text-slate-500">Submission status and overall completion summaries.</p></div>{reports.length === 0 ? <p className="p-8 text-center text-sm text-slate-500">No final internship reports have been created yet.</p> : <div className="divide-y">{reports.map((report) => <div key={report.id} className="flex flex-wrap items-center justify-between gap-4 p-5"><div><p className="font-semibold text-slate-900">{report.student?.full_name ?? 'Student'}</p><p className="mt-1 text-sm text-slate-500">{report.student?.pb_student_code} · {report.title || 'Untitled draft'}{report.report_score !== null ? ` · Written report: ${report.report_score}%` : ''}{report.overall_score !== null ? ` · Overall score: ${report.overall_score}%` : ''}</p></div><div className="flex flex-wrap items-center gap-2 text-xs font-semibold"><span className={`rounded-full px-2.5 py-1 ${tone(report.completion_status)}`}>{report.completion_status}</span><span className={`rounded-full px-2.5 py-1 ${tone(report.academic_review_status)}`}>Report: {report.academic_review_status}</span><span className={`rounded-full px-2.5 py-1 ${tone(report.industry_confirmation_status)}`}>Company: {report.industry_confirmation_status}</span><span className={`rounded-full px-2.5 py-1 ${tone(report.academic_completion_status)}`}>PB decision: {report.academic_completion_status}</span></div></div>)}</div>}</section>;
+    return <section className="overflow-hidden rounded-xl border bg-white shadow-sm"><div className="border-b p-5"><h2 className="text-lg font-semibold text-slate-900">Student final reports</h2><p className="mt-1 text-sm text-slate-500">Submission status and overall completion summaries.</p></div>{reports.length === 0 ? <p className="p-8 text-center text-sm text-slate-500">No final internship reports have been created yet.</p> : <div className="divide-y">{reports.map((report) => <div key={report.id} className="flex flex-wrap items-center justify-between gap-4 p-5"><div><p className="font-semibold text-slate-900">{report.student?.full_name ?? 'Student'}</p><p className="mt-1 text-sm text-slate-500">{report.student?.pb_student_code} · {report.title || 'Untitled draft'}{report.report_score !== null ? ` · Written report: ${report.report_score}%` : ''}{report.overall_score !== null ? ` · Overall score: ${report.overall_score}%` : ''}</p></div><div className="flex flex-wrap items-center gap-2 text-xs font-semibold"><span className={`rounded-full px-2.5 py-1 ${tone(report.completion_status)}`}>{report.completion_status}</span><span className={`rounded-full px-2.5 py-1 ${tone(report.academic_review_status)}`}>Report: {report.academic_review_status}</span><span className={`rounded-full px-2.5 py-1 ${tone(report.industry_confirmation_status)}`}>Company: {report.industry_confirmation_status}</span><span className={`rounded-full px-2.5 py-1 ${tone(report.academic_completion_status)}`}>PB decision: {report.academic_completion_status}</span></div></div>)}</div>}</section>;
 }

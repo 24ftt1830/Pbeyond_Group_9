@@ -50,17 +50,11 @@ class EvaluationTemplateSeeder extends Seeder
                 'sections' => [
                     [
                         'title' => 'Written Report Assessment',
-                        'description' => 'Assess the content, understanding, analysis, reflection, structure, research, referencing, writing, and presentation of the final internship report.',
+                        'description' => 'Assess the work completed, learning and reflection, and clarity of the final internship report.',
                         'weight' => 100,
                         'criteria' => [
-                            'Report Objectives and Scope',
-                            'Understanding of the Organization and Role',
                             'Analysis of Work and Outcomes',
                             'Reflection on Learning and Development',
-                            'Organization and Flow',
-                            'Use of Supporting Material',
-                            'Use of Evidence and Sources',
-                            'Citation and Referencing',
                             'Language, Grammar, and Presentation',
                         ],
                     ],

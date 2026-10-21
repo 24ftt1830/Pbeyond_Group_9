@@ -1,31 +1,109 @@
 import { Head, Link } from '@inertiajs/react';
 import { useState } from 'react';
-import { BookOpen, CheckCircle2, Clock3, ChevronRight, Search } from 'lucide-react';
+import { BookOpen, CheckCircle2, Clock3, ChevronRight, Search, Users } from 'lucide-react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { inputClass, linkClass } from '@/Components/Admin/RecordControls';
+import { Badge } from '@/Components/ui/badge';
 
-interface Student { student_id: number; full_name?: string; pb_student_code?: string; }
-interface WeeklySubmission { id: number; student_id: number; week_start: string; week_end: string; status: string; date_change_review_required?: boolean; student?: Student; }
-interface MissingStudent extends Student { missing_weeks: { week_start: string; week_end: string }[]; }
-interface Props { pendingSubmissions?: WeeklySubmission[]; reviewedSubmissions?: WeeklySubmission[]; missingLogbooks?: MissingStudent[]; canReview?: boolean; viewer?: 'industry' | 'academic'; }
-const formatDate = (value: string) => new Date(`${value.substring(0, 10)}T00:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-const statusLabel = (week: WeeklySubmission) => week.date_change_review_required ? 'Date change review' : ['approved', 'reviewed'].includes(week.status) ? 'Approved' : ['pending_fix', 'revision', 'needs_revision'].includes(week.status) ? 'Corrections required' : 'Awaiting review';
+interface StudentLogbooks {
+    student_id: number;
+    full_name?: string;
+    pb_student_code?: string;
+    pending_count: number;
+    approved_count: number;
+    missing_count: number;
+    total_submissions: number;
+}
 
-export default function Logbook({ pendingSubmissions = [], reviewedSubmissions = [], missingLogbooks = [], canReview = false, viewer = 'academic' }: Props) {
-    const [tab, setTab] = useState('all');
+interface Props {
+    students?: StudentLogbooks[];
+    stats?: { pending: number; approved: number; total: number };
+    canReview?: boolean;
+    viewer?: 'industry' | 'academic';
+}
+
+export default function Logbook({ students = [], stats = { pending: 0, approved: 0, total: 0 }, canReview = false, viewer = 'academic' }: Props) {
     const [search, setSearch] = useState('');
-    const all = [...pendingSubmissions, ...reviewedSubmissions].sort((a, b) => b.week_start.localeCompare(a.week_start));
-    const matches = (student?: Student) => `${student?.full_name ?? ''} ${student?.pb_student_code ?? ''}`.toLowerCase().includes(search.toLowerCase());
-    const submissions = (tab === 'pending' ? pendingSubmissions : tab === 'reviewed' ? reviewedSubmissions : all).filter(week => matches(week.student));
-    const routeName = viewer === 'industry' ? 'industry-supervisor.logbook.review' : 'academic-supervisor.logbook.review';
-    const stats = [{ label: 'Awaiting review', value: pendingSubmissions.length, icon: Clock3 }, { label: 'Approved weeks', value: reviewedSubmissions.length, icon: CheckCircle2 }, { label: 'Total submissions', value: all.length, icon: BookOpen }];
+    const query = search.trim().toLowerCase();
+    const visibleStudents = [...students]
+        .sort((first, second) => (first.full_name ?? '').localeCompare(second.full_name ?? '', undefined, { sensitivity: 'base' }) || first.student_id - second.student_id)
+        .filter(student => `${student.full_name ?? ''} ${student.pb_student_code ?? ''}`.toLowerCase().includes(query));
+    const studentRoute = viewer === 'industry' ? 'industry-supervisor.logbook.student' : 'academic-supervisor.logbook.student';
+    const reviewLabel = canReview ? 'Awaiting review' : 'Awaiting Industry review';
+    const summary = [
+        { label: reviewLabel, value: stats.pending, icon: Clock3 },
+        { label: 'Approved weeks', value: stats.approved, icon: CheckCircle2 },
+        { label: 'Total submissions', value: stats.total, icon: BookOpen },
+    ];
 
-    return <AuthenticatedLayout><Head title={canReview ? 'Weekly Logbook Review' : 'Student Logbooks'} /><main className="mx-auto w-full max-w-7xl space-y-6 px-4 py-7 sm:px-6 lg:px-8">
-        <header><h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">{canReview ? 'Weekly Logbook Review' : 'Student Logbooks'}</h1><p className="mt-1 text-sm text-slate-500">{canReview ? 'Review weekly logbooks, give feedback and request corrections.' : 'View your assigned students’ logbooks and Industry Supervisor feedback.'}</p></header>
-        <section className="grid gap-4 sm:grid-cols-3">{stats.map(({ label, value, icon: Icon }) => <div key={label} className="flex items-start justify-between rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><div><p className="text-sm text-slate-500">{label}</p><p className="mt-2 text-3xl font-bold text-slate-900">{value}</p></div><span className="rounded-xl bg-blue-50 p-3 text-blue-600"><Icon size={19} /></span></div>)}</section>
-        <section className="space-y-4"><div className="flex flex-wrap items-center justify-between gap-4"><div><h2 className="text-base font-semibold text-slate-900">Student submissions</h2><p className="mt-1 text-sm text-slate-500">Weekly records for students assigned to you.</p></div><div className="flex flex-wrap rounded-lg border border-slate-200 bg-white p-1">{[['all', 'All'], ['pending', 'Pending'], ['reviewed', 'Approved'], ['missing', 'Missing logbooks']].map(([value, label]) => <button key={value} className={`rounded-md px-3 py-2 text-xs font-medium ${tab === value ? 'bg-slate-900 text-white' : 'text-slate-500 hover:bg-slate-50'}`} onClick={() => setTab(value)}>{label}</button>)}</div></div>
-            <div className="relative max-w-sm"><Search size={16} className="absolute left-3 top-3 text-slate-400" /><input value={search} onChange={event => setSearch(event.target.value)} placeholder="Search student or student ID…" aria-label="Search students" className={inputClass + ' pl-9'} /></div>
-            <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">{tab === 'missing' ? <div className="divide-y divide-slate-100">{missingLogbooks.filter(matches).map(student => <div key={student.student_id} className="p-5"><p className="text-sm font-semibold text-slate-900">{student.full_name}</p><p className="mt-1 text-xs text-slate-500">{student.pb_student_code} · {student.missing_weeks.length} missing week(s)</p><p className="mt-2 text-xs text-slate-500">{student.missing_weeks.map(week => `${formatDate(week.week_start)} – ${formatDate(week.week_end)}`).join('; ')}</p></div>)}{!missingLogbooks.filter(matches).length && <p className="p-12 text-center text-sm text-slate-500">No missing logbooks found.</p>}</div> : <><div className="hidden grid-cols-[2fr_2fr_1fr_auto] gap-4 border-b border-slate-100 bg-slate-50/70 px-5 py-3 text-xs font-medium uppercase tracking-wide text-slate-400 sm:grid"><span>Student</span><span>Week</span><span>Status</span><span>Action</span></div><div className="divide-y divide-slate-100">{submissions.map(week => <div key={week.id} className="grid items-center gap-3 p-5 sm:grid-cols-[2fr_2fr_1fr_auto]"><div><p className="text-sm font-semibold text-slate-900">{week.student?.full_name}</p><p className="mt-1 text-xs text-slate-500">{week.student?.pb_student_code}</p></div><p className="text-sm text-slate-600">{formatDate(week.week_start)} – {formatDate(week.week_end)}</p><span className={`w-fit rounded-full px-2.5 py-1 text-xs font-medium ${week.date_change_review_required ? 'bg-amber-50 text-amber-700' : ['approved', 'reviewed'].includes(week.status) ? 'bg-emerald-50 text-emerald-700' : week.status === 'pending_fix' ? 'bg-rose-50 text-rose-700' : 'bg-amber-50 text-amber-700'}`}>{statusLabel(week)}</span><Link href={route(routeName, week.id)} className={linkClass + ' w-fit'}>{canReview && (week.date_change_review_required || ['submitted', 'pending'].includes(week.status)) ? 'Review' : 'View'}<ChevronRight size={14} className="ml-1" /></Link></div>)}</div>{!submissions.length && <div className="p-14 text-center"><BookOpen size={25} className="mx-auto mb-3 text-slate-300" /><p className="text-sm font-medium text-slate-700">No submissions found</p><p className="mt-1 text-xs text-slate-500">Student weekly logbook submissions will appear here.</p></div>}</>}</div>
-        </section>
-    </main></AuthenticatedLayout>;
+    return <AuthenticatedLayout>
+        <Head title={canReview ? 'Weekly Logbook Review' : 'Student Logbooks'} />
+        <main className="mx-auto w-full max-w-7xl space-y-6 px-4 py-7 sm:px-6 lg:px-8">
+            <header>
+                <div className="flex flex-wrap items-center gap-3">
+                    <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">{canReview ? 'Weekly Logbook Review' : 'Student Logbooks'}</h1>
+                    {!canReview && <Badge variant="secondary">View only</Badge>}
+                </div>
+                <p className="mt-1 text-sm text-slate-500">{canReview ? 'Choose a student to review their weekly logbooks.' : 'Choose a student to view their weekly entries and Industry Supervisor feedback.'}</p>
+            </header>
+
+            <section aria-label="Logbook summary" className="grid gap-4 sm:grid-cols-3">
+                {summary.map(({ label, value, icon: Icon }) => <div key={label} className="ui-card flex items-start justify-between p-5">
+                    <div><p className="text-sm text-slate-500">{label}</p><p className="mt-2 text-3xl font-bold text-slate-900">{value}</p></div>
+                    <span className="rounded-xl bg-blue-50 p-3 text-blue-600"><Icon size={19} aria-hidden="true" /></span>
+                </div>)}
+            </section>
+
+            <section className="space-y-4" aria-labelledby="assigned-students-title">
+                <div>
+                    <h2 id="assigned-students-title" className="text-base font-semibold text-slate-900">Assigned students <span className="ml-1 text-sm font-normal text-slate-500">({students.length})</span></h2>
+                    <p className="mt-1 text-sm text-slate-500">Open a student’s logbooks to see their weeks in order.</p>
+                </div>
+
+                <div className="relative w-full lg:max-w-sm">
+                    <Search size={16} className="pointer-events-none absolute left-3 top-3 text-slate-400" aria-hidden="true" />
+                    <input value={search} onChange={event => setSearch(event.target.value)} placeholder="Search student or student ID…" aria-label="Search students" className={inputClass + ' pl-9'} />
+                </div>
+
+                <div className="ui-card overflow-hidden">
+                    <div className="hidden grid-cols-[minmax(0,2fr)_minmax(0,3fr)_auto] items-center gap-5 border-b border-slate-100 bg-slate-50/70 px-5 py-3 text-xs font-medium text-slate-500 md:grid">
+                        <span>Student</span>
+                        <div className="grid grid-cols-3 gap-4"><span>{reviewLabel}</span><span>Approved weeks</span><span>Submitted weeks</span></div>
+                        <span className="min-w-[139px] text-right">Action</span>
+                    </div>
+
+                    <div className="divide-y divide-slate-100">
+                        {visibleStudents.map(student => <div key={student.student_id} className="grid gap-4 p-5 transition-colors hover:bg-slate-50/50 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)_auto] md:items-center md:gap-5">
+                            <div className="min-w-0">
+                                <p className="text-sm font-semibold text-slate-900">{student.full_name || 'Student'}</p>
+                                <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+                                    <span className="text-xs text-slate-500">{student.pb_student_code}</span>
+                                    {student.missing_count > 0 && <Badge variant="destructive">{student.missing_count} missing {student.missing_count === 1 ? 'week' : 'weeks'}</Badge>}
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-3 gap-4 text-sm">
+                                <div>
+                                    <p className="mb-1 text-xs text-slate-500 md:hidden">{reviewLabel}</p>
+                                    {student.pending_count > 0 ? <Badge variant="warning">{student.pending_count} {student.pending_count === 1 ? 'week' : 'weeks'}</Badge> : <span className="text-slate-500">0</span>}
+                                </div>
+                                <div><p className="mb-1 text-xs text-slate-500 md:hidden">Approved weeks</p><span className="text-slate-700">{student.approved_count}</span></div>
+                                <div><p className="mb-1 text-xs text-slate-500 md:hidden">Submitted weeks</p><span className="text-slate-700">{student.total_submissions}</span></div>
+                            </div>
+
+                            <Link href={route(studentRoute, { student: student.student_id })} className={linkClass + ' w-fit'} aria-label={`View logbooks for ${student.full_name || student.pb_student_code || 'student'}`}>
+                                View logbooks<ChevronRight size={14} aria-hidden="true" />
+                            </Link>
+                        </div>)}
+                    </div>
+
+                    {!visibleStudents.length && <div className="px-6 py-8 text-center">
+                        <Users size={25} className="mx-auto mb-3 text-slate-300" aria-hidden="true" />
+                        <p className="text-sm font-medium text-slate-700">{students.length ? 'No matching students' : 'No assigned students'}</p>
+                        <p className="mt-1 text-xs text-slate-500">{students.length ? 'Try another name or student ID.' : 'Your assigned students will appear here, even before they submit their first logbook.'}</p>
+                    </div>}
+                </div>
+            </section>
+        </main>
+    </AuthenticatedLayout>;
 }

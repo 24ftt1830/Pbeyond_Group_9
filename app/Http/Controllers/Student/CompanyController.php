@@ -136,7 +136,7 @@ class CompanyController extends Controller
             }
             $application = Application::create([
                 'student_id' => $student->student_id, 'quota_id' => $quota->quota_id,
-                'company_branch_id' => $data['company_branch_id'], 'app_status' => 'Pending', 'apply_date' => now(),
+                'company_branch_id' => $data['company_branch_id'], 'app_status' => 'Pending',
             ]);
             $application->statusHistories()->create(['from_status' => null, 'to_status' => 'Pending', 'changed_by_user_id' => auth()->id()]);
         });

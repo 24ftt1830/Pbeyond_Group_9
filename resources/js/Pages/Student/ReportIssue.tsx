@@ -53,10 +53,10 @@ export default function ReportIssue() {
     return (
         <div className="p-6">
             <div className="mb-6 flex items-center justify-between">
-                <h1 className="text-2xl font-bold">Report Issue</h1>
+                <h1 className="text-2xl font-semibold">Report Issue</h1>
                 <button
                     onClick={() => (window.location.href = route('student.past-reports'))}
-                    className="rounded-md border border-black px-6 py-2 text-sm text-black"
+                    className="rounded-lg border border-primary px-6 py-2 text-sm text-black"
                 >
                     View Past Reports
                 </button>
@@ -73,7 +73,7 @@ export default function ReportIssue() {
                         placeholder="Select or type company name"
                         value={formData.company}
                         onChange={handleCompanyChange}
-                        className="mt-2 w-full rounded-md border px-3 py-2 text-sm"
+                        className="ui-field mt-2 w-full px-3 py-2"
                         required
                     />
                 </div>
@@ -87,7 +87,7 @@ export default function ReportIssue() {
                         placeholder="Describe the issue"
                         value={formData.description}
                         onChange={handleDescriptionChange}
-                        className="mt-2 h-[150px] w-full rounded-md border px-3 py-2 text-sm"
+                        className="ui-textarea mt-2 h-[150px] w-full px-3 py-2"
                         required
                     />
                 </div>
@@ -119,7 +119,7 @@ export default function ReportIssue() {
                             placeholder="Specify other issue type"
                             value={formData.otherIssueType}
                             onChange={handleOtherIssueTypeChange}
-                            className="mt-3 w-full rounded-md border px-3 py-2 text-sm"
+                            className="ui-field mt-3 w-full px-3 py-2"
                         />
                     )}
                 </div>
@@ -128,7 +128,7 @@ export default function ReportIssue() {
                     <button
                         type="submit"
                         disabled={submitting}
-                        className="rounded-md bg-black px-6 py-2 text-sm text-white disabled:opacity-50"
+                        className="ui-button ui-button-primary rounded-lg bg-primary px-6 py-2 text-sm text-white disabled:opacity-50"
                     >
                         {submitting ? 'Submitting...' : 'Submit'}
                     </button>

@@ -2,7 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\AcademicSemester;
+use App\Models\Student;
+use Database\Seeders\Support\DemoAcademicContext;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -11,7 +12,10 @@ class StudentSeeder extends Seeder
 {
     public function run(): void
     {
-        $intakeSemester = AcademicSemester::where('name', AcademicSemester::sessionName(2024, true))->firstOrFail();
+        $intakeSemester = DemoAcademicContext::intake();
+        $currentSemester = DemoAcademicContext::currentSemester();
+        $projectStart = $intakeSemester->starts_on->copy()->addMonths(6)->toDateString();
+        $projectEnd = $intakeSemester->starts_on->copy()->addMonths(10)->endOfMonth()->toDateString();
 
         $students = [
             [
@@ -122,6 +126,11 @@ class StudentSeeder extends Seeder
         ];
 
         foreach ($students as $index => $data) {
+            $existing = Student::where('pb_student_code', $data['code'])->first();
+            if ($existing && ($existing->applications()->exists() || $existing->internship()->exists())) {
+                // Reseeding must not move students who already began their placement workflow.
+                continue;
+            }
             $userId = DB::table('users')->where('username', $data['code'])->value('user_id');
             $programmeId = DB::table('programmes')->where('programme_name', $data['programme'])->value('programme_id');
             if (!$userId || !$programmeId) {
@@ -141,7 +150,7 @@ class StudentSeeder extends Seeder
                     'programme_id' => $programmeId,
                     'intake_session' => $intakeSemester->name,
                     'intake_semester_id' => $intakeSemester->id,
-                    'current_semester' => 5,
+                    'current_semester' => $currentSemester,
                     'postal_address' => $data['address'],
                     'date_of_birth' => $data['dob'],
                     'place_of_birth' => $data['birthplace'],
@@ -153,10 +162,14 @@ class StudentSeeder extends Seeder
                     'cgpa' => $data['cgpa'],
                     'work_experience' => $data['experience'][4],
                     'emergency_no' => $data['emergency'],
-                    'passport_photo_path' => $photoPath,
+                    'emergency_no_2' => '86'.str_pad((string) ($index + 1), 6, '0', STR_PAD_LEFT),
+                    'district' => str_contains($data['address'], 'Tutong') ? 'Tutong' : 'Brunei-Muara',
+                    'passport_photo_path' => $existing?->passport_photo_path ?: $photoPath,
+                    'cv_snapshot' => null,
+                    'cv_generated_at' => null,
                     'vetting_status' => 'Approved',
                     'updated_at' => now(),
-                    'created_at' => now(),
+                    'created_at' => $existing?->created_at ?? now(),
                 ]
             );
 
@@ -166,7 +179,7 @@ class StudentSeeder extends Seeder
             ]);
             $this->upsertOne('education', $studentId, [
                 'institution' => $data['education'][0], 'qualification' => $data['education'][1],
-                'field_of_study' => $data['education'][2], 'start_date' => '2024-07-01',
+                'field_of_study' => $data['education'][2], 'start_date' => $intakeSemester->starts_on->toDateString(),
                 'end_date' => null, 'description' => 'Currently completing the programme.', 'active' => true,
             ]);
             $this->upsertOne('work_experiences', $studentId, [
@@ -177,16 +190,16 @@ class StudentSeeder extends Seeder
             $this->upsertOne('projects', $studentId, [
                 'title' => $data['project'][0], 'description' => $data['project'][1],
                 'technologies' => $data['project'][2], 'project_url' => null,
-                'start_date' => '2025-01-15', 'end_date' => '2025-05-30', 'active' => true,
+                'start_date' => $projectStart, 'end_date' => $projectEnd, 'active' => true,
             ]);
             $this->upsertOne('activities', $studentId, [
                 'title' => $data['activity'][0], 'role' => $data['activity'][1],
-                'description' => $data['activity'][2], 'start_date' => '2024-09-01',
-                'end_date' => '2025-06-30', 'active' => true,
+                'description' => $data['activity'][2], 'start_date' => $intakeSemester->starts_on->copy()->addMonths(2)->toDateString(),
+                'end_date' => $projectEnd, 'active' => true,
             ]);
             $this->upsertOne('achievements', $studentId, [
                 'title' => $data['achievement'][0], 'description' => $data['achievement'][1],
-                'issuer' => $data['achievement'][2], 'achievement_date' => '2025-06-30', 'active' => true,
+                'issuer' => $data['achievement'][2], 'achievement_date' => $projectEnd, 'active' => true,
             ]);
             $this->upsertOne('referees', $studentId, [
                 'name' => 'Programme Lecturer ' . ($index + 1), 'position' => 'Lecturer',

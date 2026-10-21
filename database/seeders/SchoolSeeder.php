@@ -3,13 +3,13 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
+use App\Models\School;
 
 class SchoolSeeder extends Seeder
 {
     public function run(): void
     {
-        DB::table('schools')->insert([
+        $schools = [
             [
                 'school_code' => 'SICT',
                 'school_name' => 'School of Information and Communication Technology'
@@ -26,6 +26,9 @@ class SchoolSeeder extends Seeder
                 'school_code' => 'SHS',
                 'school_name' => 'School of Health Sciences'
             ],
-        ]);
+        ];
+        foreach ($schools as $school) {
+            School::firstOrCreate(['school_code' => $school['school_code']], ['school_name' => $school['school_name']]);
+        }
     }
 }

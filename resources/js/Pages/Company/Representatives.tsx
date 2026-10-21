@@ -34,7 +34,7 @@ export default function Representatives({
             <div className="p-6">
                 <div className="mb-6 flex items-center justify-between">
                     <div>
-                        <h1 className="font-sato text-3xl font-bold">
+                        <h1 className="font-sans text-3xl font-semibold">
                             Representatives
                         </h1>
 

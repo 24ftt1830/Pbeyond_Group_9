@@ -52,10 +52,10 @@ export default function FAQs() {
         <div>
             {/* Hero Section */}
             <div className="text-center py-12 px-4">
-                <div className="inline-flex items-center justify-center p-2 bg-indigo-100 rounded-full mb-4">
-                    <HelpCircle className="w-6 h-6 text-indigo-600" />
+                <div className="inline-flex items-center justify-center p-2 bg-blue-100 rounded-full mb-4">
+                    <HelpCircle className="w-6 h-6 text-primary" />
                 </div>
-                <h1 className="text-3xl font-sato font-extrabold text-gray-900">
+                <h1 className="text-3xl font-sans font-extrabold text-gray-900">
                     Frequently Asked Questions
                 </h1>
                 <p className="text-base text-gray-500">
@@ -69,7 +69,7 @@ export default function FAQs() {
                     {faqs.map((faq) => (
                         <div
                             key={faq.id}
-                            className="bg-sidebar-background rounded-2xl border border-gray-100"
+                            className="bg-sidebar-background rounded-xl border border-gray-100"
                         >
                             <div className="p-6">
                                 <div className="flex items-start justify-between">
@@ -78,7 +78,7 @@ export default function FAQs() {
                                     </h3>
                                     <button
                                         onClick={() => toggleExpand(faq.id)}
-                                        className="flex-shrink-0 p-1 rounded-full bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition"
+                                        className="flex-shrink-0 p-1 rounded-lg bg-blue-50 text-primary hover:bg-blue-100 transition"
                                     >
                                         <ChevronRight
                                             className={`w-5 h-5 transform transition-transform duration-300 ${

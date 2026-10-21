@@ -82,7 +82,7 @@ class CompanyRecordController extends Controller
     public function application(Request $request, Application $application)
     {
         $data = $request->validate([
-            'status' => ['required', 'in:Pending,Waitlisted,Recruited,Declined,Interviewing'],
+            'status' => ['required', 'in:Pending,Recruited,Declined,Interviewing'],
             'interview_date' => ['nullable', 'date'],
         ]);
         app(InternshipWorkflow::class)->application($application, $data, $request->user());

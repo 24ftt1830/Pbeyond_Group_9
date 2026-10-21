@@ -55,7 +55,7 @@ export function NavMain({
                   className="data-[active=true]:!text-primary data-[active=true]:!bg-primary/10"
                 >
                   <Link href={item.url}>
-                    <item.icon />
+                    <item.icon className="size-4 shrink-0" strokeWidth={1.75} aria-hidden="true" />
                     <span>{item.title}</span>
                   </Link>
                 </SidebarMenuButton>

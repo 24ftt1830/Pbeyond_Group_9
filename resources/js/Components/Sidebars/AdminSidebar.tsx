@@ -11,78 +11,67 @@ import { NavUser } from "@/Components/nav-user"
 import { usePage } from '@inertiajs/react'
 import { PageProps } from '@/types'
 import { Link } from '@inertiajs/react';
-import {
-    GaugeCircle,
-    Factory,
-    IdCardLanyard,
-    UserPlus,
-    ChartPie,
-    Files,
-    ClipboardCheck,
-    ContactRound,
-    CalendarRange,
-    UserRoundSearch,
-    PanelsTopLeft,
-} from "lucide-react";
+import { navigationIcons } from '@/lib/navigation-icons';
 
 const data = {
-    navPrimary: [
+    overview: [
         {
             title: "Dashboard",
             url: route('admin.dashboard'),
-            icon: GaugeCircle,
+            icon: navigationIcons.dashboard,
         },
-        {
-            title: "Academic Semesters",
-            url: route('admin.academic-semesters'),
-            icon: CalendarRange,
-        },
+    ],
+    placementManagement: [
         {
             title: "Companies",
             url: route('admin.companies'),
-            icon: Factory,
+            icon: navigationIcons.companies,
+        },
+        {
+            title: "Applications",
+            url: route('admin.applications'),
+            icon: navigationIcons.applications,
         },
         {
             title: "Placements",
             url: route('admin.placements'),
-            icon: IdCardLanyard,
-        },
-        {
-            title: "Manage Users",
-            url: route('admin.manage-users'),
-            icon: UserPlus,
-        },
-        {
-            title: "Student Records",
-            url: route('admin.students'),
-            icon: ContactRound,
+            icon: navigationIcons.placements,
         },
         {
             title: 'Unplaced Students',
             url: route('admin.unplaced-students'),
-            icon: UserRoundSearch,
+            icon: navigationIcons.unplacedStudents,
         },
         {
-            title: "Applications",   
-            url: route('admin.applications'),
-            icon: Files,
+            title: "Student Records",
+            url: route('admin.students'),
+            icon: navigationIcons.students,
+        },
+    ],
+    academicSetup: [
+        {
+            title: "Academic Sessions",
+            url: route('admin.academic-semesters'),
+            icon: navigationIcons.academicSessions,
         },
         {
             title: "Evaluations",
             url: route('admin.evaluations'),
-            icon: ClipboardCheck,
+            icon: navigationIcons.evaluations,
         },
     ],
-    navSecondary: [
+    administration: [
+        {
+            title: "Manage Users",
+            url: route('admin.manage-users'),
+            icon: navigationIcons.manageUsers,
+        },
+    ],
+    resources: [
         {
             title: "UI Reference",
             url: route('admin.ui-reference'),
-            icon: PanelsTopLeft,
-        },
-        {
-            title: "Reports",
-            url: route('admin.reports'),
-            icon: ChartPie,
+            icon: navigationIcons.uiReference,
         },
     ]
 }
@@ -114,10 +103,13 @@ export function AdminSidebar({ ...props }: React.ComponentProps<typeof Sidebar>)
 
             <SidebarContent className="gap-0">
                 <div className="pt-2">
-                    <NavMain items={data.navPrimary} label="Superadmin Management" />
+                    <NavMain items={data.overview} label="Superadmin Management" />
                 </div>
+                <NavMain items={data.placementManagement} label="Placement Management" />
+                <NavMain items={data.academicSetup} label="Academic Setup" />
+                <NavMain items={data.administration} label="Administration & Support" />
                 <SidebarSeparator />
-                <NavMain items={data.navSecondary} label="Resources" />
+                <NavMain items={data.resources} label="Resources" />
             </SidebarContent>
 
             <SidebarFooter>

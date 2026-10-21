@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,46 +21,26 @@ class AuthenticatedSessionController extends Controller
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(LoginRequest $request): RedirectResponse
     {
-        $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
+        $request->authenticate();
+        $request->session()->regenerate();
 
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
-            if (auth()->user()->role === 'Company' && ! auth()->user()->company()->exists()) {
-                Auth::logout();
-                $request->session()->invalidate();
-                $request->session()->regenerateToken();
+        return match (auth()->user()->role) {
+            'Admin' => redirect()->route('admin.dashboard'),
 
-                return back()->withErrors([
-                    'email' => __('auth.failed'),
-                ]);
-            }
+            'Company' => redirect()->route('company.dashboard'),
 
-            $request->session()->regenerate();
+            'Student' => redirect()->route('student.dashboard'),
 
-            return match (auth()->user()->role) {
-                'Admin' => redirect()->route('admin.dashboard'),
+            'Academic Supervisor' => redirect()->route(
+                'academic-supervisor.dashboard'
+            ),
 
-                'Company' => redirect()->route('company.dashboard'),
-
-                'Student' => redirect()->route('student.dashboard'),
-
-                'Academic Supervisor' => redirect()->route(
-                    'academic-supervisor.dashboard'
-                ),
-
-                'Industry Supervisor' => redirect()->route(
-                    'industry-supervisor.dashboard'
-                ),
-            };
-        }
-
-        return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
-        ]);
+            'Industry Supervisor' => redirect()->route(
+                'industry-supervisor.dashboard'
+            ),
+        };
     }
 
     public function destroy(Request $request): RedirectResponse

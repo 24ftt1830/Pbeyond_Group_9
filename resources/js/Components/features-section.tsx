@@ -29,7 +29,7 @@ export default function FeaturesSection() {
                 {features.map((feature) => (
                     <div
                         key={feature.number}
-                        className="flex flex-col border border-border rounded-2xl overflow-hidden hover:shadow-sm transition-shadow duration-200"
+                        className="flex flex-col border border-border rounded-xl overflow-hidden hover:shadow-sm transition-shadow duration-200"
                     >
                         {/* Dithered icon area */}
                         <Magnetic strength={0.35} className="w-full h-48 border-b border-border overflow-hidden">
@@ -45,7 +45,7 @@ export default function FeaturesSection() {
                                 <div className="w-2.5 h-2.5 bg-primary" />
                                 <span className="text-sm font-mono text-muted-foreground">{feature.number}</span>
                             </div>
-                            <h3 className="text-2xl font-sato font-semibold">{feature.title}</h3>
+                            <h3 className="text-2xl font-sans font-semibold">{feature.title}</h3>
                             <p className="text-muted-foreground text-sm leading-relaxed">{feature.description}</p>
                         </div>
                     </div>

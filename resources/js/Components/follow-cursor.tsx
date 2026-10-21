@@ -66,7 +66,7 @@ export default function FollowCursor({ label, children }: FollowCursorProps) {
             >
                 <div
                     ref={pillRef}
-                    className="bg-primary text-white text-xs font-sato font-semibold px-4 py-2 rounded-full whitespace-nowrap shadow-lg select-none"
+                    className="bg-primary text-white text-xs font-sans font-semibold px-4 py-2 rounded-full whitespace-nowrap shadow-lg select-none"
                     style={{ transition: 'transform 120ms cubic-bezier(0.34, 1.56, 0.64, 1)' }}
                 >
                     {label}

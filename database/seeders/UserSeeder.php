@@ -3,14 +3,17 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
+use App\Models\User;
+use App\Models\Company;
+use Database\Seeders\Support\DemoCompanies;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        DB::table('users')->upsert([
+        $accounts = [
             // Admin
             [
                 'username' => 'admin_sict',
@@ -112,44 +115,23 @@ class UserSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
-            // Companies
-            [
-                'username' => 'techcorp_hr',
-                'email' => 'hr@techcorp.com',
-                'password' => Hash::make('password123'),
-                'role' => 'Company',
-                'company_id' => 1,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'username' => 'globaltech_hr',
-                'email' => 'hr@globaltech.com',
-                'password' => Hash::make('password123'),
-                'role' => 'Company',
-                'company_id' => 2,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'username' => 'datatech_hr',
-                'email' => 'hr@datatech.com.bn',
-                'password' => Hash::make('password123'),
-                'role' => 'Company',
-                'company_id' => 3,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'username' => 'shell_hr',
-                'email' => 'hr@shell.com.bn',
-                'password' => Hash::make('password123'),
-                'role' => 'Company',
-                'company_id' => 4,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-
-        ], ['email'], ['username', 'password', 'role', 'company_id', 'updated_at']);
+        ];
+        foreach (DemoCompanies::all() as $company) {
+            $accounts[] = [...$company['hr'], 'password' => Hash::make('password123'), 'role' => 'Company',
+                'company_id' => Company::where('company_name', $company['name'])->firstOrFail()->company_id];
+        }
+        foreach ($accounts as $account) {
+            if ($account['role'] === 'Student') {
+                $account['password'] = Hash::make(Str::random(64));
+                $username = $account['username'];
+                unset($account['username']);
+                // An edited student email must survive future demo seed runs.
+                User::firstOrCreate(['username' => $username, 'role' => 'Student'], $account);
+                continue;
+            }
+            $email = $account['email'];
+            unset($account['email']);
+            User::firstOrCreate(['email' => $email], $account);
+        }
     }
 }

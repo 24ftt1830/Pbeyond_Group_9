@@ -127,7 +127,7 @@ export default function Interns({ interns = [], companyName }: Props) {
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                     <div>
                         <p className="text-sm font-semibold text-blue-700">{companyName}</p>
-                        <h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-900">Interns</h1>
+                        <h1 className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">Interns</h1>
                         <p className="mt-2 max-w-2xl text-sm text-slate-600">
                             Set and manage internship dates for students your company has recruited.
                         </p>
@@ -171,7 +171,7 @@ export default function Interns({ interns = [], companyName }: Props) {
                                 <p className="mt-1 text-sm text-slate-600">Students will appear here after you recruit them from Applications.</p>
                             </div>
                         ) : interns.map((intern) => (
-                            <div key={`${intern.student_id ?? 'student'}-${intern.application_id}`} className="rounded-xl border border-slate-200 bg-white p-5">
+                            <div key={`${intern.student_id ?? 'student'}-${intern.application_id}`} className="ui-card rounded-xl border border-slate-200 bg-white p-5">
                                 <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
                                     <div className="min-w-0 space-y-3">
                                         <div className="flex flex-wrap items-center gap-3">

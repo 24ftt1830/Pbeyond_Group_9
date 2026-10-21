@@ -8,6 +8,7 @@ use App\Models\AdminRecordChange;
 use App\Models\Company;
 use App\Models\AcademicSemester;
 use App\Models\Programme;
+use App\Services\QuotaTermWindow;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -34,7 +35,7 @@ class QuotaController extends Controller
 
         return Inertia::render('Company/Quotas', [
             'quotas' => $quotas,
-            'academicSemesters' => AcademicSemester::orderBy('starts_on')->get(['id', 'name', 'starts_on', 'ends_on']),
+            'academicSemesters' => app(QuotaTermWindow::class)->availableTerms(),
             'programmes' => Programme::with('school')
                 ->select(
                     'programme_id',
@@ -116,6 +117,9 @@ class QuotaController extends Controller
         ]);
 
         DB::transaction(function () use ($company, $validated, $user) {
+            if ($user->role !== 'Admin') {
+                app(QuotaTermWindow::class)->validateSelection((int) $validated['academic_semester_id']);
+            }
             $quota = $company->placementQuotas()->create([
                 // Temporary compatibility with the old database column.
                 // The real programme selection is stored in quota_programme.
@@ -247,6 +251,17 @@ class QuotaController extends Controller
 
         DB::transaction(function () use ($quota, $validated, $user) {
             $quota = PlacementQuota::whereKey($quota->getKey())->lockForUpdate()->firstOrFail();
+            if ($user->role !== 'Admin') {
+                if ($quota->auto_rejected_at) {
+                    throw ValidationException::withMessages(['academic_semester_id' => 'This request expired. Create a new request for an available term.']);
+                }
+                if ($quota->quota_status !== 'Approved' || (int) $validated['academic_semester_id'] !== (int) $quota->academic_semester_id) {
+                    app(QuotaTermWindow::class)->validateSelection((int) $validated['academic_semester_id']);
+                }
+                if ($quota->quota_status === 'Approved' && (int) $validated['academic_semester_id'] !== (int) $quota->academic_semester_id) {
+                    throw ValidationException::withMessages(['academic_semester_id' => 'Create a new quota request to use a different term for an approved position.']);
+                }
+            }
             if (
                 auth()->user()->role !== 'Admin'
                 && (int) $validated['academic_semester_id'] !== (int) $quota->academic_semester_id

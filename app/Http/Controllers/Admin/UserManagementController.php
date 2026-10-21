@@ -12,11 +12,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use App\Imports\StudentsImport;
 use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Validators\ValidationException as SpreadsheetValidationException;
 
 class UserManagementController extends Controller
 {
@@ -40,7 +43,7 @@ class UserManagementController extends Controller
         $rules = [
             'username' => 'required|string|max:255|unique:users,username',
             'email' => 'required|string|email|max:255|unique:users,email',
-            'password' => 'required|string|min:8',
+            'password' => $request->input('role') === 'Student' ? 'prohibited' : 'required|string|min:8',
             'role' => 'required|in:Student,Company',
         ];
 
@@ -51,6 +54,7 @@ class UserManagementController extends Controller
                 Rule::unique('users', 'company_id')->where(fn ($query) => $query->where('role', 'Company')),
             ];
         } else {
+            $rules['full_name'] = 'required|string|max:255';
             $rules['programme_id'] = 'required|exists:programmes,programme_id';
             $rules['pb_student_code'] = 'required|string|max:50|unique:students,pb_student_code';
             $rules['intake_semester_id'] = 'required|exists:academic_semesters,id';
@@ -65,7 +69,7 @@ class UserManagementController extends Controller
                 $userData = [
                     'username' => $validated['username'],
                     'email' => $validated['email'],
-                    'password' => Hash::make($validated['password']),
+                    'password' => Hash::make($validated['role'] === 'Student' ? Str::random(64) : $validated['password']),
                     'role' => $validated['role'],
                 ];
 
@@ -82,11 +86,11 @@ class UserManagementController extends Controller
                         'programme_id' => $validated['programme_id'],
                         'intake_semester_id' => $intakeSemester->id,
                         'intake_session' => $intakeSemester->name,
-                        'full_name' => $validated['username'],
+                        'full_name' => $validated['full_name'],
                         'cgpa' => 0.0,
                     ]);
 
-                    return redirect()->route('admin.manage-users')->with('success', 'Student account created successfully.');
+                    return redirect()->route('admin.manage-users')->with('success', 'Student added. Send an account invitation when access is ready to be released.');
                 }
 
                 AdminRecordChange::record($request->user(), $user, 'Created company HR account');
@@ -108,7 +112,7 @@ class UserManagementController extends Controller
         $rules = [
             'username' => "sometimes|required|string|max:255|unique:users,username,{$id},user_id",
             'email' => "sometimes|required|email|max:255|unique:users,email,{$id},user_id",
-            'password' => 'nullable|string|min:8',
+            'password' => 'prohibited',
             'company_id' => 'nullable|exists:companies,company_id',
         ];
 
@@ -156,6 +160,19 @@ class UserManagementController extends Controller
                     $updateData['username'] = $validated['username'];
                 }
                 if ($request->has('email')) {
+                    if ($user->email !== $validated['email']) {
+                        Password::deleteToken($user);
+                        Password::broker('student_invitations')->deleteToken($user);
+                        if ($user->requiresStudentPasswordSetup()) {
+                            $updateData += [
+                                'student_access_released_at' => null,
+                                'student_invitation_sent_at' => null,
+                                'student_invitation_status' => 'not_invited',
+                                'student_invitation_attempt_id' => null,
+                                'student_invitation_error' => null,
+                            ];
+                        }
+                    }
                     $updateData['email'] = $validated['email'];
                 }
 
@@ -185,7 +202,8 @@ class UserManagementController extends Controller
                     $updateData['company_id'] = $validated['company_id'];
                 }
 
-                $user->update($updateData);
+                // Access metadata is deliberately not mass assignable from request data.
+                $user->forceFill($updateData)->save();
 
                 if ($user->role === 'Student') {
                     $studentData = [];
@@ -248,10 +266,15 @@ class UserManagementController extends Controller
             'intake_semester_id' => 'required|exists:academic_semesters,id',
         ]);
 
-        DB::transaction(function () use ($request, $validated) {
-            Excel::import(new StudentsImport((int) $validated['intake_semester_id']), $request->file('file'));
-        });
+        try {
+            DB::transaction(function () use ($request, $validated) {
+                Excel::import(new StudentsImport((int) $validated['intake_semester_id']), $request->file('file'));
+            });
+        } catch (SpreadsheetValidationException $exception) {
+            $messages = collect($exception->failures())->take(5)->map(fn ($failure) => 'Row '.$failure->row().': '.implode(' ', $failure->errors()));
+            throw ValidationException::withMessages(['file' => $messages->implode(' ')]);
+        }
 
-        return redirect()->route('admin.manage-users')->with('success', 'Batch import completed successfully.');
+        return redirect()->route('admin.manage-users')->with('success', 'Student import completed. New students remain uninvited until you release their access.');
     }
 }

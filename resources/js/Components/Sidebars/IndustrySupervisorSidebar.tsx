@@ -1,129 +1,32 @@
-import {
-    Sidebar,
-    SidebarContent,
-    SidebarHeader,
-    SidebarTrigger,
-    SidebarFooter,
-    SidebarMenu,
-    SidebarMenuItem,
-    SidebarMenuButton,
-} from "@/Components/ui/sidebar"
-import { NavUser } from "@/Components/nav-user"
-import { usePage, Link } from "@inertiajs/react"
-import { PageProps } from "@/types"
-import {
-    ChartNoAxesCombined,
-    UsersRound,
-    BookMarked,
-} from "lucide-react"
+import { Sidebar, SidebarContent, SidebarHeader, SidebarTrigger, SidebarFooter } from '@/Components/ui/sidebar';
+import { NavMain } from '@/Components/nav-main';
+import { NavUser } from '@/Components/nav-user';
+import { usePage, Link } from '@inertiajs/react';
+import { PageProps } from '@/types';
+import { navigationIcons } from '@/lib/navigation-icons';
 
-export function IndustrySupervisorSidebar({
-    ...props
-}: React.ComponentProps<typeof Sidebar>) {
+export function IndustrySupervisorSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+    const { auth } = usePage<PageProps>().props;
+    const items = [
+        { title: 'Dashboard', url: route('industry-supervisor.dashboard'), icon: navigationIcons.dashboard },
+        { title: 'My Students', url: route('industry-supervisor.students'), icon: navigationIcons.students },
+        { title: 'Logbook Review', url: route('industry-supervisor.logbook'), icon: navigationIcons.logbooks },
+    ];
 
-    const page = usePage<PageProps>()
-    const { auth } = page.props
-    const url = page.url
-
-    const isDashboardPage =
-        url === "/industry-supervisor/dashboard"
-
-    const isStudentsPage =
-        url.startsWith("/industry-supervisor/students")
-
-    return (
-        <Sidebar collapsible="icon" {...props}>
-
-            {/* Header */}
-            <SidebarHeader>
-                <div className="flex h-12 items-center justify-between px-4 pt-4">
-
-                    <Link
-                        href="/industry-supervisor/dashboard"
-                        className="
-                            flex
-                            items-center
-                            gap-2
-                            overflow-hidden
-                            group-data-[collapsible=icon]:hidden
-                        "
-                    >
-                        <div className="flex items-center justify-center">
-                            <img
-                                src="/politeknik/pb-logo-black.png"
-                                alt="PB Logo"
-                                className="h-10 w-auto object-contain"
-                            />
-                        </div>
-                    </Link>
-
-                    <div
-                        className="
-                            flex
-                            items-center
-                            group-data-[collapsible=icon]:w-full
-                            group-data-[collapsible=icon]:justify-center
-                        "
-                    >
-                        <SidebarTrigger className="bg-transparent" />
-                    </div>
-
+    return <Sidebar collapsible="icon" {...props}>
+        <SidebarHeader>
+            <div className="flex h-12 items-center justify-between px-4 pt-4">
+                <Link href={route('industry-supervisor.dashboard')} className="flex items-center gap-2 overflow-hidden group-data-[collapsible=icon]:hidden">
+                    <img src="/politeknik/pb-logo-black.png" alt="PB Logo" className="h-10 w-auto object-contain" />
+                </Link>
+                <div className="flex items-center group-data-[collapsible=icon]:w-full group-data-[collapsible=icon]:justify-center">
+                    <SidebarTrigger className="hover:bg-sidebar-accent" />
                 </div>
-            </SidebarHeader>
-
-            {/* Navigation */}
-            <SidebarContent className="gap-0">
-
-                <div className="pt-2">
-
-                    <p className="mb-2 px-5 text-xs font-medium text-muted-foreground group-data-[collapsible=icon]:hidden">
-                        Industry Supervisor Portal
-                    </p>
-
-                    <SidebarMenu>
-
-                        {/* Dashboard */}
-                        <SidebarMenuItem>
-                            <SidebarMenuButton
-                                asChild
-                                isActive={isDashboardPage}
-                            >
-                                <Link href="/industry-supervisor/dashboard">
-                                    <ChartNoAxesCombined />
-                                    <span>Dashboard</span>
-                                </Link>
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-
-                        {/* Students */}
-                        <SidebarMenuItem>
-                            <SidebarMenuButton
-                                asChild
-                                isActive={isStudentsPage}
-                            >
-                                <Link href="/industry-supervisor/students">
-                                    <UsersRound />
-                                    <span>My Students</span>
-                                </Link>
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-
-                        <SidebarMenuItem>
-                            <SidebarMenuButton asChild isActive={url.startsWith('/industry-supervisor/logbook')}>
-                                <Link href={route('industry-supervisor.logbook')}><BookMarked /><span>Logbook Review</span></Link>
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-                    </SidebarMenu>
-
-                </div>
-
-            </SidebarContent>
-
-            {/* Account / Logout */}
-            <SidebarFooter>
-                <NavUser user={auth.user} />
-            </SidebarFooter>
-
-        </Sidebar>
-    )
+            </div>
+        </SidebarHeader>
+        <SidebarContent className="sidebar-scroll-custom gap-0">
+            <div className="pt-2"><NavMain items={items} label="Industry Supervisor Portal" /></div>
+        </SidebarContent>
+        <SidebarFooter><NavUser user={auth.user} /></SidebarFooter>
+    </Sidebar>;
 }

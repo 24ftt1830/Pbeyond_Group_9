@@ -3,6 +3,7 @@ import { Button } from "@/Components/ui/button";
 import { Card, CardContent, CardHeader } from "@/Components/ui/card";
 import { Badge } from "@/Components/ui/badge";
 import { cn } from "@/lib/utils";
+import QuotaDeadlineNotice, { type QuotaTerm } from '@/Components/QuotaDeadlineNotice';
 
 interface QuotaCardProps {
     quota: {
@@ -13,7 +14,9 @@ interface QuotaCardProps {
         quota_status: string;
         is_released?: boolean;
         interview_required?: boolean;
-        academic_semester?: { name: string } | null;
+        academic_semester?: QuotaTerm | null;
+        auto_rejected_at?: string | null;
+        rejection_reason?: string | null;
         branches?: { id: number; name: string; district?: string }[];
 
         programme?: {
@@ -30,6 +33,7 @@ interface QuotaCardProps {
     };
 
     isEditMode: boolean;
+    companyView?: boolean;
     onDelete?: (id: number) => void;
     onEdit?: (quota: any) => void;
 }
@@ -39,6 +43,7 @@ export default function QuotaCard({
     isEditMode,
     onDelete,
     onEdit,
+    companyView = false,
 }: QuotaCardProps) {
     const programmeName =
         quota.programme?.programme_name ||
@@ -66,7 +71,7 @@ export default function QuotaCard({
 
                     {/* Job information */}
                     <div className="min-w-0 flex-1">
-                        <h3 className="text-lg font-bold leading-tight tracking-tight">
+                        <h3 className="text-lg font-semibold leading-tight tracking-tight">
                             {quota.job_title}
                         </h3>
 
@@ -76,9 +81,11 @@ export default function QuotaCard({
 
                         {quota.academic_semester?.name && (
                             <p className="mt-1 text-xs text-muted-foreground">
-                                Internship term: {quota.academic_semester.name}
+                                Internship term: {companyView ? quota.academic_semester.company_label ?? quota.academic_semester.name.split(' · ')[0] : quota.academic_semester.name}
                             </p>
                         )}
+                        {quota.quota_status === 'Pending' && <div className="mt-2"><QuotaDeadlineNotice term={quota.academic_semester} /></div>}
+                        {quota.rejection_reason && <p className="mt-2 text-xs leading-5 text-rose-700">{quota.rejection_reason}</p>}
 
                         {/* Render Skills Badges */}
                         {Boolean(quota.branches?.length) && <p className="mt-2 text-xs text-muted-foreground">Branches: {quota.branches!.map((branch) => branch.name).join(', ')}</p>}
@@ -88,7 +95,7 @@ export default function QuotaCard({
                                     <Badge
                                         key={index}
                                         variant="secondary"
-                                        className="text-[11px] font-normal px-2 py-0.5"
+                                        className="text-[11px] "
                                     >
                                         {skill}
                                     </Badge>
@@ -125,14 +132,14 @@ export default function QuotaCard({
                         )}
 
                         {/* Edit */}
-                        {quota.quota_status !== 'Approved' && (
+                        {quota.quota_status !== 'Approved' && !quota.auto_rejected_at && (
                             <Button
                                 type="button"
                                 size="sm"
                                 variant="outline"
                                 title="Edit quota"
                                 onClick={() => onEdit?.(quota)}
-                                className="h-8 w-full justify-center gap-1.5 bg-background px-2 text-xs shadow-sm"
+                                className="h-8 w-full justify-center gap-1.5 bg-background px-2 text-xs"
                             >
                                 <Edit2 className="size-3.5" />
                                 Edit

@@ -10,42 +10,36 @@ import { NavMain } from "@/Components/nav-main"
 import { NavUser } from "@/Components/nav-user"
 import { usePage, Link } from '@inertiajs/react'
 import { PageProps } from '@/types'
-import {
-    LayoutDashboard,
-    Building2,
-    ClipboardList,
-    BookOpen,
-    FileText,
-} from "lucide-react";
+import { navigationIcons } from '@/lib/navigation-icons';
 
 const data = {
     navPrimary: [
         {
             title: "Dashboard",
             url: route('student.dashboard'),
-            icon: LayoutDashboard,
+            icon: navigationIcons.dashboard,
         },
         {
             title: "Companies",
             url: route('student.companies'),
-            icon: Building2,
+            icon: navigationIcons.companies,
         },
         {
             title: "Application Tracking",
             url: route('student.application-tracking'),
-            icon: ClipboardList,
+            icon: navigationIcons.applications,
         },
         {
             title: "Logbook",
             url: route('student.logbook'),
-            icon: BookOpen,
+            icon: navigationIcons.logbooks,
         },
     ],
     navSecondary: [
         {
             title: "Written Report",
             url: route('student.final-report'),
-            icon: FileText,
+            icon: navigationIcons.writtenReport,
         },
     ]
 }

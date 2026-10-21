@@ -1,3 +1,4 @@
+import { confirmAction } from '@/lib/confirm-action';
 import { useState } from 'react';
 import { CheckCircle, Circle, Clock, Calendar, XCircle } from 'lucide-react';
 import type { ReactNode } from 'react';
@@ -127,7 +128,7 @@ export default function ApplicationTracking({
 
     return (
         <div className="p-6">
-            <h1 className="text-3xl font-bold font-sato mb-6">
+            <h1 className="text-3xl font-semibold font-sans mb-6">
                 Application Tracking
             </h1>
 
@@ -147,12 +148,12 @@ export default function ApplicationTracking({
                                                 Position: {selectedApp.quota?.job_title ?? 'N/A'}
                                             </p>
                                             {selectedApp.branch && <p className="mt-1 text-xs text-muted-foreground">Branch: {selectedApp.branch.name}{selectedApp.branch.district ? ` · ${selectedApp.branch.district}` : ''}</p>}
-                                            {selectedApp.status_label === 'Pending' && <Button type="button" variant="outline" size="sm" className="mt-3 text-rose-600" onClick={() => { if (window.confirm('Cancel this application? Your application history will be retained.')) router.delete(route('student.applications.cancel', selectedApp.id), { preserveScroll: true }); }}>Cancel application</Button>}
+                                            {selectedApp.status_label === 'Pending' && <Button type="button" variant="outline" size="sm" className="mt-3 text-rose-600" onClick={async () => { if ((await confirmAction('Cancel this application? Your application history will be retained.'))) router.delete(route('student.applications.cancel', selectedApp.id), { preserveScroll: true }); }}>Cancel application</Button>}
                                         </div>
 
                                         <Badge
                                             variant="secondary"
-                                            className="px-3 py-1"
+                                            className=" "
                                         >
                                             {selectedApp.status_label}
                                         </Badge>

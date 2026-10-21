@@ -1,23 +1,36 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { Badge } from "@/Components/ui/badge";
+import { Badge, badgeVariants, type BadgeProps } from "@/Components/ui/badge";
 import { Button } from "@/Components/ui/button";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-    DropdownMenuSeparator
-} from "@/Components/ui/dropdown-menu";
-import { MoreHorizontal, Eye, Calendar } from "lucide-react";
+import ApplicationMenu, { type ApplicationMenuAction } from './ApplicationMenu';
+import { MoreHorizontal, Eye, Calendar, LockKeyhole } from "lucide-react";
+import { canCompanyReviewApplication, hasFinalApplicationDecision, finalDecisionNotice } from '@/lib/application-review';
 
-const getBadgeVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
+const getBadgeVariant = (status: string): BadgeProps['variant'] => {
     switch (status) {
-        case "Recruited": return "default";
-        case "Waitlisted": return "secondary";
-        case "Interviewing": return "secondary";
+        case "Recruited": return "success";
+        case "Waitlisted": return "warning";
+        case "Interviewing": return "info";
         case "Declined": return "destructive";
-        default: return "outline";
+        case "Cancelled": return "secondary";
+        default: return "warning";
     }
+};
+
+const reviewActions = (
+    app: any,
+    updateStatus: (quotaId: number, applicationId: number, status: string, date?: string) => void,
+    isInterviewRequired: boolean,
+    openInterviewModal?: (app: any) => void
+): ApplicationMenuAction[] => {
+    if (!canCompanyReviewApplication(app.app_status)) return [];
+    return [
+        ...(isInterviewRequired ? [{
+            label: 'Schedule Interview', icon: <Calendar className="size-4" />,
+            action: () => openInterviewModal ? openInterviewModal(app) : updateStatus(app.quota_id, app.id || app.application_id, 'Interviewing'),
+        }] : []),
+        { label: 'Recruit', disabled: app.app_status === 'Recruited', action: () => updateStatus(app.quota_id, app.id || app.application_id, 'Recruited') },
+        { label: 'Decline', disabled: app.app_status === 'Declined', destructive: true, action: () => updateStatus(app.quota_id, app.id || app.application_id, 'Declined') },
+    ];
 };
 
 export const getColumns = (
@@ -43,46 +56,20 @@ export const getColumns = (
             const app = row.original;
             const status = app.app_status || 'Pending';
 
-            if (status === 'Cancelled') {
-                return <Badge variant={getBadgeVariant(status)}>Cancelled</Badge>;
+            if (!canCompanyReviewApplication(status)) {
+                const final = hasFinalApplicationDecision(status);
+                return <div className="space-y-1">
+                    <Badge variant={getBadgeVariant(status)} title={final ? finalDecisionNotice : undefined}>
+                        {final && <LockKeyhole className="size-3" aria-hidden="true" />}{status}
+                    </Badge>
+                    {final && <p className="text-xs text-muted-foreground">Locked · email Admin for changes.</p>}
+                </div>;
             }
 
-            return (
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Badge
-                            variant={getBadgeVariant(status)}
-                            className="cursor-pointer hover:opacity-80 transition-opacity"
-                        >
-                            {status}
-                        </Badge>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                        {isInterviewRequired && (
-                            <DropdownMenuItem
-                                onClick={() => openInterviewModal ? openInterviewModal(app) : updateStatus(app.quota_id, app.id || app.application_id, "Interviewing")}
-                            >
-                                Schedule Interview
-                            </DropdownMenuItem>
-                        )}
-                        <DropdownMenuItem
-                            onClick={() => updateStatus(app.quota_id, app.id || app.application_id, "Waitlisted")}
-                        >
-                            Waitlist
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                            onClick={() => updateStatus(app.quota_id, app.id || app.application_id, "Recruited")}
-                        >
-                            Recruit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                            onClick={() => updateStatus(app.quota_id, app.id || app.application_id, "Declined")}
-                        >
-                            Decline
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            );
+            return <ApplicationMenu
+                trigger={<button type="button" aria-label={`Change application status: ${status}`} className={badgeVariants({ variant: getBadgeVariant(status) }) + ' cursor-pointer hover:opacity-80'}>{status}</button>}
+                actions={reviewActions(app, updateStatus, isInterviewRequired, openInterviewModal)}
+            />;
         },
     },
     {
@@ -113,7 +100,7 @@ export const getColumns = (
             }
 
             return (
-                <div 
+                <div
                     onClick={() => openInterviewModal && openInterviewModal(app)}
                     className="flex items-center gap-1.5 text-xs font-medium text-primary cursor-pointer hover:underline"
                 >
@@ -143,46 +130,14 @@ export const getColumns = (
         id: "actions",
         cell: ({ row }) => {
             const app = row.original;
-            return (
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="bg-transparent">
-                            <MoreHorizontal className="w-4 h-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => onViewDetails(app)}>
-                            <Eye className="w-4 h-4 mr-2" /> View Details
-                        </DropdownMenuItem>
-
-                        {app.app_status !== 'Cancelled' && <>
-                            <DropdownMenuSeparator />
-                            {isInterviewRequired && (
-                                <DropdownMenuItem
-                                    onClick={() => openInterviewModal ? openInterviewModal(app) : updateStatus(app.quota_id, app.id || app.application_id, "Interviewing")}
-                                >
-                                    <Calendar className="w-4 h-4 mr-2 text-primary" /> Schedule Interview
-                                </DropdownMenuItem>
-                            )}
-                            <DropdownMenuItem
-                                onClick={() => updateStatus(app.quota_id, app.id || app.application_id, "Waitlisted")}
-                            >
-                                Waitlist
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                                onClick={() => updateStatus(app.quota_id, app.id || app.application_id, "Recruited")}
-                            >
-                                Recruit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                                onClick={() => updateStatus(app.quota_id, app.id || app.application_id, "Declined")}
-                            >
-                                Decline
-                            </DropdownMenuItem>
-                        </>}
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            );
+            const actions = reviewActions(app, updateStatus, isInterviewRequired, openInterviewModal);
+            return <ApplicationMenu
+                trigger={<Button variant="ghost" size="icon" aria-label="Application actions"><MoreHorizontal className="size-4" /></Button>}
+                actions={[
+                    { label: 'View Details', icon: <Eye className="size-4" />, action: () => onViewDetails(app) },
+                    ...actions.map((action, index) => ({ ...action, separatorBefore: index === 0 })),
+                ]}
+            />;
         },
     },
 ];

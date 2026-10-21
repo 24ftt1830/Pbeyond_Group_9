@@ -2,50 +2,23 @@
 
 namespace Database\Seeders;
 
+use App\Models\Company;
+use Database\Seeders\Support\DemoCompanies;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
 class CompanySeeder extends Seeder
 {
     public function run(): void
     {
-        DB::table('companies')->insert([
-            [
-                'company_name' => 'TechCorp Brunei',
+        foreach (DemoCompanies::all() as $example) {
+            Company::firstOrCreate(['company_name' => $example['name']], [
                 'is_approved' => true,
-                'location_type' => 'Local',
-                'industry_sector' => 'IT Services',
-                'office_address' => 'Unit 12-15, Technology Park, Gadong, Bandar Seri Begawan',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'company_name' => 'GlobalTech Solutions',
-                'is_approved' => true,
-                'location_type' => 'International',
-                'industry_sector' => 'Software Development',
-                'office_address' => 'Level 20, Marina Bay Financial Centre, Singapore',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'company_name' => 'DataTech Analytics',
-                'is_approved' => true,
-                'location_type' => 'Local',
-                'industry_sector' => 'Data Analytics',
-                'office_address' => 'No. 45, Jalan Sultan, Bandar Seri Begawan',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'company_name' => 'Brunei Shell Petroleum',
-                'is_approved' => true,
-                'location_type' => 'Local',
-                'industry_sector' => 'Oil & Gas',
-                'office_address' => 'Panaga, Seria, Belait',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-        ]);
+                'location_type' => $example['district'] === 'Overseas' ? 'International' : 'Local',
+                'industry_sector' => $example['sector'],
+                'office_address' => $example['address'],
+                'district' => $example['district'],
+                'description' => 'Demo company providing internship opportunities in '.$example['sector'].'.',
+            ]);
+        }
     }
 }

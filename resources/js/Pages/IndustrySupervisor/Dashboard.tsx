@@ -52,15 +52,15 @@ export default function Dashboard({ company, stats, hasActiveEvaluationTemplate,
                 { label: 'Internship dates', value: safeStats.students_with_dates, detail: 'Assigned interns with confirmed dates', icon: CalendarDays },
             ]}
         >
-            <section className="flex flex-col gap-4 rounded-2xl border border-blue-100 bg-gradient-to-r from-blue-50 to-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-6">
+            <section className="flex flex-col gap-4 rounded-xl border border-blue-100 bg-blue-50/40 p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-6">
                 <div>
                     <p className="text-xs font-bold uppercase tracking-[0.14em] text-blue-700">Your company</p>
-                    <h2 className="mt-1 text-lg font-bold text-slate-900">{company?.company_name ?? 'Company not assigned'}</h2>
+                    <h2 className="mt-1 text-lg font-semibold text-slate-900">{company?.company_name ?? 'Company not assigned'}</h2>
                     <p className="mt-1 text-sm text-slate-500">Students are assigned directly to you by Company HR.</p>
                 </div>
                 <Link
                     href={route('industry-supervisor.students')}
-                    className="inline-flex w-fit items-center gap-2 rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
+                    className="ui-button ui-button-primary inline-flex w-fit items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary/90"
                 >
                     View my students <ArrowRight className="size-4" />
                 </Link>
@@ -93,23 +93,23 @@ export default function Dashboard({ company, stats, hasActiveEvaluationTemplate,
                                 </div>
                                 <div className="flex shrink-0 flex-wrap items-center gap-2">
                                     {student.evaluation_due && (
-                                        <span className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-800 ring-1 ring-inset ring-amber-200">
+                                        <span className="ui-badge-warning ui-badge text-xs ">
                                             Evaluation due
                                         </span>
                                     )}
                                     {student.completion_confirmation_due && (
-                                        <span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700 ring-1 ring-inset ring-blue-200">
+                                        <span className="ui-badge-info ui-badge text-xs ">
                                             Confirm completion
                                         </span>
                                     )}
                                     {!student.evaluation_due && !student.completion_confirmation_due && (
-                                        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600 ring-1 ring-inset ring-slate-200">
+                                        <span className="ui-badge-neutral ui-badge text-xs ">
                                             No action pending
                                         </span>
                                     )}
                                     <Link
                                         href={route('industry-supervisor.student.show', student.student_id)}
-                                        className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-sm font-semibold text-blue-700 transition hover:bg-blue-50 hover:text-blue-800"
+                                        className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-sm font-semibold text-primary transition hover:bg-blue-50 hover:text-primary"
                                     >
                                         View <ArrowRight className="size-4" />
                                     </Link>

@@ -44,7 +44,7 @@ export default function AcademicSemesters({ semesters = [] }: { semesters: Semes
             <header className="flex flex-wrap items-end justify-between gap-4">
                 <div>
                     <p className="text-sm font-medium text-blue-700">Superadmin Management</p>
-                    <h1 className="font-sato text-3xl font-bold text-slate-900">Academic Semesters</h1>
+                    <h1 className="font-sans text-3xl font-semibold text-slate-900">Academic Semesters</h1>
                     <p className="mt-1 text-sm text-muted-foreground">Set the term dates used for student intakes, internship positions, and dashboard filters.</p>
                 </div>
                 <Button onClick={openCreate} className="gap-2"><Plus className="size-4" />Add semester</Button>

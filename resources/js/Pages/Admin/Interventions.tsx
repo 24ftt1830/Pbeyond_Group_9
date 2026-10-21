@@ -47,7 +47,7 @@ export default function Interventions({ students, selectedSemester, selectedSeme
                     <div className="mb-6">
                         <BackButton href={dashboardUrl} className="mb-3">Back to Dashboard</BackButton>
 
-                        <h1 className="text-2xl font-bold text-slate-900">
+                        <h1 className="text-2xl font-semibold text-slate-900">
                             Students Requiring Intervention
                         </h1>
 
@@ -82,7 +82,7 @@ export default function Interventions({ students, selectedSemester, selectedSeme
                         ) : (
                             /* Student Table */
                             <div className="overflow-x-auto">
-                                <table className="min-w-full divide-y divide-slate-200">
+                                <table className="ui-table min-w-full divide-y divide-slate-200">
                                     <thead className="bg-slate-50">
                                         <tr>
                                             <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
@@ -130,11 +130,11 @@ export default function Interventions({ students, selectedSemester, selectedSeme
                                                 <td className="px-6 py-4">
                                                     {student.monitoring_status ===
                                                     'At Risk' ? (
-                                                        <span className="inline-flex rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">
+                                                        <span className="ui-badge-danger ui-badge inline-flex text-xs ">
                                                             At Risk
                                                         </span>
                                                     ) : (
-                                                        <span className="inline-flex rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">
+                                                        <span className="ui-badge-warning ui-badge inline-flex text-xs ">
                                                             Needs Attention
                                                         </span>
                                                     )}

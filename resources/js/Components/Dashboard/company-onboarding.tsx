@@ -155,7 +155,7 @@ function StepCard({ step }: { step: Step }) {
             <Button
               size="sm"
               variant="outline"
-              className="shrink-0 text-primary border-none shadow-none hover:bg-primary/10 hover:text-primary"
+              className="shrink-0 text-primary border-none hover:bg-primary/10 hover:text-primary"
               onClick={handleMarkAsDone}
               disabled={isLoading}
             >

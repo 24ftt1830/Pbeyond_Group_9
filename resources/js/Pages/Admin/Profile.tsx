@@ -21,8 +21,8 @@ export default function Profile({ user }: Props) {
 
     return (
         <div className="p-6">
-            <h1 className="text-3xl font-sato font-bold">Account Profile</h1>
-            
+            <h1 className="text-3xl font-sans font-semibold">Account Profile</h1>
+
             <div>
                 {/* Header Card */}
                 <Card className="shadow-none border-none">
@@ -48,17 +48,17 @@ export default function Profile({ user }: Props) {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="grid gap-2">
                                 <Label>Full Name</Label>
-                                <Input defaultValue={displayName} readOnly className="bg-muted/50 focus-visible:ring-0 focus-visible:ring-offset-0" />
+                                <Input defaultValue={displayName} readOnly className="bg-muted/50" />
                             </div>
                             <div className="grid gap-2">
                                 <Label>Email</Label>
-                                <Input defaultValue={user.email} readOnly className="bg-muted/50 focus-visible:ring-0 focus-visible:ring-offset-0" />
+                                <Input defaultValue={user.email} readOnly className="bg-muted/50" />
                             </div>
                         </div>
 
                         <div className="grid gap-2">
                             <Label>Role</Label>
-                            <Input defaultValue="ILD Admin" readOnly className="bg-muted/50 focus-visible:ring-0 focus-visible:ring-offset-0" />
+                            <Input defaultValue="ILD Admin" readOnly className="bg-muted/50" />
                         </div>
                     </CardContent>
                 </Card>

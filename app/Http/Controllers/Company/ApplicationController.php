@@ -80,9 +80,50 @@ class ApplicationController extends Controller
         ]);
     }
 
-    /**
-     * Display one individual student application.
-     */
+    /** Display a candidate's application details for their own company only. */
+    public function details(Application $application)
+    {
+        $company = Auth::user()->company;
+        abort_unless($company, 403, 'Your account is not linked to a company.');
+
+        $application->load('quota');
+        abort_unless($application->quota
+            && (int) $application->quota->company_id === (int) $company->company_id,
+            403, 'You do not have permission to view this application.');
+        abort_unless(strtolower($application->quota->quota_status) === 'approved', 404);
+
+        $application->load(['student.user', 'student.programme', 'branch', 'statusHistories']);
+        $candidateIds = $application->quota->applications()->orderBy('id')->pluck('id');
+        $index = $candidateIds->search(fn ($id) => (int) $id === (int) $application->id);
+
+        return Inertia::render('Company/Applications/Details', [
+            'application' => array_merge(
+                $application->only(['id', 'quota_id', 'app_status', 'interview_date', 'created_at']),
+                [
+                    'student' => array_merge(
+                        $application->student->only(['full_name', 'pb_student_code', 'mobile_phone', 'cgpa']),
+                        [
+                            'email' => $application->student->user?->email,
+                            'programme_name' => $application->student->programme?->programme_name,
+                        ]
+                    ),
+                    'branch' => $application->branch?->only(['name', 'address', 'district']),
+                    'history' => $application->statusHistories->map(fn ($history) =>
+                        $history->only(['id', 'from_status', 'to_status', 'created_at']))->values(),
+                    'has_cv' => !empty($application->cv_snapshot) || !empty($application->student->cv_snapshot),
+                ]
+            ),
+            'quota' => $application->quota->only(['quota_id', 'slug', 'job_title', 'interview_required']),
+            'candidates' => [
+                'position' => $index === false ? 0 : $index + 1,
+                'total' => $candidateIds->count(),
+                'previous_id' => $index !== false && $index > 0 ? $candidateIds[$index - 1] : null,
+                'next_id' => $index !== false ? $candidateIds->get($index + 1) : null,
+            ],
+        ]);
+    }
+
+    /** Display the generated CV attached to an individual application. */
     public function viewSingle(Application $application)
     {
         $company = Auth::user()->company;
@@ -141,7 +182,7 @@ class ApplicationController extends Controller
         }
 
         $validated = $request->validate([
-            'status' => 'required|in:Waitlisted,Recruited,Declined,Interviewing',
+            'status' => 'required|in:Recruited,Declined,Interviewing',
             'interview_date' => 'nullable|date',
         ]);
 

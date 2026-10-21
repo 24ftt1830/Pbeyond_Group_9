@@ -9,36 +9,41 @@ class StudentSkillSeeder extends Seeder
 {
     public function run(): void
     {
-        DB::table('student_skills')->insert([
+        $examples = [
             // Student 1 (Ahmad)
-            ['student_id' => 1, 'skill_name' => 'Python'],
-            ['student_id' => 1, 'skill_name' => 'SQL'],
-            ['student_id' => 1, 'skill_name' => 'JavaScript'],
-            ['student_id' => 1, 'skill_name' => 'React'],
+            ['student_code' => '24FTT001', 'skill_name' => 'HTML and CSS'],
+            ['student_code' => '24FTT001', 'skill_name' => 'PHP'],
+            ['student_code' => '24FTT001', 'skill_name' => 'JavaScript'],
+            ['student_code' => '24FTT001', 'skill_name' => 'React'],
             // Student 2 (Sarah)
-            ['student_id' => 2, 'skill_name' => 'Microsoft Excel'],
-            ['student_id' => 2, 'skill_name' => 'WordPress'],
-            ['student_id' => 2, 'skill_name' => 'Canva'],
+            ['student_code' => '24FTT002', 'skill_name' => 'Java'],
+            ['student_code' => '24FTT002', 'skill_name' => 'Database Design'],
+            ['student_code' => '24FTT002', 'skill_name' => 'Git'],
             // Student 3 (John)
-            ['student_id' => 3, 'skill_name' => 'Networking'],
-            ['student_id' => 3, 'skill_name' => 'Cisco'],
-            ['student_id' => 3, 'skill_name' => 'Linux'],
-            ['student_id' => 3, 'skill_name' => 'AWS'],
+            ['student_code' => '24FTT003', 'skill_name' => 'Python'],
+            ['student_code' => '24FTT003', 'skill_name' => 'SQL'],
+            ['student_code' => '24FTT003', 'skill_name' => 'Microsoft Excel'],
+            ['student_code' => '24FTT003', 'skill_name' => 'Data Visualization'],
             // Student 4 (Nurul)
-            ['student_id' => 4, 'skill_name' => 'Microsoft Excel'],
-            ['student_id' => 4, 'skill_name' => 'QuickBooks'],
-            ['student_id' => 4, 'skill_name' => 'Xero'],
+            ['student_code' => '24FTB001', 'skill_name' => 'Microsoft Excel'],
+            ['student_code' => '24FTB001', 'skill_name' => 'QuickBooks'],
+            ['student_code' => '24FTB001', 'skill_name' => 'Xero'],
             // Student 5 (Faiz)
-            ['student_id' => 5, 'skill_name' => 'Microsoft Office'],
-            ['student_id' => 5, 'skill_name' => 'Communication'],
+            ['student_code' => '24FTB002', 'skill_name' => 'Microsoft Office'],
+            ['student_code' => '24FTB002', 'skill_name' => 'Communication'],
             // Student 6 (Wei Jie)
-            ['student_id' => 6, 'skill_name' => 'AutoCAD'],
-            ['student_id' => 6, 'skill_name' => 'SolidWorks'],
-            ['student_id' => 6, 'skill_name' => 'MATLAB'],
+            ['student_code' => '24FTE001', 'skill_name' => 'AutoCAD'],
+            ['student_code' => '24FTE001', 'skill_name' => 'SolidWorks'],
+            ['student_code' => '24FTE001', 'skill_name' => 'MATLAB'],
             // Student 7 (Siti)
-            ['student_id' => 7, 'skill_name' => 'Patient Care'],
-            ['student_id' => 7, 'skill_name' => 'First Aid'],
-            ['student_id' => 7, 'skill_name' => 'Medical Records'],
-        ]);
+            ['student_code' => '24FTH001', 'skill_name' => 'Patient Care'],
+            ['student_code' => '24FTH001', 'skill_name' => 'First Aid'],
+            ['student_code' => '24FTH001', 'skill_name' => 'Medical Records'],
+        ];
+        foreach ($examples as $example) {
+            $studentId = DB::table('students')->where('pb_student_code', $example['student_code'])->value('student_id');
+            if (!$studentId) continue;
+            DB::table('student_skills')->updateOrInsert(['student_id' => $studentId, 'skill_name' => $example['skill_name']], []);
+        }
     }
 }

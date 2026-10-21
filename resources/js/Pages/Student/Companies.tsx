@@ -46,11 +46,11 @@ export default function Companies({ companies = [], hasAssignedIntake = true }: 
                     {row.original.company_name}
                 </span>
                 {row.original.available === 0 ? (
-                    <span className="inline-flex items-center rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20">
+                    <span className="ui-badge-danger ui-badge inline-flex items-center text-xs font-medium ">
                         Full
                     </span>
                 ) : (
-                    <span className="inline-flex items-center rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                    <span className="ui-badge-success ui-badge inline-flex items-center text-xs font-medium ">
                         Available
                     </span>
                 )}
@@ -72,7 +72,7 @@ export default function Companies({ companies = [], hasAssignedIntake = true }: 
             cell: ({ row }) => (
                 <Link
                     href={route('student.companies.view', row.original.company_id)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 text-primary hover:bg-blue-100 transition-colors"
                 >
                     <Eye className="size-4" /> View Details
                 </Link>
@@ -133,7 +133,7 @@ export default function Companies({ companies = [], hasAssignedIntake = true }: 
 
             <div className="flex items-center justify-between mb-6">
                 <header>
-                    <h1 className="font-sato text-3xl font-bold">Companies List</h1>
+                    <h1 className="font-sans text-3xl font-semibold">Companies List</h1>
                     <p className="text-sm text-slate-500">Browse and find placement opportunities</p>
                 </header>
 
@@ -154,7 +154,7 @@ export default function Companies({ companies = [], hasAssignedIntake = true }: 
                     placeholder="Search company or district..."
                     value={searchQuery}
                     onChange={handleSearchChange}
-                    className="h-9 w-[250px] pl-8 shadow-none text-sm rounded-full bg-muted border-none focus-visible:ring-transparent"
+                    className="h-9 w-[250px] pl-8 bg-muted border-none"
                 />
                 {/*}
                 {isSearching && (
@@ -175,7 +175,7 @@ export default function Companies({ companies = [], hasAssignedIntake = true }: 
                     </div>
                     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                         <div>
-                            <h3 className="mb-2 text-sm font-bold text-gray-800">District</h3>
+                            <h3 className="mb-2 text-sm font-semibold text-gray-800">District</h3>
                             <div className="grid grid-cols-2 gap-2">
                                 {districtOptions.map(district => (
                                     <label key={district} className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
@@ -183,7 +183,7 @@ export default function Companies({ companies = [], hasAssignedIntake = true }: 
                                             type="checkbox"
                                             checked={selectedDistricts.includes(district)}
                                             onChange={() => toggleSelection(district, selectedDistricts, setSelectedDistricts)}
-                                            className="text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                            className="text-blue-600 border-gray-300 rounded focus-visible:ring-primary/25"
                                         />
                                         {district}
                                     </label>
@@ -191,7 +191,7 @@ export default function Companies({ companies = [], hasAssignedIntake = true }: 
                             </div>
                         </div>
                         <div>
-                            <h3 className="mb-2 text-sm font-bold text-gray-800">Availability</h3>
+                            <h3 className="mb-2 text-sm font-semibold text-gray-800">Availability</h3>
                             <div className="flex gap-4">
                                 {statusOptions.map(status => (
                                     <label key={status} className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
@@ -199,7 +199,7 @@ export default function Companies({ companies = [], hasAssignedIntake = true }: 
                                             type="checkbox"
                                             checked={selectedStatuses.includes(status)}
                                             onChange={() => toggleSelection(status, selectedStatuses, setSelectedStatuses)}
-                                            className="text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                            className="text-blue-600 border-gray-300 rounded focus-visible:ring-primary/25"
                                         />
                                         {status}
                                     </label>

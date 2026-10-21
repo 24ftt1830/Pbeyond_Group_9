@@ -4,19 +4,13 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
+use App\Models\Programme;
 
 class ProgrammeSeeder extends Seeder
 {
     public function run(): void
     {
-        Schema::disableForeignKeyConstraints();
-
-        DB::table('programmes')->truncate();
-
-        Schema::enableForeignKeyConstraints();
-
-        DB::table('programmes')->insert([
+        $programmes = [
             // SICT (school_id = 1)
             [
                 'class_id' => 1,
@@ -96,6 +90,12 @@ class ProgrammeSeeder extends Seeder
                 'programme_name' => 'Level 5 Diploma in Paramedic Science',
                 'school_id' => 4
             ],
-        ]);
+        ];
+        $schools = DB::table('schools')->pluck('school_id', 'school_code');
+        $schoolCodes = [1 => 'SICT', 2 => 'SBA', 3 => 'SSE', 4 => 'SHS'];
+        foreach ($programmes as $programme) {
+            $programme['school_id'] = $schools[$schoolCodes[$programme['school_id']]];
+            Programme::firstOrCreate(['programme_name' => $programme['programme_name']], $programme);
+        }
     }
 }

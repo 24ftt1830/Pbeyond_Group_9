@@ -12,6 +12,7 @@ use App\Models\IndustrySupervisor;
 use App\Models\LogbookWeeklySubmission;
 use App\Models\Student;
 use App\Services\InternshipCompletionStatus;
+use App\Services\InternshipRecordHistory;
 use App\Services\InternshipWorkflow;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -53,6 +54,8 @@ class StudentRecordController extends Controller
             'canFinalizeCompleted' => $completion->canAcademicFinalize($student, 'Completed'),
             'canFinalizeIncomplete' => $completion->canAcademicFinalize($student, 'Incomplete'),
             'attendance' => app(\App\Services\AttendanceService::class)->summary($student),
+            'pendingLogbookCorrections' => $completion->pendingLogbookCorrections($student),
+            'completionHistory' => app(InternshipRecordHistory::class)->for($student),
         ]);
     }
 
@@ -195,15 +198,38 @@ class StudentRecordController extends Controller
     public function reopenLogbook(Request $request, Student $student, LogbookWeeklySubmission $submission)
     {
         abort_unless((int) $submission->student_id === (int) $student->student_id, 404);
-        if (!in_array($submission->status, ['approved', 'reviewed'], true)) {
-            throw ValidationException::withMessages(['reopen' => 'Only a reviewed week can be reopened.']);
-        }
-        DB::transaction(function () use ($submission, $request) {
-            $before = $submission->toArray();
-            $submission->update(['status' => 'pending_fix', 'reviewed_at' => null]);
-            AdminRecordChange::record($request->user(), $submission, 'Reopened logbook for student correction', $before);
+        $data = $request->validate([
+            'reason' => ['required', 'string', 'max:2000'],
+            'confirmed' => ['required', 'accepted'],
+        ]);
+        DB::transaction(function () use ($student, $submission, $request, $data) {
+            $student = Student::whereKey($student->getKey())->lockForUpdate()->firstOrFail();
+            $week = LogbookWeeklySubmission::whereKey($submission->getKey())->lockForUpdate()->firstOrFail();
+            if (!in_array($week->status, ['approved', 'reviewed'], true)) {
+                throw ValidationException::withMessages(['reopen' => 'Only an approved week can be reopened.']);
+            }
+            if (!$student->internship
+                || $week->week_start->copy()->max($student->internship->start_date)
+                    ->gt($week->week_end->copy()->min($student->internship->end_date))) {
+                throw ValidationException::withMessages(['reopen' => 'This week is outside the current internship dates. Correct the dates or use the date-change review before requesting student corrections.']);
+            }
+            $before = $week->toArray();
+            $week->update([
+                'status' => 'pending_fix', 'reviewed_at' => null,
+                'reopened_at' => now(), 'reopened_by_user_id' => $request->user()->getKey(),
+                'reopen_reason' => trim($data['reason']), 'reopen_resolved_at' => null,
+            ]);
+            AdminRecordChange::recordWorkflow($request->user(), $week, 'Reopened logbook for student correction', $before);
+            $completion = $student->internshipCompletion()->lockForUpdate()->first();
+            if ($completion && in_array($completion->academic_completion_status, ['Completed', 'Incomplete'], true)) {
+                $beforeCompletion = $completion->toArray();
+                $completion->resetAcademicDecision();
+                AdminRecordChange::recordWorkflow($request->user(), $completion, 'Final completion reopened for logbook correction', $beforeCompletion, [
+                    'reason' => $week->reopen_reason, 'logbook_week_id' => $week->id,
+                ]);
+            }
         });
-        return back()->with('success', 'Logbook reopened. The student can correct and resubmit this week.');
+        return back()->with('success', 'Logbook reopened for correction. Completion stays pending until the week is approved and PB Supervisor records a new completion decision. Existing assessments and company confirmation are retained.');
     }
 
     public function cv(Student $student)

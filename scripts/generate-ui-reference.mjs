@@ -148,7 +148,7 @@ for (const [file, module] of modules) {
     function visit(node) {
         if (ts.isCallExpression(node)) {
             const call = node.expression.getText(module.ast);
-            if (call === 'window.confirm' || call === 'confirm') record('confirmations', 'Browser confirmation', 'The browser controls its appearance. Used for deletions, rejections and cancellation.', 'native-confirm', file, node);
+            if (call === 'confirmAction') record('confirmations', 'Styled confirmation dialog', 'The shared confirmation used for deletions, rejections and cancellation. Destructive actions use a red confirm button.', 'alert-dialog', file, node);
             if (/^toast\.(success|error|warning|info|loading)$/.test(call)) {
                 const tone = call.split('.')[1];
                 const settings = node.arguments[1]?.getText(module.ast) ?? '';

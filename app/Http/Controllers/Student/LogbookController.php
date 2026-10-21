@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\AcademicSupervisor;
+use App\Models\AdminRecordChange;
 use App\Models\IndustrySupervisor;
 use App\Models\LogbookEntry;
 use App\Models\LogbookReminder;
@@ -12,6 +13,7 @@ use App\Models\Student;
 use App\Services\AttendanceService;
 use App\Services\LogbookTracking;
 use App\Support\BruneiDate;
+use App\Support\LogbookTesting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -43,8 +45,10 @@ class LogbookController extends Controller
                 'end_date' => $internship->end_date->toDateString(),
             ] : null,
             'today' => BruneiDate::today(),
+            'allowFutureDates' => LogbookTesting::allowsFutureDates(),
             'attendance' => app(AttendanceService::class)->summary($student),
-            'canExport' => $internship && BruneiDate::isPast($internship->end_date),
+            'pendingLogbookCorrections' => app(\App\Services\InternshipCompletionStatus::class)->pendingLogbookCorrections($student),
+            'canExport' => $internship && (LogbookTesting::allowsFutureDates() || BruneiDate::isPast($internship->end_date)),
         ]);
     }
 
@@ -55,20 +59,28 @@ class LogbookController extends Controller
 
     public function attachmentsPage(Request $request)
     {
-        return $this->dayPage($request, 'Student/LogbookAttachments');
+        $date = $request->validate(['date' => ['required', 'date_format:Y-m-d']])['date'];
+
+        return redirect()->route('student.logbook.create', ['date' => $date, 'status' => 'permission']);
     }
 
     private function dayPage(Request $request, string $page)
     {
         $student = $request->user()->student;
         abort_unless($student, 404);
-        $date = $request->validate(['date' => ['required', 'date_format:Y-m-d']])['date'];
+        $data = $request->validate([
+            'date' => ['required', 'date_format:Y-m-d'],
+            'status' => ['nullable', 'in:working,permission,absent,holiday'],
+        ]);
+        $date = $data['date'];
         $this->ensureEditable($student, $date);
         $entry = LogbookEntry::where('student_id', $student->student_id)->whereDate('date', $date)->first();
 
         return Inertia::render($page, [
             'date' => $date, 'entry' => $entry ? $this->entryData($entry) : null,
             'weekSubmission' => $this->weekForDate($student, $date),
+            'initialStatus' => $data['status'] ?? null,
+            'allowFutureDates' => LogbookTesting::allowsFutureDates(),
         ]);
     }
 
@@ -148,7 +160,7 @@ class LogbookController extends Controller
         $date = $request->validate(['week_start' => ['required', 'date_format:Y-m-d']])['week_start'];
         $student = $request->user()->student;
         abort_unless($student, 404);
-        DB::transaction(function () use ($student, $date) {
+        DB::transaction(function () use ($student, $date, $request) {
             $student = Student::whereKey($student->student_id)->lockForUpdate()->firstOrFail();
             if (!$student->applications()->where('app_status', 'Recruited')->exists() || !$student->internship) {
                 throw ValidationException::withMessages(['week' => 'Recruitment and internship dates are required.']);
@@ -164,7 +176,7 @@ class LogbookController extends Controller
                 throw ValidationException::withMessages(['week' => 'Submit and get approval for every earlier internship week before submitting this week.']);
             }
             $expected = app(AttendanceService::class)->periodDates($activeStart, $activeEnd);
-            if (!$expected || BruneiDate::isAfterToday(end($expected))) {
+            if (!$expected || (!LogbookTesting::allowsFutureDates() && BruneiDate::isAfterToday(end($expected)))) {
                 throw ValidationException::withMessages(['week' => 'Submit after all internship days in this week have occurred.']);
             }
             $this->ensureComplete($student, $expected);
@@ -173,9 +185,13 @@ class LogbookController extends Controller
             if ($submission && !in_array($submission->status, ['pending_fix', 'revision', 'needs_revision'], true)) {
                 throw ValidationException::withMessages(['week' => 'This week has already been submitted.']);
             }
-            LogbookWeeklySubmission::updateOrCreate([
+            $before = $submission?->toArray();
+            $submission = LogbookWeeklySubmission::updateOrCreate([
                 'student_id' => $student->student_id, 'week_start' => Carbon::parse($date)->startOfWeek()->toDateString(),
             ], ['week_end' => Carbon::parse($date)->endOfWeek()->toDateString(), 'status' => 'submitted', 'submitted_at' => now()]);
+            if ($submission->reopened_at && !$submission->reopen_resolved_at) {
+                AdminRecordChange::recordWorkflow($request->user(), $submission, 'Resubmitted corrected logbook week', $before);
+            }
             LogbookReminder::where('student_id', $student->student_id)
                 ->whereDate('week_start', Carbon::parse($date)->startOfWeek())->delete();
         });
@@ -214,7 +230,7 @@ class LogbookController extends Controller
         $student = $request->user()->student;
         abort_unless($student, 404);
         $internship = $student->internship;
-        abort_unless($internship && BruneiDate::isPast($internship->end_date), 403, 'Download is available after your internship ends.');
+        abort_unless($internship && (LogbookTesting::allowsFutureDates() || BruneiDate::isPast($internship->end_date)), 403, 'Download is available after your internship ends.');
         $entries = LogbookEntry::where('student_id', $student->student_id)->orderBy('date')->get()->keyBy(fn ($entry) => $entry->date->toDateString());
         $weeks = LogbookWeeklySubmission::where('student_id', $student->student_id)->get()->keyBy(fn ($week) => $week->week_start->toDateString());
         $periodDates = app(AttendanceService::class)->periodDates($internship->start_date, $internship->end_date);
@@ -251,8 +267,10 @@ class LogbookController extends Controller
         $entryDate = Carbon::parse($date)->toDateString();
         if ($entryDate < $student->internship->start_date->toDateString()
             || $entryDate > $student->internship->end_date->toDateString()
-            || BruneiDate::isAfterToday($entryDate)) {
-            throw ValidationException::withMessages(['date' => 'Choose today or an earlier date within your internship period.']);
+            || (!LogbookTesting::allowsFutureDates() && BruneiDate::isAfterToday($entryDate))) {
+            throw ValidationException::withMessages(['date' => LogbookTesting::allowsFutureDates()
+                ? 'Choose a date within your internship period.'
+                : 'Choose today or an earlier date within your internship period.']);
         }
         if (!app(LogbookTracking::class)->previousWeeksApproved($student, Carbon::parse($entryDate)->startOfWeek())) {
             throw ValidationException::withMessages(['week' => 'This week is locked until every earlier internship week is approved by your Industry Supervisor.']);

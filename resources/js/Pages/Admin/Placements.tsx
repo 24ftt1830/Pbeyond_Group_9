@@ -1,3 +1,4 @@
+import { confirmAction } from '@/lib/confirm-action';
 import { useState, useMemo } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router } from '@inertiajs/react';
@@ -41,19 +42,19 @@ interface PlacementsProps {
 export default function Placements({
     stats,
     placements = [],
-    quotas = [] 
+    quotas = []
 }: PlacementsProps) {
     const [searchTerm, setSearchTerm] = useState('');
     const [filterProgramme, setFilterProgramme] = useState('all');
 
-    const handleApprove = (id: number) => {
-        if(confirm('Approve this company quota request?')) {
+    const handleApprove = async (id: number) => {
+        if((await confirmAction('Approve this company quota request?'))) {
             router.post(route('admin.placements.approve', id));
         }
     };
 
-    const handleReject = (id: number) => {
-        if(confirm('Reject this company quota request?')) {
+    const handleReject = async (id: number) => {
+        if((await confirmAction('Reject this company quota request?'))) {
             router.post(route('admin.placements.reject', id));
         }
     };
@@ -62,12 +63,12 @@ export default function Placements({
         return placements.filter(item => {
             // 1. Only include 'Recruited'
             const isRecruited = item.status === 'Recruited';
-            
+
             // 2. Search & Programme filters
             const matchesSearch = item.student_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                                  item.company_name.toLowerCase().includes(searchTerm.toLowerCase());
             const matchesProgramme = filterProgramme === 'all' || item.programme === filterProgramme;
-            
+
             return isRecruited && matchesSearch && matchesProgramme;
         });
     }, [searchTerm, filterProgramme, placements]);
@@ -82,7 +83,7 @@ export default function Placements({
             <Head title="Placements" />
 
             <header className="flex justify-between items-end w-full">
-                <h1 className="text-3xl font-sato font-bold mb-6">Placements</h1>
+                <h1 className="text-3xl font-sans font-semibold mb-6">Placements</h1>
             </header>
 
             <div className="w-full rounded-xl flex flex-wrap items-end">
@@ -93,7 +94,7 @@ export default function Placements({
                             placeholder="Search student or company..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="h-9 w-[250px] pl-8 bg-muted text-sm focus-visible:ring-0 shadow-none border-none rounded-full mb-4"
+                            className="h-9 w-[250px] pl-8 bg-muted border-none mb-4"
                         />
                     </div>
                 </div>

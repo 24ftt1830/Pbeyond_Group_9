@@ -61,7 +61,7 @@ class SupervisorManagementController extends Controller
         $data = $request->validate([
             'username' => ['required', 'string', 'max:100', Rule::unique('users', 'username')->ignore($user?->user_id, 'user_id')],
             'email' => ['required', 'email', 'max:150', Rule::unique('users', 'email')->ignore($user?->user_id, 'user_id')],
-            'password' => [$user ? 'nullable' : 'required', 'string', 'min:8'],
+            'password' => [$user ? 'prohibited' : 'required', 'nullable', 'string', 'min:8'],
             'full_name' => ['required', 'string', $type === 'industry' ? 'max:150' : 'max:255'],
             'phone' => ['nullable', 'string', $type === 'industry' ? 'max:20' : 'max:255'],
             'position' => ['nullable', 'string', 'max:100'],

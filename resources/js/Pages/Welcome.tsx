@@ -1,170 +1,113 @@
-import { PageProps } from '@/types';
+import { Head, Link } from '@inertiajs/react';
+import { ArrowRight, BookOpen, BriefcaseBusiness, ClipboardCheck, GraduationCap } from 'lucide-react';
 import IndexLayout from '@/Layouts/IndexLayout';
-import FeaturesSection from '@/Components/features-section';
-import { DitherShader } from '@/Components/ui/dither-shader';
-import FollowCursor from '@/Components/follow-cursor';
-import DecryptText, { DecryptTextHandle } from '@/Components/ui/decrypt-text';
-import { useRef } from 'react';
-import RadarDot from '@/Components/ui/radar-dot';
-import TextReveal from '@/Components/ui/text-reveal';
-import CtaButton from '@/Components/ui/cta-button';
-import CtaButtonTwo from '@/Components/ui/cta-button-two';
+import { buttonVariants } from '@/Components/ui/button';
+import { PageProps, UserRole } from '@/types';
 
-const stickyItems = [
+const portalRoutes: Record<UserRole, string> = {
+    Admin: 'admin.dashboard',
+    Student: 'student.dashboard',
+    Company: 'company.dashboard',
+    'Academic Supervisor': 'academic-supervisor.dashboard',
+    'Industry Supervisor': 'industry-supervisor.dashboard',
+};
+
+const features = [
     {
         number: '01',
-        cursorLabel: '■ explore me!',
-        label: 'Discover',
-        pageLabel: 'Dashboard',
-        heading: 'The platform for unifying aspirations and opportunities.',
-        body: 'Access a curated network of industry partners actively looking for emerging talent — all through a single, intuitive portal built for academic institutions.',
+        icon: BriefcaseBusiness,
+        title: 'Find your placement',
+        description: 'Explore internship opportunities, apply with your profile and CV, and follow your application status.',
     },
     {
         number: '02',
-        cursorLabel: '■ look at this',
-        label: 'Connect',
-        pageLabel: 'Applications',
-        heading: 'Direct lines between talent and the people who matter.',
-        body: 'No middlemen, no friction. Students and company representatives communicate directly, making the process faster and more human.',
+        icon: BookOpen,
+        title: 'Keep your logbook',
+        description: 'Record your daily experience, submit weekly logs and receive feedback from your Industry Supervisor.',
     },
     {
         number: '03',
-        cursorLabel: '■ cool, right?',
-        label: 'Succeed',
-        pageLabel: 'Status Tracker',
-        heading: 'Every milestone, tracked with precision.',
-        body: 'From initial applications to confirmed placements, PBeyond gives both sides full visibility into the journey — start to finish.',
+        icon: ClipboardCheck,
+        title: 'Track your progress',
+        description: 'Keep your reports and supervisor evaluations together as you work towards internship completion.',
     },
 ];
 
-export default function Welcome({
-    auth,
-    laravelVersion,
-    phpVersion,
-}: PageProps<{ laravelVersion: string; phpVersion: string }>) {
-    const decryptRefs = useRef<(DecryptTextHandle | null)[]>([]);
-    const paragraphText = "The platform for unifying aspirations and opportunities.";
+export default function Welcome({ auth }: PageProps) {
+    const portalHref = auth.user
+        ? route(portalRoutes[auth.user.role] ?? 'login')
+        : route('login');
 
     return (
         <IndexLayout auth={auth}>
-            <section className="sticky top-0 flex flex-col overflow-hidden h-screen bg-primary">
-                <div className="absolute inset-0 z-0 overflow-hidden">
-                    <div className="w-full h-full md:translate-x-1/4">
-                        <DitherShader
-                            src="/images/hand.png"
-                            gridSize={2}
-                            ditherMode="bayer"
-                            colorMode="duotone"
-                            primaryColor="#214cf1"
-                            secondaryColor="#ffffff"
-                            threshold={0.6}
-                            className="w-full h-full"
-                        />
+            <Head title="PBeyond — Politeknik Brunei">
+                <meta
+                    name="description"
+                    content="PBeyond connects Politeknik Brunei students, industry partners and supervisors throughout the internship journey."
+                />
+            </Head>
+
+            <section aria-labelledby="welcome-title" className="border-b border-primary/10 bg-primary/5">
+                <div className="mx-auto grid w-full max-w-7xl items-center gap-9 px-5 py-10 sm:px-8 sm:py-12 lg:grid-cols-2 lg:gap-14 lg:px-10">
+                <div className="max-w-xl lg:py-8">
+                    <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-primary/15 bg-background px-3 py-1.5 text-xs font-semibold text-primary sm:text-sm">
+                        <GraduationCap size={16} aria-hidden="true" />
+                        Politeknik Brunei
+                    </p>
+                    <h1 id="welcome-title" className="text-4xl font-semibold leading-[1.12] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+                        From campus to<br className="hidden sm:block" /> <span className="text-primary">your next chapter.</span>
+                    </h1>
+                    <p className="mt-5 max-w-[28rem] text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
+                        Your internship journey, connected. Apply for opportunities, record your experience and stay on track with PBeyond.
+                    </p>
+                    <div className="mt-7">
+                        <Link
+                            href={portalHref}
+                            className={buttonVariants({ size: 'lg' })}
+                        >
+                            {auth.user ? 'Go to your dashboard' : 'Log in to PBeyond'}
+                            <ArrowRight size={17} aria-hidden="true" />
+                        </Link>
+                        <p className="mt-4 text-xs leading-5 text-muted-foreground sm:text-sm">For students, industry partners and supervisors.</p>
                     </div>
                 </div>
-                <div className="relative z-10 mt-auto px-6 md:px-10 pb-8 md:pb-12 max-w-3xl mb-3 md:mb-5">
-                    <div className="mb-6 md:mb-8 inline-flex items-center gap-3 bg-white/10 backdrop-blur-sm border border-white/15 rounded-full px-4 py-2">
-                        <RadarDot />
-                        <span className="text-xs font-mono text-white/80">
-                            We're in Beta — Live 2026
-                        </span>
-                    </div>
 
+                <figure className="ui-card min-w-0 overflow-hidden border-primary/15">
                     <img
-                        src="/images/pb-pixel.svg"
-                        alt="PBeyond mark"
-                        className="w-10 md:w-12 mb-4"
+                        src="/images/pb-campus.jpg"
+                        alt="Politeknik Brunei's Ong Sum Ping campus building, surrounded by trees."
+                        width={1280}
+                        height={1716}
+                        fetchPriority="high"
+                        className="aspect-[5/4] w-full object-cover object-top sm:aspect-[4/3] lg:aspect-auto lg:h-[400px]"
                     />
-                    <h1 className="text-4xl sm:text-5xl md:text-6xl font-sato font-bold text-white">
-                        Everything Beyond, Within Reach.
-                    </h1>
-                    <p className="mt-4 text-base md:text-xl text-zinc-300 max-w-2xl">
-                        A high-performance ecosystem bridging the gap between
-                        top-tier talent and industry leaders.
-                    </p>
-                    <div className="mt-6 md:mt-8">
-                        <CtaButton href="/login" label="Get Started" />
-                    </div>
+                    <figcaption className="flex flex-wrap items-center justify-between gap-2 border-t border-border bg-background px-4 py-3 text-[11px] leading-5 text-muted-foreground">
+                        <span className="font-medium text-foreground">Ong Sum Ping Campus</span>
+                    </figcaption>
+                </figure>
                 </div>
             </section>
 
-            <div className="relative z-10">
-
-                <section className="bg-white px-6 sm:px-10 md:px-16 py-16 md:py-24">
-                    <h2 className="text-3xl sm:text-4xl md:text-5xl font-sato font-semibold text-zinc-900 leading-tight max-w-5xl mx-auto">
-                        <TextReveal value={paragraphText} />
-                    </h2>
-                </section>
-
-                <section className="bg-white px-6 sm:px-10 md:px-16 pb-16 md:pb-24">
-                    <FeaturesSection />
-                </section>
-
-                <section className="bg-primary px-6 sm:px-10 md:px-16 py-16 md:py-24">
-                    <div className="relative flex flex-col md:flex-row max-w-6xl mx-auto gap-12 md:gap-24">
-
-                        <div className="md:sticky md:top-28 h-fit w-full md:w-1/3 shrink-0">
-                            <p className="text-xs font-mono uppercase tracking-widest text-white/80 mb-4">The Process</p>
-                            <h2 className="text-2xl md:text-3xl font-sato font-semibold text-white leading-tight">
-                                From campus to career,<br />every step covered.
-                            </h2>
-                            <p className="mt-4 text-white/80 text-sm leading-relaxed">
-                                PBeyond brings students and industry together in one structured, transparent, and human experience.
-                            </p>
-                        </div>
-
-                        <div className="flex flex-col gap-16 md:gap-32 w-full md:w-2/3 py-4 md:py-8">
-                            {stickyItems.map((item, i) => (
-                                <div key={item.number} className="flex flex-col gap-4">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-2.5 h-2.5 bg-white" />
-                                        <span className="text-xs font-mono text-white/80">{item.number} — {item.label}</span>
-                                    </div>
-                                    <h3 className="text-xl md:text-2xl font-sato font-semibold text-white leading-snug">
-                                        {item.heading}
-                                    </h3>
-                                    <p className="text-white/75 text-sm leading-relaxed">
-                                        {item.body}
-                                    </p>
-                                    <FollowCursor label={item.cursorLabel}>
-                                        <div
-                                            className="mt-4 w-full rounded-2xl bg-white/10 border border-white/10 overflow-hidden"
-                                            onMouseEnter={() => decryptRefs.current[i]?.start()}
-                                            onMouseLeave={() => decryptRefs.current[i]?.stop()}
-                                        >
-                                            <img
-                                                src={`/images/screenshot-${item.number}.png?v=2`}
-                                                alt={item.label}
-                                                className="w-full h-auto object-contain"
-                                            />
-                                        </div>
-                                    </FollowCursor>
-                                    <div className="flex items-center gap-2 mt-2">
-                                        <div className="w-1.5 h-1.5 bg-white/40" />
-                                        <DecryptText
-                                            ref={(el) => { decryptRefs.current[i] = el; }}
-                                            text={item.pageLabel}
-                                            className="text-xs text-white/80"
-                                        />
-                                    </div>
-                                    <div className="mt-2 h-px w-full bg-white/20" />
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </section>
-
-                <section className="bg-white rounded-b-[2rem]">
-                    <div className="flex flex-col items-center justify-center py-24 md:py-40 text-center px-6">
-                        <h2 className="text-2xl md:text-3xl font-bold text-zinc-900">Ready to start?</h2>
-                        <p className="mt-4 text-zinc-600 text-sm md:text-base">Join the network and elevate your professional journey.</p>
-                        <div className="mt-8">
-                            <CtaButtonTwo href="/login" label="Get Started" />
-                        </div>
-                    </div>
-                </section>
-
-            </div>
+            <section aria-labelledby="features-title" className="mx-auto w-full max-w-7xl px-5 py-9 sm:px-8 sm:py-10 lg:px-10">
+                <div className="mb-5 flex flex-wrap items-baseline justify-between gap-2">
+                    <h2 id="features-title" className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">Every step, connected.</h2>
+                    <p className="text-sm text-muted-foreground">Your internship essentials, in one place.</p>
+                </div>
+                <div className="grid gap-4 md:grid-cols-3">
+                    {features.map(({ number, icon: Icon, title, description }) => (
+                        <article key={number} className="ui-card border-primary/15 p-5 sm:p-6">
+                            <div className="mb-5 flex items-center justify-between gap-4">
+                                <span className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                                    <Icon size={21} strokeWidth={1.8} aria-hidden="true" />
+                                </span>
+                                <span className="text-xs font-semibold tracking-wider text-primary/60" aria-hidden="true">{number}</span>
+                            </div>
+                            <h3 className="text-base font-semibold text-foreground">{title}</h3>
+                            <p className="mt-2 text-sm leading-6 text-muted-foreground">{description}</p>
+                        </article>
+                    ))}
+                </div>
+            </section>
         </IndexLayout>
     );
 }

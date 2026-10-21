@@ -110,12 +110,12 @@ export default function Evaluation({ student, evaluation }: Props) {
                         </BackButton>
 
                         <div className="flex items-center gap-5">
-                            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
+                            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
                                 <ClipboardCheck size={30} />
                             </div>
 
                             <div>
-                                <h1 className="mt-1 text-2xl font-bold text-slate-900 sm:text-3xl">
+                                <h1 className="mt-1 text-2xl font-semibold text-slate-900 sm:text-3xl">
                                     {evaluation ? 'Update Evaluation' : 'Evaluate'}: {student.full_name}
                                 </h1>
 
@@ -130,10 +130,10 @@ export default function Evaluation({ student, evaluation }: Props) {
                 <main className="mx-auto max-w-4xl px-6 py-8 pb-16">
                     <form onSubmit={submit} className="space-y-6">
                         {/* Rubric */}
-                        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                        <section className="ui-card rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
                             <div className="mb-5 flex items-center gap-2">
                                 <UserRound size={20} className="text-blue-600" />
-                                <h2 className="text-lg font-bold text-slate-900">
+                                <h2 className="text-lg font-semibold text-slate-900">
                                     Performance Rubric
                                 </h2>
                             </div>
@@ -157,8 +157,8 @@ export default function Evaluation({ student, evaluation }: Props) {
                         </section>
 
                         {/* Written feedback */}
-                        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                            <h2 className="mb-5 text-lg font-bold text-slate-900">
+                        <section className="ui-card rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+                            <h2 className="mb-5 text-lg font-semibold text-slate-900">
                                 Written Feedback
                             </h2>
 
@@ -190,8 +190,8 @@ export default function Evaluation({ student, evaluation }: Props) {
                         </section>
 
                         {/* Recommendation */}
-                        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                            <h2 className="mb-4 text-lg font-bold text-slate-900">
+                        <section className="ui-card rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+                            <h2 className="mb-4 text-lg font-semibold text-slate-900">
                                 Overall Recommendation
                             </h2>
 
@@ -228,7 +228,7 @@ export default function Evaluation({ student, evaluation }: Props) {
                         <div className="flex justify-end gap-3">
                             <Link
                                 href={route('industry-supervisor.student.show', student.student_id)}
-                                className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50"
+                                className="rounded-lg border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50"
                             >
                                 Cancel
                             </Link>
@@ -236,7 +236,7 @@ export default function Evaluation({ student, evaluation }: Props) {
                             <button
                                 type="submit"
                                 disabled={processing}
-                                className="rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50"
+                                className="ui-button ui-button-primary rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:opacity-50"
                             >
                                 {processing
                                     ? 'Submitting...'
@@ -278,11 +278,11 @@ function RatingRow({
                         key={score}
                         type="button"
                         onClick={() => onChange(score)}
-                        className={`flex h-10 w-10 items-center justify-center rounded-lg border text-sm font-semibold transition ${
+                        className={'ui-button ui-button-primary ' + (`flex h-10 w-10 items-center justify-center rounded-lg border text-sm font-semibold transition ${
                             value === score
-                                ? 'border-blue-600 bg-blue-600 text-white'
+                                ? 'border-primary bg-primary text-white'
                                 : 'border-slate-200 text-slate-500 hover:border-blue-300'
-                        }`}
+                        }`)}
                     >
                         {score}
                     </button>
@@ -318,7 +318,7 @@ function TextArea({
                 onChange={(e) => onChange(e.target.value)}
                 placeholder={placeholder}
                 rows={3}
-                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-700 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="ui-textarea w-full px-4 py-3 text-slate-700"
             />
 
             {error && <p className="mt-1.5 text-sm text-red-600">{error}</p>}

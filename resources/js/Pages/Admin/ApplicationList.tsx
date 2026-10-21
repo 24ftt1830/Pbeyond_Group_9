@@ -26,7 +26,7 @@ interface Application {
 
 interface PageProps {
     auth: {
-        user: any; 
+        user: any;
     };
     applications: Application[];
     [key: string]: unknown;
@@ -72,7 +72,7 @@ export default function ApplicationList() {
             header: 'Status',
             cell: ({ row }) => {
                 const status = row.original.app_status || 'Pending';
-                
+
                 const variants: Record<string, string> = {
                     Recruited: 'border-emerald-200 bg-emerald-50/30 text-emerald-700',
                     Waitlisted: 'border-amber-200 bg-amber-50/30 text-amber-700',
@@ -81,9 +81,9 @@ export default function ApplicationList() {
                 };
 
                 return (
-                    <Badge 
-                        variant="outline" 
-                        className={`text-[10px] uppercase tracking-tighter font-semibold ${variants[status] || variants.Pending}`}
+                    <Badge
+                        variant="outline"
+                        className={`text-[10px] uppercase tracking-tighter ${variants[status] || variants.Pending}`}
                     >
                         {status}
                     </Badge>
@@ -93,7 +93,7 @@ export default function ApplicationList() {
         {
             id: 'manage',
             header: 'Actions',
-            cell: ({ row }) => <Link href={route('admin.students.show', row.original.student.student_id)} className="inline-flex rounded-lg border px-3 py-2 text-sm font-semibold text-indigo-700">View</Link>,
+            cell: ({ row }) => <Link href={route('admin.students.show', row.original.student.student_id)} className="ui-button ui-button-outline inline-flex rounded-lg border px-3 py-2 text-sm font-semibold text-primary">View</Link>,
         },
     ], []);
 
@@ -102,7 +102,7 @@ export default function ApplicationList() {
             <Head title="Student Applications" />
             <div className="p-6">
                 <div className="flex items-center justify-between mb-6">
-                    <h1 className="font-sato text-3xl font-bold">Student Applications</h1>
+                    <h1 className="font-sans text-3xl font-semibold">Student Applications</h1>
                 </div>
 
                 <div className="rounded-xl bg-white overflow-hidden">

@@ -2,7 +2,11 @@
 
 namespace Database\Seeders;
 
+use App\Models\Company;
 use App\Models\PlacementQuota;
+use App\Models\Programme;
+use Database\Seeders\Support\DemoAcademicContext;
+use Database\Seeders\Support\DemoCompanies;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -10,101 +14,43 @@ class PlacementQuotaSeeder extends Seeder
 {
     public function run(): void
     {
-        $examples = [
-            [
-                'company' => 'TechCorp Brunei',
-                'programme' => 'Level 5 Diploma in Data Analytics',
-                'job_title' => 'Data Analyst Intern',
-                'job_description' => 'Assist with data cleaning, reporting, and business intelligence tasks.',
-                'skills' => ['SQL', 'Data analysis', 'Excel'],
-                'total_slots' => 2,
-                'min_cgpa' => 2.00,
-            ],
-            [
-                'company' => 'TechCorp Brunei',
-                'programme' => 'Level 5 Diploma in Web Technology',
-                'job_title' => 'Web Developer Intern',
-                'job_description' => 'Support the development and maintenance of company web applications.',
-                'skills' => ['PHP', 'JavaScript', 'Web development'],
-                'total_slots' => 2,
-                'min_cgpa' => 2.00,
-            ],
-            [
-                'company' => 'TechCorp Brunei',
-                'programme' => 'Level 5 Diploma in Application Development',
-                'job_title' => 'Application Developer Intern',
-                'job_description' => 'Support the design, development, testing, and documentation of business applications.',
-                'skills' => ['Java', 'Database design', 'Git'],
-                'total_slots' => 2,
-                'min_cgpa' => 2.00,
-            ],
-            [
-                'company' => 'GlobalTech Solutions',
-                'programme' => 'Level 5 Diploma in Web Technology',
-                'job_title' => 'Frontend Developer Intern',
-                'job_description' => 'Build and maintain responsive user interfaces for web applications.',
-                'skills' => ['JavaScript', 'React', 'CSS'],
-                'total_slots' => 2,
-                'min_cgpa' => 2.00,
-            ],
-            [
-                'company' => 'GlobalTech Solutions',
-                'programme' => 'Level 5 Diploma in Application Development',
-                'job_title' => 'Junior Software Developer Intern',
-                'job_description' => 'Help build and test software features and maintain application documentation.',
-                'skills' => ['Application development', 'Problem solving', 'Teamwork'],
-                'total_slots' => 2,
-                'min_cgpa' => 2.00,
-            ],
-            [
-                'company' => 'GlobalTech Solutions',
-                'programme' => 'Level 5 Diploma in Data Analytics',
-                'job_title' => 'Junior Data Scientist',
-                'job_description' => 'Support data exploration, visualization, and introductory machine learning work.',
-                'skills' => ['Python', 'Data visualization', 'Statistics'],
-                'total_slots' => 2,
-                'min_cgpa' => 2.00,
-            ],
-        ];
-
-        foreach ($examples as $example) {
-            $companyId = DB::table('companies')->where('company_name', $example['company'])->value('company_id');
-            $programmeId = DB::table('programmes')->where('programme_name', $example['programme'])->value('programme_id');
-            if (!$companyId || !$programmeId) {
-                continue;
+        $terms = DemoAcademicContext::terms();
+        foreach (DemoCompanies::all() as $example) {
+            $company = Company::where('company_name', $example['name'])->firstOrFail();
+            $eligible = Programme::whereHas('school', fn ($query) => $query->where('school_code', $example['school']))
+                ->orderBy('class_id')->limit(5)->pluck('programme_id');
+            if ($eligible->count() < 3) {
+                throw new \RuntimeException('Seed at least three eligible programmes for '.$example['school'].'.');
             }
 
-            $quota = PlacementQuota::firstOrNew([
-                'company_id' => $companyId,
-                'job_title' => $example['job_title'],
-            ]);
-            $isNewQuota = !$quota->exists;
-            $quota->fill([
-                'programme_id' => $programmeId,
-                'job_description' => $example['job_description'],
-                'skills' => $example['skills'],
-                'total_slots' => $example['total_slots'],
-                'min_cgpa' => $example['min_cgpa'],
-                'interview_required' => false,
-            ]);
-
-            // New sample requests wait for Admin review. Preserve decisions already
-            // made on existing quotas when this seeder is run again.
-            if ($isNewQuota) {
-                $quota->quota_status = 'Pending';
-                $quota->is_released = false;
+            // Three positions in the first available term and a planning example in the next.
+            foreach ($terms->take(2) as $termIndex => $term) {
+                $jobs = $termIndex === 0 ? $example['jobs'] : array_slice($example['jobs'], 0, 1);
+                foreach ($jobs as $jobIndex => $job) {
+                    DB::transaction(function () use ($company, $eligible, $job, $jobIndex, $term) {
+                        $primaryId = Programme::where('programme_name', 'Level 5 Diploma in '.$job['programme'])->firstOrFail()->programme_id;
+                        $quota = PlacementQuota::firstOrCreate([
+                            'company_id' => $company->company_id,
+                            'academic_semester_id' => $term->id,
+                            'job_title' => $job['title'],
+                        ], [
+                            'programme_id' => $primaryId,
+                            'job_description' => 'Gain supervised practical experience as a '.$job['title'].'. Support daily tasks, keep clear records, and develop professional skills.',
+                            'skills' => $job['skills'],
+                            'total_slots' => 2,
+                            'min_cgpa' => 2.00,
+                            'interview_required' => $jobIndex === 1,
+                            'quota_status' => 'Pending',
+                            'is_released' => false,
+                        ]);
+                        // A repeated seed never resets decisions or changes an existing position.
+                        if ($quota->wasRecentlyCreated) {
+                            $quota->programmes()->sync($eligible->all());
+                            $quota->branches()->sync($company->branches()->pluck('id')->all());
+                        }
+                    });
+                }
             }
-
-            if ($isNewQuota || !$quota->academic_semester_id) {
-                $quota->academic_semester_id = DB::table('academic_semesters')
-                    ->whereDate('starts_on', '<=', now()->toDateString())
-                    ->whereDate('ends_on', '>=', now()->toDateString())
-                    ->value('id');
-            }
-
-            $quota->save();
-
-            $quota->programmes()->syncWithoutDetaching([$programmeId]);
         }
     }
 }

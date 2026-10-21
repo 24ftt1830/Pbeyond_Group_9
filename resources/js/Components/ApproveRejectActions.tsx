@@ -17,7 +17,7 @@ export function QuotaActions({ quota, onApprove, onReject }: { quota: any, onApp
     <div className="flex gap-2">
       <AlertDialog>
         <AlertDialogTrigger asChild>
-          <Button size="sm" variant="outline" className="border-emerald-200 text-emerald-600 hover:bg-emerald-50 h-8">
+          <Button size="sm" variant="outline" disabled={Boolean(quota.auto_rejected_at)} className="border-emerald-200 text-emerald-600 hover:bg-emerald-50 h-8">
             <Check className="size-4 mr-1" /> Approve
           </Button>
         </AlertDialogTrigger>
@@ -50,7 +50,7 @@ export function QuotaActions({ quota, onApprove, onReject }: { quota: any, onApp
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => onReject(quota.quota_id)} className="bg-red-600 hover:bg-red-700">Reject</AlertDialogAction>
+            <AlertDialogAction onClick={() => onReject(quota.quota_id)} className="bg-destructive hover:bg-destructive/90">Reject</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

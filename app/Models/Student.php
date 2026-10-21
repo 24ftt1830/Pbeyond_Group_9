@@ -29,6 +29,8 @@ class Student extends Model
         'programme_id', 'intake_session', 'intake_semester_id', 'current_semester', 'postal_address', 'district', 'date_of_birth',
         'place_of_birth', 'gender', 'religion', 'nationality', 'race',
         'mobile_phone', 'cgpa', 'work_experience', 'emergency_no', 'emergency_no_2', 'insurance_document_path',
+        'emergency_contact_name', 'emergency_contact_relationship',
+        'emergency_contact_name_2', 'emergency_contact_relationship_2',
         'cv_file_path', 'vetting_status', 'cv_generated_at', 'cv_snapshot',
         'passport_photo_path', 'completed_onboarding_tasks',
     ];

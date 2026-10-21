@@ -75,7 +75,7 @@ export default function CompaniesList({ companies = [] }: { companies?: Company[
 
     return (
         <div className="p-6">
-            <h1 className="text-2xl font-bold">Companies List</h1>
+            <h1 className="text-2xl font-semibold">Companies List</h1>
             <div className="mt-4 max-w-sm">
                 <label htmlFor="company-search" className="block text-sm font-medium">
                     Looking for a specific company?
@@ -86,12 +86,12 @@ export default function CompaniesList({ companies = [] }: { companies?: Company[
                     placeholder="Search company"
                     value={searchQuery}
                     onChange={(event) => setSearchQuery(event.target.value)}
-                    className="mt-2 w-full rounded-md border px-3 py-2 text-sm"
+                    className="ui-field mt-2 w-full px-3 py-2"
                 />
             </div>
             <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_280px]">
                 <div className="overflow-x-auto">
-                    <table className="min-w-full border-collapse">
+                    <table className="ui-table min-w-full border-collapse">
                         <thead>
                             <tr className="border-b">
                                 <th className="px-4 py-3 text-left text-sm font-semibold">ID Number</th>
@@ -118,7 +118,7 @@ export default function CompaniesList({ companies = [] }: { companies?: Company[
                                         <td className="px-4 py-3 text-sm">
                                             <Link
                                                 href={route('student.companies.view', company.id)}
-                                                className="rounded-md bg-black/10 px-3 py-1 text-xs font-medium text-black hover:bg-black/20"
+                                                className="ui-button ui-button-primary rounded-lg bg-primary px-3 py-1 text-xs font-medium text-black hover:bg-primary/90"
                                             >
                                                 View
                                             </Link>
@@ -137,7 +137,7 @@ export default function CompaniesList({ companies = [] }: { companies?: Company[
                 </div>
 
                 <aside className="h-fit rounded-xl border border-black/10 bg-white p-4 shadow">
-                    <h2 className="mb-4 text-sm font-bold uppercase tracking-wide">Filter</h2>
+                    <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide">Filter</h2>
 
                     <div className="space-y-5 text-sm">
                         <div>

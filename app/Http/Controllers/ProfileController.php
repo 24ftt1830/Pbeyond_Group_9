@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\AcademicSupervisor;
+use App\Models\IndustrySupervisor;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -13,6 +15,45 @@ use Inertia\Response;
 
 class ProfileController extends Controller
 {
+    public function supervisor(Request $request): Response
+    {
+        $user = $request->user();
+        abort_unless(in_array($user->role, ['Academic Supervisor', 'Industry Supervisor'], true), 403);
+        $isIndustry = $user->role === 'Industry Supervisor';
+        $supervisor = $isIndustry
+            ? IndustrySupervisor::with('company')->where('user_id', $user->getKey())->first()
+            : AcademicSupervisor::where('user_id', $user->getKey())->first();
+
+        return Inertia::render('Supervisor/Profile', [
+            'supervisorType' => $isIndustry ? 'industry' : 'academic',
+            'supervisor' => $supervisor ? [
+                'full_name' => $supervisor->full_name,
+                'email' => $user->email,
+                'phone' => $supervisor->phone,
+                ...($isIndustry ? [
+                    'company_name' => $supervisor->company?->company_name,
+                    'position' => $supervisor->position,
+                ] : []),
+            ] : null,
+        ]);
+    }
+
+    public function updateSupervisor(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+        abort_unless(in_array($user->role, ['Academic Supervisor', 'Industry Supervisor'], true), 403);
+        $isIndustry = $user->role === 'Industry Supervisor';
+        $data = $request->validate([
+            'full_name' => ['required', 'string', $isIndustry ? 'max:150' : 'max:255'],
+            'phone' => ['nullable', 'string', $isIndustry ? 'max:20' : 'max:255'],
+        ]);
+        $supervisor = ($isIndustry ? IndustrySupervisor::query() : AcademicSupervisor::query())
+            ->where('user_id', $user->getKey())->firstOrFail();
+        $supervisor->update($data);
+
+        return Redirect::route($isIndustry ? 'industry-supervisor.profile' : 'academic-supervisor.profile');
+    }
+
     /**
      * Display the user's profile form.
      */

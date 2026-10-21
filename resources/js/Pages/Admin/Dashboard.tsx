@@ -111,7 +111,7 @@ export default function AdminDashboard() {
     const progress = props.progress ?? emptyProgress;
 
     const chartData = [
-        { name: 'Accepted', value: stats.accepted_students, color: '#2563eb' },
+        { name: 'Accepted', value: stats.accepted_students, color: 'hsl(var(--primary))' },
         { name: 'Unplaced', value: stats.unplaced_students, color: '#94a3b8' },
     ];
 
@@ -134,7 +134,7 @@ export default function AdminDashboard() {
                         id="semester"
                         value={selectedSemester ?? ''}
                         onChange={handleSemesterChange}
-                        className="h-10 min-w-[190px] rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-800 shadow-sm outline-none transition focus:border-blue-300 focus:ring-2 focus:ring-blue-100"
+                        className="ui-field h-10 min-w-[190px] px-3 text-slate-800 outline-none transition"
                     >
                         {availableSemesters.map((semester) => (
                             <option key={semester.id} value={semester.id}>{semester.name}</option>
@@ -200,7 +200,7 @@ export default function AdminDashboard() {
                                         </div>
                                     </div>
                                     <div className="shrink-0 text-right">
-                                        <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">{item.status}</span>
+                                        <span className="ui-badge-neutral ui-badge inline-flex text-xs font-medium">{item.status}</span>
                                         {item.date && <p className="mt-1 text-xs text-slate-400">{item.date}</p>}
                                     </div>
                                 </div>
@@ -294,7 +294,7 @@ function ProgressPanel({
             action={(
                 <div className="flex shrink-0 items-center gap-3">
                     <span className="rounded-full bg-slate-100 px-2.5 py-1 text-sm font-semibold text-slate-700">{students.length}</span>
-                    <Link href={viewHref} className="text-sm font-semibold text-blue-700 hover:text-blue-800">View all</Link>
+                    <Link href={viewHref} className="text-sm font-semibold text-primary hover:text-primary">View all</Link>
                 </div>
             )}
         >
@@ -307,7 +307,7 @@ function ProgressPanel({
                             <div className="min-w-0">
                                 <div className="flex flex-wrap items-center gap-2">
                                     <p className="truncate font-semibold text-slate-900">{student.full_name}</p>
-                                    {student.monitoring_status && <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${student.monitoring_status === 'At Risk' ? 'bg-rose-50 text-rose-700' : 'bg-amber-50 text-amber-800'}`}>{student.monitoring_status}</span>}
+                                    {student.monitoring_status && <span className={'ui-badge ' + (` text-xs font-medium ${student.monitoring_status === 'At Risk' ? 'ui-badge-danger ' : 'ui-badge-warning '}`)}>{student.monitoring_status}</span>}
                                 </div>
                                 <p className="mt-1 truncate text-xs text-slate-500">{student.student_code ?? 'No student ID'} · {student.programme_name ?? 'Programme not set'}</p>
                                 <p className="mt-1 truncate text-sm text-slate-600">{renderDetails(student)}</p>

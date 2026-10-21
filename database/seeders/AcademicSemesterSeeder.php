@@ -10,7 +10,7 @@ class AcademicSemesterSeeder extends Seeder
     public function run(): void
     {
         $firstYear = 2024;
-        $lastYear = (int) date('Y') + 10;
+        $lastYear = (int) now('Asia/Brunei')->year + 10;
 
         for ($year = $firstYear; $year <= $lastYear; $year++) {
             if ($year > $firstYear) {

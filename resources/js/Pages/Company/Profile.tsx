@@ -12,7 +12,7 @@
 //     full_name?: string;
 //     username: string;
 //     email: string;
-//     company?: Company; 
+//     company?: Company;
 // }
 
 // interface Props {
@@ -27,7 +27,7 @@
 //     return (
 //         <div className="p-6">
 //             <h1 className="text-3xl font-sato font-bold">Account Profile</h1>
-            
+
 //             <div>
 //                 {/* Header Card */}
 //                 <Card className="shadow-none border-none bg-transparent">
@@ -54,20 +54,20 @@
 //                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 //                             <div className="grid gap-2">
 //                                 <Label htmlFor="name">Full Name</Label>
-//                                 <Input 
+//                                 <Input
 //                                     id="name"
-//                                     defaultValue={displayName} 
-//                                     readOnly 
-//                                     className="shadow-none focus-visible:ring-0 focus-visible:ring-offset-0" 
+//                                     defaultValue={displayName}
+//                                     readOnly
+//                                     className="shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
 //                                 />
 //                             </div>
 //                             <div className="grid gap-2">
 //                                 <Label htmlFor="email">Email Address</Label>
-//                                 <Input 
+//                                 <Input
 //                                     id="email"
-//                                     defaultValue={user.email} 
-//                                     readOnly 
-//                                     className="shadow-none focus-visible:ring-0 focus-visible:ring-offset-0" 
+//                                     defaultValue={user.email}
+//                                     readOnly
+//                                     className="shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
 //                                 />
 //                             </div>
 //                         </div>
@@ -75,20 +75,20 @@
 //                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 //                             <div className="grid gap-2">
 //                                 <Label htmlFor="company">Representing Company</Label>
-//                                 <Input 
+//                                 <Input
 //                                     id="company"
-//                                     defaultValue={companyName} 
-//                                     readOnly 
-//                                     className="shadow-none font-medium text-primary focus-visible:ring-0 focus-visible:ring-offset-0" 
+//                                     defaultValue={companyName}
+//                                     readOnly
+//                                     className="shadow-none font-medium text-primary focus-visible:ring-0 focus-visible:ring-offset-0"
 //                                 />
 //                             </div>
 //                             <div className="grid gap-2">
 //                                 <Label htmlFor="role">Account Role</Label>
-//                                 <Input 
+//                                 <Input
 //                                     id="role"
-//                                     defaultValue="Company Representative" 
-//                                     readOnly 
-//                                     className="shadow-none focus-visible:ring-0 focus-visible:ring-offset-0" 
+//                                     defaultValue="Company Representative"
+//                                     readOnly
+//                                     className="shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
 //                                 />
 //                             </div>
 //                         </div>
@@ -149,28 +149,14 @@ export default function Profile({ user }: Props) {
         district: user.company?.district || '',
         branches: (user.company?.branches ?? []).map((branch) => ({ ...branch, address: branch.address ?? '', district: branch.district ?? '' })),
     });
-    const passwordForm = useForm({
-        current_password: "",
-        password: "",
-        password_confirmation: "",
-    });
-
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
         put(route("company.profile.update"));
     };
 
-    const updatePassword = (e: React.FormEvent) => {
-        e.preventDefault();
-        passwordForm.put(route("password.update"), {
-            preserveScroll: true,
-            onSuccess: () => passwordForm.reset(),
-        });
-    };
-
     return (
         <div className="p-6">
-            <h1 className="text-3xl font-sato font-bold">Account Profile</h1>
+            <h1 className="text-3xl font-sans font-semibold">Account Profile</h1>
 
             <Card className="shadow-none border-none bg-transparent">
                 <CardHeader className="flex flex-row items-center gap-4 px-0">
@@ -256,11 +242,11 @@ export default function Profile({ user }: Props) {
                                 value={data.description}
                                 onChange={(e) => setData("description", e.target.value)}
                                 readOnly={!canEdit}
-                                className="min-h-[100px] rounded-md border px-3 py-2 text-sm"
+                                className="ui-textarea min-h-[100px] px-3 py-2"
                             />
                         </div>
 
-                        <label className="grid gap-2 text-sm">Main office district<select value={data.district} onChange={(event) => setData('district', event.target.value)} className="rounded-md border px-3 py-2"><option value="">Select district</option>{districts.map((district) => <option key={district}>{district}</option>)}</select></label>
+                        <label className="grid gap-2 text-sm">Main office district<select value={data.district} onChange={(event) => setData('district', event.target.value)} className="ui-field px-3 py-2"><option value="">Select district</option>{districts.map((district) => <option key={district}>{district}</option>)}</select></label>
                         <CompanyBranchEditor branches={data.branches} onChange={(branches) => setData('branches', branches)} errors={errors as Record<string, string>} />
                         {Object.values(errors).length > 0 && <p className="text-sm text-rose-600">{Object.values(errors).join(' ')}</p>}
 
@@ -270,7 +256,7 @@ export default function Profile({ user }: Props) {
                                 value={data.additional_information}
                                 onChange={(e) => setData("additional_information", e.target.value)}
                                 readOnly={!canEdit}
-                                className="min-h-[100px] rounded-md border px-3 py-2 text-sm"
+                                className="ui-textarea min-h-[100px] px-3 py-2"
                             />
                         </div>
 
@@ -290,61 +276,7 @@ export default function Profile({ user }: Props) {
                 </CardContent>
             </Card>
 
-            <Card className="shadow-none border">
-                <CardHeader>
-                    <CardTitle>Update Password</CardTitle>
-                    <CardDescription>Change the password for your Company HR account.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <form onSubmit={updatePassword} className="grid gap-4">
-                        <div className="grid gap-2">
-                            <Label htmlFor="current-password">Current Password</Label>
-                            <Input
-                                id="current-password"
-                                type="password"
-                                autoComplete="current-password"
-                                value={passwordForm.data.current_password}
-                                onChange={(event) => passwordForm.setData("current_password", event.target.value)}
-                                required
-                            />
-                            {passwordForm.errors.current_password && <p className="text-sm text-destructive">{passwordForm.errors.current_password}</p>}
-                        </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="new-password">New Password</Label>
-                            <Input
-                                id="new-password"
-                                type="password"
-                                minLength={8}
-                                autoComplete="new-password"
-                                value={passwordForm.data.password}
-                                onChange={(event) => passwordForm.setData("password", event.target.value)}
-                                required
-                            />
-                            {passwordForm.errors.password && <p className="text-sm text-destructive">{passwordForm.errors.password}</p>}
-                        </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="confirm-new-password">Confirm New Password</Label>
-                            <Input
-                                id="confirm-new-password"
-                                type="password"
-                                autoComplete="new-password"
-                                value={passwordForm.data.password_confirmation}
-                                onChange={(event) => passwordForm.setData("password_confirmation", event.target.value)}
-                                required
-                            />
-                            {passwordForm.errors.password_confirmation && <p className="text-sm text-destructive">{passwordForm.errors.password_confirmation}</p>}
-                        </div>
-                        <div className="flex justify-end">
-                            <div className="flex items-center gap-3">
-                                {passwordForm.recentlySuccessful && <p role="status" className="text-sm text-muted-foreground">Password updated.</p>}
-                                <Button type="submit" disabled={passwordForm.processing}>
-                                    {passwordForm.processing ? "Updating..." : "Update Password"}
-                                </Button>
-                            </div>
-                        </div>
-                    </form>
-                </CardContent>
-            </Card>
+
         </div>
     );
 }

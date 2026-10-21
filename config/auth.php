@@ -2,6 +2,9 @@
 
 return [
 
+    // Temporary local student login only; ignored outside APP_ENV=local.
+    'student_testing_login' => (bool) env('STUDENT_ALLOW_TEST_LOGIN', false),
+
     /*
     |--------------------------------------------------------------------------
     | Authentication Defaults
@@ -91,6 +94,12 @@ return [
     */
 
     'passwords' => [
+        'student_invitations' => [
+            'provider' => 'users',
+            'table' => 'student_invitation_tokens',
+            'expire' => 1440,
+            'throttle' => 60,
+        ],
         'users' => [
             'provider' => 'users',
             'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),

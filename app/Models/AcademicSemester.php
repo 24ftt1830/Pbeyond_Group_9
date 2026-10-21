@@ -6,6 +6,28 @@ use Illuminate\Database\Eloquent\Model;
 
 class AcademicSemester extends Model
 {
+    protected $appends = ['company_label', 'quota_deadline', 'quota_deadline_label', 'show_quota_deadline'];
+
+    public function getCompanyLabelAttribute(): string
+    {
+        return $this->starts_on?->format('F Y') ?? preg_replace('/\s*·.*$/u', '', $this->name ?? '');
+    }
+
+    public function getQuotaDeadlineAttribute(): ?string
+    {
+        return $this->starts_on?->copy()->endOfMonth()->toDateString();
+    }
+
+    public function getQuotaDeadlineLabelAttribute(): ?string
+    {
+        return $this->starts_on?->copy()->endOfMonth()->format('j M Y');
+    }
+
+    public function getShowQuotaDeadlineAttribute(): bool
+    {
+        return $this->starts_on?->format('Y-m') === \Illuminate\Support\Carbon::now('Asia/Brunei')->format('Y-m');
+    }
+
     public static function sessionName(int $year, bool $july): string
     {
         $intake = $year - ($july ? 2010 : 2011);

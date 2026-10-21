@@ -54,19 +54,19 @@ export default function Dashboard({ stats, reviewQueue = [], recentVisits = [] }
                 { label: 'Final decisions ready', value: safeStats.final_decisions_ready, detail: 'Students ready for your completion decision', icon: CheckCircle2 },
             ]}
         >
-            <section className="flex flex-col gap-4 rounded-2xl border border-blue-100 bg-gradient-to-r from-blue-50 to-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-6">
+            <section className="flex flex-col gap-4 rounded-xl border border-blue-100 bg-blue-50/40 p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-6">
                 <div>
                     <p className="text-xs font-bold uppercase tracking-[0.14em] text-blue-700">Student supervision</p>
-                    <h2 className="mt-1 text-lg font-bold text-slate-900">
+                    <h2 className="mt-1 text-lg font-semibold text-slate-900">
                         {safeStats.students} {safeStats.students === 1 ? 'student' : 'students'} assigned to you
                     </h2>
-                    <span className={`mt-3 inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${safeStats.needs_attention ? 'bg-amber-50 text-amber-800' : 'bg-emerald-50 text-emerald-700'}`}>
+                    <span className={'ui-badge ' + (`mt-3 inline-flex text-xs ${safeStats.needs_attention ? 'ui-badge-warning ' : 'ui-badge-success '}`)}>
                         {safeStats.needs_attention} need attention
                     </span>
                 </div>
                 <Link
                     href={route('academic-supervisor.students')}
-                    className="inline-flex w-fit items-center gap-2 rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
+                    className="ui-button ui-button-primary inline-flex w-fit items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary/90"
                 >
                     Manage students <ArrowRight className="size-4" />
                 </Link>
@@ -86,7 +86,7 @@ export default function Dashboard({ stats, reviewQueue = [], recentVisits = [] }
                                     <div className="min-w-0">
                                         <div className="flex flex-wrap items-center gap-2">
                                             <p className="truncate font-semibold text-slate-900">{item.student_name}</p>
-                                            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">{item.type}</span>
+                                            <span className="ui-badge-neutral ui-badge text-xs font-medium">{item.type}</span>
                                         </div>
                                         <p className="mt-1 truncate text-sm text-slate-500">{item.title}</p>
                                     </div>

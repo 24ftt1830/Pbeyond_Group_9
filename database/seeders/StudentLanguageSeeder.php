@@ -9,32 +9,37 @@ class StudentLanguageSeeder extends Seeder
 {
     public function run(): void
     {
-        DB::table('student_languages')->insert([
+        $examples = [
             // Student 1
-            ['student_id' => 1, 'language_name' => 'English'],
-            ['student_id' => 1, 'language_name' => 'Malay'],
+            ['student_code' => '24FTT001', 'language_name' => 'English'],
+            ['student_code' => '24FTT001', 'language_name' => 'Malay'],
             // Student 2
-            ['student_id' => 2, 'language_name' => 'English'],
-            ['student_id' => 2, 'language_name' => 'Malay'],
-            ['student_id' => 2, 'language_name' => 'Mandarin'],
+            ['student_code' => '24FTT002', 'language_name' => 'English'],
+            ['student_code' => '24FTT002', 'language_name' => 'Malay'],
+            ['student_code' => '24FTT002', 'language_name' => 'Mandarin'],
             // Student 3
-            ['student_id' => 3, 'language_name' => 'English'],
-            ['student_id' => 3, 'language_name' => 'Mandarin'],
-            ['student_id' => 3, 'language_name' => 'Cantonese'],
+            ['student_code' => '24FTT003', 'language_name' => 'English'],
+            ['student_code' => '24FTT003', 'language_name' => 'Mandarin'],
+            ['student_code' => '24FTT003', 'language_name' => 'Cantonese'],
             // Student 4
-            ['student_id' => 4, 'language_name' => 'English'],
-            ['student_id' => 4, 'language_name' => 'Malay'],
-            ['student_id' => 4, 'language_name' => 'Arabic'],
+            ['student_code' => '24FTB001', 'language_name' => 'English'],
+            ['student_code' => '24FTB001', 'language_name' => 'Malay'],
+            ['student_code' => '24FTB001', 'language_name' => 'Arabic'],
             // Student 5
-            ['student_id' => 5, 'language_name' => 'English'],
-            ['student_id' => 5, 'language_name' => 'Malay'],
+            ['student_code' => '24FTB002', 'language_name' => 'English'],
+            ['student_code' => '24FTB002', 'language_name' => 'Malay'],
             // Student 6
-            ['student_id' => 6, 'language_name' => 'English'],
-            ['student_id' => 6, 'language_name' => 'Malay'],
-            ['student_id' => 6, 'language_name' => 'Mandarin'],
+            ['student_code' => '24FTE001', 'language_name' => 'English'],
+            ['student_code' => '24FTE001', 'language_name' => 'Malay'],
+            ['student_code' => '24FTE001', 'language_name' => 'Mandarin'],
             // Student 7
-            ['student_id' => 7, 'language_name' => 'English'],
-            ['student_id' => 7, 'language_name' => 'Malay'],
-        ]);
+            ['student_code' => '24FTH001', 'language_name' => 'English'],
+            ['student_code' => '24FTH001', 'language_name' => 'Malay'],
+        ];
+        foreach ($examples as $example) {
+            $studentId = DB::table('students')->where('pb_student_code', $example['student_code'])->value('student_id');
+            if (!$studentId) continue;
+            DB::table('student_languages')->updateOrInsert(['student_id' => $studentId, 'language_name' => $example['language_name']], []);
+        }
     }
 }

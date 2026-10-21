@@ -72,18 +72,18 @@ export default function EvaluationResult({
                 <div className="mx-auto max-w-6xl space-y-5">
                     <BackButton href={backHref}>Back to Student Details</BackButton>
                     {currentSubmission.reopened_at && <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">Reopened by Superadmin. The previous result remains visible for reference and is pending correction before it contributes to completion.</div>}
-                    {viewer === 'admin' && <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border bg-white p-4">
+                    {viewer === 'admin' && <div className="ui-card flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-white p-4">
                         <ConfirmAction label="Reopen evaluation" url={route('admin.students.evaluations.reopen', { student: student.student_id, submission: currentSubmission.id })} disabled={!canReopen} description="Allow the assigned supervisor to correct and resubmit this evaluation. Preserve the original result and return final completion to Pending Evaluation." />
-                        {history.length > 0 && <label className="text-sm font-semibold text-slate-700">Submitted result history<select value={historyId} onChange={(event) => setHistoryId(event.target.value)} className={inputClass + ' mt-2'}><option value="">Current submission</option>{history.map((revision) => <option key={revision.id} value={revision.id}>Before reopening · {new Date(revision.created_at).toLocaleString()}</option>)}</select></label>}
+                        {history.length > 0 && <label className="text-sm font-semibold text-slate-700">Submitted result history<select value={historyId} onChange={(event) => setHistoryId(event.target.value)} className={'ui-field ' + (inputClass + ' mt-2')} ><option value="">Current submission</option>{history.map((revision) => <option key={revision.id} value={revision.id}>Before reopening · {new Date(revision.created_at).toLocaleString()}</option>)}</select></label>}
                     </div>}
                     {currentSubmission.reopened_at && ((viewer === 'academic' && currentSubmission.supervisor_type === 'Academic Supervisor') || (viewer === 'industry' && currentSubmission.supervisor_type === 'Industry Supervisor')) && <Link className={linkClass} href={route(viewer === 'academic' ? 'academic-supervisor.student.evaluate' : 'industry-supervisor.student.evaluate', student.student_id)}>Revise evaluation</Link>}
 
                     <header className="flex flex-wrap items-center justify-between gap-5 rounded-xl border border-slate-200 bg-white px-5 py-5 sm:px-6">
                         <div className="flex min-w-0 items-start gap-4">
-                            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600"><ClipboardCheck size={20} /></span>
+                            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-primary"><ClipboardCheck size={20} /></span>
                             <div className="min-w-0">
-                                <p className="text-xs font-semibold uppercase tracking-wide text-indigo-600">{roleLabel(submission.supervisor_type)} · Evaluation result</p>
-                                <h1 className="mt-1 break-words font-sato text-2xl font-bold text-slate-900 sm:text-3xl">{student.full_name}</h1>
+                                <p className="text-xs font-semibold uppercase tracking-wide text-primary">{roleLabel(submission.supervisor_type)} · Evaluation result</p>
+                                <h1 className="mt-1 break-words font-sans text-2xl font-semibold text-slate-900 sm:text-3xl">{student.full_name}</h1>
                                 <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-500">
                                     <span className="inline-flex items-center gap-1.5"><UserRound size={14} />{student.pb_student_code}</span>
                                     <span>{roleLabel(submission.template_snapshot?.name) || 'Evaluation'} · Version {submission.template_snapshot?.version ?? submission.template_version}</span>
@@ -110,7 +110,7 @@ export default function EvaluationResult({
                                     <div className="divide-y divide-slate-100 border-t border-slate-100">
                                         {answers.map((answer, index) => <article key={`${answer.criterion}-${index}`} className="grid gap-2 py-3 sm:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_auto] sm:items-start sm:gap-5">
                                             <div><h4 className="text-sm font-medium text-slate-800">{answer.criterion}</h4>{answer.criterion_description && <p className="mt-0.5 text-sm leading-5 text-slate-500">{answer.criterion_description}</p>}</div>
-                                            <div><p className="text-sm font-medium text-indigo-700">{answer.level}</p>{answer.level_description && <p className="mt-0.5 text-sm leading-5 text-slate-500">{answer.level_description}</p>}</div>
+                                            <div><p className="text-sm font-medium text-primary">{answer.level}</p>{answer.level_description && <p className="mt-0.5 text-sm leading-5 text-slate-500">{answer.level_description}</p>}</div>
                                             <span className="text-xs font-semibold tabular-nums text-slate-500 sm:pt-1">{answer.points} pts</span>
                                         </article>)}
                                     </div>

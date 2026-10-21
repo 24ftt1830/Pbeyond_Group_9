@@ -220,6 +220,15 @@ Route::middleware('auth')->group(function () {
 
             Route::prefix('manage-users')->group(function () {
 
+                Route::post('/student-invitations', [App\Http\Controllers\Admin\StudentInvitationController::class, 'store'])
+                    ->middleware('throttle:6,1')->name('students.invitations.store');
+                Route::post('/{user}/student-invitation', [App\Http\Controllers\Admin\StudentInvitationController::class, 'resend'])
+                    ->middleware('throttle:6,1')->name('students.invitations.resend');
+
+                Route::post('/{user}/password-reset', [App\Http\Controllers\Admin\PasswordResetLinkController::class, 'store'])
+                    ->middleware('throttle:6,1')
+                    ->name('manage-users.password-reset');
+
                 Route::get(
                     '/',
                     [App\Http\Controllers\Admin\UserManagementController::class, 'index']
@@ -369,6 +378,11 @@ Route::middleware('auth')->group(function () {
             )->name('applications.show');
 
             Route::get(
+                '/application/{application}/details',
+                [App\Http\Controllers\Company\ApplicationController::class, 'details']
+            )->name('applications.details');
+
+            Route::get(
                 '/application/{application}',
                 [App\Http\Controllers\Company\ApplicationController::class, 'viewSingle']
             )->name('applications.view');
@@ -440,12 +454,15 @@ Route::middleware('auth')->group(function () {
         ->prefix('academic-supervisor')
         ->name('academic-supervisor.')
         ->group(function () {
+            Route::get('/profile', [ProfileController::class, 'supervisor'])->name('profile');
+            Route::patch('/profile', [ProfileController::class, 'updateSupervisor'])->name('profile.update');
+
               Route::get(
                 '/dashboard',
                 [App\Http\Controllers\AcademicSupervisor\DashboardController::class, 'index']
             )->name('dashboard');
 
-            // Logbook
+            // Logbooks: PB Supervisors can view assigned students' records only.
 
             Route::get(
                 '/logbook',
@@ -453,14 +470,14 @@ Route::middleware('auth')->group(function () {
             )->name('logbook');
 
             Route::get(
+                '/logbook/students/{student}',
+                [AcademicSupervisorLogbookController::class, 'student']
+            )->name('logbook.student');
+
+            Route::get(
                 '/logbook/{submission}/review',
                 [AcademicSupervisorLogbookController::class, 'review']
             )->name('logbook.review');
-
-            Route::post(
-                '/logbook/{submission}/mark-reviewed',
-                [AcademicSupervisorLogbookController::class, 'markReviewed']
-            )->name('logbook.mark-reviewed');
 
             // Students
 
@@ -519,6 +536,8 @@ Route::middleware('auth')->group(function () {
         ->prefix('industry-supervisor')
         ->name('industry-supervisor.')
         ->group(function () {
+            Route::get('/profile', [ProfileController::class, 'supervisor'])->name('profile');
+            Route::patch('/profile', [ProfileController::class, 'updateSupervisor'])->name('profile.update');
 
             Route::get(
                 '/dashboard',
@@ -526,6 +545,7 @@ Route::middleware('auth')->group(function () {
             )->name('dashboard');
 
             Route::get('/logbook', [App\Http\Controllers\IndustrySupervisor\LogbookController::class, 'index'])->name('logbook');
+            Route::get('/logbook/students/{student}', [App\Http\Controllers\IndustrySupervisor\LogbookController::class, 'student'])->name('logbook.student');
             Route::get('/logbook/{submission}/review', [App\Http\Controllers\IndustrySupervisor\LogbookController::class, 'review'])->name('logbook.review');
             Route::post('/logbook/{submission}/mark-reviewed', [App\Http\Controllers\IndustrySupervisor\LogbookController::class, 'markReviewed'])->name('logbook.mark-reviewed');
 

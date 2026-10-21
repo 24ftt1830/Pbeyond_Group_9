@@ -2,59 +2,24 @@
 
 namespace Database\Seeders;
 
+use Database\Seeders\Support\DemoCompanies;
 use Illuminate\Database\Seeder;
 
 class IndustrySupervisorSeeder extends Seeder
 {
-    /**
-     * Reference examples only. Industry Supervisors must be created by their
-     * Company's HR account through Manage Users, so these are not inserted.
-     */
-    public const REFERENCE_DATA = [
-        [
-            'user_id' => 11,
-            'company_id' => 1,
-            'full_name' => 'Ali Tan Abdullah',
-            'email' => 'ali.tan@techcorp.com',
-            'phone' => '72345678',
-            'position' => 'Technical Lead',
-        ],
-        [
-            'user_id' => null,
-            'company_id' => 1,
-            'full_name' => 'Nurul Huda',
-            'email' => 'nurul.huda@techcorp.com',
-            'phone' => '73456789',
-            'position' => 'HR Manager',
-        ],
-        [
-            'user_id' => null,
-            'company_id' => 2,
-            'full_name' => 'Rina Wong',
-            'email' => 'rina.wong@globaltech.com',
-            'phone' => '+65 91234567',
-            'position' => 'Regional Supervisor',
-        ],
-        [
-            'user_id' => null,
-            'company_id' => 3,
-            'full_name' => 'Haji Ahmad Bin Hassan',
-            'email' => 'ahmad.hassan@datatech.com',
-            'phone' => '74567890',
-            'position' => 'Data Science Manager',
-        ],
-        [
-            'user_id' => null,
-            'company_id' => 4,
-            'full_name' => 'Lim Siew Ling',
-            'email' => 'siewling.lim@shell.com',
-            'phone' => '75678901',
-            'position' => 'Engineering Supervisor',
-        ],
-    ];
+    /** Examples only. HR creates the actual supervisor account and assigns individual students. */
+    public static function referenceData(): array
+    {
+        return array_map(fn ($company) => [
+            'company_name' => $company['name'],
+            'full_name' => $company['sector'].' Supervisor',
+            'email' => str_replace('hr@', 'supervisor@', $company['hr']['email']),
+            'position' => 'Industry Supervisor',
+        ], DemoCompanies::all());
+    }
 
     public function run(): void
     {
-        // Intentionally empty: the company creates supervisor accounts in-app.
+        // Intentionally empty: creating accounts and choosing students is part of the HR demo.
     }
 }

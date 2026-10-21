@@ -25,7 +25,7 @@ export default function Students({ students = [], company }: Props) {
                 <div className="mx-auto max-w-6xl space-y-6">
                     <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                         <div>
-                            <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+                            <h1 className="mt-1 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
                                 My Students
                             </h1>
                             <p className="mt-2 text-sm text-slate-500">
@@ -38,7 +38,7 @@ export default function Students({ students = [], company }: Props) {
                         </div>
                     </header>
 
-                    <section className="flex flex-col gap-4 rounded-2xl border border-blue-100 bg-gradient-to-r from-blue-50 to-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-6">
+                    <section className="flex flex-col gap-4 rounded-xl border border-blue-100 bg-blue-50/40 p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-6">
                         <div className="flex items-start gap-4">
                             <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-white text-blue-700 shadow-sm ring-1 ring-blue-100">
                                 <Briefcase className="size-5" />
@@ -47,7 +47,7 @@ export default function Students({ students = [], company }: Props) {
                                 <p className="text-xs font-bold uppercase tracking-[0.14em] text-blue-700">
                                     Your company
                                 </p>
-                                <h2 className="mt-1 text-lg font-bold text-slate-900">
+                                <h2 className="mt-1 text-lg font-semibold text-slate-900">
                                     {company?.company_name ?? 'Company not assigned'}
                                 </h2>
                             </div>
@@ -58,7 +58,7 @@ export default function Students({ students = [], company }: Props) {
                         </div>
                     </section>
 
-                    <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                    <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
                         <div className="border-b border-slate-100 px-5 py-4 sm:px-6">
                             <h2 className="font-semibold text-slate-900">Students assigned to you</h2>
                             <p className="mt-1 text-sm text-slate-500">
@@ -68,7 +68,7 @@ export default function Students({ students = [], company }: Props) {
 
                         {students.length === 0 ? (
                             <div className="px-6 py-12 text-center">
-                                <span className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-500">
+                                <span className="mx-auto flex size-12 items-center justify-center rounded-xl bg-slate-100 text-slate-500">
                                     <Users className="size-5" />
                                 </span>
                                 <p className="mt-4 font-semibold text-slate-900">
@@ -106,7 +106,7 @@ export default function Students({ students = [], company }: Props) {
                                         </div>
                                         <Link
                                             href={route('industry-supervisor.student.show', student.student_id)}
-                                            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
+                                            className="ui-button ui-button-primary inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary/90"
                                         >
                                             View details
                                             <ArrowRight className="size-4" />

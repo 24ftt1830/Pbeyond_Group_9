@@ -1,3 +1,4 @@
+import { confirmAction } from '@/lib/confirm-action';
 import React, { useState } from "react";
 import { SchedulerProvider, SchedularView } from "mina-scheduler";
 import { router } from "@inertiajs/react";
@@ -51,7 +52,7 @@ export default function Calendar({ events = [] }: CalendarProps) {
         );
     };
 
-        const handleDeleteEvent = (event: any) => {
+        const handleDeleteEvent = async (event: any) => {
         const eventId =
             typeof event === "number" || typeof event === "string"
                 ? event
@@ -62,7 +63,7 @@ export default function Calendar({ events = [] }: CalendarProps) {
             return;
         }
 
-        if (!window.confirm("Delete this calendar event?")) return;
+        if (!(await confirmAction("Delete this calendar event?"))) return;
         router.delete(route("admin.events.destroy", eventId), {
             preserveScroll: true,
             preserveState: true,
@@ -74,7 +75,7 @@ export default function Calendar({ events = [] }: CalendarProps) {
             <div className="mb-4 flex justify-end">
                 <button
                     onClick={() => setOpen(true)}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                    className="ui-button ui-button-primary bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90"
                 >
                     Add Event
                 </button>
@@ -97,8 +98,8 @@ export default function Calendar({ events = [] }: CalendarProps) {
             </div>
 
             {open && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-                    <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/35">
+                    <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl">
                         <h2 className="text-2xl font-semibold mb-5">Add Event</h2>
 
                         <div className="space-y-4">
@@ -112,7 +113,7 @@ export default function Calendar({ events = [] }: CalendarProps) {
                                     onChange={(e) =>
                                         setForm({ ...form, title: e.target.value })
                                     }
-                                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="ui-field w-full px-3 py-2"
                                     placeholder="Enter event name"
                                 />
                             </div>
@@ -130,7 +131,7 @@ export default function Calendar({ events = [] }: CalendarProps) {
                                         })
                                     }
                                     rows={4}
-                                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="ui-textarea w-full px-3 py-2"
                                     placeholder="Enter event description"
                                 />
                             </div>
@@ -149,7 +150,7 @@ export default function Calendar({ events = [] }: CalendarProps) {
                                                 startDate: e.target.value,
                                             })
                                         }
-                                        className="w-full rounded-lg border border-gray-300 px-3 py-2"
+                                        className="ui-field w-full px-3 py-2"
                                     />
                                 </div>
 
@@ -166,7 +167,7 @@ export default function Calendar({ events = [] }: CalendarProps) {
                                                 endDate: e.target.value,
                                             })
                                         }
-                                        className="w-full rounded-lg border border-gray-300 px-3 py-2"
+                                        className="ui-field w-full px-3 py-2"
                                     />
                                 </div>
                             </div>
@@ -175,13 +176,13 @@ export default function Calendar({ events = [] }: CalendarProps) {
                         <div className="mt-6 flex justify-end gap-3">
                             <button
                                 onClick={() => setOpen(false)}
-                                className="rounded-lg border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50"
+                                className="ui-button ui-button-outline rounded-lg border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50"
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={saveEvent}
-                                className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+                                className="ui-button ui-button-primary rounded-lg bg-primary px-4 py-2 text-white hover:bg-primary/90"
                             >
                                 Save Event
                             </button>

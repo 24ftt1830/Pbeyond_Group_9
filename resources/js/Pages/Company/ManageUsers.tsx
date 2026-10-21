@@ -38,7 +38,7 @@ export default function ManageUsers({ industrySupervisors = [], students = [] }:
         <Head title="Manage Users" />
         <div className="space-y-6 p-6">
             <header className="flex flex-wrap items-center justify-between gap-4">
-                <div><h1 className="font-sato text-3xl font-bold">Manage Users</h1><p className="mt-1 text-sm text-muted-foreground">Manage Industry Supervisors and assign recruited students.</p></div>
+                <div><h1 className="font-sans text-3xl font-semibold">Manage Users</h1><p className="mt-1 text-sm text-muted-foreground">Manage Industry Supervisors and assign recruited students.</p></div>
                 <Button size="sm" className="gap-1.5" onClick={() => { form.reset(); form.clearErrors(); setOpen(true); }}><Plus className="size-4" />Add User</Button>
             </header>
             {industrySupervisors.length === 0 ? <div className="rounded-xl border bg-white py-12 text-center"><Users className="mx-auto size-8 text-slate-400" /><p className="mt-3 text-sm text-muted-foreground">No Industry Supervisors yet.</p></div> :

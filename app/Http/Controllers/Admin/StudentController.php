@@ -27,7 +27,7 @@ public function show($id)
         'languages',
         'user.documents',
         'applications' => function ($query) {
-            $query->with(['quota.company'])->orderBy('apply_date', 'desc');
+            $query->with(['quota.company'])->latest('created_at');
         }
     ])->findOrFail($id);
 

@@ -22,7 +22,24 @@ class User extends Authenticatable
         'password',
         'remember_token',
         'hr_company_id',
+        'student_invitation_attempt_id',
     ];
+
+    protected $casts = [
+        'student_access_released_at' => 'datetime',
+        'student_password_set_at' => 'datetime',
+        'student_invitation_sent_at' => 'datetime',
+    ];
+
+    public function requiresStudentPasswordSetup(): bool
+    {
+        return $this->role === 'Student' && $this->student_password_set_at === null;
+    }
+
+    public function studentAccessIsUnreleased(): bool
+    {
+        return $this->role === 'Student' && $this->student_access_released_at === null;
+    }
 
     protected static function booted(): void
     {

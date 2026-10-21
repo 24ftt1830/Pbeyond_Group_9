@@ -10,46 +10,39 @@ import { NavUser } from "@/Components/nav-user"
 import { usePage } from '@inertiajs/react'
 import { PageProps } from '@/types'
 import { Link } from '@inertiajs/react';
-import {
-    Gauge,
-    Users,
-    CircleDashed,
-    FileUser,
-    CircleUser,
-    UserCog,
-} from "lucide-react";
+import { navigationIcons } from '@/lib/navigation-icons';
 
 const data = {
     navPrimary: [
         {
             title: "Dashboard",
             url: route('company.dashboard'),
-            icon: Gauge,
+            icon: navigationIcons.dashboard,
         },
         {
             title: "Quotas",
             url: route('company.quotas'),
-            icon: CircleDashed,
+            icon: navigationIcons.quotas,
         },
         {
             title: "Applications",
             url: route('company.applications'),
-            icon: FileUser,
+            icon: navigationIcons.applications,
         },
         {
             title: "Interns",
             url: route('company.interns'),
-            icon: Users,
+            icon: navigationIcons.students,
         },
         {
             title: "Representatives",
             url: route('company.representatives'),
-            icon: CircleUser,
+            icon: navigationIcons.representatives,
         },
         {
             title: "Manage Users",
             url: route('company.manage-users'),
-            icon: UserCog,
+            icon: navigationIcons.manageUsers,
         },
     ]
 }

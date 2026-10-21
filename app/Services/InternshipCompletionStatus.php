@@ -8,9 +8,28 @@ use App\Models\FinalInternshipReport;
 use App\Models\IndustrySupervisor;
 use App\Models\LogbookWeeklySubmission;
 use App\Models\Student;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 
 class InternshipCompletionStatus
 {
+    private function unresolvedLogbookCorrections(Student $student): Builder
+    {
+        return LogbookWeeklySubmission::where('student_id', $student->student_id)
+            ->whereNotNull('reopened_at')->whereNull('reopen_resolved_at');
+    }
+
+    public function hasUnresolvedLogbookCorrections(Student $student): bool
+    {
+        return $this->unresolvedLogbookCorrections($student)->exists();
+    }
+
+    public function pendingLogbookCorrections(Student $student): Collection
+    {
+        return $this->unresolvedLogbookCorrections($student)->orderBy('week_start')
+            ->get(['id', 'week_start', 'week_end', 'status', 'reopen_reason', 'reopened_at']);
+    }
+
     public function for(Student $student, ?FinalInternshipReport $report = null): string
     {
         $report ??= $student->finalInternshipReport;
@@ -44,7 +63,8 @@ class InternshipCompletionStatus
         }
 
         if ($decision === 'Completed') {
-            return $report->academic_review_status === 'Approved'
+            return !$this->hasUnresolvedLogbookCorrections($student)
+                && $report->academic_review_status === 'Approved'
                 && !$report->reopened_at
                 && $report->report_score !== null
                 && $report->report_component_weight_snapshot !== null

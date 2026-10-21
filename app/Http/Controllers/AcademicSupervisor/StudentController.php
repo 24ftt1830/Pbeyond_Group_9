@@ -138,6 +138,8 @@ class StudentController extends Controller
             'completionStatus' => app(InternshipCompletionStatus::class)->for($student),
             'overallScore' => app(InternshipCompletionStatus::class)->overallScore($student),
             'attendance' => app(\App\Services\AttendanceService::class)->summary($student),
+            'pendingLogbookCorrections' => app(InternshipCompletionStatus::class)->pendingLogbookCorrections($student),
+            'completionHistory' => app(\App\Services\InternshipRecordHistory::class)->for($student),
         ]);
     }
 

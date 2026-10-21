@@ -22,7 +22,7 @@ export default function StudentAssignmentPicker({ students, value, onChange, sup
         <div className="max-h-56 overflow-y-auto rounded-lg border bg-white">
             {filtered.length === 0 ? <p className="px-4 py-6 text-center text-sm text-muted-foreground">No recruited students available.</p> : filtered.map((student) => {
                 const assignedElsewhere = student.supervisor_id != null && Number(student.supervisor_id) !== supervisorId;
-                return <label key={student.student_id} className={`flex items-center gap-3 border-b px-3 py-3 last:border-b-0 ${assignedElsewhere ? 'bg-slate-50 text-slate-400' : 'cursor-pointer hover:bg-slate-50'}`}>
+                return <label key={student.student_id} className={`flex items-center gap-3 border-b px-3 py-3 last:border-b-0 ${assignedElsewhere ? 'bg-slate-50 text-slate-600' : 'cursor-pointer hover:bg-slate-50'}`}>
                     <input type="checkbox" className="size-4 rounded border-slate-300 accent-blue-600" disabled={assignedElsewhere} checked={value.includes(student.student_id)} onChange={(event) => onChange(event.target.checked ? [...value, student.student_id] : value.filter((id) => id !== student.student_id))} />
                     <span className="min-w-0 flex-1"><span className="block text-sm font-medium">{student.full_name}</span><span className="text-xs text-muted-foreground">{student.pb_student_code}</span></span>
                     {assignedElsewhere && <span className="text-xs">Already assigned</span>}

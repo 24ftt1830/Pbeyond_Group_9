@@ -98,6 +98,11 @@ class InternshipWorkflow
                     'status' => 'This application was cancelled by the student and can no longer be updated by Company HR.',
                 ]);
             }
+            if ($actor->role === 'Company' && $application->hasFinalDecision()) {
+                throw ValidationException::withMessages([
+                    'status' => 'This application has a final decision and cannot be changed by Company HR. Email Admin directly to request a change.',
+                ]);
+            }
             if (in_array($data['status'], Application::ACTIVE_STATUSES, true)
                 && $student->applications()->where('id', '<>', $application->id)
                     ->whereIn('app_status', Application::ACTIVE_STATUSES)->exists()) {
@@ -166,12 +171,17 @@ class InternshipWorkflow
 
     public function decide(Student $student, string $decision, User $actor, ?AcademicSupervisor $supervisor = null): void
     {
-        if (!app(InternshipCompletionStatus::class)->canAcademicFinalize($student->fresh(), $decision)) {
-            throw ValidationException::withMessages(['decision' => $decision === 'Completed'
-                ? 'Completion requires company confirmation, both submitted supervisor evaluations, and an approved and marked written report.'
-                : 'A final decision requires a company decision, both submitted supervisor evaluations, and a reviewed written report.']);
-        }
         DB::transaction(function () use ($student, $decision, $actor, $supervisor) {
+            $student = Student::whereKey($student->getKey())->lockForUpdate()->firstOrFail();
+            $status = app(InternshipCompletionStatus::class);
+            if ($decision === 'Completed' && $status->hasUnresolvedLogbookCorrections($student)) {
+                throw ValidationException::withMessages(['decision' => 'Logbook correction pending. The student must resubmit every reopened week and obtain approval before PB Supervisor can confirm completion again.']);
+            }
+            if (!$status->canAcademicFinalize($student, $decision)) {
+                throw ValidationException::withMessages(['decision' => $decision === 'Completed'
+                    ? 'Completion requires company confirmation, both submitted supervisor evaluations, and an approved and marked written report.'
+                    : 'A final decision requires a company decision, both submitted supervisor evaluations, and a reviewed written report.']);
+            }
             $record = InternshipCompletion::firstOrNew(['student_id' => $student->student_id]);
             $before = $record->exists ? $record->toArray() : null;
             $record->fill([
@@ -180,7 +190,7 @@ class InternshipWorkflow
                 'academic_decided_by_user_id' => $actor->getKey(),
                 'academic_completion_decided_at' => now(),
             ])->save();
-            AdminRecordChange::record($actor, $record, 'Updated final internship decision', $before);
+            AdminRecordChange::recordWorkflow($actor, $record, 'Updated final internship decision', $before);
         });
     }
 }

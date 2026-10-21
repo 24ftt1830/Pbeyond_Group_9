@@ -2,56 +2,27 @@
 
 namespace Database\Seeders;
 
+use App\Models\AcademicSemester;
+use App\Models\Application;
+use App\Services\InternshipWorkflow;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
+/** Optional: only schedule students already recruited into the matching term. */
 class InternshipSeeder extends Seeder
 {
     public function run(): void
     {
-        DB::table('internships')->insert([
-            [
-                'student_id' => 1,
-                'start_date' => '2026-08-03',
-                'end_date' => '2026-11-27',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'student_id' => 2,
-                'start_date' => '2026-08-03',
-                'end_date' => '2026-11-27',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'student_id' => 3,
-                'start_date' => '2026-08-03',
-                'end_date' => '2026-11-27',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'student_id' => 4,
-                'start_date' => '2026-08-03',
-                'end_date' => '2026-11-27',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'student_id' => 5,
-                'start_date' => '2026-08-03',
-                'end_date' => '2026-11-27',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'student_id' => 6,
-                'start_date' => '2026-08-03',
-                'end_date' => '2026-11-27',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-        ]);
+        foreach (Application::where('app_status', 'Recruited')->with(['student.internship', 'quota.company.users'])->get() as $application) {
+            $student = $application->student;
+            if (!$student || $student->internship) continue;
+            $term = AcademicSemester::internshipTermForIntake((int) $student->intake_semester_id);
+            if (!$term || (int) $term->id !== (int) $application->quota?->academic_semester_id) continue;
+            $hr = $application->quota->company?->users->firstWhere('role', 'Company');
+            if (!$hr || $term->starts_on->copy()->addDay()->gt($term->ends_on)) continue;
+            app(InternshipWorkflow::class)->dates($student, [
+                'start_date' => $term->starts_on->copy()->addDay()->toDateString(),
+                'end_date' => $term->ends_on->toDateString(),
+            ], $hr);
+        }
     }
 }

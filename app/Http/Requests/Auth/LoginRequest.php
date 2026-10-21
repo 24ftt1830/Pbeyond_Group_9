@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Support\StudentLoginTesting;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -41,7 +42,9 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+        $usingTestPassword = StudentLoginTesting::authenticate($this->only('email', 'password'), $this->boolean('remember'));
+
+        if (! $usingTestPassword && ! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
@@ -49,7 +52,8 @@ class LoginRequest extends FormRequest
             ]);
         }
 
-        if (Auth::user()->role === 'Company' && ! Auth::user()->company()->exists()) {
+        if ((! $usingTestPassword && Auth::user()->requiresStudentPasswordSetup())
+            || (Auth::user()->role === 'Company' && ! Auth::user()->company()->exists())) {
             Auth::logout();
 
             throw ValidationException::withMessages([

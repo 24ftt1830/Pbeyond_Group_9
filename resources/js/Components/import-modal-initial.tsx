@@ -1,15 +1,16 @@
 import { useState } from 'react';
-import { 
-    DialogContent, 
-    DialogHeader, 
-    DialogTitle, 
-    DialogDescription, 
-    DialogFooter 
+import {
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+    DialogFooter
 } from "@/Components/ui/dialog";
 import { Button } from "@/Components/ui/button";
 import { DownloadCsvTemplate } from "@/Components/ui/download-csv-template";
 import { Upload, FileSpreadsheet } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Errors } from '@/Components/Admin/RecordControls';
 import {
     Sheet,
     SheetContent,
@@ -29,15 +30,15 @@ interface AcademicSemester {
     name: string;
 }
 
-export function ImportModal({ 
-    form, 
-    onComplete, 
+export function ImportModal({
+    form,
+    onComplete,
     programmes,
     academicSemesters,
-}: { 
-    form: any; 
-    onComplete: () => void; 
-    programmes: Programme[]; 
+}: {
+    form: any;
+    onComplete: () => void;
+    programmes: Programme[];
     academicSemesters: AcademicSemester[];
 }) {
     const FORCE_INSTRUCTIONS = true;
@@ -66,9 +67,9 @@ export function ImportModal({
 
                     <div className="grid gap-6 pt-2 py-4">
                         {[
-                            { text: "Usernames and emails are automatically generated using the", highlight: "Student Code" },
-                            { text: "Every student's default password is their", highlight: "Student Code" },
-                            { text: "Students are advised to change their password upon their first login." }
+                            { text: "Include each student's correct email in the email column. If omitted, the school email is generated from their Student Code." },
+                            { text: "Importing adds student records without sending emails or releasing login access." },
+                            { text: "When ready, use Send account invitations. Existing passwords and invitation states are preserved when you reimport." }
                         ].map((item, i) => (
                             <div key={i} className="flex gap-4 items-start">
                                 <div className="flex-shrink-0 flex h-6 w-6 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-[11px] font-medium text-slate-600 shadow-sm">
@@ -76,13 +77,6 @@ export function ImportModal({
                                 </div>
                                 <p className="leading-6 text-sm text-slate-600 pt-0.5">
                                     {item.text}
-                                    {item.highlight && (
-                                        <>
-                                            <code className="ml-1.5 rounded-md border border-slate-200 bg-slate-100 px-1.5 py-0.5 font-mono text-xs text-slate-800">
-                                                {item.highlight}
-                                            </code>.
-                                        </>
-                                    )}
                                 </p>
                             </div>
                         ))}
@@ -107,7 +101,7 @@ export function ImportModal({
                                 id="student-import-intake"
                                 value={form.data.intake_semester_id}
                                 onChange={(event) => form.setData('intake_semester_id', event.target.value)}
-                                className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm"
+                                className="ui-field h-10 w-full px-3"
                             >
                                 <option value="">Select intake semester</option>
                                 {academicSemesters.map((semester) => <option key={semester.id} value={String(semester.id)}>{semester.name}</option>)}
@@ -127,11 +121,11 @@ export function ImportModal({
                             <input
                                 id="file-upload"
                                 type="file"
-                                className="hidden"
+                                className="ui-field hidden"
                                 accept=".xlsx, .xls, .csv"
                                 onChange={(e) => form.setData('file', e.target.files?.[0] || null)}
                             />
-                            
+
                             <div className={cn("p-3 rounded-full mb-3", form.data.file ? "bg-emerald-100" : "bg-slate-100")}>
                                 {form.data.file ? (
                                     <FileSpreadsheet className="size-8 text-emerald-600" />
@@ -147,30 +141,30 @@ export function ImportModal({
                                 <p className="text-xs text-slate-400 mb-4">CSV or Excel format, up to 25MB.</p>
                             )}
 
-                            <div 
-                                className="text-sm font-medium text-indigo-600 hover:text-indigo-700 bg-white px-4 py-2 rounded-md border border-slate-200 transition-colors"
+                            <div
+                                className="text-sm font-medium text-primary hover:text-primary bg-white px-4 py-2 rounded-md border border-slate-200 transition-colors"
                             >
                                 {form.data.file ? "Change file" : "Browse file"}
                             </div>
                         </div>
 
                         <div className="space-y-4">
-                            <DownloadCsvTemplate href="/templates/student-import-template.xlsx" />
+                            <DownloadCsvTemplate href="/templates/student-import-template.csv" description="Includes an email column for account invitations." />
 
                             <div className="flex justify-start">
                                 <Sheet>
                                     <p className="text-xs text-slate-500">
                                         Don't know the Programme ID? Refer to the{" "}
                                         <SheetTrigger asChild>
-                                            <button 
-                                                type="button" 
+                                            <button
+                                                type="button"
                                                 className="underline underline-offset-4 text-slate-500 hover:text-slate-900 transition-colors"
                                             >
                                                 reference list.
                                             </button>
                                         </SheetTrigger>
                                     </p>
-                                    
+
                                     <SheetContent className="w-[400px] sm:w-[540px]">
                                         <SheetHeader>
                                             <SheetTitle>Programme Reference</SheetTitle>
@@ -179,7 +173,7 @@ export function ImportModal({
                                             </SheetDescription>
                                         </SheetHeader>
                                         <div className="mt-6 overflow-y-auto h-[calc(100vh-120px)] pr-2">
-                                            <table className="w-full text-sm text-left">
+                                            <table className="ui-table w-full text-sm text-left">
                                                 <thead className="bg-slate-50 sticky top-0">
                                                     <tr>
                                                         <th className="py-2 px-3 font-semibold text-slate-700">ID</th>
@@ -202,6 +196,7 @@ export function ImportModal({
                         </div>
                     </div>
 
+                    <Errors errors={form.errors} />
                     <DialogFooter>
                         <Button
                             onClick={onComplete}

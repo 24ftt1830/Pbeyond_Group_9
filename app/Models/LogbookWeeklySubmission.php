@@ -19,6 +19,10 @@ class LogbookWeeklySubmission extends Model
         'date_change_review_required',
         'date_change_reviewed_at',
         'date_change_reviewer_user_id',
+        'reopened_at',
+        'reopened_by_user_id',
+        'reopen_reason',
+        'reopen_resolved_at',
     ];
 
     protected $casts = [
@@ -29,6 +33,8 @@ class LogbookWeeklySubmission extends Model
         'reviewed_at' => 'datetime',
         'date_change_review_required' => 'boolean',
         'date_change_reviewed_at' => 'datetime',
+        'reopened_at' => 'datetime',
+        'reopen_resolved_at' => 'datetime',
     ];
 
     public function student(): BelongsTo

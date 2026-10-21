@@ -1,7 +1,9 @@
 import { Head, Link, useForm } from '@inertiajs/react';
 import { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { confirmAction } from '@/lib/confirm-action';
 import BackButton from '@/Components/BackButton';
+import LogbookCorrectionNotice, { type PendingLogbookCorrection } from '@/Components/LogbookCorrectionNotice';
 import {
     User,
     GraduationCap,
@@ -109,6 +111,10 @@ interface Student {
     work_experience?: string;
     emergency_no?: string;
     emergency_no_2?: string;
+    emergency_contact_name?: string | null;
+    emergency_contact_relationship?: string | null;
+    emergency_contact_name_2?: string | null;
+    emergency_contact_relationship_2?: string | null;
     insurance_document_path?: string;
     cv_file_path?: string;
     passport_photo_path?: string;
@@ -160,6 +166,7 @@ interface Props {
         job_title: string;
     } | null;
     completionStatus: 'Pending Evaluation' | 'Incomplete' | 'Completed';
+    pendingLogbookCorrections?: PendingLogbookCorrection[];
     overallScore: number | null;
 }
 
@@ -191,7 +198,7 @@ const formatDateRange = (start?: string, end?: string) => {
     return `${start ? formatDate(start) : 'Start date not provided'} – ${end ? formatDate(end) : 'Present'}`;
 };
 
-export default function StudentDetails({ student, quota, evaluationSubmission, legacyEvaluation, completionRecord, hasActiveEvaluationTemplate, completionStatus, overallScore }: Props) {
+export default function StudentDetails({ student, quota, evaluationSubmission, legacyEvaluation, completionRecord, hasActiveEvaluationTemplate, completionStatus, overallScore, pendingLogbookCorrections = [] }: Props) {
     const [activeTab, setActiveTab] = useState<'overview' | 'profile' | 'evaluation' | 'confirmation'>('overview');
     const confirmationLocked = completionRecord?.academic_completion_status === 'Completed';
     const [editingConfirmation, setEditingConfirmation] = useState(
@@ -203,7 +210,16 @@ export default function StudentDetails({ student, quota, evaluationSubmission, l
         status: completionRecord?.industry_confirmation_status === 'Changes Required' ? 'Changes Required' : 'Confirmed',
     });
 
-    const saveCompanyConfirmation = (status: 'Confirmed' | 'Changes Required') => {
+    const saveCompanyConfirmation = async (status: 'Confirmed' | 'Changes Required') => {
+        if (confirmationForm.processing) return;
+        const confirmed = status === 'Confirmed';
+        if (!(await confirmAction(confirmed
+            ? `Confirm that ${student.full_name} has completed the company's internship requirements? PB Supervisor will make the final school decision.`
+            : `Mark ${student.full_name}'s company internship requirements as incomplete?`, {
+            title: confirmed ? 'Confirm company completion?' : 'Mark requirements incomplete?',
+            confirmLabel: confirmed ? 'Confirm completion' : 'Mark incomplete',
+            destructive: !confirmed,
+        }))) return;
         confirmationForm.transform((data) => ({ ...data, status }));
         confirmationForm.put(route('industry-supervisor.student.completion-confirmation.update', student.student_id), {
             preserveScroll: true,
@@ -237,63 +253,63 @@ export default function StudentDetails({ student, quota, evaluationSubmission, l
                             </BackButton>
                             <div className="flex flex-wrap gap-2">{hasActiveEvaluationTemplate || evaluationSubmission ? <Link
                                 href={route('industry-supervisor.student.evaluate', student.student_id)}
-                                className="inline-flex w-fit items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700"
+                                className="ui-button ui-button-primary inline-flex w-fit items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary/90"
                             >
                                 <ClipboardCheck size={16} />
                                 {evaluationSubmission?.reopened_at ? 'Revise Evaluation' : evaluationSubmission ? 'View Evaluation' : 'Evaluate Student'}
-                            </Link> : <button type="button" disabled title="The Admin has not activated an Industry Supervisor evaluation template yet." className="inline-flex w-fit cursor-not-allowed items-center gap-2 rounded-xl bg-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-500">
+                            </Link> : <button type="button" disabled title="The Admin has not activated an Industry Supervisor evaluation template yet." className="inline-flex w-fit cursor-not-allowed items-center gap-2 rounded-lg bg-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-500">
                                 <ClipboardCheck size={16} />
                                 Evaluation unavailable
                             </button>}</div>
                         </div>
 
-                        <div className="relative isolate mt-6 overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-blue-950 to-blue-800 px-6 py-7 shadow-lg shadow-blue-950/10 sm:px-8 sm:py-9">
-                            <div className="pointer-events-none absolute -right-12 -top-24 h-72 w-72 rounded-full border-[40px] border-white/[0.04]" />
-                            <div className="pointer-events-none absolute -bottom-32 right-1/4 h-64 w-64 rounded-full bg-blue-400/10 blur-3xl" />
+                        <div className="ui-card mt-6 border-blue-100 bg-blue-50/40 p-6">
+
+
 
                             <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center">
-                                <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border border-white/15 bg-white/10 text-white shadow-inner backdrop-blur-sm">
+                                <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl border border-blue-100 bg-white text-slate-900 ">
                                     <UserRound size={36} strokeWidth={1.6} />
                                 </div>
 
                                 <div className="min-w-0 flex-1">
-                                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-200">
+                                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
                                         Industry Supervisor · Student Record
                                     </p>
-                                    <h1 className="mt-2 text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                                    <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
                                         {student.full_name}
                                     </h1>
 
                                     <div className="mt-4 flex flex-wrap gap-2">
-                                        <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-medium text-white/90">
-                                            <User size={14} className="text-blue-200" />
+                                        <span className="ui-badge inline-flex items-center gap-2 border border-blue-100 bg-white text-xs font-medium text-slate-600">
+                                            <User size={14} className="text-primary" />
                                             {student.pb_student_code}
                                         </span>
                                         {student.programme?.programme_name && (
-                                            <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-medium text-white/90">
-                                                <GraduationCap size={14} className="text-blue-200" />
+                                            <span className="ui-badge inline-flex items-center gap-2 border border-blue-100 bg-white text-xs font-medium text-slate-600">
+                                                <GraduationCap size={14} className="text-primary" />
                                                 {student.programme.programme_name}
                                             </span>
                                         )}
                                         {student.intake_session && (
-                                            <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-medium text-white/90">
-                                                <CalendarDays size={14} className="text-blue-200" />
+                                            <span className="ui-badge inline-flex items-center gap-2 border border-blue-100 bg-white text-xs font-medium text-slate-600">
+                                                <CalendarDays size={14} className="text-primary" />
                                                 {student.intake_session}
                                             </span>
                                         )}
-                                        <span className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold ${completionStatus === 'Completed' ? 'border-emerald-200 bg-emerald-100 text-emerald-800' : completionStatus === 'Incomplete' ? 'border-rose-200 bg-rose-100 text-rose-800' : 'border-amber-200 bg-amber-100 text-amber-800'}`}>
+                                        <span className={'ui-badge ' + (`inline-flex items-center gap-2 border text-xs ${completionStatus === 'Completed' ? 'ui-badge-success ' : completionStatus === 'Incomplete' ? 'ui-badge-danger ' : 'ui-badge-warning '}`)}>
                                             <span className="h-1.5 w-1.5 rounded-full bg-current" />
                                             {completionStatus}
                                         </span>
                                         {overallScore !== null && (
-                                            <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white/90">
+                                            <span className="ui-badge inline-flex items-center gap-2 border border-blue-100 bg-white text-xs text-slate-600">
                                                 Overall score: {overallScore}%
                                             </span>
                                         )}
                                     </div>
 
                                     {quota?.job_title && (
-                                        <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-blue-200/20 bg-blue-300/10 px-3.5 py-2 text-sm font-semibold text-blue-100">
+                                        <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-blue-100 bg-white px-3.5 py-2 text-sm font-semibold text-primary">
                                             <Briefcase size={15} />
                                             Internship position: {quota.job_title}
                                         </div>
@@ -305,32 +321,33 @@ export default function StudentDetails({ student, quota, evaluationSubmission, l
                 </header>
 
                 <main className="mx-auto max-w-7xl space-y-6 px-4 py-7 pb-16 sm:px-6 lg:px-8">
-                    <div className="grid w-full grid-cols-2 gap-1 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-sm xl:grid-cols-4">
+                    <LogbookCorrectionNotice weeks={pendingLogbookCorrections} />
+                    <div className="grid w-full grid-cols-2 gap-1 rounded-xl border border-slate-200 bg-white p-1.5 shadow-sm xl:grid-cols-4">
                         <button
                             type="button"
                             onClick={() => setActiveTab('overview')}
-                            className={`flex min-h-10 w-full items-center justify-center rounded-xl px-3 py-2.5 text-center text-sm font-semibold leading-5 transition ${activeTab === 'overview' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`}
+                            className={'ui-tab ' + (`flex min-h-10 w-full items-center justify-center rounded-lg px-3 py-2.5 text-center text-sm font-semibold leading-5 transition ${activeTab === 'overview' ? 'bg-primary/10 text-primary' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`)}
                         >
                             Overview
                         </button>
                         <button
                             type="button"
                             onClick={() => setActiveTab('profile')}
-                            className={`flex min-h-10 w-full items-center justify-center rounded-xl px-3 py-2.5 text-center text-sm font-semibold leading-5 transition ${activeTab === 'profile' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`}
+                            className={'ui-tab ' + (`flex min-h-10 w-full items-center justify-center rounded-lg px-3 py-2.5 text-center text-sm font-semibold leading-5 transition ${activeTab === 'profile' ? 'bg-primary/10 text-primary' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`)}
                         >
                             Background &amp; Skills
                         </button>
                         <button
                             type="button"
                             onClick={() => setActiveTab('evaluation')}
-                            className={`flex min-h-10 w-full items-center justify-center rounded-xl px-3 py-2.5 text-center text-sm font-semibold leading-5 transition ${activeTab === 'evaluation' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`}
+                            className={'ui-tab ' + (`flex min-h-10 w-full items-center justify-center rounded-lg px-3 py-2.5 text-center text-sm font-semibold leading-5 transition ${activeTab === 'evaluation' ? 'bg-primary/10 text-primary' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`)}
                         >
                             Evaluation
                         </button>
                         <button
                             type="button"
                             onClick={() => setActiveTab('confirmation')}
-                            className={`flex min-h-10 w-full items-center justify-center rounded-xl px-3 py-2.5 text-center text-sm font-semibold leading-5 transition ${activeTab === 'confirmation' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`}
+                            className={'ui-tab ' + (`flex min-h-10 w-full items-center justify-center rounded-lg px-3 py-2.5 text-center text-sm font-semibold leading-5 transition ${activeTab === 'confirmation' ? 'bg-primary/10 text-primary' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`)}
                         >
                             Internship Confirmation
                         </button>
@@ -345,7 +362,7 @@ export default function StudentDetails({ student, quota, evaluationSubmission, l
                         action={evaluationSubmission && (
                             <Link
                                 href={route('industry-supervisor.student.evaluations.show', { student: student.student_id, submission: evaluationSubmission.id })}
-                                className="inline-flex shrink-0 items-center justify-center rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700"
+                                className="ui-button ui-button-primary inline-flex shrink-0 items-center justify-center rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary/90"
                             >
                                 View Evaluation
                             </Link>
@@ -355,7 +372,7 @@ export default function StudentDetails({ student, quota, evaluationSubmission, l
                             <p className="text-sm text-slate-500">{evaluationSubmission.reopened_at ? 'Pending correction · Previous score' : evaluationSubmission.template_snapshot?.name ?? 'Industry Supervisor Evaluation'} · {evaluationSubmission.reopened_at ? '' : 'Score '}{evaluationSubmission.overall_score}%</p>
                         ) : legacyEvaluation ? (
                             <details>
-                                <summary className="inline-flex cursor-pointer list-none rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-indigo-700 transition hover:bg-indigo-50 [&::-webkit-details-marker]:hidden">View Earlier Evaluation</summary>
+                                <summary className="inline-flex cursor-pointer list-none rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-primary transition hover:bg-blue-50 [&::-webkit-details-marker]:hidden">View Earlier Evaluation</summary>
                                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
                                     <InfoItem label="Attendance & punctuality" value={legacyEvaluation.attendance_punctuality} />
                                     <InfoItem label="Quality of work" value={legacyEvaluation.work_quality} />
@@ -381,7 +398,7 @@ export default function StudentDetails({ student, quota, evaluationSubmission, l
                         <div className="flex flex-wrap items-center justify-between gap-3">
                             <p className="text-sm text-slate-600">Confirm whether the student has completed their internship requirements at the company. This is separate from the written report review.</p>
                             <div className="flex flex-wrap items-center gap-2">
-                                <span className={`rounded-full px-3 py-1 text-xs font-bold ${confirmationTone(completionRecord?.industry_confirmation_status ?? 'Pending Confirmation')}`}>
+                                <span className={'ui-badge ' + (` text-xs font-medium ${confirmationTone(completionRecord?.industry_confirmation_status ?? 'Pending Confirmation')}`)}>
                                     {confirmationLabel(completionRecord?.industry_confirmation_status ?? 'Pending Confirmation')}
                                 </span>
                                 {completionRecord && completionRecord.industry_confirmation_status !== 'Pending Confirmation' && (!editingConfirmation || confirmationLocked) && (
@@ -390,7 +407,7 @@ export default function StudentDetails({ student, quota, evaluationSubmission, l
                                         disabled={confirmationLocked}
                                         title={confirmationLocked ? 'Locked after final internship completion was confirmed.' : undefined}
                                         onClick={() => setEditingConfirmation(true)}
-                                        className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white"
+                                        className="ui-button ui-button-outline rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white"
                                     >
                                         Edit confirmation
                                     </button>
@@ -404,14 +421,14 @@ export default function StudentDetails({ student, quota, evaluationSubmission, l
                             <>
                                 <div className="mt-4 flex flex-wrap justify-end gap-3">
                                     {completionRecord && completionRecord.industry_confirmation_status !== 'Pending Confirmation' && (
-                                        <button type="button" onClick={() => setEditingConfirmation(false)} className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                                        <button type="button" onClick={() => setEditingConfirmation(false)} className="ui-button ui-button-outline rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
                                             Cancel
                                         </button>
                                     )}
-                                    <button type="button" disabled={confirmationForm.processing} onClick={() => saveCompanyConfirmation('Changes Required')} className="rounded-xl border border-amber-300 px-4 py-2.5 text-sm font-semibold text-amber-800 hover:bg-amber-50 disabled:opacity-60">
+                                    <button type="button" disabled={confirmationForm.processing} onClick={() => saveCompanyConfirmation('Changes Required')} className="ui-button ui-button-outline rounded-lg border border-amber-300 px-4 py-2.5 text-sm font-semibold text-amber-800 hover:bg-amber-50 disabled:opacity-60">
                                         Mark requirements incomplete
                                     </button>
-                                    <button type="button" disabled={confirmationForm.processing} onClick={() => saveCompanyConfirmation('Confirmed')} className="rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60">
+                                    <button type="button" disabled={confirmationForm.processing} onClick={() => saveCompanyConfirmation('Confirmed')} className="ui-button ui-button-primary rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary/90 disabled:opacity-60">
                                         Confirm company completion
                                     </button>
                                 </div>
@@ -487,11 +504,11 @@ export default function StudentDetails({ student, quota, evaluationSubmission, l
 
                             <InfoItem
                                 label="Emergency Contact 1"
-                                value={student.emergency_no}
+                                value={[student.emergency_contact_name, student.emergency_contact_relationship, student.emergency_no].filter(Boolean).join(' · ')}
                                 icon={<Phone size={15} />}
                             />
-                            <InfoItem label="Emergency Contact 2" value={student.emergency_no_2} icon={<Phone size={15} />} />
-                            {student.insurance_document_path && <div><p className="mb-1 text-sm text-slate-500">Insurance document</p><a href={route('students.insurance.download', student.student_id)} className="text-sm font-medium text-blue-700 underline">Download insurance</a></div>}
+                            <InfoItem label="Emergency Contact 2" value={[student.emergency_contact_name_2, student.emergency_contact_relationship_2, student.emergency_no_2].filter(Boolean).join(' · ')} icon={<Phone size={15} />} />
+                            {student.insurance_document_path && <div><p className="mb-1 text-sm text-slate-500">Insurance document</p><a href={route('students.insurance.download', student.student_id)} className="text-sm font-medium text-primary underline">Download insurance</a></div>}
 
                             <div className="sm:col-span-2 lg:col-span-3">
                                 <InfoItem
@@ -923,14 +940,14 @@ function SectionCard({
     action?: React.ReactNode;
 }) {
     return (
-        <section className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-900/[0.03] sm:p-6">
+        <section className="ui-card overflow-hidden rounded-xl border border-border bg-white p-5 shadow-sm sm:p-6">
             <div className="mb-5 flex items-center justify-between gap-3 border-b border-slate-100 pb-4">
                 <div className="flex min-w-0 items-center gap-3">
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-700 ring-1 ring-blue-100">
                     {icon}
                 </span>
 
-                <h2 className="text-base font-bold tracking-tight text-slate-900 sm:text-lg">
+                <h2 className="text-base font-semibold tracking-tight text-slate-900 sm:text-lg">
                     {title}
                 </h2>
                 </div>
@@ -957,7 +974,7 @@ function confirmationLabel(status: 'Pending Confirmation' | 'Confirmed' | 'Chang
 }
 
 function confirmationTone(status: 'Pending Confirmation' | 'Confirmed' | 'Changes Required') {
-    if (status === 'Confirmed') return 'bg-emerald-100 text-emerald-800';
-    if (status === 'Changes Required') return 'bg-rose-100 text-rose-800';
-    return 'bg-amber-100 text-amber-800';
+    if (status === 'Confirmed') return 'ui-badge-success';
+    if (status === 'Changes Required') return 'ui-badge-danger';
+    return 'ui-badge-warning';
 }

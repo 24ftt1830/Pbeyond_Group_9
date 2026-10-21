@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Application;
 use App\Models\PlacementQuota;
 use App\Models\Student;
+use App\Services\QuotaTermWindow;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -13,7 +15,7 @@ class PlacementController extends Controller
 {
     public function index()
     {
-        $quotas = PlacementQuota::with(['company', 'programme'])
+        $quotas = PlacementQuota::with(['company', 'programme', 'academicSemester'])
         ->withCount(['applications as filled_count' => function ($query) {
             $query->where('app_status', 'Recruited');
         }])
@@ -65,12 +67,11 @@ class PlacementController extends Controller
      */
     public function approve($id)
     {
-        $quota = PlacementQuota::findOrFail($id);
-        
-        $quota->update([
-            'quota_status' => 'Approved',
-            'is_released'  => true
-        ]);
+        DB::transaction(function () use ($id) {
+            $quota = PlacementQuota::whereKey($id)->lockForUpdate()->firstOrFail();
+            app(QuotaTermWindow::class)->ensureApprovable($quota);
+            $quota->update(['quota_status' => 'Approved', 'is_released' => true]);
+        });
 
         return redirect()->back()->with('success', 'Quota approved and released to students.');
     }
@@ -89,9 +90,12 @@ class PlacementController extends Controller
 
     public function release($id)
     {
-        $quota = PlacementQuota::findOrFail($id);
-        $quota->is_released = true;
-        $quota->save();
+        DB::transaction(function () use ($id) {
+            $quota = PlacementQuota::whereKey($id)->lockForUpdate()->firstOrFail();
+            app(QuotaTermWindow::class)->ensureApprovable($quota);
+            abort_unless($quota->quota_status === 'Approved', 422, 'Approve this quota before releasing it.');
+            $quota->update(['is_released' => true]);
+        });
 
         return redirect()->back()->with('success', 'Quota released.');
     }
